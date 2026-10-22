@@ -1,0 +1,283 @@
+{
+  "version": 1,
+  "questions": [
+    {
+      "key": "sport-nogomet-igralci",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Koliko igralcev ene ekipe je hkrati na igrišču pri nogometu?",
+      "explanation": "Na igrišču je enajst igralcev, vključno z vratarjem.",
+      "image": null,
+      "options": [
+        { "text": "11", "correct": true },
+        { "text": "10", "correct": false },
+        { "text": "9", "correct": false },
+        { "text": "12", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-kos-visina",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Košarkaški koš je visok 3,05 metra.",
+      "explanation": "Višina obroča je 10 čevljev, to je 3,05 m.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-sochi",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Katera država je gostila zimske olimpijske igre 2014?",
+      "explanation": "Igre so bile v Sočiju v Rusiji.",
+      "image": null,
+      "options": [
+        { "text": "Rusija", "correct": true },
+        { "text": "Kanada", "correct": false },
+        { "text": "Kitajska", "correct": false },
+        { "text": "Italija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-zoga",
+      "category": "sport",
+      "question_type": "multi_select",
+      "difficulty": 2,
+      "text": "Pri katerih športih se igra z žogo?",
+      "explanation": "Hokej na ledu uporablja plošček, ne žoge.",
+      "image": null,
+      "options": [
+        { "text": "Nogomet", "correct": true },
+        { "text": "Košarka", "correct": true },
+        { "text": "Hokej na ledu", "correct": false },
+        { "text": "Odbojka", "correct": true }
+      ]
+    },
+    {
+      "key": "sport-odbojka-set",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 2,
+      "text": "Običajni set v odbojki se igra do 25 točk.",
+      "explanation": "Prvi štirje seti gredo do 25 točk, odločilni peti do 15.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-razdalje",
+      "category": "sport",
+      "question_type": "ordering",
+      "difficulty": 3,
+      "text": "Razvrsti teke od najkrajšega proti najdaljšemu.",
+      "explanation": "Vrstni red je 100 m, 400 m, 1.500 m in maraton.",
+      "image": null,
+      "options": [
+        { "text": "100 m" },
+        { "text": "400 m" },
+        { "text": "1.500 m" },
+        { "text": "Maraton" }
+      ]
+    },
+    {
+      "key": "sport-oprema",
+      "category": "sport",
+      "question_type": "matching",
+      "difficulty": 3,
+      "text": "Poveži šport z opremo.",
+      "explanation": "",
+      "image": null,
+      "pairs": [
+        { "left": "Tenis", "right": "Lopar" },
+        { "left": "Lokostrelstvo", "right": "Lok" },
+        { "left": "Boks", "right": "Rokavice" },
+        { "left": "Golf", "right": "Kij" }
+      ]
+    },
+    {
+      "key": "sport-krog",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Koliko metrov meri en krog uradne atletske steze?",
+      "explanation": "Standardna zunanja steza meri 400 metrov.",
+      "image": null,
+      "options": [
+        { "text": "200 m", "correct": false },
+        { "text": "400 m", "correct": true },
+        { "text": "800 m", "correct": false },
+        { "text": "1.000 m", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-sp-2010",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 4,
+      "text": "V katerem letu je Slovenija prvič nastopila na svetovnem prvenstvu v nogometu?",
+      "explanation": "Prvi nastop je bil leta 2010 v Južni Afriki.",
+      "image": null,
+      "slider": { "min": 1991, "max": 2026, "step": 1, "correct": 2010, "tolerance": 0 }
+    },
+    {
+      "key": "sport-bolt",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "Kdo drži svetovni rekord v teku na 100 metrov?",
+      "explanation": "Usain Bolt, 9,58 s, Berlin 2009.",
+      "image": null,
+      "options": [
+        { "text": "Usain Bolt", "correct": true },
+        { "text": "Tyson Gay", "correct": false },
+        { "text": "Justin Gatlin", "correct": false },
+        { "text": "Yohan Blake", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-ljubljana-glavno",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Ljubljana je glavno mesto Slovenije.",
+      "explanation": "",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-ljubljanica",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Katera reka teče skozi Ljubljano?",
+      "explanation": "Skozi mesto teče Ljubljanica.",
+      "image": null,
+      "options": [
+        { "text": "Ljubljanica", "correct": true },
+        { "text": "Drava", "correct": false },
+        { "text": "Soča", "correct": false },
+        { "text": "Mura", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-jadran",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Katero morje obliva slovensko obalo?",
+      "explanation": "Slovenija ima izhod na Jadransko morje.",
+      "image": null,
+      "options": [
+        { "text": "Jadransko morje", "correct": true },
+        { "text": "Baltsko morje", "correct": false },
+        { "text": "Črno morje", "correct": false },
+        { "text": "Severno morje", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-sosedje",
+      "category": "zemljepis",
+      "question_type": "multi_select",
+      "difficulty": 2,
+      "text": "Katere države mejijo na Slovenijo?",
+      "explanation": "Sosedje so Italija, Avstrija, Madžarska in Hrvaška.",
+      "image": null,
+      "options": [
+        { "text": "Italija", "correct": true },
+        { "text": "Avstrija", "correct": true },
+        { "text": "Madžarska", "correct": true },
+        { "text": "Hrvaška", "correct": true },
+        { "text": "Švica", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-slovaska",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 3,
+      "text": "Slovenija meji na Slovaško.",
+      "explanation": "Ne. Med njima je Madžarska oziroma Avstrija.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": false },
+        { "text": "Ne drži", "correct": true }
+      ]
+    },
+    {
+      "key": "zemljepis-sever-jug",
+      "category": "zemljepis",
+      "question_type": "ordering",
+      "difficulty": 3,
+      "text": "Razvrsti mesta od severa proti jugu.",
+      "explanation": "Maribor, Ljubljana, Novo mesto, Koper.",
+      "image": null,
+      "options": [
+        { "text": "Maribor" },
+        { "text": "Ljubljana" },
+        { "text": "Novo mesto" },
+        { "text": "Koper" }
+      ]
+    },
+    {
+      "key": "zemljepis-prestolnice",
+      "category": "zemljepis",
+      "question_type": "matching",
+      "difficulty": 4,
+      "text": "Poveži državo s prestolnico.",
+      "explanation": "",
+      "image": null,
+      "pairs": [
+        { "left": "Italija", "right": "Rim" },
+        { "left": "Avstrija", "right": "Dunaj" },
+        { "left": "Madžarska", "right": "Budimpešta" },
+        { "left": "Hrvaška", "right": "Zagreb" }
+      ]
+    },
+    {
+      "key": "zemljepis-bled",
+      "category": "zemljepis",
+      "question_type": "slider",
+      "difficulty": 4,
+      "text": "Koliko metrov nad morjem leži Blejsko jezero?",
+      "explanation": "Gladina jezera je približno 475 m nad morjem.",
+      "image": null,
+      "slider": { "min": 0, "max": 1200, "step": 5, "correct": 475, "tolerance": 25 }
+    },
+    {
+      "key": "zemljepis-triglav",
+      "category": "zemljepis",
+      "question_type": "slider",
+      "difficulty": 5,
+      "text": "Koliko metrov je visok Triglav?",
+      "explanation": "Triglav meri 2864 m.",
+      "image": null,
+      "slider": { "min": 1000, "max": 4000, "step": 1, "correct": 2864, "tolerance": 50 }
+    },
+    {
+      "key": "zemljepis-atacama",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "V kateri državi leži puščava Atacama?",
+      "explanation": "Atacama je v Čilu.",
+      "image": null,
+      "options": [
+        { "text": "Čile", "correct": true },
+        { "text": "Mehika", "correct": false },
+        { "text": "Maroko", "correct": false },
+        { "text": "Avstralija", "correct": false }
+      ]
+    }
+  ]
+}
