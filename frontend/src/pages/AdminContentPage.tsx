@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
+import { SortableTh } from "../components/AdminToolbar";
 import { ApiError, api } from "../api";
+
+type CategorySort = "name" | "active" | "inactive" | "reports";
 
 type Quality = {
   totals: {
@@ -18,9 +22,34 @@ type Quality = {
 export function AdminContentPage() {
   const [quality, setQuality] = useState<Quality | null>(null);
   const [payload, setPayload] = useState("");
+  const [fileName, setFileName] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [sort, setSort] = useState<CategorySort>("name");
+  const [direction, setDirection] = useState<"asc" | "desc">("asc");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const categoryRows = useMemo(() => {
+    const list = [...(quality?.by_category ?? [])];
+    list.sort((a, b) => {
+      const cmp =
+        sort === "name"
+          ? a.name.localeCompare(b.name, "sl")
+          : Number(a[sort]) - Number(b[sort]);
+      return direction === "asc" ? cmp : -cmp;
+    });
+    return list;
+  }, [quality, sort, direction]);
+
+  function toggleSort(column: string) {
+    const key = column as CategorySort;
+    if (sort === key) setDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSort(key);
+      setDirection(key === "name" ? "asc" : "desc");
+    }
+  }
 
   function load() {
     api<Quality>("/api/admin/content-quality/")
@@ -32,12 +61,12 @@ export function AdminContentPage() {
     load();
   }, []);
 
-  async function importJson() {
+  async function runImport(raw: string) {
     setPending(true);
     setError("");
     setNotice("");
     try {
-      const parsed = JSON.parse(payload);
+      const parsed = JSON.parse(raw);
       const result = await api<{ created: number; updated: number; errors: string[] }>("/api/admin/questions/import/", {
         method: "POST",
         body: JSON.stringify({ payload: parsed }),
@@ -45,7 +74,9 @@ export function AdminContentPage() {
       if (result.errors?.length) {
         setError(result.errors.join(" "));
       } else {
-        setNotice(`Uvoz: novih ${result.created}, posodobljenih ${result.updated}.`);
+        setNotice(
+          `Uvoz: novih ${result.created}, posodobljenih ${result.updated}. Isti ključ (key) ne ustvari dvojnika — posodobi obstoječe.`,
+        );
         load();
       }
     } catch (err) {
@@ -53,6 +84,21 @@ export function AdminContentPage() {
     } finally {
       setPending(false);
     }
+  }
+
+  function onFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result || "");
+      setPayload(text);
+      void runImport(text);
+    };
+    reader.onerror = () => setError("Datoteke ni bilo mogoče prebrati.");
+    reader.readAsText(file, "UTF-8");
+    event.target.value = "";
   }
 
   async function exportJson() {
@@ -73,31 +119,26 @@ export function AdminContentPage() {
 
   return (
     <section className="panel">
-      <p className="eyebrow">Admin</p>
-      <h1>Vsebina</h1>
+      <p className="eyebrow">Admin · Vsebina</p>
+      <h1>Pregled vsebine</h1>
+      <div className="dash-grid">
+        <Link className="dash-card" to="/nadzor/vsebina/vprasanja">
+          <span>Vprašanja</span>
+          <strong>{quality ? quality.totals.active : "…"}</strong>
+          <span className="fine">aktivnih</span>
+        </Link>
+        <Link className="dash-card" to="/nadzor/vsebina/pritozbe">
+          <span>Pritožbe</span>
+          <strong>{quality ? quality.totals.open_reports : "…"}</strong>
+          <span className="fine">odprte</span>
+        </Link>
+        <Link className="dash-card" to="/nadzor/sifranti/kategorije">
+          <span>Kategorije</span>
+          <strong>{quality ? quality.totals.categories : "…"}</strong>
+        </Link>
+      </div>
       {error ? <p className="error">{error}</p> : null}
       {notice ? <p className="fine">{notice}</p> : null}
-      {quality ? (
-        <div className="dash-grid">
-          <div className="dash-card">
-            <span>Aktivna</span>
-            <strong>{quality.totals.active}</strong>
-            <span className="fine">od {quality.totals.questions}</span>
-          </div>
-          <div className="dash-card">
-            <span>Umaknjena</span>
-            <strong>{quality.totals.inactive}</strong>
-          </div>
-          <div className="dash-card">
-            <span>Odprte pritožbe</span>
-            <strong>{quality.totals.open_reports}</strong>
-          </div>
-          <div className="dash-card">
-            <span>Kategorije</span>
-            <strong>{quality.totals.categories}</strong>
-          </div>
-        </div>
-      ) : null}
       {quality ? (
         <>
           <h2>Po kategorijah</h2>
@@ -105,14 +146,14 @@ export function AdminContentPage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Kategorija</th>
-                  <th>Aktivna</th>
-                  <th>Umaknjena</th>
-                  <th>Pritožbe</th>
+                  <SortableTh label="Kategorija" column="name" sort={sort} direction={direction} onSort={toggleSort} />
+                  <SortableTh label="Aktivna" column="active" sort={sort} direction={direction} onSort={toggleSort} />
+                  <SortableTh label="Umaknjena" column="inactive" sort={sort} direction={direction} onSort={toggleSort} />
+                  <SortableTh label="Pritožbe" column="reports" sort={sort} direction={direction} onSort={toggleSort} />
                 </tr>
               </thead>
               <tbody>
-                {quality.by_category.map((row) => (
+                {categoryRows.map((row) => (
                   <tr key={row.slug}>
                     <td>{row.name}</td>
                     <td>{row.active}</td>
@@ -123,26 +164,30 @@ export function AdminContentPage() {
               </tbody>
             </table>
           </div>
-          <h2>Po tipu / težavnosti</h2>
-          <p className="fine">
-            {quality.by_type.map((row) => `${row.question_type}: ${row.active}`).join(" · ")}
-          </p>
-          <p className="fine">
-            {quality.by_difficulty.map((row) => `T${row.difficulty}: ${row.active}`).join(" · ")}
-          </p>
         </>
       ) : null}
       <h2>Uvoz JSON</h2>
-      <p className="fine">Prilepi payload v obliki questions.json (version + questions). Isti key posodobi vprašanje.</p>
-      <textarea className="code-area" rows={10} value={payload} onChange={(event) => setPayload(event.target.value)} />
+      <p className="fine">
+        Naloži celotno datoteko (npr. questions.json). Vprašanja z istim <code>key</code> se ne podvajajo — posodobijo
+        se. V isti datoteki ne sme biti dveh enakih ključev.
+      </p>
       <div className="actions">
-        <button type="button" className="primary" disabled={pending || !payload.trim()} onClick={() => void importJson()}>
-          Uvozi
+        <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={onFile} />
+        <button type="button" className="primary" disabled={pending} onClick={() => fileRef.current?.click()}>
+          Naloži JSON datoteko
         </button>
         <button type="button" onClick={() => void exportJson()}>
           Izvozi trenutna
         </button>
+        {fileName ? <span className="fine">{fileName}</span> : null}
       </div>
+      <details className="import-paste">
+        <summary>Ali prilepi JSON ročno</summary>
+        <textarea className="code-area" rows={8} value={payload} onChange={(event) => setPayload(event.target.value)} />
+        <button type="button" className="primary" disabled={pending || !payload.trim()} onClick={() => void runImport(payload)}>
+          Uvozi iz besedila
+        </button>
+      </details>
     </section>
   );
 }

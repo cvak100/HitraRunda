@@ -32,26 +32,28 @@ export function AdminHomePage() {
       <h1>Nadzorna plošča</h1>
       {error ? <p className="error">{error}</p> : null}
       <div className="dash-grid">
-        <Link className="dash-card" to="/nadzor/pritozbe">
-          <span>Odprte pritožbe</span>
-          <strong>{summary ? summary.open_reports : "…"}</strong>
+        <Link className="dash-card" to="/nadzor/vsebina">
+          <span>Vsebina</span>
+          <strong>JSON</strong>
+          <span className="fine">uvoz · kakovost</span>
         </Link>
-        <Link className="dash-card" to="/nadzor/vprasanja">
-          <span>Aktivna vprašanja</span>
+        <Link className="dash-card" to="/nadzor/vsebina/vprasanja">
+          <span>Vprašanja</span>
           <strong>{summary ? summary.active_questions : "…"}</strong>
           {summary ? <span className="fine">Skupaj {summary.questions}</span> : null}
         </Link>
-        <Link className="dash-card" to="/nadzor/vsebina">
-          <span>Vsebina / uvoz</span>
-          <strong>JSON</strong>
+        <Link className="dash-card" to="/nadzor/vsebina/pritozbe">
+          <span>Pritožbe</span>
+          <strong>{summary ? summary.open_reports : "…"}</strong>
         </Link>
-        <Link className="dash-card" to="/nadzor/bonusi">
-          <span>Bonusi</span>
-          <strong>Jokerji</strong>
+        <Link className="dash-card" to="/nadzor/sifranti">
+          <span>Šifranti</span>
+          <strong>⋯</strong>
+          <span className="fine">kategorije · bonusi · prijatelji</span>
         </Link>
-        <Link className="dash-card" to="/nadzor/prijatelji">
-          <span>Prijatelji</span>
-          <strong>Klic</strong>
+        <Link className="dash-card" to="/nadzor/igre">
+          <span>Igre</span>
+          <strong>⋯</strong>
         </Link>
         <Link className="dash-card" to="/nadzor/uporabniki">
           <span>Uporabniki</span>
@@ -71,7 +73,7 @@ export function AdminHomePage() {
           </article>
         ))}
       </div>
-      {reports.length > 0 ? <Link to="/nadzor/pritozbe">Odpri pritožbe</Link> : null}
+      {reports.length > 0 ? <Link to="/nadzor/vsebina/pritozbe">Odpri pritožbe</Link> : null}
     </section>
   );
 }

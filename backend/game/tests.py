@@ -287,6 +287,7 @@ class ApiFlowTests(TestCase):
         self.assertEqual(room.status_code, 200, room.data)
         self.assertEqual(room.data["settings"]["mode"], "ala_milijonar")
         self.assertEqual(room.data["settings"]["question_count"], 15)
+        self.assertEqual(room.data["settings"]["time_limit_seconds"], 90)
         member = RoomMember.objects.get(room__code=room.data["code"])
         started = start_game(member.id)[0]
         self.assertEqual(started["mode"], "ala_milijonar")

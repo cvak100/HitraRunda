@@ -86,13 +86,14 @@ def validate_settings(raw):
         seconds = int(raw.get("time_limit_seconds", 20))
         if mode == MODE_ALA_MILIJONAR:
             count = ALA_QUESTION_COUNT
+            seconds = 90
         else:
             count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
     if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
         raise GameError("Število vprašanj mora biti med 5 in 15.")
-    if seconds not in ALLOWED_TIMES:
+    if mode != MODE_ALA_MILIJONAR and seconds not in ALLOWED_TIMES:
         raise GameError("Čas na vprašanje je 10, 15, 20, 30, 45 ali 60 sekund.")
     slugs = raw.get("categories")
     if not isinstance(slugs, list) or not slugs:
