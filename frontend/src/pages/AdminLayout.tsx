@@ -8,13 +8,9 @@ export function AdminLayout() {
           Pregled
         </NavLink>
         <NavLink to="/nadzor/vsebina">Vsebina</NavLink>
-        <NavLink to="/nadzor/vprasanja">Vprašanja</NavLink>
-        <NavLink to="/nadzor/kategorije">Kategorije</NavLink>
-        <NavLink to="/nadzor/bonusi">Bonusi</NavLink>
-        <NavLink to="/nadzor/prijatelji">Prijatelji</NavLink>
-        <NavLink to="/nadzor/pritozbe">Pritožbe</NavLink>
-        <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
+        <NavLink to="/nadzor/sifranti">Šifranti</NavLink>
         <NavLink to="/nadzor/igre">Igre</NavLink>
+        <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
         <NavLink to="/nadzor/ukazi">Ukazi</NavLink>
       </nav>
       <Outlet />

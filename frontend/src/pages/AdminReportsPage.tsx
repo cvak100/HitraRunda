@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { ApiError, api } from "../api";
+import { DeleteIcon, IconAction } from "../components/IconActions";
 import { QuestionBody } from "../components/QuestionBody";
 import { formatWhen } from "../format";
 import type { QuestionReportRow, StaffQuestion } from "../types";
@@ -44,7 +45,7 @@ export function AdminReportsPage() {
 
   return (
     <section className="panel">
-      <p className="eyebrow">Admin</p>
+      <p className="eyebrow">Admin · Vsebina</p>
       <h1>Pritožbe</h1>
       {notice ? <p className="fine">{notice}</p> : null}
       {error ? <p className="error">{error}</p> : null}
@@ -60,9 +61,9 @@ export function AdminReportsPage() {
             <p>{report.note}</p>
             <QuestionBody question={report.question} />
             <div className="actions">
-              <button type="button" onClick={() => void removeQuestion(report.question)}>
-                Izbriši vprašanje
-              </button>
+              <IconAction label="Izbriši vprašanje" danger onClick={() => void removeQuestion(report.question)}>
+                <DeleteIcon />
+              </IconAction>
               <button type="button" onClick={() => void dismiss(report)}>
                 Zavrzi pritožbo
               </button>
