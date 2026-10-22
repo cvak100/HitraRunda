@@ -1,6 +1,21 @@
 from django.contrib import admin
 
+from game.bonus_models import BonusDefinition, PhoneFriend
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
+
+
+@admin.register(BonusDefinition)
+class BonusDefinitionAdmin(admin.ModelAdmin):
+    list_display = ("name", "key", "bonus_kind", "effect_key", "is_active", "order")
+    list_filter = ("bonus_kind", "is_active")
+    search_fields = ("name", "key", "effect_key")
+
+
+@admin.register(PhoneFriend)
+class PhoneFriendAdmin(admin.ModelAdmin):
+    list_display = ("name", "key", "title", "reliability", "is_active", "order")
+    list_filter = ("is_active",)
+    search_fields = ("name", "key", "title")
 
 
 class GameQuestionInline(admin.TabularInline):

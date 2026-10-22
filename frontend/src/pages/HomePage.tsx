@@ -37,17 +37,29 @@ export function HomePage() {
 
   return (
     <section className="panel hero">
-      <p className="eyebrow">Solo milijonar</p>
+      <p className="eyebrow">Hitra runda</p>
       <h1>Kratke runde. En napačen odgovor.</h1>
       <p className="lead">
         Čas teče na strežniku. Na lestvico gre dosežena nagrada in majhen bonus za hitrost. Gost se sčasoma pobriše, rezultat ostane.
       </p>
       {user ? (
-        <div className="actions">
-          <p>Igraš kot <strong>{user.nickname || "gost"}</strong>.</p>
-          <Link className="primary" to="/igra">
-            Nova igra
-          </Link>
+        <div className="game-split">
+          <div className="game-block">
+            <p className="eyebrow">Hitra runda</p>
+            <h2>Brez jokerjev</h2>
+            <p>5–15 vprašanj, lastna lestvica.</p>
+            <Link className="primary" to="/igra/hitrarunda">
+              Igraj Hitra runda
+            </Link>
+          </div>
+          <div className="game-block">
+            <p className="eyebrow">Ala milijonar</p>
+            <h2>15 vprašanj + jokerji</h2>
+            <p>Polovička, publika, klic — lastna lestvica.</p>
+            <Link className="primary" to="/igra/ala-milijonar">
+              Igraj Ala milijonar
+            </Link>
+          </div>
         </div>
       ) : (
         <form onSubmit={onSubmit} className="stack">

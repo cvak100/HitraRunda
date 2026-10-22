@@ -16,8 +16,28 @@ class CategoryListView(APIView):
     def get(self, request):
         categories = (
             Category.objects.filter(is_active=True)
-            .annotate(question_count=Count("questions", filter=Q(questions__is_active=True)))
+            .annotate(
+                question_count=Count("questions", filter=Q(questions__is_active=True)),
+                classic_question_count=Count(
+                    "questions",
+                    filter=Q(
+                        questions__is_active=True,
+                        questions__question_type="multiple_choice",
+                    ),
+                    distinct=True,
+                ),
+            )
             .order_by("order", "name")
+        )
+        # Ala milijonar: samo multiple_choice s točno 4 možnostmi.
+        # (values+annotate po Count("options") da napačne/prazne vsote — štejemo v Pythonu.)
+        from collections import Counter
+
+        ala_counts = Counter(
+            Question.objects.filter(is_active=True, question_type="multiple_choice")
+            .annotate(option_count=Count("options"))
+            .filter(option_count=4)
+            .values_list("category__slug", flat=True)
         )
         return Response(
             {
@@ -27,6 +47,7 @@ class CategoryListView(APIView):
                         "name": category.name,
                         "description": category.description,
                         "question_count": category.question_count,
+                        "classic_question_count": ala_counts.get(category.slug, 0),
                     }
                     for category in categories
                 ]
@@ -215,6 +236,20 @@ class AdminQuestionListView(APIView):
 
 class AdminQuestionDetailView(APIView):
     permission_classes = [StaffOnly]
+
+    def post(self, request, pk):
+        from questions.importer import ImportProblem, _clean_item, _upsert
+
+        question = get_object_or_404(Question.objects.select_related("category").prefetch_related("options"), pk=pk)
+        data = dict(request.data or {})
+        data["key"] = question.external_key
+        try:
+            cleaned = _clean_item(data, set())
+        except ImportProblem as exc:
+            return Response({"detail": exc.message}, status=400)
+        _upsert(cleaned)
+        question = _questions().get(pk=pk)
+        return Response({"question": question_payload(question), "detail": "Vprašanje je shranjeno."})
 
     def delete(self, request, pk):
         question = get_object_or_404(Question, pk=pk)

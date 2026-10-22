@@ -2,8 +2,30 @@ import random
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import Count
 from django.utils import timezone
 
+from game.bonus_models import BonusDefinition, PhoneFriend
+from game.errors import GameError
+from game.lifelines import (
+    apply_audience,
+    apply_fifty_fifty,
+    apply_phone_friend,
+    initial_lifeline_state,
+    mark_lifeline_used,
+)
+from game.modes import (
+    ALA_DIFFICULTY_TARGETS,
+    ALA_OPTION_COUNT,
+    ALA_QUESTION_COUNT,
+    ALA_QUESTION_TYPES,
+    ALA_SAFE_ORDERS,
+    FRIENDS_PICK,
+    MODE_ALA_MILIJONAR,
+    MODE_HITRARUNDA,
+    MODE_LABELS,
+    PLAYABLE_MODES,
+)
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
 from questions.models import Category, Question
@@ -32,12 +54,6 @@ ALLOWED_TIMES = {10, 15, 20, 30, 45, 60}
 SINGLE_TYPES = {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE}
 
 
-class GameError(Exception):
-    def __init__(self, message):
-        self.message = message
-        super().__init__(message)
-
-
 def ladder_for(total):
     return PRIZE_LADDER[:total]
 
@@ -61,14 +77,20 @@ def hard_end(game_question, session):
 def validate_settings(raw):
     if not isinstance(raw, dict):
         raise GameError("Nastavitve niso veljavne.")
-    if raw.get("mode") not in (None, "", "millionaire"):
-        raise GameError("Za zdaj je na voljo samo milijonar.")
+    mode = raw.get("mode") or MODE_HITRARUNDA
+    if mode == "millionaire":
+        mode = MODE_HITRARUNDA
+    if mode not in PLAYABLE_MODES:
+        raise GameError("Neznan način igre.")
     try:
-        count = int(raw.get("question_count", 10))
         seconds = int(raw.get("time_limit_seconds", 20))
+        if mode == MODE_ALA_MILIJONAR:
+            count = ALA_QUESTION_COUNT
+        else:
+            count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
-    if not 5 <= count <= 15:
+    if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
         raise GameError("Število vprašanj mora biti med 5 in 15.")
     if seconds not in ALLOWED_TIMES:
         raise GameError("Čas na vprašanje je 10, 15, 20, 30, 45 ali 60 sekund.")
@@ -85,23 +107,68 @@ def validate_settings(raw):
     known = set(Category.objects.filter(slug__in=cleaned, is_active=True).values_list("slug", flat=True))
     if set(cleaned) != known:
         raise GameError("Neznana kategorija.")
-    available = Question.objects.filter(category__slug__in=cleaned, is_active=True).count()
+    pool = Question.objects.filter(category__slug__in=cleaned, is_active=True)
+    if mode == MODE_ALA_MILIJONAR:
+        pool = (
+            pool.filter(question_type__in=ALA_QUESTION_TYPES)
+            .annotate(option_count=Count("options"))
+            .filter(option_count=ALA_OPTION_COUNT)
+        )
+    available = pool.count()
     if available < count:
         raise GameError(f"Na voljo je {available} vprašanj, izbral si jih {count}.")
-    return {
-        "mode": "millionaire",
+
+    friend_keys = []
+    if mode == MODE_ALA_MILIJONAR:
+        raw_friends = raw.get("friend_keys")
+        if not isinstance(raw_friends, list):
+            raise GameError(f"Izberi {FRIENDS_PICK} prijatelje za klic v sili.")
+        for key in raw_friends:
+            if not isinstance(key, str) or not key.strip():
+                raise GameError("Neznan prijatelj.")
+            value = key.strip()
+            if value not in friend_keys:
+                friend_keys.append(value)
+        if len(friend_keys) != FRIENDS_PICK:
+            raise GameError(f"Izberi točno {FRIENDS_PICK} prijatelje.")
+        active = set(
+            PhoneFriend.objects.filter(key__in=friend_keys, is_active=True).values_list("key", flat=True)
+        )
+        if set(friend_keys) != active:
+            raise GameError("Neznan prijatelj.")
+
+    settings = {
+        "mode": mode,
         "question_count": count,
         "categories": cleaned,
         "time_limit_seconds": seconds,
-        "difficulty_progression": "increasing",
+        "difficulty_progression": "ala_ladder" if mode == MODE_ALA_MILIJONAR else "increasing",
     }
+    if friend_keys:
+        settings["friend_keys"] = friend_keys
+    return settings
 
 
-def select_questions(slugs, count, progression="increasing"):
-    questions = list(Question.objects.filter(category__slug__in=slugs, is_active=True).select_related("category"))
+def room_name_for(mode):
+    return MODE_LABELS.get(mode, "Hitra runda")
+
+
+def select_questions(slugs, count, progression="increasing", question_types=None, option_count=None):
+    questions = Question.objects.filter(category__slug__in=slugs, is_active=True).select_related("category")
+    if question_types:
+        questions = questions.filter(question_type__in=question_types)
+    if option_count is not None:
+        # Count("options") v annotate+filter je zanesljiv; list() nato v Pythonu.
+        matched_ids = list(
+            questions.annotate(option_count=Count("options"))
+            .filter(option_count=option_count)
+            .values_list("id", flat=True)
+        )
+        questions = questions.filter(id__in=matched_ids)
+    questions = list(questions)
     if len(questions) < count:
         raise GameError(f"Na voljo je {len(questions)} vprašanj, izbral si jih {count}.")
-    if progression != "increasing":
+    if progression == "random":
         return random.sample(questions, count)
 
     buckets = {level: [] for level in range(1, 6)}
@@ -111,7 +178,11 @@ def select_questions(slugs, count, progression="increasing"):
     for bucket in buckets.values():
         random.shuffle(bucket)
 
-    if count == 1:
+    if progression == "ala_ladder":
+        if count != len(ALA_DIFFICULTY_TARGETS):
+            raise GameError("Ala milijonar potrebuje 15 vprašanj za stopnjevanje 1–5.")
+        targets = list(ALA_DIFFICULTY_TARGETS)
+    elif count == 1:
         targets = [3]
     else:
         targets = [min(5, max(1, round(1 + index * 4 / (count - 1)))) for index in range(count)]
@@ -231,27 +302,39 @@ def start_game(member_id):
             if room.status != "waiting":
                 raise GameError("Igre ni mogoče začeti.")
             settings = room.settings or {}
+            mode = settings.get("mode") or MODE_HITRARUNDA
+            progression = settings.get("difficulty_progression") or (
+                "ala_ladder" if mode == MODE_ALA_MILIJONAR else "increasing"
+            )
+            if mode == MODE_ALA_MILIJONAR:
+                progression = "ala_ladder"
             questions = select_questions(
                 settings.get("categories") or [],
                 int(settings.get("question_count") or 10),
-                settings.get("difficulty_progression") or "increasing",
+                progression,
+                question_types=ALA_QUESTION_TYPES if mode == MODE_ALA_MILIJONAR else None,
+                option_count=ALA_OPTION_COUNT if mode == MODE_ALA_MILIJONAR else None,
             )
             now = timezone.now()
+            state = {
+                "prize_ladder": ladder_for(len(questions)),
+                "prize_reached": 0,
+                "speed_bonus_total": 0,
+                "correct_count": 0,
+                "score": 0,
+                "reason": "",
+                "active_helps": {},
+            }
+            if mode == MODE_ALA_MILIJONAR:
+                state["lifelines"] = initial_lifeline_state(settings.get("friend_keys") or [])
             session = GameSession.objects.create(
                 room=room,
-                mode="millionaire",
+                mode=mode,
                 status="active",
                 total_questions=len(questions),
                 current_question_index=0,
                 time_limit_seconds=int(settings.get("time_limit_seconds") or 20),
-                state={
-                    "prize_ladder": ladder_for(len(questions)),
-                    "prize_reached": 0,
-                    "speed_bonus_total": 0,
-                    "correct_count": 0,
-                    "score": 0,
-                    "reason": "",
-                },
+                state=state,
                 started_at=now,
             )
             for index, question in enumerate(questions):
@@ -356,23 +439,129 @@ def next_question(member_id):
         if nxt.started_at is None:
             nxt.started_at = timezone.now()
             nxt.save(update_fields=["started_at"])
+        state = dict(session.state or {})
+        state["active_helps"] = {}
+        session.state = state
+        update_fields = ["state"]
         if session.current_question_index != nxt.order:
             session.current_question_index = nxt.order
-            session.save(update_fields=["current_question_index"])
+            update_fields.append("current_question_index")
+        session.save(update_fields=update_fields)
         return [question_message(session, nxt, "question")]
+
+
+def use_lifeline(member_id, message):
+    if not isinstance(message, dict):
+        raise GameError("Neveljavno sporočilo.")
+    effect = str(message.get("effect") or "").strip()
+    with transaction.atomic():
+        member, _room, session = _lock(member_id)
+        if session is None or session.status != "active":
+            raise GameError("Igra ni aktivna.")
+        if session.mode != MODE_ALA_MILIJONAR:
+            raise GameError("Bonusi so na voljo samo v Ala milijonar.")
+        game_question = _current(session)
+        if _answer_for(game_question, member) is not None:
+            raise GameError("Odgovor je že oddan.")
+        if str(message.get("game_question_id")) != str(game_question.id):
+            raise GameError("To vprašanje ni aktivno.")
+        state = dict(session.state or {})
+        lifelines = state.get("lifelines") or {}
+        slot = lifelines.get(effect) or {}
+        if not slot.get("available") or slot.get("used"):
+            raise GameError("Ta bonus je že porabljen.")
+        bonus = BonusDefinition.objects.filter(effect_key=effect, is_active=True).first()
+        if bonus is None or MODE_ALA_MILIJONAR not in (bonus.modes or []):
+            raise GameError("Neznan bonus.")
+        allowed_types = (bonus.config or {}).get("applies_to_types") or []
+        if allowed_types and game_question.question.question_type not in allowed_types:
+            raise GameError("Ta bonus tu ni na voljo.")
+
+        if effect == "fifty_fifty":
+            result = apply_fifty_fifty(game_question, state)
+        elif effect == "audience":
+            result = apply_audience(game_question, state)
+        elif effect == "phone_friend":
+            friend_key = str(message.get("friend_key") or "").strip()
+            if not friend_key:
+                raise GameError("Izberi prijatelja.")
+            result = apply_phone_friend(game_question, state, friend_key)
+        else:
+            raise GameError("Neznan bonus.")
+
+        mark_lifeline_used(state, effect)
+        session.state = state
+        session.save(update_fields=["state"])
+        payload = question_message(session, game_question, "lifeline_result")
+        payload["lifeline"] = result
+        return [payload]
+
+
+def walk_away(member_id):
+    with transaction.atomic():
+        member, room, session = _lock(member_id)
+        if session is None or session.status != "active":
+            raise GameError("Igra ni aktivna.")
+        if session.mode != MODE_ALA_MILIJONAR:
+            raise GameError("Odnehaj je na voljo samo v Ala milijonar.")
+        game_question = _current(session)
+        if _answer_for(game_question, member) is not None:
+            raise GameError("Odgovor je že oddan.")
+        state = dict(session.state or {})
+        if int(state.get("prize_reached") or 0) <= 0:
+            raise GameError("Še nimaš nagrade za odnehaj.")
+        now = timezone.now()
+        answer = PlayerAnswer.objects.create(
+            game_question=game_question,
+            room_member=member,
+            answer_data={"walk_away": True},
+            is_correct=None,
+            answered_at=now,
+            time_taken_ms=max(0, int((now - game_question.started_at).total_seconds() * 1000))
+            if game_question.started_at
+            else 0,
+            points=0,
+        )
+        game_question.ended_at = now
+        game_question.save(update_fields=["ended_at"])
+        state["reason"] = "walk_away"
+        state["score"] = int(state.get("prize_reached") or 0) + int(state.get("speed_bonus_total") or 0)
+        session.state = state
+        _finalize(session, room, member, "walk_away", now)
+        result = result_message(session, game_question, answer, member)
+        return [result, _finished_copy(result)]
+
+
+def guaranteed_prize(correct_count, ladder):
+    guaranteed = 0
+    for order in ALA_SAFE_ORDERS:
+        if correct_count > order and order < len(ladder):
+            guaranteed = ladder[order]
+    return guaranteed
 
 
 def question_message(session, game_question, message_type):
     state = _state(session)
     ladder = state["prize_ladder"]
     index = game_question.order
+    can_walk = (
+        session.mode == MODE_ALA_MILIJONAR
+        and session.status == "active"
+        and int(state.get("prize_reached") or 0) > 0
+    )
     return {
         "type": message_type,
         "phase": "question",
+        "mode": session.mode,
         "question": public_question(game_question),
         "index": index,
         "total": session.total_questions,
         "prize_ladder": ladder,
+        "safe_orders": list(ALA_SAFE_ORDERS) if session.mode == MODE_ALA_MILIJONAR else [],
+        "guaranteed_prize": guaranteed_prize(state["correct_count"], ladder)
+        if session.mode == MODE_ALA_MILIJONAR
+        else 0,
+        "can_walk_away": can_walk,
         "prize_reached": state["prize_reached"],
         "stake": ladder[index] if index < len(ladder) else None,
         "next_stake": ladder[index + 1] if index + 1 < len(ladder) else None,
@@ -382,6 +571,9 @@ def question_message(session, game_question, message_type):
         "deadline_at": official_end(game_question, session).isoformat(),
         "server_now": timezone.now().isoformat(),
         "time_limit_seconds": session.time_limit_seconds,
+        "lifelines": state.get("lifelines") or {},
+        "active_helps": state.get("active_helps") or {},
+        "friends": state.get("friends") or [],
     }
 
 
@@ -397,8 +589,9 @@ def result_message(session, game_question, answer, member, message_type="answer_
         "index": index,
         "total": session.total_questions,
         "total_questions": session.total_questions,
-        "is_correct": bool(answer.is_correct),
+        "is_correct": None if answer.is_correct is None else bool(answer.is_correct),
         "timed_out": bool((answer.answer_data or {}).get("timeout")),
+        "walked_away": bool((answer.answer_data or {}).get("walk_away")),
         "explanation": game_question.question.explanation,
         "finished": finished,
         "reason": state["reason"],
@@ -412,6 +605,13 @@ def result_message(session, game_question, answer, member, message_type="answer_
         "next_stake": None if finished or index + 1 >= len(ladder) else ladder[index + 1],
         "nickname": member.nickname_in_room,
         "server_now": timezone.now().isoformat(),
+        "safe_orders": list(ALA_SAFE_ORDERS) if session.mode == MODE_ALA_MILIJONAR else [],
+        "guaranteed_prize": guaranteed_prize(state["correct_count"], ladder)
+        if session.mode == MODE_ALA_MILIJONAR
+        else 0,
+        "mode": session.mode,
+        "lifelines": state.get("lifelines") or {},
+        "friends": state.get("friends") or [],
     }
     body.update(_reveal(game_question))
     body.update(_selected(answer))
@@ -452,12 +652,17 @@ def _grade_locked(member, room, session, game_question, message):
     game_question.ended_at = now
     game_question.save(update_fields=["ended_at"])
     state = dict(session.state or {})
+    ladder = state.get("prize_ladder") or ladder_for(session.total_questions)
     if is_correct:
         state["correct_count"] = state.get("correct_count", 0) + 1
-        ladder = state.get("prize_ladder") or ladder_for(session.total_questions)
         state["prize_reached"] = ladder[state["correct_count"] - 1]
         state["speed_bonus_total"] = state.get("speed_bonus_total", 0) + bonus
         state["score"] = state["prize_reached"] + state["speed_bonus_total"]
+    elif session.mode == MODE_ALA_MILIJONAR:
+        # Varne točke: napačen/timeout pusti zagotovljeno nagrado.
+        guaranteed = guaranteed_prize(int(state.get("correct_count") or 0), ladder)
+        state["prize_reached"] = guaranteed
+        state["score"] = guaranteed + int(state.get("speed_bonus_total") or 0)
     is_last = game_question.order + 1 >= session.total_questions
     should_finish = timed_out or (not is_correct) or is_last
     if should_finish:
@@ -589,6 +794,27 @@ def _answer_for(game_question, member):
 def _state(session):
     state = session.state or {}
     ladder = state.get("prize_ladder") or ladder_for(session.total_questions)
+    friends = []
+    friend_keys = (state.get("lifelines") or {}).get("phone_friend", {}).get("friend_keys") or []
+    if friend_keys:
+        by_key = {
+            friend.key: friend
+            for friend in PhoneFriend.objects.filter(key__in=friend_keys)
+        }
+        for key in friend_keys:
+            friend = by_key.get(key)
+            if friend:
+                friends.append(
+                    {
+                        "key": friend.key,
+                        "name": friend.name,
+                        "title": friend.title,
+                        "bio": friend.bio,
+                        "specialty_categories": friend.specialty_categories,
+                        "avatar_color": friend.avatar_color,
+                        "used": key in ((state.get("lifelines") or {}).get("phone_friend", {}).get("used_friends") or []),
+                    }
+                )
     return {
         "prize_ladder": ladder,
         "prize_reached": state.get("prize_reached", 0),
@@ -596,6 +822,9 @@ def _state(session):
         "correct_count": state.get("correct_count", 0),
         "score": state.get("score", 0),
         "reason": state.get("reason") or "",
+        "lifelines": state.get("lifelines") or {},
+        "active_helps": state.get("active_helps") or {},
+        "friends": friends,
     }
 
 

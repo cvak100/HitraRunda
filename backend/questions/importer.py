@@ -96,8 +96,9 @@ def _clean_item(item, seen):
     seen.add(key)
 
     category = str(item.get("category") or "").strip()
-    if category not in {slug for slug, _name, _order in CATEGORIES}:
-        raise ImportProblem("category je sport ali zemljepis.")
+    known_categories = set(Category.objects.values_list("slug", flat=True))
+    if category not in known_categories:
+        raise ImportProblem("Neznana kategorija.")
 
     question_type = item.get("question_type")
     if question_type not in QUESTION_TYPES:

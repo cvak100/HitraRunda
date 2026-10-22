@@ -4,6 +4,7 @@ export function AccountLayout() {
   return (
     <div className="admin-shell">
       <nav className="subnav">
+        <NavLink to="/racun/profil">Profil</NavLink>
         <NavLink to="/racun/nastavitve">Nastavitve</NavLink>
         <NavLink to="/racun/odjava">Odjava</NavLink>
       </nav>

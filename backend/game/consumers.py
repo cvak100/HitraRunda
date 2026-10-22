@@ -15,6 +15,8 @@ from game.engine import (
     snapshot,
     start_game,
     submit_answer,
+    use_lifeline,
+    walk_away,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,10 @@ class GameConsumer(AsyncWebsocketConsumer):
                 payloads = await database_sync_to_async(submit_answer)(self.member_id, message)
             elif kind == "next_question":
                 payloads = await database_sync_to_async(next_question)(self.member_id)
+            elif kind == "use_lifeline":
+                payloads = await database_sync_to_async(use_lifeline)(self.member_id, message)
+            elif kind == "walk_away":
+                payloads = await database_sync_to_async(walk_away)(self.member_id)
             else:
                 await self.send_json({"type": "error", "message": "Neznan dogodek."})
                 return

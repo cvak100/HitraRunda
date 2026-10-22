@@ -2,153 +2,27 @@
   "version": 1,
   "questions": [
     {
-      "key": "sport-nogomet-igralci",
-      "category": "sport",
+      "key": "zemljepis-d1-1",
+      "category": "zemljepis",
       "question_type": "multiple_choice",
       "difficulty": 1,
-      "text": "Koliko igralcev ene ekipe je hkrati na igrišču pri nogometu?",
-      "explanation": "Na igrišču je enajst igralcev, vključno z vratarjem.",
+      "text": "Katera je prestolnica Slovenije?",
+      "explanation": "Ljubljana je prestolnica in največje mesto Slovenije.",
       "image": null,
       "options": [
-        { "text": "11", "correct": true },
-        { "text": "10", "correct": false },
-        { "text": "9", "correct": false },
-        { "text": "12", "correct": false }
+        { "text": "Ljubljana", "correct": true },
+        { "text": "Maribor", "correct": false },
+        { "text": "Celje", "correct": false },
+        { "text": "Koper", "correct": false }
       ]
     },
     {
-      "key": "sport-kos-visina",
-      "category": "sport",
-      "question_type": "true_false",
-      "difficulty": 1,
-      "text": "Košarkaški koš je visok 3,05 metra.",
-      "explanation": "Višina obroča je 10 čevljev, to je 3,05 m.",
-      "image": null,
-      "options": [
-        { "text": "Drži", "correct": true },
-        { "text": "Ne drži", "correct": false }
-      ]
-    },
-    {
-      "key": "sport-sochi",
-      "category": "sport",
-      "question_type": "multiple_choice",
-      "difficulty": 2,
-      "text": "Katera država je gostila zimske olimpijske igre 2014?",
-      "explanation": "Igre so bile v Sočiju v Rusiji.",
-      "image": null,
-      "options": [
-        { "text": "Rusija", "correct": true },
-        { "text": "Kanada", "correct": false },
-        { "text": "Kitajska", "correct": false },
-        { "text": "Italija", "correct": false }
-      ]
-    },
-    {
-      "key": "sport-zoga",
-      "category": "sport",
-      "question_type": "multi_select",
-      "difficulty": 2,
-      "text": "Pri katerih športih se igra z žogo?",
-      "explanation": "Hokej na ledu uporablja plošček, ne žoge.",
-      "image": null,
-      "options": [
-        { "text": "Nogomet", "correct": true },
-        { "text": "Košarka", "correct": true },
-        { "text": "Hokej na ledu", "correct": false },
-        { "text": "Odbojka", "correct": true }
-      ]
-    },
-    {
-      "key": "sport-odbojka-set",
-      "category": "sport",
-      "question_type": "true_false",
-      "difficulty": 2,
-      "text": "Običajni set v odbojki se igra do 25 točk.",
-      "explanation": "Prvi štirje seti gredo do 25 točk, odločilni peti do 15.",
-      "image": null,
-      "options": [
-        { "text": "Drži", "correct": true },
-        { "text": "Ne drži", "correct": false }
-      ]
-    },
-    {
-      "key": "sport-razdalje",
-      "category": "sport",
-      "question_type": "ordering",
-      "difficulty": 3,
-      "text": "Razvrsti teke od najkrajšega proti najdaljšemu.",
-      "explanation": "Vrstni red je 100 m, 400 m, 1.500 m in maraton.",
-      "image": null,
-      "options": [
-        { "text": "100 m" },
-        { "text": "400 m" },
-        { "text": "1.500 m" },
-        { "text": "Maraton" }
-      ]
-    },
-    {
-      "key": "sport-oprema",
-      "category": "sport",
-      "question_type": "matching",
-      "difficulty": 3,
-      "text": "Poveži šport z opremo.",
-      "explanation": "",
-      "image": null,
-      "pairs": [
-        { "left": "Tenis", "right": "Lopar" },
-        { "left": "Lokostrelstvo", "right": "Lok" },
-        { "left": "Boks", "right": "Rokavice" },
-        { "left": "Golf", "right": "Kij" }
-      ]
-    },
-    {
-      "key": "sport-krog",
-      "category": "sport",
-      "question_type": "multiple_choice",
-      "difficulty": 4,
-      "text": "Koliko metrov meri en krog uradne atletske steze?",
-      "explanation": "Standardna zunanja steza meri 400 metrov.",
-      "image": null,
-      "options": [
-        { "text": "200 m", "correct": false },
-        { "text": "400 m", "correct": true },
-        { "text": "800 m", "correct": false },
-        { "text": "1.000 m", "correct": false }
-      ]
-    },
-    {
-      "key": "sport-sp-2010",
-      "category": "sport",
-      "question_type": "slider",
-      "difficulty": 4,
-      "text": "V katerem letu je Slovenija prvič nastopila na svetovnem prvenstvu v nogometu?",
-      "explanation": "Prvi nastop je bil leta 2010 v Južni Afriki.",
-      "image": null,
-      "slider": { "min": 1991, "max": 2026, "step": 1, "correct": 2010, "tolerance": 0 }
-    },
-    {
-      "key": "sport-bolt",
-      "category": "sport",
-      "question_type": "multiple_choice",
-      "difficulty": 5,
-      "text": "Kdo drži svetovni rekord v teku na 100 metrov?",
-      "explanation": "Usain Bolt, 9,58 s, Berlin 2009.",
-      "image": null,
-      "options": [
-        { "text": "Usain Bolt", "correct": true },
-        { "text": "Tyson Gay", "correct": false },
-        { "text": "Justin Gatlin", "correct": false },
-        { "text": "Yohan Blake", "correct": false }
-      ]
-    },
-    {
-      "key": "zemljepis-ljubljana-glavno",
+      "key": "zemljepis-d1-2",
       "category": "zemljepis",
       "question_type": "true_false",
       "difficulty": 1,
-      "text": "Ljubljana je glavno mesto Slovenije.",
-      "explanation": "",
+      "text": "Slovenija meji na Italijo.",
+      "explanation": "Slovenija meji na Italijo, Avstrijo, Madžarsko in Hrvaško.",
       "image": null,
       "options": [
         { "text": "Drži", "correct": true },
@@ -156,127 +30,1437 @@
       ]
     },
     {
-      "key": "zemljepis-ljubljanica",
+      "key": "zemljepis-d1-3",
       "category": "zemljepis",
       "question_type": "multiple_choice",
       "difficulty": 1,
       "text": "Katera reka teče skozi Ljubljano?",
-      "explanation": "Skozi mesto teče Ljubljanica.",
+      "explanation": "Ljubljanica teče skozi prestolnico.",
       "image": null,
       "options": [
         { "text": "Ljubljanica", "correct": true },
+        { "text": "Sava", "correct": false },
+        { "text": "Drava", "correct": false },
+        { "text": "Soča", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-4",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Triglav je najvišja gora v Sloveniji.",
+      "explanation": "Triglav meri 2864 m in je najvišji vrh Slovenije.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-5",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Na katerem kontinentu leži Slovenija?",
+      "explanation": "Slovenija leži v Evropi.",
+      "image": null,
+      "options": [
+        { "text": "Evropa", "correct": true },
+        { "text": "Azija", "correct": false },
+        { "text": "Afrika", "correct": false },
+        { "text": "Severna Amerika", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-6",
+      "category": "zemljepis",
+      "question_type": "multi_select",
+      "difficulty": 1,
+      "text": "Katere od naštetih držav mejijo na Slovenijo?",
+      "explanation": "Slovenija meji na Italijo, Avstrijo, Madžarsko in Hrvaško.",
+      "image": null,
+      "options": [
+        { "text": "Italija", "correct": true },
+        { "text": "Avstrija", "correct": true },
+        { "text": "Nemčija", "correct": false },
+        { "text": "Hrvaška", "correct": true }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-7",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Katera je največja država v Evropi po površini?",
+      "explanation": "Rusija je največja država v Evropi (in na svetu).",
+      "image": null,
+      "options": [
+        { "text": "Rusija", "correct": true },
+        { "text": "Francija", "correct": false },
+        { "text": "Nemčija", "correct": false },
+        { "text": "Ukrajina", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-8",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Pariz je prestolnica Francije.",
+      "explanation": "Pariz je prestolnica in največje mesto Francije.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-9",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Katera je prestolnica Italije?",
+      "explanation": "Rim je prestolnica Italije.",
+      "image": null,
+      "options": [
+        { "text": "Rim", "correct": true },
+        { "text": "Milano", "correct": false },
+        { "text": "Neapelj", "correct": false },
+        { "text": "Firence", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d1-10",
+      "category": "zemljepis",
+      "question_type": "matching",
+      "difficulty": 1,
+      "text": "Poveži državo s prestolnico.",
+      "explanation": "Osnovne evropske prestolnice.",
+      "image": null,
+      "pairs": [
+        { "left": "Nemčija", "right": "Berlin" },
+        { "left": "Španija", "right": "Madrid" },
+        { "left": "Portugalska", "right": "Lizbona" },
+        { "left": "Grčija", "right": "Atene" }
+      ]
+    },
+    {
+      "key": "zemljepis-d2-1",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Katera je najdaljša reka v Sloveniji?",
+      "explanation": "Sava je najdaljša reka v Sloveniji.",
+      "image": null,
+      "options": [
+        { "text": "Sava", "correct": true },
         { "text": "Drava", "correct": false },
         { "text": "Soča", "correct": false },
         { "text": "Mura", "correct": false }
       ]
     },
     {
-      "key": "zemljepis-jadran",
+      "key": "zemljepis-d2-2",
+      "category": "zemljepis",
+      "question_type": "slider",
+      "difficulty": 2,
+      "text": "Koliko metrov je visok Triglav?",
+      "explanation": "Triglav meri 2864 metrov.",
+      "image": null,
+      "slider": {
+        "min": 2000,
+        "max": 3500,
+        "step": 10,
+        "correct": 2864,
+        "tolerance": 50
+      }
+    },
+    {
+      "key": "zemljepis-d2-3",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 2,
+      "text": "Bled leži v Gorenjski.",
+      "explanation": "Bled je v Gorenjski statistični regiji.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d2-4",
       "category": "zemljepis",
       "question_type": "multiple_choice",
       "difficulty": 2,
-      "text": "Katero morje obliva slovensko obalo?",
-      "explanation": "Slovenija ima izhod na Jadransko morje.",
+      "text": "Katera je prestolnica Avstrije?",
+      "explanation": "Dunaj (Wien) je prestolnica Avstrije.",
       "image": null,
       "options": [
-        { "text": "Jadransko morje", "correct": true },
-        { "text": "Baltsko morje", "correct": false },
-        { "text": "Črno morje", "correct": false },
-        { "text": "Severno morje", "correct": false }
+        { "text": "Dunaj", "correct": true },
+        { "text": "Salzburg", "correct": false },
+        { "text": "Innsbruck", "correct": false },
+        { "text": "Graz", "correct": false }
       ]
     },
     {
-      "key": "zemljepis-sosedje",
+      "key": "zemljepis-d2-5",
       "category": "zemljepis",
       "question_type": "multi_select",
       "difficulty": 2,
-      "text": "Katere države mejijo na Slovenijo?",
-      "explanation": "Sosedje so Italija, Avstrija, Madžarska in Hrvaška.",
+      "text": "Katere od naštetih rek tečejo skozi Slovenijo?",
+      "explanation": "Sava, Drava in Soča tečejo skozi Slovenijo.",
       "image": null,
       "options": [
-        { "text": "Italija", "correct": true },
-        { "text": "Avstrija", "correct": true },
-        { "text": "Madžarska", "correct": true },
-        { "text": "Hrvaška", "correct": true },
-        { "text": "Švica", "correct": false }
+        { "text": "Sava", "correct": true },
+        { "text": "Drava", "correct": true },
+        { "text": "Donava", "correct": false },
+        { "text": "Soča", "correct": true }
       ]
     },
     {
-      "key": "zemljepis-slovaska",
-      "category": "zemljepis",
-      "question_type": "true_false",
-      "difficulty": 3,
-      "text": "Slovenija meji na Slovaško.",
-      "explanation": "Ne. Med njima je Madžarska oziroma Avstrija.",
-      "image": null,
-      "options": [
-        { "text": "Drži", "correct": false },
-        { "text": "Ne drži", "correct": true }
-      ]
-    },
-    {
-      "key": "zemljepis-sever-jug",
+      "key": "zemljepis-d2-6",
       "category": "zemljepis",
       "question_type": "ordering",
-      "difficulty": 3,
+      "difficulty": 2,
       "text": "Razvrsti mesta od severa proti jugu.",
-      "explanation": "Maribor, Ljubljana, Novo mesto, Koper.",
+      "explanation": "Ljubljana, Celje, Maribor, Koper (približno).",
       "image": null,
       "options": [
         { "text": "Maribor" },
+        { "text": "Celje" },
         { "text": "Ljubljana" },
-        { "text": "Novo mesto" },
         { "text": "Koper" }
       ]
     },
     {
-      "key": "zemljepis-prestolnice",
+      "key": "zemljepis-d2-7",
       "category": "zemljepis",
-      "question_type": "matching",
-      "difficulty": 4,
-      "text": "Poveži državo s prestolnico.",
-      "explanation": "",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Katera je največja jezero v Sloveniji?",
+      "explanation": "Bohinjsko jezero je največje naravno jezero v Sloveniji.",
       "image": null,
-      "pairs": [
-        { "left": "Italija", "right": "Rim" },
-        { "left": "Avstrija", "right": "Dunaj" },
-        { "left": "Madžarska", "right": "Budimpešta" },
-        { "left": "Hrvaška", "right": "Zagreb" }
+      "options": [
+        { "text": "Bohinjsko jezero", "correct": true },
+        { "text": "Blejsko jezero", "correct": false },
+        { "text": "Cerkniško jezero", "correct": false },
+        { "text": "Ptujsko jezero", "correct": false }
       ]
     },
     {
-      "key": "zemljepis-bled",
+      "key": "zemljepis-d2-8",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 2,
+      "text": "Jadransko morje je del Sredozemskega morja.",
+      "explanation": "Jadransko morje je severni del Sredozemskega morja.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d2-9",
+      "category": "zemljepis",
+      "question_type": "matching",
+      "difficulty": 2,
+      "text": "Poveži slovensko mesto z reko, ki teče skozenj.",
+      "explanation": "Osnovne reke slovenskih mest.",
+      "image": null,
+      "pairs": [
+        { "left": "Ljubljana", "right": "Ljubljanica" },
+        { "left": "Maribor", "right": "Drava" },
+        { "left": "Celje", "right": "Savinja" },
+        { "left": "Novo mesto", "right": "Krka" }
+      ]
+    },
+    {
+      "key": "zemljepis-d2-10",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Katera država ima največ prebivalcev v Evropi?",
+      "explanation": "Rusija ima največ prebivalcev v Evropi.",
+      "image": null,
+      "options": [
+        { "text": "Rusija", "correct": true },
+        { "text": "Nemčija", "correct": false },
+        { "text": "Francija", "correct": false },
+        { "text": "Velika Britanija", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-1",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 3,
+      "text": "Katera je prestolnica Hrvaške?",
+      "explanation": "Zagreb je prestolnica Hrvaške.",
+      "image": null,
+      "options": [
+        { "text": "Zagreb", "correct": true },
+        { "text": "Split", "correct": false },
+        { "text": "Rijeka", "correct": false },
+        { "text": "Dubrovnik", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-2",
+      "category": "zemljepis",
+      "question_type": "slider",
+      "difficulty": 3,
+      "text": "Koliko kilometrov je dolga Sava?",
+      "explanation": "Sava je dolga približno 990 km.",
+      "image": null,
+      "slider": {
+        "min": 500,
+        "max": 1500,
+        "step": 10,
+        "correct": 990,
+        "tolerance": 50
+      }
+    },
+    {
+      "key": "zemljepis-d3-3",
+      "category": "zemljepis",
+      "question_type": "multi_select",
+      "difficulty": 3,
+      "text": "Katere od naštetih so alpske države?",
+      "explanation": "Slovenija, Avstrija, Švica in Italija imajo Alpe.",
+      "image": null,
+      "options": [
+        { "text": "Slovenija", "correct": true },
+        { "text": "Avstrija", "correct": true },
+        { "text": "Madžarska", "correct": false },
+        { "text": "Švica", "correct": true }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-4",
+      "category": "zemljepis",
+      "question_type": "ordering",
+      "difficulty": 3,
+      "text": "Razvrsti reke od najdaljše proti najkrajši.",
+      "explanation": "Nil, Amazonka, Jangce, Misisipi.",
+      "image": null,
+      "options": [
+        { "text": "Nil" },
+        { "text": "Amazonka" },
+        { "text": "Jangce" },
+        { "text": "Misisipi" }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-5",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 3,
+      "text": "Postojnska jama je največja turistična jama v Sloveniji.",
+      "explanation": "Postojnska jama je najbolj znana in najbolj obiskana jama v Sloveniji.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-6",
+      "category": "zemljepis",
+      "question_type": "matching",
+      "difficulty": 3,
+      "text": "Poveži državo z njenim najvišjim vrhom.",
+      "explanation": "Najvišji vrhovi izbranih držav.",
+      "image": null,
+      "pairs": [
+        { "left": "Slovenija", "right": "Triglav" },
+        { "left": "Italija", "right": "Mont Blanc" },
+        { "left": "Avstrija", "right": "Grossglockner" },
+        { "left": "Švica", "right": "Dufourspitze" }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-7",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 3,
+      "text": "Katera je največja puščava na svetu?",
+      "explanation": "Antarktika je največja puščava (hladna puščava).",
+      "image": null,
+      "options": [
+        { "text": "Antarktika", "correct": true },
+        { "text": "Sahara", "correct": false },
+        { "text": "Arabska puščava", "correct": false },
+        { "text": "Gobi", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-8",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 3,
+      "text": "Nil je najdaljša reka v Afriki.",
+      "explanation": "Nil je najdaljša reka v Afriki in ena najdaljših na svetu.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-9",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 3,
+      "text": "Katera je prestolnica Kanade?",
+      "explanation": "Ottawa je prestolnica Kanade.",
+      "image": null,
+      "options": [
+        { "text": "Ottawa", "correct": true },
+        { "text": "Toronto", "correct": false },
+        { "text": "Montreal", "correct": false },
+        { "text": "Vancouver", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d3-10",
+      "category": "zemljepis",
+      "question_type": "slider",
+      "difficulty": 3,
+      "text": "Koliko metrov je visok Mont Blanc?",
+      "explanation": "Mont Blanc meri 4808 metrov.",
+      "image": null,
+      "slider": {
+        "min": 4000,
+        "max": 5500,
+        "step": 10,
+        "correct": 4808,
+        "tolerance": 50
+      }
+    },
+    {
+      "key": "zemljepis-d4-1",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Katera je največja država v Južni Ameriki po površini?",
+      "explanation": "Brazilija je največja država v Južni Ameriki.",
+      "image": null,
+      "options": [
+        { "text": "Brazilija", "correct": true },
+        { "text": "Argentina", "correct": false },
+        { "text": "Peru", "correct": false },
+        { "text": "Kolumbija", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-2",
+      "category": "zemljepis",
+      "question_type": "ordering",
+      "difficulty": 4,
+      "text": "Razvrsti oceane od največjega proti najmanjšemu.",
+      "explanation": "Tihi, Atlantski, Indijski, Arktični.",
+      "image": null,
+      "options": [
+        { "text": "Tihi ocean" },
+        { "text": "Atlantski ocean" },
+        { "text": "Indijski ocean" },
+        { "text": "Arktični ocean" }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-3",
+      "category": "zemljepis",
+      "question_type": "multi_select",
+      "difficulty": 4,
+      "text": "Katere od naštetih držav so članice Evropske unije?",
+      "explanation": "Slovenija, Nemčija in Francija so v EU, Švica ni.",
+      "image": null,
+      "options": [
+        { "text": "Slovenija", "correct": true },
+        { "text": "Nemčija", "correct": true },
+        { "text": "Švica", "correct": false },
+        { "text": "Francija", "correct": true }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-4",
       "category": "zemljepis",
       "question_type": "slider",
       "difficulty": 4,
-      "text": "Koliko metrov nad morjem leži Blejsko jezero?",
-      "explanation": "Gladina jezera je približno 475 m nad morjem.",
+      "text": "Koliko metrov je globoka Marijanska jarek?",
+      "explanation": "Marijanska jarek je globoka približno 10994 m.",
       "image": null,
-      "slider": { "min": 0, "max": 1200, "step": 5, "correct": 475, "tolerance": 25 }
+      "slider": {
+        "min": 8000,
+        "max": 12000,
+        "step": 50,
+        "correct": 10994,
+        "tolerance": 200
+      }
     },
     {
-      "key": "zemljepis-triglav",
+      "key": "zemljepis-d4-5",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 4,
+      "text": "Amazonka je najbolj vodnata reka na svetu.",
+      "explanation": "Amazonka ima največji pretok med vsemi rekami.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-6",
+      "category": "zemljepis",
+      "question_type": "matching",
+      "difficulty": 4,
+      "text": "Poveži jezero z državo, v kateri leži.",
+      "explanation": "Velika jezera sveta.",
+      "image": null,
+      "pairs": [
+        { "left": "Bajkalsko jezero", "right": "Rusija" },
+        { "left": "Viktorijino jezero", "right": "Tanzanija/Uganda/Kenija" },
+        { "left": "Tanganjika", "right": "Tanzanija/DR Kongo" },
+        { "left": "Superior", "right": "ZDA/Kanada" }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-7",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Katera je najvišja gora v Afriki?",
+      "explanation": "Kilimandžaro je najvišja gora v Afriki.",
+      "image": null,
+      "options": [
+        { "text": "Kilimandžaro", "correct": true },
+        { "text": "Kenya", "correct": false },
+        { "text": "Ruwenzori", "correct": false },
+        { "text": "Atlas", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-8",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 4,
+      "text": "Grenlandija je največji otok na svetu.",
+      "explanation": "Grenlandija je največji otok na svetu.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-9",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Katera je prestolnica Avstralije?",
+      "explanation": "Canberra je prestolnica Avstralije.",
+      "image": null,
+      "options": [
+        { "text": "Canberra", "correct": true },
+        { "text": "Sydney", "correct": false },
+        { "text": "Melbourne", "correct": false },
+        { "text": "Brisbane", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d4-10",
+      "category": "zemljepis",
+      "question_type": "ordering",
+      "difficulty": 4,
+      "text": "Razvrsti celine od največje proti najmanjši po površini.",
+      "explanation": "Azija, Afrika, Severna Amerika, Južna Amerika.",
+      "image": null,
+      "options": [
+        { "text": "Azija" },
+        { "text": "Afrika" },
+        { "text": "Severna Amerika" },
+        { "text": "Južna Amerika" }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-1",
       "category": "zemljepis",
       "question_type": "slider",
       "difficulty": 5,
-      "text": "Koliko metrov je visok Triglav?",
-      "explanation": "Triglav meri 2864 m.",
+      "text": "Koliko metrov je visok Mount Everest?",
+      "explanation": "Mount Everest meri 8848,86 metrov.",
       "image": null,
-      "slider": { "min": 1000, "max": 4000, "step": 1, "correct": 2864, "tolerance": 50 }
+      "slider": {
+        "min": 8000,
+        "max": 9500,
+        "step": 10,
+        "correct": 8849,
+        "tolerance": 20
+      }
     },
     {
-      "key": "zemljepis-atacama",
+      "key": "zemljepis-d5-2",
       "category": "zemljepis",
       "question_type": "multiple_choice",
       "difficulty": 5,
-      "text": "V kateri državi leži puščava Atacama?",
-      "explanation": "Atacama je v Čilu.",
+      "text": "Katera je najmanjša država na svetu po površini?",
+      "explanation": "Vatikan je najmanjša država na svetu.",
       "image": null,
       "options": [
-        { "text": "Čile", "correct": true },
-        { "text": "Mehika", "correct": false },
-        { "text": "Maroko", "correct": false },
-        { "text": "Avstralija", "correct": false }
+        { "text": "Vatikan", "correct": true },
+        { "text": "Monako", "correct": false },
+        { "text": "San Marino", "correct": false },
+        { "text": "Liechtenstein", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-3",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 5,
+      "text": "Kaspijsko jezero je največje jezero na svetu.",
+      "explanation": "Kaspijsko jezero je največje jezero na svetu po površini.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-4",
+      "category": "zemljepis",
+      "question_type": "matching",
+      "difficulty": 5,
+      "text": "Poveži reko z njenim izlivom.",
+      "explanation": "Izlivi velikih rek.",
+      "image": null,
+      "pairs": [
+        { "left": "Nil", "right": "Sredozemsko morje" },
+        { "left": "Amazonka", "right": "Atlantski ocean" },
+        { "left": "Jangce", "right": "Vzhodnokitajsko morje" },
+        { "left": "Misisipi", "right": "Mehiški zaliv" }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-5",
+      "category": "zemljepis",
+      "question_type": "multi_select",
+      "difficulty": 5,
+      "text": "Katere od naštetih so prestolnice?",
+      "explanation": "Astana, Canberra in Ottawa so prestolnice.",
+      "image": null,
+      "options": [
+        { "text": "Astana", "correct": true },
+        { "text": "Sydney", "correct": false },
+        { "text": "Canberra", "correct": true },
+        { "text": "Ottawa", "correct": true }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-6",
+      "category": "zemljepis",
+      "question_type": "ordering",
+      "difficulty": 5,
+      "text": "Razvrsti gore od najvišje proti najnižji.",
+      "explanation": "Everest, K2, Kangchenjunga, Lhotse.",
+      "image": null,
+      "options": [
+        { "text": "Mount Everest" },
+        { "text": "K2" },
+        { "text": "Kangchenjunga" },
+        { "text": "Lhotse" }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-7",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "Katera je najdaljša reka v Evropi?",
+      "explanation": "Volga je najdaljša reka v Evropi.",
+      "image": null,
+      "options": [
+        { "text": "Volga", "correct": true },
+        { "text": "Donava", "correct": false },
+        { "text": "Ren", "correct": false },
+        { "text": "Dneper", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-8",
+      "category": "zemljepis",
+      "question_type": "true_false",
+      "difficulty": 5,
+      "text": "Sahara je največja vroča puščava na svetu.",
+      "explanation": "Sahara je največja vroča puščava (Antarktika je hladna).",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "zemljepis-d5-9",
+      "category": "zemljepis",
+      "question_type": "slider",
+      "difficulty": 5,
+      "text": "Koliko kilometrov je dolga reka Nil?",
+      "explanation": "Nil je dolg približno 6650 km.",
+      "image": null,
+      "slider": {
+        "min": 5000,
+        "max": 8000,
+        "step": 50,
+        "correct": 6650,
+        "tolerance": 100
+      }
+    },
+    {
+      "key": "zemljepis-d5-10",
+      "category": "zemljepis",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "Katera je prestolnica Kazahstana?",
+      "explanation": "Astana (prej Nursultan) je prestolnica Kazahstana.",
+      "image": null,
+      "options": [
+        { "text": "Astana", "correct": true },
+        { "text": "Almaty", "correct": false },
+        { "text": "Šimkent", "correct": false },
+        { "text": "Karaganda", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-1",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Katera reprezentanca je zmagala na svetovnem prvenstvu v nogometu 2022?",
+      "explanation": "Argentina je v finalu premagala Francijo.",
+      "image": null,
+      "options": [
+        { "text": "Argentina", "correct": true },
+        { "text": "Francija", "correct": false },
+        { "text": "Brazilija", "correct": false },
+        { "text": "Nemčija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-2",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Nogomet se igra z žogo.",
+      "explanation": "Nogomet je ekipni šport z žogo.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-3",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Koliko igralcev ima nogometna ekipa na igrišču?",
+      "explanation": "Nogometna ekipa ima 11 igralcev.",
+      "image": null,
+      "options": [
+        { "text": "11", "correct": true },
+        { "text": "10", "correct": false },
+        { "text": "12", "correct": false },
+        { "text": "9", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-4",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Luka Dončić je slovenski košarkar.",
+      "explanation": "Luka Dončić je slovenski profesionalni košarkar.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-5",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Kateri šport se igra na Wimbledonu?",
+      "explanation": "Wimbledon je najprestižnejši teniški turnir.",
+      "image": null,
+      "options": [
+        { "text": "Tenis", "correct": true },
+        { "text": "Golf", "correct": false },
+        { "text": "Kriket", "correct": false },
+        { "text": "Badminton", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-6",
+      "category": "sport",
+      "question_type": "multi_select",
+      "difficulty": 1,
+      "text": "Kateri od naštetih so olimpijski športi?",
+      "explanation": "Plavanje, atletika in košarka so olimpijski športi.",
+      "image": null,
+      "options": [
+        { "text": "Plavanje", "correct": true },
+        { "text": "Atletika", "correct": true },
+        { "text": "Šah", "correct": false },
+        { "text": "Košarka", "correct": true }
+      ]
+    },
+    {
+      "key": "sport-d1-7",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Katera država je gostila olimpijske igre 2024?",
+      "explanation": "Pariz je gostil olimpijske igre 2024.",
+      "image": null,
+      "options": [
+        { "text": "Francija", "correct": true },
+        { "text": "Japonska", "correct": false },
+        { "text": "Kitajska", "correct": false },
+        { "text": "ZDA", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-8",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 1,
+      "text": "Maraton je tekaška disciplina.",
+      "explanation": "Maraton je dolga tekaška disciplina (42,195 km).",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d1-9",
+      "category": "sport",
+      "question_type": "matching",
+      "difficulty": 1,
+      "text": "Poveži šport z opremo.",
+      "explanation": "Osnovna oprema športov.",
+      "image": null,
+      "pairs": [
+        { "left": "Nogomet", "right": "Žoga" },
+        { "left": "Košarka", "right": "Koš" },
+        { "left": "Tenis", "right": "Lopar" },
+        { "left": "Plavanje", "right": "Bazen" }
+      ]
+    },
+    {
+      "key": "sport-d1-10",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 1,
+      "text": "Koliko točk je vredna trojka v košarki?",
+      "explanation": "Trojka v košarki je vredna 3 točke.",
+      "image": null,
+      "options": [
+        { "text": "3", "correct": true },
+        { "text": "2", "correct": false },
+        { "text": "1", "correct": false },
+        { "text": "4", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d2-1",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Kdo je zmagal na Tour de France 2023?",
+      "explanation": "Jonas Vingegaard je zmagal na Tour de France 2023.",
+      "image": null,
+      "options": [
+        { "text": "Jonas Vingegaard", "correct": true },
+        { "text": "Tadej Pogačar", "correct": false },
+        { "text": "Primož Roglič", "correct": false },
+        { "text": "Egan Bernal", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d2-2",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 2,
+      "text": "Tadej Pogačar je slovenski kolesar.",
+      "explanation": "Tadej Pogačar je slovenski profesionalni kolesar.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d2-3",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 2,
+      "text": "Koliko kilometrov je dolg maraton?",
+      "explanation": "Maraton meri 42,195 km.",
+      "image": null,
+      "slider": {
+        "min": 30,
+        "max": 50,
+        "step": 0.5,
+        "correct": 42.195,
+        "tolerance": 1
+      }
+    },
+    {
+      "key": "sport-d2-4",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Katera država je zmagala na Euro 2024?",
+      "explanation": "Španija je zmagala na Euro 2024.",
+      "image": null,
+      "options": [
+        { "text": "Španija", "correct": true },
+        { "text": "Anglija", "correct": false },
+        { "text": "Francija", "correct": false },
+        { "text": "Nemčija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d2-5",
+      "category": "sport",
+      "question_type": "multi_select",
+      "difficulty": 2,
+      "text": "Kateri od naštetih so slovenski športniki?",
+      "explanation": "Pogačar, Dončić in Roglič so Slovenci.",
+      "image": null,
+      "options": [
+        { "text": "Tadej Pogačar", "correct": true },
+        { "text": "Luka Dončić", "correct": true },
+        { "text": "Cristiano Ronaldo", "correct": false },
+        { "text": "Primož Roglič", "correct": true }
+      ]
+    },
+    {
+      "key": "sport-d2-6",
+      "category": "sport",
+      "question_type": "ordering",
+      "difficulty": 2,
+      "text": "Razvrsti olimpijske medalje od najvrednejše.",
+      "explanation": "Zlato, srebro, bron.",
+      "image": null,
+      "options": [
+        { "text": "Zlato" },
+        { "text": "Srebro" },
+        { "text": "Bron" }
+      ]
+    },
+    {
+      "key": "sport-d2-7",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 2,
+      "text": "NBA je ameriška košarkarska liga.",
+      "explanation": "NBA je najprestižnejša profesionalna košarkarska liga.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d2-8",
+      "category": "sport",
+      "question_type": "matching",
+      "difficulty": 2,
+      "text": "Poveži športnika z njegovim športom.",
+      "explanation": "Znani športniki in njihovi športi.",
+      "image": null,
+      "pairs": [
+        { "left": "Luka Dončić", "right": "Košarka" },
+        { "left": "Tadej Pogačar", "right": "Kolesarstvo" },
+        { "left": "Novak Đoković", "right": "Tenis" },
+        { "left": "Lionel Messi", "right": "Nogomet" }
+      ]
+    },
+    {
+      "key": "sport-d2-9",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 2,
+      "text": "Kdo je zmagal na svetovnem prvenstvu v nogometu 2018?",
+      "explanation": "Francija je zmagala na SP 2018.",
+      "image": null,
+      "options": [
+        { "text": "Francija", "correct": true },
+        { "text": "Hrvaška", "correct": false },
+        { "text": "Brazilija", "correct": false },
+        { "text": "Nemčija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d2-10",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 2,
+      "text": "Usain Bolt je najhitrejši človek na svetu.",
+      "explanation": "Usain Bolt drži svetovni rekord na 100 m.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d3-1",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 3,
+      "text": "Koliko igralcev ima košarkarska ekipa na igrišču?",
+      "explanation": "Košarkarska ekipa ima 5 igralcev na igrišču.",
+      "image": null,
+      "options": [
+        { "text": "5", "correct": true },
+        { "text": "6", "correct": false },
+        { "text": "7", "correct": false },
+        { "text": "4", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d3-2",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 3,
+      "text": "Koliko metrov je dolga tekaška steza na 100 m?",
+      "explanation": "100 m je standardna sprinterska razdalja.",
+      "image": null,
+      "slider": {
+        "min": 50,
+        "max": 200,
+        "step": 10,
+        "correct": 100,
+        "tolerance": 10
+      }
+    },
+    {
+      "key": "sport-d3-3",
+      "category": "sport",
+      "question_type": "multi_select",
+      "difficulty": 3,
+      "text": "Kateri od naštetih so zmagali na Tour de France?",
+      "explanation": "Pogačar, Roglič in Vingegaard so zmagali.",
+      "image": null,
+      "options": [
+        { "text": "Tadej Pogačar", "correct": true },
+        { "text": "Primož Roglič", "correct": true },
+        { "text": "Chris Froome", "correct": false },
+        { "text": "Jonas Vingegaard", "correct": true }
+      ]
+    },
+    {
+      "key": "sport-d3-4",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 3,
+      "text": "Formula 1 je avtomobilistično prvenstvo.",
+      "explanation": "Formula 1 je najprestižnejše avtomobilistično prvenstvo.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d3-5",
+      "category": "sport",
+      "question_type": "ordering",
+      "difficulty": 3,
+      "text": "Razvrsti olimpijske igre od najstarejše proti najnovejši.",
+      "explanation": "Tokio 2020, Peking 2022, Pariz 2024.",
+      "image": null,
+      "options": [
+        { "text": "Tokio 2020" },
+        { "text": "Peking 2022" },
+        { "text": "Pariz 2024" }
+      ]
+    },
+    {
+      "key": "sport-d3-6",
+      "category": "sport",
+      "question_type": "matching",
+      "difficulty": 3,
+      "text": "Poveži klub z ligi, v kateri igra.",
+      "explanation": "Znani klubi in njihove lige.",
+      "image": null,
+      "pairs": [
+        { "left": "Real Madrid", "right": "La Liga" },
+        { "left": "Manchester United", "right": "Premier League" },
+        { "left": "Bayern München", "right": "Bundesliga" },
+        { "left": "Juventus", "right": "Serie A" }
+      ]
+    },
+    {
+      "key": "sport-d3-7",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 3,
+      "text": "Kdo je zmagal na svetovnem prvenstvu v nogometu 2014?",
+      "explanation": "Nemčija je zmagala na SP 2014.",
+      "image": null,
+      "options": [
+        { "text": "Nemčija", "correct": true },
+        { "text": "Argentina", "correct": false },
+        { "text": "Brazilija", "correct": false },
+        { "text": "Nizozemska", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d3-8",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 3,
+      "text": "Michael Phelps je najuspešnejši olimpijec v zgodovini.",
+      "explanation": "Michael Phelps ima največ olimpijskih medalj.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d3-9",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 3,
+      "text": "Katera država je gostila olimpijske igre 2020?",
+      "explanation": "Tokio je gostil olimpijske igre 2020 (leta 2021).",
+      "image": null,
+      "options": [
+        { "text": "Japonska", "correct": true },
+        { "text": "Kitajska", "correct": false },
+        { "text": "Brazilija", "correct": false },
+        { "text": "Velika Britanija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d3-10",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 3,
+      "text": "Koliko točk je potrebnih za zmago v tenisu (set)?",
+      "explanation": "Za zmago v setu je potrebno 6 gemov (z razliko).",
+      "image": null,
+      "slider": {
+        "min": 4,
+        "max": 8,
+        "step": 1,
+        "correct": 6,
+        "tolerance": 0
+      }
+    },
+    {
+      "key": "sport-d4-1",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Kdo je zmagal na svetovnem prvenstvu v nogometu 2010?",
+      "explanation": "Španija je zmagala na SP 2010.",
+      "image": null,
+      "options": [
+        { "text": "Španija", "correct": true },
+        { "text": "Nizozemska", "correct": false },
+        { "text": "Nemčija", "correct": false },
+        { "text": "Urugvaj", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d4-2",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 4,
+      "text": "Primož Roglič je zmagal na Vuelti a España.",
+      "explanation": "Primož Roglič je večkrat zmagal na Vuelti.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d4-3",
+      "category": "sport",
+      "question_type": "multi_select",
+      "difficulty": 4,
+      "text": "Kateri od naštetih so zmagali na olimpijskih igrah v atletiki?",
+      "explanation": "Bolt in drugi so zmagali, a izbira je splošna.",
+      "image": null,
+      "options": [
+        { "text": "Usain Bolt", "correct": true },
+        { "text": "Michael Phelps", "correct": false },
+        { "text": "Carl Lewis", "correct": true },
+        { "text": "Jesse Owens", "correct": true }
+      ]
+    },
+    {
+      "key": "sport-d4-4",
+      "category": "sport",
+      "question_type": "ordering",
+      "difficulty": 4,
+      "text": "Razvrsti svetovna prvenstva v nogometu od najstarejšega.",
+      "explanation": "2010, 2014, 2018, 2022.",
+      "image": null,
+      "options": [
+        { "text": "2010" },
+        { "text": "2014" },
+        { "text": "2018" },
+        { "text": "2022" }
+      ]
+    },
+    {
+      "key": "sport-d4-5",
+      "category": "sport",
+      "question_type": "matching",
+      "difficulty": 4,
+      "text": "Poveži rekord z športnikom.",
+      "explanation": "Znani rekordi.",
+      "image": null,
+      "pairs": [
+        { "left": "100 m", "right": "Usain Bolt" },
+        { "left": "Maraton", "right": "Eliud Kipchoge" },
+        { "left": "Dolgi skok", "right": "Mike Powell" },
+        { "left": "Skok v višino", "right": "Javier Sotomayor" }
+      ]
+    },
+    {
+      "key": "sport-d4-6",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Katera država je zmagala na svetovnem prvenstvu v košarki 2023?",
+      "explanation": "Nemčija je zmagala na SP v košarki 2023.",
+      "image": null,
+      "options": [
+        { "text": "Nemčija", "correct": true },
+        { "text": "Srbija", "correct": false },
+        { "text": "ZDA", "correct": false },
+        { "text": "Kanada", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d4-7",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 4,
+      "text": "Roger Federer je švicarski tenisač.",
+      "explanation": "Roger Federer je legendarni švicarski tenisač.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d4-8",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 4,
+      "text": "Koliko olimpijskih medalj ima Michael Phelps?",
+      "explanation": "Michael Phelps ima 28 olimpijskih medalj.",
+      "image": null,
+      "slider": {
+        "min": 10,
+        "max": 40,
+        "step": 1,
+        "correct": 28,
+        "tolerance": 2
+      }
+    },
+    {
+      "key": "sport-d4-9",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 4,
+      "text": "Kdo je zmagal na svetovnem prvenstvu v nogometu 2006?",
+      "explanation": "Italija je zmagala na SP 2006.",
+      "image": null,
+      "options": [
+        { "text": "Italija", "correct": true },
+        { "text": "Francija", "correct": false },
+        { "text": "Nemčija", "correct": false },
+        { "text": "Brazilija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d4-10",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 4,
+      "text": "NBA draft je izbor mladih košarkarjev.",
+      "explanation": "NBA draft je letni izbor novih igralcev.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d5-1",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "Kdo je zmagal na svetovnem prvenstvu v nogometu 1998?",
+      "explanation": "Francija je zmagala na SP 1998.",
+      "image": null,
+      "options": [
+        { "text": "Francija", "correct": true },
+        { "text": "Brazilija", "correct": false },
+        { "text": "Nemčija", "correct": false },
+        { "text": "Italija", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d5-2",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 5,
+      "text": "Koliko sekund je trajal svetovni rekord Usaina Bolta na 100 m?",
+      "explanation": "Usain Boltov rekord je 9,58 s.",
+      "image": null,
+      "slider": {
+        "min": 9,
+        "max": 11,
+        "step": 0.01,
+        "correct": 9.58,
+        "tolerance": 0.1
+      }
+    },
+    {
+      "key": "sport-d5-3",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 5,
+      "text": "Pelé je zmagal na treh svetovnih prvenstvih v nogometu.",
+      "explanation": "Pelé je zmagal na SP 1958, 1962 in 1970.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d5-4",
+      "category": "sport",
+      "question_type": "matching",
+      "difficulty": 5,
+      "text": "Poveži turnir z njegovim športom.",
+      "explanation": "Znani turnirji.",
+      "image": null,
+      "pairs": [
+        { "left": "Wimbledon", "right": "Tenis" },
+        { "left": "Tour de France", "right": "Kolesarstvo" },
+        { "left": "Masters", "right": "Golf" },
+        { "left": "Super Bowl", "right": "Ameriški nogomet" }
+      ]
+    },
+    {
+      "key": "sport-d5-5",
+      "category": "sport",
+      "question_type": "multi_select",
+      "difficulty": 5,
+      "text": "Kateri od naštetih so zmagali na več kot enem svetovnem prvenstvu v nogometu?",
+      "explanation": "Brazilija, Nemčija in Italija so zmagale večkrat.",
+      "image": null,
+      "options": [
+        { "text": "Brazilija", "correct": true },
+        { "text": "Nemčija", "correct": true },
+        { "text": "Argentina", "correct": false },
+        { "text": "Italija", "correct": true }
+      ]
+    },
+    {
+      "key": "sport-d5-6",
+      "category": "sport",
+      "question_type": "ordering",
+      "difficulty": 5,
+      "text": "Razvrsti države po številu zmag na SP v nogometu (od največ).",
+      "explanation": "Brazilija (5), Nemčija (4), Italija (4), Argentina (3).",
+      "image": null,
+      "options": [
+        { "text": "Brazilija" },
+        { "text": "Nemčija" },
+        { "text": "Italija" },
+        { "text": "Argentina" }
+      ]
+    },
+    {
+      "key": "sport-d5-7",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "Kdo je zmagal na svetovnem prvenstvu v atletiki 2023 v teku na 100 m (moški)?",
+      "explanation": "Noah Lyles je zmagal na 100 m na SP 2023.",
+      "image": null,
+      "options": [
+        { "text": "Noah Lyles", "correct": true },
+        { "text": "Usain Bolt", "correct": false },
+        { "text": "Justin Gatlin", "correct": false },
+        { "text": "Christian Coleman", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d5-8",
+      "category": "sport",
+      "question_type": "true_false",
+      "difficulty": 5,
+      "text": "Serena Williams ima več grand slam naslovov kot njena sestra Venus.",
+      "explanation": "Serena ima več grand slam naslovov.",
+      "image": null,
+      "options": [
+        { "text": "Drži", "correct": true },
+        { "text": "Ne drži", "correct": false }
+      ]
+    },
+    {
+      "key": "sport-d5-9",
+      "category": "sport",
+      "question_type": "slider",
+      "difficulty": 5,
+      "text": "Koliko grand slam naslovov ima Novak Đoković?",
+      "explanation": "Novak Đoković ima 24 grand slam naslovov (stanje 2026).",
+      "image": null,
+      "slider": {
+        "min": 15,
+        "max": 30,
+        "step": 1,
+        "correct": 24,
+        "tolerance": 1
+      }
+    },
+    {
+      "key": "sport-d5-10",
+      "category": "sport",
+      "question_type": "multiple_choice",
+      "difficulty": 5,
+      "text": "Katera država je zmagala na svetovnem prvenstvu v hokeju na ledu 2024?",
+      "explanation": "Češka je zmagala na SP v hokeju 2024.",
+      "image": null,
+      "options": [
+        { "text": "Češka", "correct": true },
+        { "text": "Kanada", "correct": false },
+        { "text": "Finska", "correct": false },
+        { "text": "Švedska", "correct": false }
       ]
     }
   ]

@@ -1,12 +1,14 @@
 from django.conf import settings
 from django.db import models
 
+from game.modes import MODE_CHOICES
+
 
 class GameSession(models.Model):
     room = models.OneToOneField("rooms.Room", on_delete=models.CASCADE, related_name="game_session")
     mode = models.CharField(
         max_length=20,
-        choices=[("millionaire", "Milijonar"), ("multiplayer", "Več igralcev")],
+        choices=MODE_CHOICES,
     )
     status = models.CharField(
         max_length=20,
@@ -107,3 +109,7 @@ class GameResult(models.Model):
 
     def __str__(self):
         return f"{self.nickname}: {self.score}"
+
+
+from game.bonus_models import BonusDefinition, PhoneFriend  # noqa: E402,F401
+

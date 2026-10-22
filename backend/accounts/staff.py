@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.cleanup import cleanup_stale_guests
 from accounts.models import User
 
 
@@ -54,3 +55,16 @@ class AdminUserUpdateView(APIView):
         target.is_staff = want
         target.save(update_fields=["is_staff"])
         return Response({"user": staff_user_payload(target)})
+
+
+class AdminCleanupGuestsView(APIView):
+    permission_classes = [StaffOnly]
+
+    def post(self, request):
+        deleted = cleanup_stale_guests()
+        return Response(
+            {
+                "deleted": deleted,
+                "detail": f"Pobrisanih gostov: {deleted}. Rezultati ostanejo.",
+            }
+        )

@@ -3,7 +3,7 @@ import secrets
 from django.db import IntegrityError, transaction
 
 from accounts.nicknames import NicknameError, clean_nickname
-from game.engine import GameError, validate_settings
+from game.engine import GameError, room_name_for, validate_settings
 from rooms.models import Room, RoomMember
 
 ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -23,7 +23,7 @@ def create_solo_room(user, raw):
                     status="waiting",
                     settings=settings,
                     max_players=1,
-                    name="Milijonar",
+                    name=room_name_for(settings.get("mode")),
                 )
                 RoomMember.objects.create(
                     room=room,

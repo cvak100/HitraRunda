@@ -41,6 +41,18 @@ export function AdminHomePage() {
           <strong>{summary ? summary.active_questions : "…"}</strong>
           {summary ? <span className="fine">Skupaj {summary.questions}</span> : null}
         </Link>
+        <Link className="dash-card" to="/nadzor/vsebina">
+          <span>Vsebina / uvoz</span>
+          <strong>JSON</strong>
+        </Link>
+        <Link className="dash-card" to="/nadzor/bonusi">
+          <span>Bonusi</span>
+          <strong>Jokerji</strong>
+        </Link>
+        <Link className="dash-card" to="/nadzor/prijatelji">
+          <span>Prijatelji</span>
+          <strong>Klic</strong>
+        </Link>
         <Link className="dash-card" to="/nadzor/uporabniki">
           <span>Uporabniki</span>
           <strong>{summary ? summary.users : "…"}</strong>

@@ -1,14 +1,40 @@
-import { Fragment, useEffect, useState } from "react";
+import { FormEvent, Fragment, useEffect, useState } from "react";
 
 import { ApiError, api } from "../api";
 import { QuestionBody, TYPE_LABELS } from "../components/QuestionBody";
 import { SearchField } from "../components/SearchField";
-import type { StaffQuestion } from "../types";
+import type { StaffOption, StaffPair, StaffQuestion } from "../types";
 
 type QuestionStatus = "all" | "active" | "withdrawn";
 type SortKey = "text" | "category" | "type" | "difficulty" | "status" | "reports";
 
 const LIMITS = ["20", "50", "100", "200", "all"] as const;
+
+type EditForm = {
+  text: string;
+  category: string;
+  difficulty: number;
+  explanation: string;
+  is_active: boolean;
+  options: StaffOption[];
+  pairs: StaffPair[];
+  slider: { min: number; max: number; step: number; correct: number; tolerance: number };
+};
+
+function toForm(question: StaffQuestion): EditForm {
+  return {
+    text: question.text,
+    category: question.category,
+    difficulty: question.difficulty,
+    explanation: question.explanation || "",
+    is_active: question.is_active,
+    options: (question.options || []).map((option) => ({ ...option })),
+    pairs: (question.pairs || []).map((pair) => ({ ...pair })),
+    slider: question.slider
+      ? { ...question.slider }
+      : { min: 0, max: 100, step: 1, correct: 50, tolerance: 5 },
+  };
+}
 
 export function AdminQuestionsPage() {
   const [questions, setQuestions] = useState<StaffQuestion[]>([]);
@@ -22,8 +48,10 @@ export function AdminQuestionsPage() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [openId, setOpenId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<number | null>(null);
+  const [form, setForm] = useState<EditForm | null>(null);
 
-  useEffect(() => {
+  function load() {
     const params = new URLSearchParams();
     if (submitted.trim()) params.set("q", submitted.trim());
     params.set("status", status);
@@ -37,22 +65,68 @@ export function AdminQuestionsPage() {
         setError("");
       })
       .catch(() => setError("Vprašanj ni bilo mogoče naložiti."));
+  }
+
+  useEffect(() => {
+    load();
   }, [submitted, status, sort, direction, limit]);
 
   async function removeQuestion(question: StaffQuestion) {
     if (!window.confirm("Izbrišem to vprašanje?")) return;
     setError("");
     try {
-      const result = await api<{ detail: string; deactivated: boolean }>(`/api/admin/questions/${question.id}/`, { method: "DELETE" });
+      const result = await api<{ detail: string; deactivated: boolean }>(`/api/admin/questions/${question.id}/`, {
+        method: "DELETE",
+      });
       setNotice(result.detail);
       if (result.deactivated && status !== "active") {
-        setQuestions((current) => current.map((item) => (item.id === question.id ? { ...item, is_active: false, open_reports: 0 } : item)));
+        setQuestions((current) =>
+          current.map((item) => (item.id === question.id ? { ...item, is_active: false, open_reports: 0 } : item)),
+        );
       } else {
         setQuestions((current) => current.filter((item) => item.id !== question.id));
         setTotal((current) => Math.max(0, current - 1));
       }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Brisanje ni uspelo.");
+    }
+  }
+
+  function startEdit(question: StaffQuestion) {
+    setEditId(question.id);
+    setOpenId(question.id);
+    setForm(toForm(question));
+  }
+
+  async function saveEdit(event: FormEvent, question: StaffQuestion) {
+    event.preventDefault();
+    if (!form) return;
+    setError("");
+    setNotice("");
+    const body: Record<string, unknown> = {
+      key: question.key,
+      category: form.category,
+      question_type: question.question_type,
+      difficulty: form.difficulty,
+      text: form.text,
+      explanation: form.explanation,
+      is_active: form.is_active,
+      image: question.image,
+    };
+    if (question.question_type === "matching") body.pairs = form.pairs;
+    else if (question.question_type === "slider") body.slider = form.slider;
+    else body.options = form.options.map((option) => ({ text: option.text, correct: option.correct }));
+    try {
+      const result = await api<{ question: StaffQuestion; detail: string }>(`/api/admin/questions/${question.id}/`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      setNotice(result.detail);
+      setQuestions((current) => current.map((item) => (item.id === question.id ? result.question : item)));
+      setEditId(null);
+      setForm(null);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Shranjevanje ni uspelo.");
     }
   }
 
@@ -134,6 +208,9 @@ export function AdminQuestionsPage() {
                     <button type="button" onClick={() => setOpenId((current) => (current === question.id ? null : question.id))}>
                       Pregled
                     </button>
+                    <button type="button" onClick={() => startEdit(question)}>
+                      Uredi
+                    </button>
                     <button type="button" onClick={() => void removeQuestion(question)}>
                       Izbriši
                     </button>
@@ -142,7 +219,118 @@ export function AdminQuestionsPage() {
                 {openId === question.id ? (
                   <tr>
                     <td colSpan={7}>
-                      <QuestionBody question={question} />
+                      {editId === question.id && form ? (
+                        <form className="stack" onSubmit={(event) => void saveEdit(event, question)}>
+                          <label>
+                            Besedilo
+                            <textarea value={form.text} onChange={(event) => setForm({ ...form, text: event.target.value })} required />
+                          </label>
+                          <label>
+                            Kategorija (slug)
+                            <input value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} required />
+                          </label>
+                          <label>
+                            Težavnost
+                            <input
+                              type="number"
+                              min={1}
+                              max={5}
+                              value={form.difficulty}
+                              onChange={(event) => setForm({ ...form, difficulty: Number(event.target.value) })}
+                            />
+                          </label>
+                          <label>
+                            Razlaga
+                            <textarea value={form.explanation} onChange={(event) => setForm({ ...form, explanation: event.target.value })} />
+                          </label>
+                          <label className="check">
+                            <input
+                              type="checkbox"
+                              checked={form.is_active}
+                              onChange={(event) => setForm({ ...form, is_active: event.target.checked })}
+                            />
+                            Aktivno
+                          </label>
+                          {question.question_type === "matching" ? (
+                            form.pairs.map((pair, index) => (
+                              <div key={index} className="actions">
+                                <input
+                                  value={pair.left}
+                                  onChange={(event) => {
+                                    const pairs = [...form.pairs];
+                                    pairs[index] = { ...pair, left: event.target.value };
+                                    setForm({ ...form, pairs });
+                                  }}
+                                  placeholder="Levo"
+                                />
+                                <input
+                                  value={pair.right}
+                                  onChange={(event) => {
+                                    const pairs = [...form.pairs];
+                                    pairs[index] = { ...pair, right: event.target.value };
+                                    setForm({ ...form, pairs });
+                                  }}
+                                  placeholder="Desno"
+                                />
+                              </div>
+                            ))
+                          ) : question.question_type === "slider" ? (
+                            <div className="actions">
+                              {(["min", "max", "step", "correct", "tolerance"] as const).map((field) => (
+                                <label key={field}>
+                                  {field}
+                                  <input
+                                    type="number"
+                                    value={form.slider[field]}
+                                    onChange={(event) =>
+                                      setForm({ ...form, slider: { ...form.slider, [field]: Number(event.target.value) } })
+                                    }
+                                  />
+                                </label>
+                              ))}
+                            </div>
+                          ) : (
+                            form.options.map((option, index) => (
+                              <label key={index} className="check">
+                                <input
+                                  type="checkbox"
+                                  checked={option.correct}
+                                  disabled={question.question_type === "ordering"}
+                                  onChange={(event) => {
+                                    const options = [...form.options];
+                                    options[index] = { ...option, correct: event.target.checked };
+                                    setForm({ ...form, options });
+                                  }}
+                                />
+                                <input
+                                  value={option.text}
+                                  onChange={(event) => {
+                                    const options = [...form.options];
+                                    options[index] = { ...option, text: event.target.value };
+                                    setForm({ ...form, options });
+                                  }}
+                                />
+                              </label>
+                            ))
+                          )}
+                          <div className="actions">
+                            <button className="primary" type="submit">
+                              Shrani
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditId(null);
+                                setForm(null);
+                              }}
+                            >
+                              Prekliči
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <QuestionBody question={question} />
+                      )}
                     </td>
                   </tr>
                 ) : null}

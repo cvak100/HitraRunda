@@ -248,6 +248,81 @@ fieldset { border: 1px solid var(--line); border-radius: 16px; }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 button:disabled { opacity: 0.55; cursor: not-allowed; }
 
+.game-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.game-block {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 16px;
+  background: #121815;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.game-block h2 { margin: 0; font-size: 1.45rem; }
+.game-block .primary { align-self: flex-start; margin-top: auto; }
+
+.friend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+.friend-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--friend-color, var(--gold));
+  border-radius: 14px;
+  padding: 12px;
+  background: #121815;
+  white-space: normal;
+}
+.friend-card.is-on { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.friend-card strong { color: var(--ink); }
+.lifelines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 12px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--gold);
+  border-radius: 14px;
+  background: #1a1f16;
+}
+.lifelines .fine { width: 100%; margin: 0; }
+.lifelines .is-used { text-decoration: line-through; opacity: 0.55; }
+.lifelines .walk-away { border-color: var(--good); color: var(--good); }
+.friend-pick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: stretch; }
+.friend-pick > .fine { width: 100%; margin: 0; }
+.friend-pick button {
+  border-left: 4px solid var(--friend-color, var(--gold));
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.friend-pick.is-open button:not(:disabled) { border-color: var(--gold); }
+.ladder .safe { border-style: dashed; color: var(--gold); }
+.help-banner {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #182019;
+}
+.code-area {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  min-height: 160px;
+}
+
 @media (max-width: 800px) {
   .stage { grid-template-columns: 1fr; }
   .ladder { flex-direction: row; overflow-x: auto; }
