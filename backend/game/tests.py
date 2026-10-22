@@ -15,10 +15,12 @@ from game.engine import (
     select_questions,
     start_game,
     submit_answer,
+    use_lifeline,
 )
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import public_question
 from game.routing import websocket_urlpatterns
+from game.seed_content import ensure_bonuses_and_friends
 from questions.models import Category, Question, QuestionOption
 from rooms.models import Room, RoomMember
 from rooms.services import create_solo_room
@@ -34,6 +36,21 @@ def choice_question(category, key, difficulty, correct="Prav", wrong="Narobe"):
     )
     QuestionOption.objects.create(question=question, text=correct, is_correct=True, order=0)
     QuestionOption.objects.create(question=question, text=wrong, is_correct=False, order=1)
+    return question
+
+
+def four_choice_question(category, key, difficulty):
+    question = Question.objects.create(
+        category=category,
+        external_key=key,
+        text=f"Vprašanje {key}",
+        difficulty=difficulty,
+        question_type=Question.Type.MULTIPLE_CHOICE,
+    )
+    QuestionOption.objects.create(question=question, text="A", is_correct=True, order=0)
+    QuestionOption.objects.create(question=question, text="B", is_correct=False, order=1)
+    QuestionOption.objects.create(question=question, text="C", is_correct=False, order=2)
+    QuestionOption.objects.create(question=question, text="D", is_correct=False, order=3)
     return question
 
 
@@ -235,7 +252,66 @@ class ApiFlowTests(TestCase):
         self.assertEqual(room.status_code, 200, room.data)
         self.assertEqual(room.data["status"], "waiting")
         self.assertEqual(room.data["max_players"], 1)
-        self.assertEqual(room.data["settings"]["mode"], "millionaire")
+        self.assertEqual(room.data["settings"]["mode"], "hitrarunda")
+
+    def test_ala_milijonar_requires_friends_and_supports_fifty_fifty(self):
+        ensure_bonuses_and_friends()
+        category = Category.objects.get(slug="sport")
+        for index in range(15):
+            four_choice_question(category, f"ala{index}", min(5, 1 + index // 3))
+        client = APIClient()
+        guest = client.post("/api/auth/guest/", {"nickname": "Zlata lisica"}, format="json")
+        self.assertEqual(guest.status_code, 200)
+        bad = client.post(
+            "/api/rooms/",
+            {
+                "nickname": "Zlata lisica",
+                "mode": "ala_milijonar",
+                "categories": ["sport"],
+                "time_limit_seconds": 20,
+            },
+            format="json",
+        )
+        self.assertEqual(bad.status_code, 400)
+        room = client.post(
+            "/api/rooms/",
+            {
+                "nickname": "Zlata lisica",
+                "mode": "ala_milijonar",
+                "categories": ["sport"],
+                "time_limit_seconds": 20,
+                "friend_keys": ["mira", "rok", "urban"],
+            },
+            format="json",
+        )
+        self.assertEqual(room.status_code, 200, room.data)
+        self.assertEqual(room.data["settings"]["mode"], "ala_milijonar")
+        self.assertEqual(room.data["settings"]["question_count"], 15)
+        member = RoomMember.objects.get(room__code=room.data["code"])
+        started = start_game(member.id)[0]
+        self.assertEqual(started["mode"], "ala_milijonar")
+        self.assertTrue(started["lifelines"]["fifty_fifty"]["available"])
+        helped = use_lifeline(
+            member.id,
+            {
+                "effect": "fifty_fifty",
+                "game_question_id": started["question"]["game_question_id"],
+            },
+        )[0]
+        self.assertEqual(len(helped["active_helps"]["fifty_fifty"]["eliminated_option_ids"]), 2)
+        self.assertFalse(helped["lifelines"]["fifty_fifty"]["available"])
+        types = set(
+            GameQuestion.objects.filter(game_session__room__code=room.data["code"]).values_list(
+                "question__question_type", flat=True
+            )
+        )
+        self.assertEqual(types, {"multiple_choice"})
+        difficulties = list(
+            GameQuestion.objects.filter(game_session__room__code=room.data["code"])
+            .order_by("order")
+            .values_list("question__difficulty", flat=True)
+        )
+        self.assertEqual(difficulties, [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5])
 
 
 class SocketTests(TransactionTestCase):
@@ -300,7 +376,7 @@ class HistoryTests(TestCase):
         for index in range(11):
             GameResult.objects.create(
                 nickname=f"Igralec {index}",
-                mode="millionaire",
+                mode="hitrarunda",
                 score=100 + index,
                 prize_reached=100,
                 speed_bonus=0,
@@ -328,7 +404,7 @@ class HistoryTests(TestCase):
         member = RoomMember.objects.create(room=room, user=owner, nickname_in_room="Ana", is_host=True)
         session = GameSession.objects.create(
             room=room,
-            mode="millionaire",
+            mode="hitrarunda",
             status="finished",
             total_questions=1,
             time_limit_seconds=20,
@@ -351,7 +427,7 @@ class HistoryTests(TestCase):
             game_session=session,
             user=owner,
             nickname="Ana",
-            mode="millionaire",
+            mode="hitrarunda",
             score=0,
             prize_reached=0,
             speed_bonus=0,

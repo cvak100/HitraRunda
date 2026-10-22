@@ -10,6 +10,7 @@ fi
 
 python manage.py migrate --noinput
 python manage.py seed_questions
+python manage.py seed_game_content
 python manage.py ensure_superuser
 
 if [ "$DJANGO_COLLECTSTATIC" = "1" ]; then

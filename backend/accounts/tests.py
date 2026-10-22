@@ -46,7 +46,7 @@ class AccountTests(TestCase):
         result = GameResult.objects.create(
             user=guest,
             nickname="Stari volk",
-            mode="millionaire",
+            mode="hitrarunda",
             score=500,
             prize_reached=500,
             speed_bonus=20,
@@ -62,6 +62,25 @@ class AccountTests(TestCase):
         self.assertIsNone(result.user_id)
         self.assertEqual(result.nickname, "Stari volk")
         self.assertEqual(result.score, 500)
+
+    def test_staff_can_run_cleanup_from_api(self):
+        guest = create_guest("Stari volk")
+        User.objects.filter(pk=guest.pk).update(created_at=timezone.now() - timedelta(days=8))
+        staff = User.objects.create_user(
+            username="admin@example.com",
+            email="admin@example.com",
+            password="zelo-dolgo-geslo",
+            nickname="Admin",
+            is_staff=True,
+        )
+        stranger = APIClient()
+        self.assertEqual(stranger.post("/api/admin/actions/cleanup-guests/").status_code, 403)
+        client = APIClient()
+        client.force_login(staff)
+        cleaned = client.post("/api/admin/actions/cleanup-guests/")
+        self.assertEqual(cleaned.status_code, 200)
+        self.assertEqual(cleaned.data["deleted"], 1)
+        self.assertFalse(User.objects.filter(pk=guest.pk).exists())
 
     def test_cleanup_keeps_guest_in_a_live_room(self):
         guest = create_guest("Svezi ris")

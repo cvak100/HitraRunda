@@ -16,26 +16,26 @@ class ImportTests(TestCase):
     def test_seed_is_idempotent(self):
         call_command("seed_questions")
         call_command("seed_questions")
-        self.assertEqual(Question.objects.count(), 20)
+        self.assertEqual(Question.objects.count(), 100)
 
     def test_update_keeps_option_ids_and_count(self):
         call_command("seed_questions")
-        question = Question.objects.get(external_key="sport-nogomet-igralci")
+        question = Question.objects.get(external_key="sport-d1-1")
         option_id = question.options.order_by("order").first().id
         payload = export_payload()
-        target = next(item for item in payload["questions"] if item["key"] == "sport-nogomet-igralci")
+        target = next(item for item in payload["questions"] if item["key"] == "sport-d1-1")
         target["text"] = "Spremenjeno besedilo"
         report = import_payload(json.dumps(payload, ensure_ascii=False))
         self.assertEqual(report["errors"], [])
         question.refresh_from_db()
         self.assertEqual(question.text, "Spremenjeno besedilo")
         self.assertEqual(question.options.order_by("order").first().id, option_id)
-        self.assertEqual(Question.objects.count(), 20)
+        self.assertEqual(Question.objects.count(), 100)
 
     def test_export_keeps_slider_secret_on_the_server_file(self):
         call_command("seed_questions")
         payload = export_payload()
-        slider = next(item for item in payload["questions"] if item["key"] == "zemljepis-triglav")
+        slider = next(item for item in payload["questions"] if item["key"] == "zemljepis-d2-2")
         self.assertEqual(slider["slider"]["correct"], 2864)
         self.assertEqual(slider["slider"]["tolerance"], 50)
 
@@ -88,7 +88,7 @@ class ReportTests(TestCase):
         member = RoomMember.objects.create(room=room, user=user, nickname_in_room=user.nickname, is_host=True)
         session = GameSession.objects.create(
             room=room,
-            mode="millionaire",
+            mode="hitrarunda",
             status="active",
             total_questions=1,
             time_limit_seconds=20,

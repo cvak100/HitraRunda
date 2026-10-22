@@ -229,8 +229,8 @@
       "image": null,
       "options": [
         { "text": "Maribor" },
-        { "text": "Ljubljana" },
         { "text": "Celje" },
+        { "text": "Ljubljana" },
         { "text": "Koper" }
       ]
     },

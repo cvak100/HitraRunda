@@ -54,6 +54,14 @@ class LeaderboardView(APIView):
         if error:
             return error
         results = GameResult.objects.filter(score__gt=0)
+        mode = str(request.query_params.get("mode") or "").strip()
+        if mode == "millionaire":
+            mode = "hitrarunda"
+        if mode:
+            if mode == "hitrarunda":
+                results = results.filter(mode__in=["hitrarunda", "millionaire"])
+            else:
+                results = results.filter(mode=mode)
         query = str(request.query_params.get("q") or "").strip()
         if query:
             results = results.filter(nickname__icontains=query)
@@ -74,12 +82,53 @@ class MyResultsView(APIView):
 
     def get(self, request):
         results = request.user.game_results.order_by("-played_at")
+        mode = str(request.query_params.get("mode") or "").strip()
+        if mode == "millionaire":
+            mode = "hitrarunda"
+        if mode == "hitrarunda":
+            results = results.filter(mode__in=["hitrarunda", "millionaire"])
+        elif mode:
+            results = results.filter(mode=mode)
         query = str(request.query_params.get("q") or "").strip()
         if query:
             results = results.filter(Q(nickname__icontains=query) | Q(room_code__icontains=query))
         total = results.count()
         results = results[:100]
         return Response({"results": [result_payload(result) for result in results], "total": total})
+
+
+class ProfileStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        from django.db.models import Max
+
+        from game.modes import MODE_ALA_MILIJONAR, MODE_HITRARUNDA, MODE_LABELS
+
+        base = request.user.game_results.all()
+        modes = [
+            {
+                "mode": MODE_HITRARUNDA,
+                "label": MODE_LABELS[MODE_HITRARUNDA],
+                "best_score": base.filter(mode__in=[MODE_HITRARUNDA, "millionaire"]).aggregate(v=Max("score"))["v"]
+                or 0,
+                "games": base.filter(mode__in=[MODE_HITRARUNDA, "millionaire"]).count(),
+            },
+            {
+                "mode": MODE_ALA_MILIJONAR,
+                "label": MODE_LABELS[MODE_ALA_MILIJONAR],
+                "best_score": base.filter(mode=MODE_ALA_MILIJONAR).aggregate(v=Max("score"))["v"] or 0,
+                "games": base.filter(mode=MODE_ALA_MILIJONAR).count(),
+            },
+        ]
+        recent = [result_payload(row) for row in base.order_by("-played_at")[:20]]
+        return Response(
+            {
+                "nickname": request.user.nickname,
+                "modes": modes,
+                "recent": recent,
+            }
+        )
 
 
 class ResultDetailView(APIView):

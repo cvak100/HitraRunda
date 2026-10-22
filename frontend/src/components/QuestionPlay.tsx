@@ -6,10 +6,12 @@ type Props = {
   question: PublicQuestion;
   locked: boolean;
   result: GameMessage | null;
+  eliminatedOptionIds?: number[];
+  audienceVotes?: { option_id: number; percent: number }[];
   onSubmit: (body: Record<string, unknown>) => void;
 };
 
-export function QuestionPlay({ question, locked, result, onSubmit }: Props) {
+export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [], audienceVotes = [], onSubmit }: Props) {
   const [items, setItems] = useState(question.options ?? []);
   const [picked, setPicked] = useState<number[]>([]);
   const [pairs, setPairs] = useState<{ left_id: string; right_id: string }[]>([]);
@@ -39,19 +41,25 @@ export function QuestionPlay({ question, locked, result, onSubmit }: Props) {
   }
 
   if (question.question_type === "multiple_choice" || question.question_type === "true_false") {
+    const voteMap = Object.fromEntries(audienceVotes.map((vote) => [vote.option_id, vote.percent]));
     return (
       <div className="answers">
-        {(question.options ?? []).map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            className={`slab ${optionClass(option.id)}`}
-            disabled={locked}
-            onClick={() => onSubmit({ option_id: option.id })}
-          >
-            {option.text}
-          </button>
-        ))}
+        {(question.options ?? []).map((option) => {
+          if (eliminatedOptionIds.includes(option.id)) return null;
+          const vote = voteMap[option.id];
+          return (
+            <button
+              key={option.id}
+              type="button"
+              className={`slab ${optionClass(option.id)}`}
+              disabled={locked}
+              onClick={() => onSubmit({ option_id: option.id })}
+            >
+              {option.text}
+              {vote !== undefined ? <span className="fine"> · {vote} %</span> : null}
+            </button>
+          );
+        })}
       </div>
     );
   }

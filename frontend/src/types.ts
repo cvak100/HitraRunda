@@ -6,11 +6,66 @@ export type User = {
   is_staff: boolean;
 };
 
+export type GameMode = "hitrarunda" | "ala_milijonar";
+
+export type PhoneFriend = {
+  id?: number;
+  key: string;
+  name: string;
+  title: string;
+  bio: string;
+  specialty_categories: string[];
+  reliability?: number;
+  out_of_specialty_reliability?: number;
+  avatar_color: string;
+  is_active?: boolean;
+  order?: number;
+  used?: boolean;
+};
+
+export type BonusDefinition = {
+  id: number;
+  key: string;
+  name: string;
+  description: string;
+  bonus_kind: string;
+  effect_key: string;
+  modes: string[];
+  config: Record<string, unknown>;
+  is_active: boolean;
+  order: number;
+};
+
+export type LifelineState = {
+  available?: boolean;
+  used?: boolean;
+  friend_keys?: string[];
+  used_friends?: string[];
+};
+
+export type AudienceVote = { option_id: number; percent: number };
+
+export type ActiveHelps = {
+  fifty_fifty?: { eliminated_option_ids: number[] };
+  audience?: { votes: AudienceVote[] };
+  phone_friend?: {
+    friend_key: string;
+    friend_name: string;
+    friend_title: string;
+    option_id: number;
+    option_text: string;
+    tone: string;
+    message: string;
+    in_specialty: boolean;
+  };
+};
+
 export type Category = {
   slug: string;
   name: string;
   description: string;
   question_count: number;
+  classic_question_count?: number;
 };
 
 export type PublicOption = { id: number; text: string };
@@ -44,6 +99,7 @@ export type GameMessage = {
   type: string;
   phase?: string;
   message?: string;
+  mode?: string;
   question?: PublicQuestion;
   index?: number;
   total?: number;
@@ -72,6 +128,24 @@ export type GameMessage = {
   correct_value?: number;
   tolerance?: number;
   selected_value?: number;
+  lifelines?: Record<string, LifelineState>;
+  active_helps?: ActiveHelps;
+  friends?: PhoneFriend[];
+  lifeline?: Record<string, unknown>;
+  safe_orders?: number[];
+  guaranteed_prize?: number;
+  can_walk_away?: boolean;
+  walked_away?: boolean;
+};
+
+export type StaffCategory = {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  is_active: boolean;
+  order: number;
+  question_count: number;
 };
 
 export type StaffOption = { text: string; correct: boolean; order: number };

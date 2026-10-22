@@ -38,7 +38,7 @@ export function RegisterPage() {
         </label>
         <label>
           Geslo
-          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required />
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={4} required />
         </label>
         <label>
           Vzdevek

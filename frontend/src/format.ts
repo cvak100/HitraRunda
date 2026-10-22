@@ -16,6 +16,18 @@ export function formatDuration(value: number | null) {
 
 export const REASONS: Record<string, string> = {
   completed: "Odgovoril si na vsa vprašanja.",
-  wrong: "Napačen odgovor. Dosežena nagrada ostane.",
+  wrong: "Napačen odgovor.",
   timeout: "Čas je potekel.",
+  walk_away: "Odnehal si z doseženo nagrado.",
 };
+
+export const MODE_LABELS: Record<string, string> = {
+  hitrarunda: "Hitra runda",
+  millionaire: "Hitra runda",
+  ala_milijonar: "Ala milijonar",
+  multiplayer: "Več igralcev",
+};
+
+export function formatMode(mode: string) {
+  return MODE_LABELS[mode] || mode;
+}
