@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Uvoz vprašanj</h1>
+<p>JSON različice 1. Kategoriji sta <code>sport</code> in <code>zemljepis</code>. Isti <code>key</code> vprašanje posodobi.</p>
+<p>Pred odgovorom igralec ne vidi pravilnih vrednosti. V tej datoteki so, skupaj s toleranco drsnika.</p>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <p><input type="file" name="file" accept="application/json,.json" required></p>
+  <p><input type="submit" class="default" value="Uvozi"></p>
+</form>
+{% if report %}
+  <h2>Poročilo</h2>
+  <p>Novih: {{ report.created }}. Posodobljenih: {{ report.updated }}.</p>
+  {% if report.errors %}
+    <ul>
+      {% for error in report.errors %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Uvoz je uspel.</p>
+  {% endif %}
+{% endif %}
+<p><a href="{% url 'admin:questions_question_changelist' %}">Nazaj na vprašanja</a></p>
+{% endblock %}
