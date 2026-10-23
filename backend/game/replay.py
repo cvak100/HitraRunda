@@ -34,10 +34,7 @@ def session_detail(session):
 
 
 def _result(session):
-    try:
-        return session.result
-    except GameResult.DoesNotExist:
-        return None
+    return session.results.order_by("-score", "duration_ms", "played_at").first()
 
 
 def _nickname(session, result):

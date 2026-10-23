@@ -22,6 +22,7 @@ import { LogoutPage } from "./pages/LogoutPage";
 import { HomePage } from "./pages/HomePage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { LoginPage } from "./pages/LoginPage";
+import { MultiplayerHubPage } from "./pages/MultiplayerHubPage";
 import { PlayHubPage } from "./pages/PlayHubPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -40,12 +41,14 @@ export function App() {
             <Route path="lestvica" element={<Navigate to="/lestvica/hitrarunda" replace />} />
             <Route path="lestvica/hitrarunda" element={<LeaderboardPage />} />
             <Route path="lestvica/ala-milijonar" element={<LeaderboardPage />} />
+            <Route path="lestvica/vec-igralcev" element={<LeaderboardPage />} />
             <Route path="lestvica/rezultat/:resultId" element={<ResultPage />} />
             <Route path="lestvica/:resultId" element={<ResultPage />} />
             <Route element={<RequireUser />}>
               <Route path="igra" element={<PlayHubPage />} />
               <Route path="igra/hitrarunda" element={<SetupPage />} />
               <Route path="igra/ala-milijonar" element={<SetupPage />} />
+              <Route path="igra/vec-igralcev" element={<MultiplayerHubPage />} />
               <Route path="igra/:code" element={<GamePage />} />
               <Route path="racun" element={<AccountLayout />}>
                 <Route index element={<Navigate to="profil" replace />} />

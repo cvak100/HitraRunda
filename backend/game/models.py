@@ -72,14 +72,14 @@ class PlayerAnswer(models.Model):
 
 
 class GameResult(models.Model):
-    """Posnetek rezultata. Preživi brisanje gosta in sobe."""
+    """Posnetek rezultata. Preživi brisanje gosta in sobe. Pri multiplayerju več zapisov na sejo."""
 
-    game_session = models.OneToOneField(
+    game_session = models.ForeignKey(
         GameSession,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="result",
+        related_name="results",
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

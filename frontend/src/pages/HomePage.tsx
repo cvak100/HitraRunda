@@ -91,11 +91,25 @@ export function HomePage() {
             <p className="eyebrow">15 stopenj z jokerji</p>
             <h2>Ala milijonar</h2>
             <p>
-              Vprašanja s 4 odgovori, 90 s na vprašanje, težavnost 1→5. Polovička, glas ljudstva, klic v sili. 
+              Vprašanja s 4 odgovori, 90 s na vprašanje, težavnost 1→5. Polovička, glas ljudstva, klic v sili.
             </p>
           </div>
           {user ? (
             <Link className="primary" to="/igra/ala-milijonar">
+              Igraj
+            </Link>
+          ) : (
+            <p className="fine">Najprej vzdevek zgoraj.</p>
+          )}
+        </article>
+        <article className="game-row">
+          <div>
+            <p className="eyebrow">Skupaj proti uri</p>
+            <h2>Več igralcev</h2>
+            <p>Soba s kodo ali linkom, ready check, ista vprašanja, rundni bonus in lestvica med rundami.</p>
+          </div>
+          {user ? (
+            <Link className="primary" to="/igra/vec-igralcev">
               Igraj
             </Link>
           ) : (

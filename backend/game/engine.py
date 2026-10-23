@@ -24,6 +24,8 @@ from game.modes import (
     MODE_ALA_MILIJONAR,
     MODE_HITRARUNDA,
     MODE_LABELS,
+    MODE_MULTIPLAYER,
+    MP_MAX_BOTS,
     PLAYABLE_MODES,
 )
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
@@ -91,7 +93,7 @@ def validate_settings(raw):
             count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
-    if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
+    if mode in {MODE_HITRARUNDA, MODE_MULTIPLAYER} and not 5 <= count <= 15:
         raise GameError("Število vprašanj mora biti med 5 in 15.")
     if mode != MODE_ALA_MILIJONAR and seconds not in ALLOWED_TIMES:
         raise GameError("Čas na vprašanje je 10, 15, 20, 30, 45 ali 60 sekund.")
@@ -147,6 +149,15 @@ def validate_settings(raw):
     }
     if friend_keys:
         settings["friend_keys"] = friend_keys
+    if mode == MODE_MULTIPLAYER:
+        settings["sudden_death"] = bool(raw.get("sudden_death"))
+        try:
+            bot_count = int(raw.get("bot_count") or 0)
+        except (TypeError, ValueError):
+            raise GameError("Število botov ni veljavno.")
+        if not 0 <= bot_count <= MP_MAX_BOTS:
+            raise GameError(f"Število botov mora biti med 0 in {MP_MAX_BOTS}.")
+        settings["bot_count"] = bot_count
     return settings
 
 
@@ -276,7 +287,21 @@ def set_member_connected(member_id, connected):
     RoomMember.objects.filter(pk=member_id).update(is_connected=connected)
 
 
+def _room_mode(member_id):
+    member = RoomMember.objects.select_related("room").filter(pk=member_id).first()
+    if member is None:
+        return None
+    session = GameSession.objects.filter(room_id=member.room_id).first()
+    if session is not None:
+        return session.mode
+    return (member.room.settings or {}).get("mode")
+
+
 def snapshot(member_id):
+    if _room_mode(member_id) == MODE_MULTIPLAYER:
+        from game.multiplayer import snapshot_multiplayer
+
+        return snapshot_multiplayer(member_id)
     with transaction.atomic():
         member, _room, session = _lock(member_id)
         if session is None:
@@ -294,6 +319,10 @@ def snapshot(member_id):
 
 
 def start_game(member_id):
+    if _room_mode(member_id) == MODE_MULTIPLAYER:
+        from game.multiplayer import start_multiplayer
+
+        return start_multiplayer(member_id)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if not member.is_host:
@@ -364,6 +393,10 @@ def start_game(member_id):
 def submit_answer(member_id, message):
     if not isinstance(message, dict):
         raise GameError("Neveljavno sporočilo.")
+    if _room_mode(member_id) == MODE_MULTIPLAYER:
+        from game.multiplayer import submit_multiplayer
+
+        return submit_multiplayer(member_id, message)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active":
@@ -381,6 +414,10 @@ def submit_answer(member_id, message):
 
 
 def apply_timeout(member_id, game_question_id):
+    if _room_mode(member_id) == MODE_MULTIPLAYER:
+        from game.multiplayer import apply_multiplayer_timeout
+
+        return apply_multiplayer_timeout(member_id, game_question_id)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active":
@@ -403,19 +440,31 @@ def apply_timeout(member_id, game_question_id):
 
 def seconds_until_hard_end(game_question_id):
     try:
-        game_question = GameQuestion.objects.select_related("game_session").get(pk=game_question_id)
+        game_question = GameQuestion.objects.select_related("game_session", "game_session__room").get(
+            pk=game_question_id
+        )
     except GameQuestion.DoesNotExist:
         return None
     session = game_question.game_session
     if session.status != "active" or game_question.order != session.current_question_index:
         return None
-    if game_question.started_at is None or game_question.answers.exists():
+    if game_question.started_at is None:
+        return None
+    if session.mode == MODE_MULTIPLAYER:
+        active = session.room.members.filter(left_at__isnull=True).count()
+        if active > 0 and game_question.answers.count() >= active:
+            return None
+    elif game_question.answers.exists():
         return None
     remaining = (hard_end(game_question, session) - timezone.now()).total_seconds()
     return max(0.0, remaining)
 
 
 def next_question(member_id):
+    if _room_mode(member_id) == MODE_MULTIPLAYER:
+        from game.multiplayer import next_multiplayer
+
+        return next_multiplayer(member_id)
     with transaction.atomic():
         member, _room, session = _lock(member_id)
         if session is None:
