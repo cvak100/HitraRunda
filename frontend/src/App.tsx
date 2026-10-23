@@ -6,6 +6,7 @@ import { AdminSessionDetailPage, ResultPage } from "./components/SessionDetail";
 import { AccountLayout } from "./pages/AccountLayout";
 import { AdminActionsPage } from "./pages/AdminActionsPage";
 import { AdminBonusesPage } from "./pages/AdminBonusesPage";
+import { AdminBotsPage } from "./pages/AdminBotsPage";
 import { AdminCategoriesPage } from "./pages/AdminCategoriesPage";
 import { AdminCatalogLayout } from "./pages/AdminCatalogLayout";
 import { AdminContentLayout } from "./pages/AdminContentLayout";
@@ -15,6 +16,7 @@ import { AdminHomePage } from "./pages/AdminHomePage";
 import { AdminLayout } from "./pages/AdminLayout";
 import { AdminQuestionsPage } from "./pages/AdminQuestionsPage";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
+import { AdminRoomsPage } from "./pages/AdminRoomsPage";
 import { AdminSessionsPage } from "./pages/AdminSessionsPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
@@ -75,6 +77,8 @@ export function App() {
                   <Route path="bonusi/:id" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
                   <Route path="prijatelji" element={<AdminFriendsPage />} />
                   <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
+                  <Route path="boti" element={<AdminBotsPage />} />
+                  <Route path="boti/:id" element={<Navigate to="/nadzor/sifranti/boti" replace />} />
                 </Route>
                 <Route path="kategorije" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
                 <Route path="kategorije/:id" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
@@ -82,8 +86,10 @@ export function App() {
                 <Route path="bonusi/:id" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
                 <Route path="prijatelji" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
                 <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
+                <Route path="boti" element={<Navigate to="/nadzor/sifranti/boti" replace />} />
                 <Route path="igre" element={<AdminSessionsPage />} />
                 <Route path="igre/:sessionId" element={<AdminSessionDetailPage />} />
+                <Route path="sobe" element={<AdminRoomsPage />} />
                 <Route path="uporabniki" element={<AdminUsersPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
               </Route>

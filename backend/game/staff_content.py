@@ -4,9 +4,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.staff import StaffOnly
-from game.bonus_models import BonusDefinition, PhoneFriend
+from game.bonus_models import AiBot, BonusDefinition, PhoneFriend
 from game.modes import MODE_LABELS, PLAYABLE_MODES
-from game.seed_content import ensure_bonuses_and_friends
+from game.seed_content import ensure_bonuses_and_friends, ensure_bots
 
 
 def bonus_payload(bonus):
@@ -196,3 +196,92 @@ class AdminFriendDetailView(APIView):
         friend.is_active = False
         friend.save(update_fields=["is_active"])
         return Response({"detail": "Prijatelj je umaknjen.", "friend": friend_payload(friend)})
+
+
+def bot_payload(bot):
+    return {
+        "id": bot.id,
+        "key": bot.key,
+        "name": bot.name,
+        "color": bot.color,
+        "accuracy": bot.accuracy,
+        "delay_min": bot.delay_min,
+        "delay_max": bot.delay_max,
+        "is_active": bot.is_active,
+        "count_for_leaderboard": bot.count_for_leaderboard,
+        "order": bot.order,
+    }
+
+
+class AdminBotListView(APIView):
+    permission_classes = [StaffOnly]
+
+    def get(self, request):
+        ensure_bots()
+        bots = AiBot.objects.order_by("order", "name")
+        return Response({"bots": [bot_payload(bot) for bot in bots]})
+
+    def post(self, request):
+        return self._save(None, request.data)
+
+    def _save(self, bot, data):
+        key = str(data.get("key") or (bot.key if bot else "")).strip()
+        name = str(data.get("name") or "").strip()
+        if not key or not name:
+            return Response({"detail": "Ključ in ime sta obvezna."}, status=400)
+        try:
+            accuracy = float(data.get("accuracy", bot.accuracy if bot else 0.72))
+            delay_min = float(data.get("delay_min", bot.delay_min if bot else 1.2))
+            delay_max = float(data.get("delay_max", bot.delay_max if bot else 7.5))
+            order = int(data.get("order", bot.order if bot else 0))
+        except (TypeError, ValueError):
+            return Response({"detail": "Številčne vrednosti niso veljavne."}, status=400)
+        if not 0 <= accuracy <= 1:
+            return Response({"detail": "Natančnost je med 0 in 1."}, status=400)
+        if delay_min < 0.2 or delay_max < delay_min:
+            return Response({"detail": "Zakasnitev ni veljavna."}, status=400)
+        is_active = data.get("is_active", True)
+        if not isinstance(is_active, bool):
+            return Response({"detail": "is_active mora biti true/false."}, status=400)
+        count_for_leaderboard = data.get(
+            "count_for_leaderboard",
+            bot.count_for_leaderboard if bot else False,
+        )
+        if not isinstance(count_for_leaderboard, bool):
+            return Response({"detail": "count_for_leaderboard mora biti true/false."}, status=400)
+        defaults = {
+            "name": name[:30],
+            "color": str(data.get("color") or "#7dcea0").strip()[:20],
+            "accuracy": accuracy,
+            "delay_min": delay_min,
+            "delay_max": delay_max,
+            "is_active": is_active,
+            "count_for_leaderboard": count_for_leaderboard,
+            "order": order,
+        }
+        if bot is None:
+            if AiBot.objects.filter(key=key).exists():
+                return Response({"detail": "Ključ že obstaja."}, status=400)
+            bot = AiBot.objects.create(key=key, **defaults)
+        else:
+            if key != bot.key and AiBot.objects.filter(key=key).exists():
+                return Response({"detail": "Ključ že obstaja."}, status=400)
+            bot.key = key
+            for field, value in defaults.items():
+                setattr(bot, field, value)
+            bot.save()
+        return Response({"bot": bot_payload(bot)})
+
+
+class AdminBotDetailView(APIView):
+    permission_classes = [StaffOnly]
+
+    def post(self, request, pk):
+        bot = get_object_or_404(AiBot, pk=pk)
+        return AdminBotListView()._save(bot, request.data)
+
+    def delete(self, request, pk):
+        bot = get_object_or_404(AiBot, pk=pk)
+        bot.is_active = False
+        bot.save(update_fields=["is_active"])
+        return Response({"detail": "Bot je umaknjen.", "bot": bot_payload(bot)})

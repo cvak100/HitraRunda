@@ -3,6 +3,8 @@ from django.urls import path
 from game.staff_content import (
     AdminBonusDetailView,
     AdminBonusListView,
+    AdminBotDetailView,
+    AdminBotListView,
     AdminFriendDetailView,
     AdminFriendListView,
     PublicFriendsView,
@@ -30,4 +32,6 @@ urlpatterns = [
     path("admin/bonuses/<int:pk>/", AdminBonusDetailView.as_view()),
     path("admin/friends/", AdminFriendListView.as_view()),
     path("admin/friends/<int:pk>/", AdminFriendDetailView.as_view()),
+    path("admin/bots/", AdminBotListView.as_view()),
+    path("admin/bots/<int:pk>/", AdminBotDetailView.as_view()),
 ]

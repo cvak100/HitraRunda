@@ -7,25 +7,25 @@ export function PlayHubPage() {
       <h1>Izberi igro</h1>
       <div className="game-split">
         <div className="game-block">
-          <p className="eyebrow">Hitra runda</p>
-          <h2>Kratke solo runde</h2>
+          <p className="eyebrow">Kratke solo runde</p>
+          <h2>Hitra runda</h2>
           <p>5–15 vprašanj. Brez jokerjev. Hitrost šteje. Lastna lestvica.</p>
           <Link className="primary" to="/igra/hitrarunda">
             Nastavi Hitra runda
           </Link>
         </div>
         <div className="game-block">
-          <p className="eyebrow">Ala milijonar</p>
-          <h2>15 vprašanj + 3 jokerji</h2>
+          <p className="eyebrow">15 stopenj z jokerji</p>
+          <h2>Ala milijonar</h2>
           <p>Polovička, glas ljudstva in klic v sili. Pred začetkom izbereš 3 prijatelje. Lastna lestvica.</p>
           <Link className="primary" to="/igra/ala-milijonar">
             Nastavi Ala milijonar
           </Link>
         </div>
         <div className="game-block">
-          <p className="eyebrow">Več igralcev</p>
-          <h2>Skupna soba v živo</h2>
-          <p>Ustvari ali se pridruži. Ready check, ista vprašanja, rundni bonusi in lestvica v sobi.</p>
+          <p className="eyebrow">Igraj z drugimi</p>
+          <h2>Hitra tekma</h2>
+          <p>Odpri sobo ali se pridruži s kodo. Ista vprašanja za vse, zmaga najhitrejši.</p>
           <Link className="primary" to="/igra/vec-igralcev">
             Odpri lobby
           </Link>

@@ -22,6 +22,7 @@ export function Layout() {
               <NavLink to="/nadzor/vsebina">Vsebina</NavLink>
               <NavLink to="/nadzor/sifranti">Šifranti</NavLink>
               <NavLink to="/nadzor/igre">Igre</NavLink>
+              <NavLink to="/nadzor/sobe">Sobe</NavLink>
               <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
               <NavLink to="/nadzor/ukazi">Ukazi</NavLink>
             </Menu>

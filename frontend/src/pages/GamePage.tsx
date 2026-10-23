@@ -2,12 +2,20 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { ApiError, api } from "../api";
+import { ConfirmModal } from "../components/ConfirmModal";
+import { NumberStepper } from "../components/NumberStepper";
 import { QuestionPlay } from "../components/QuestionPlay";
 import { TimerBar } from "../components/TimerBar";
 import { REASONS, formatMode, formatPoints } from "../format";
-import type { Category, GameMessage } from "../types";
+import type { Category, GameMessage, StandingRow } from "../types";
 
-const LOBBY_TIMES = [10, 15, 20, 30, 45, 60];
+const LOBBY_TIMES = [30, 60, 90, 120, 300];
+const LOBBY_COUNTS = [5, 10, 20, 40, 50, 100];
+
+function formatLobbyTime(seconds: number) {
+  if (seconds < 120) return `${seconds} s`;
+  return `${seconds / 60} min`;
+}
 
 export function GamePage() {
   const { code = "" } = useParams();
@@ -19,13 +27,15 @@ export function GamePage() {
   const [inviteName, setInviteName] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [editCount, setEditCount] = useState(10);
-  const [editSeconds, setEditSeconds] = useState(20);
+  const [editSeconds, setEditSeconds] = useState(60);
   const [editMax, setEditMax] = useState(4);
   const [editVisibility, setEditVisibility] = useState<"public" | "private" | "unlisted">("public");
   const [editPassword, setEditPassword] = useState("");
   const [editSudden, setEditSudden] = useState(false);
   const [editBots, setEditBots] = useState(0);
   const [editCats, setEditCats] = useState<string[]>([]);
+  const [copyNotice, setCopyNotice] = useState("");
+  const [confirmWalkAway, setConfirmWalkAway] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -175,9 +185,14 @@ export function GamePage() {
   }
 
   function walkAway() {
+    if (phase !== "question") return;
+    setConfirmWalkAway(true);
+  }
+
+  function confirmWalkAwayNow() {
     const socket = wsRef.current;
-    if (!socket || socket.readyState !== WebSocket.OPEN || phase !== "question") return;
-    if (!window.confirm("Odnehaš z doseženo nagrado?")) return;
+    setConfirmWalkAway(false);
+    if (!socket || socket.readyState !== WebSocket.OPEN) return;
     setPhase("submitting");
     socket.send(JSON.stringify({ type: "walk_away" }));
   }
@@ -218,8 +233,12 @@ export function GamePage() {
     max_players?: number;
   }) {
     const settings = room.settings || {};
-    if (settings.question_count) setEditCount(settings.question_count);
-    if (settings.time_limit_seconds) setEditSeconds(settings.time_limit_seconds);
+    if (settings.question_count) {
+      setEditCount(LOBBY_COUNTS.includes(settings.question_count) ? settings.question_count : 10);
+    }
+    if (settings.time_limit_seconds) {
+      setEditSeconds(LOBBY_TIMES.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : 60);
+    }
     if (typeof settings.sudden_death === "boolean") setEditSudden(settings.sudden_death);
     if (typeof settings.bot_count === "number") setEditBots(settings.bot_count);
     if (settings.categories?.length) setEditCats(settings.categories);
@@ -243,20 +262,68 @@ export function GamePage() {
     setInviteName("");
   }
 
-  function saveLobbySettings() {
+  function lobbyInviteUrl() {
+    return `${window.location.origin}/igra/${code}`;
+  }
+
+  async function copyInviteLink() {
+    const url = lobbyInviteUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopyNotice("Kopirano");
+    } catch {
+      setCopyNotice("Ročno označi in kopiraj");
+    }
+    window.setTimeout(() => setCopyNotice(""), 2000);
+  }
+
+  function humanCount() {
+    return (message?.members || []).filter((item) => !item.is_bot).length || 1;
+  }
+
+  function maxBotsFor(maxPlayers = editMax) {
+    return Math.max(0, Math.min(5, maxPlayers - humanCount()));
+  }
+
+  function saveLobbySettings(overrides: Partial<{
+    question_count: number;
+    time_limit_seconds: number;
+    max_players: number;
+    bot_count: number;
+    sudden_death: boolean;
+    visibility: "public" | "private" | "unlisted";
+  }> = {}) {
+    const maxPlayers = Math.min(6, Math.max(overrides.max_players ?? editMax, humanCount(), 2));
+    const botCount = Math.min(overrides.bot_count ?? editBots, Math.max(0, maxPlayers - humanCount()));
+    if (botCount !== editBots) setEditBots(botCount);
+    if (maxPlayers !== editMax) setEditMax(maxPlayers);
     wsRef.current?.send(
       JSON.stringify({
         type: "update_settings",
-        question_count: editCount,
-        time_limit_seconds: editSeconds,
-        max_players: editMax,
-        visibility: editVisibility,
-        password: editVisibility === "private" ? editPassword : "",
-        categories: editCats.length ? editCats : categories.map((item) => item.slug),
-        sudden_death: editSudden,
-        bot_count: editBots,
+        question_count: overrides.question_count ?? editCount,
+        time_limit_seconds: overrides.time_limit_seconds ?? editSeconds,
+        max_players: maxPlayers,
+        visibility: overrides.visibility ?? editVisibility,
+        password: (overrides.visibility ?? editVisibility) === "private" ? editPassword : "",
+        categories: editCats.length ? editCats : message?.settings?.categories || categories.map((item) => item.slug),
+        sudden_death: overrides.sudden_death ?? editSudden,
+        bot_count: botCount,
       }),
     );
+  }
+
+  function changeBots(value: number) {
+    const next = Math.min(value, maxBotsFor());
+    setEditBots(next);
+    saveLobbySettings({ bot_count: next });
+  }
+
+  function changeMaxPlayers(value: number) {
+    const nextMax = Math.min(6, Math.max(value, humanCount(), 2));
+    const nextBots = Math.min(editBots, Math.max(0, nextMax - humanCount()));
+    setEditMax(nextMax);
+    setEditBots(nextBots);
+    saveLobbySettings({ max_players: nextMax, bot_count: nextBots });
   }
 
   return (
@@ -271,9 +338,18 @@ export function GamePage() {
         {phase === "lobby" && message ? (
           <div className="stack">
             <h1>{message.name || "Lobby"}</h1>
+            <div className="invite-link">
+              <div className="invite-link-url">
+                <span className="fine">Povabilo</span>
+                <code>{lobbyInviteUrl()}</code>
+              </div>
+              <button type="button" className="primary" onClick={() => void copyInviteLink()}>
+                Kopiraj link
+              </button>
+            </div>
+            {copyNotice ? <p className="fine">{copyNotice}</p> : null}
             <p className="fine">
-              Link: <code>{window.location.origin}/igra/{code}</code>
-              {message.visibility ? ` · ${message.visibility}` : ""}
+              {message.visibility ? `${message.visibility}` : ""}
               {message.has_password ? " · geslo" : ""}
               {message.settings?.sudden_death ? " · sudden death" : ""}
               {message.settings?.bot_count ? ` · ${message.settings.bot_count} AI` : ""}
@@ -282,23 +358,38 @@ export function GamePage() {
               Igralci ({message.members?.length || 0}/{message.max_players || "?"})
             </h2>
             <ul className="lobby-list">
-              {(message.members || []).map((member) => (
-                <li key={member.id}>
-                  <strong>{member.nickname}</strong>
-                  {member.is_host ? " · host" : ""}
-                  {member.is_bot ? " · AI" : ""}
-                  {member.id === myId ? " · ti" : ""}
-                  {" · "}
-                  {member.is_bot || member.is_ready ? "pripravljen" : "čaka"}
-                  {member.is_connected === false && !member.is_bot ? " · offline" : ""}
-                </li>
-              ))}
+              {(message.members || []).map((member) => {
+                const ready = Boolean(member.is_bot || member.is_ready);
+                const isYou = member.id === myId;
+                return (
+                  <li key={member.id} className={ready ? "is-ready" : "is-waiting"}>
+                    <div className="lobby-member-main">
+                      <strong>{member.nickname}</strong>
+                      <span className="fine">
+                        {member.is_host ? "host" : ""}
+                        {member.is_bot ? `${member.is_host ? " · " : ""}AI` : ""}
+                        {isYou ? `${member.is_host || member.is_bot ? " · " : ""}ti` : ""}
+                        {member.is_connected === false && !member.is_bot ? " · offline" : ""}
+                      </span>
+                      <span className={`lobby-ready-tag ${ready ? "is-on" : ""}`}>
+                        {ready ? "pripravljen" : "ni pripravljen"}
+                      </span>
+                    </div>
+                    {isYou && !member.is_bot ? (
+                      <button
+                        type="button"
+                        className={`lobby-ready-btn ${iAmReady ? "is-on" : ""}`}
+                        onClick={() => sendReady(!iAmReady)}
+                      >
+                        {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
+                      </button>
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
-            <div className="actions">
-              <button type="button" onClick={() => sendReady(!iAmReady)} className={iAmReady ? "is-on" : ""}>
-                {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
-              </button>
-              {iAmHost ? (
+            {iAmHost ? (
+              <div className="actions">
                 <button
                   type="button"
                   className="primary"
@@ -307,8 +398,10 @@ export function GamePage() {
                 >
                   Začni igro
                 </button>
-              ) : null}
-            </div>
+              </div>
+            ) : (
+              <p className="fine">Čakaj, da host začne, ko so vsi pripravljeni.</p>
+            )}
             {iAmHost ? (
               <>
                 <div className="actions">
@@ -322,25 +415,22 @@ export function GamePage() {
                   </button>
                 </div>
                 <h2>Nastavitve (v živo)</h2>
-                <label>
-                  Število vprašanj: {editCount}
-                  <input type="range" min={5} max={15} value={editCount} onChange={(event) => setEditCount(Number(event.target.value))} />
-                </label>
-                <div className="choices" role="group" aria-label="Čas">
-                  {LOBBY_TIMES.map((time) => (
-                    <button key={time} type="button" className={time === editSeconds ? "is-on" : ""} onClick={() => setEditSeconds(time)}>
-                      {time} s
-                    </button>
-                  ))}
+                <NumberStepper label="Število vprašanj" value={editCount} options={LOBBY_COUNTS} onChange={setEditCount} />
+                <div className="stack-gap">
+                  <span className="stepper-label">Čas na vprašanje</span>
+                  <div className="choices" role="group" aria-label="Čas na vprašanje">
+                    {LOBBY_TIMES.map((time) => (
+                      <button key={time} type="button" className={time === editSeconds ? "is-on" : ""} onClick={() => setEditSeconds(time)}>
+                        {formatLobbyTime(time)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <label>
-                  Največ igralcev: {editMax}
-                  <input type="range" min={2} max={6} value={editMax} onChange={(event) => setEditMax(Number(event.target.value))} />
-                </label>
-                <label>
-                  AI nasprotniki: {editBots}
-                  <input type="range" min={0} max={3} value={editBots} onChange={(event) => setEditBots(Number(event.target.value))} />
-                </label>
+                <NumberStepper label="Največ igralcev" value={editMax} min={2} max={6} onChange={changeMaxPlayers} />
+                <NumberStepper label="AI nasprotniki" value={editBots} min={0} max={maxBotsFor()} onChange={changeBots} />
+                <p className="fine">
+                  AI se takoj doda na seznam. Največ {maxBotsFor()} (prosta mesta: {Math.max(0, editMax - humanCount())}).
+                </p>
                 <label className="check">
                   <input type="checkbox" checked={editSudden} onChange={(event) => setEditSudden(event.target.checked)} />
                   Sudden death
@@ -387,14 +477,12 @@ export function GamePage() {
                     ))}
                   </fieldset>
                 ) : null}
-                <button type="button" className="primary" onClick={saveLobbySettings}>
+                <button type="button" className="primary" onClick={() => saveLobbySettings()}>
                   Shrani nastavitve
                 </button>
                 <p className="fine">Sprememba ponastavi pripravljenost ostalih igralcev.</p>
               </>
-            ) : (
-              <p className="fine">Čakaj, da host začne, ko so vsi pripravljeni.</p>
-            )}
+            ) : null}
           </div>
         ) : null}
         {question && message && playing ? (
@@ -499,7 +587,7 @@ export function GamePage() {
               <Review message={message} onNext={next} boardPath={boardPath} />
             ) : null}
             {phase === "finished" && message.mode === "multiplayer" ? (
-              <RoundReview message={message} myId={myId} isHost={iAmHost} onNext={next} boardPath={boardPath} finished />
+              <PodiumFinish message={message} myId={myId} boardPath={boardPath} />
             ) : null}
           </>
         ) : null}
@@ -509,16 +597,43 @@ export function GamePage() {
           </Link>
         ) : null}
       </div>
+      <ConfirmModal
+        open={confirmWalkAway}
+        title="Odnehati?"
+        message="Odnehaš z doseženo nagrado?"
+        confirmLabel="Odneham"
+        danger
+        onConfirm={confirmWalkAwayNow}
+        onCancel={() => setConfirmWalkAway(false)}
+      />
       {message?.mode === "multiplayer" || isMulti ? (
         <ol className="ladder">
-          {standings.map((row) => (
-            <li key={row.member_id} className={row.member_id === myId ? "current" : ""}>
-              #{row.rank || "?"} {row.nickname}
-              {row.is_bot ? " (AI)" : ""}
-              {row.alive === false ? " · izločen" : ""}: {formatPoints(row.score)}
-              {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
-            </li>
-          ))}
+          {standings.map((row) => {
+            const answeredIds = new Set(message?.answered_ids || []);
+            const answerById = new Map((message?.answers || []).map((item) => [item.member_id || "", item]));
+            const answer = answerById.get(row.member_id);
+            const classes = [
+              row.member_id === myId ? "current" : "",
+              (phase === "question" || phase === "submitting" || phase === "waiting_answers") && answeredIds.has(row.member_id)
+                ? "has-answered"
+                : "",
+              phase === "round_review" && answer
+                ? answer.is_correct
+                  ? "answered-correct"
+                  : "answered-wrong"
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ");
+            return (
+              <li key={row.member_id} className={classes}>
+                #{row.rank || "?"} {row.nickname}
+                {row.is_bot ? " (AI)" : ""}
+                {row.alive === false ? " · izločen" : ""}: {formatPoints(row.score)}
+                {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
+              </li>
+            );
+          })}
         </ol>
       ) : (
         <ol className="ladder">
@@ -541,27 +656,87 @@ export function GamePage() {
   );
 }
 
+function PodiumFinish({
+  message,
+  myId,
+  boardPath,
+}: {
+  message: GameMessage;
+  myId: string;
+  boardPath: string;
+}) {
+  const rows = (message.standings || []) as StandingRow[];
+  const first = rows[0];
+  const second = rows[1];
+  const third = rows[2];
+  const rest = rows.slice(3);
+
+  function slot(row: StandingRow | undefined, place: 1 | 2 | 3) {
+    if (!row) return <div className={`podium-slot is-${place === 1 ? "first" : place === 2 ? "second" : "third"}`} />;
+    return (
+      <div className={`podium-slot is-${place === 1 ? "first" : place === 2 ? "second" : "third"}`}>
+        <div className="podium-name">
+          {row.nickname}
+          {row.is_bot ? " (AI)" : ""}
+          {row.member_id === myId ? " · ti" : ""}
+        </div>
+        <div className="podium-score">{formatPoints(row.score)}</div>
+        <div className="fine">{row.correct_count} pravilnih</div>
+        <div className="podium-block">{place}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="review good">
+      <h2>Končna lestvica</h2>
+      <div className="podium" aria-label="Stopničke">
+        {slot(second, 2)}
+        {slot(first, 1)}
+        {slot(third, 3)}
+      </div>
+      {rest.length > 0 ? (
+        <ol className="podium-rest">
+          {rest.map((row) => (
+            <li key={row.member_id}>
+              <span>
+                #{row.rank} {row.nickname}
+                {row.is_bot ? " (AI)" : ""}
+                {row.member_id === myId ? " · ti" : ""}
+              </span>
+              <strong>
+                {formatPoints(row.score)} · {row.correct_count} pravilnih
+              </strong>
+            </li>
+          ))}
+        </ol>
+      ) : null}
+      <div className="actions">
+        <Link className="primary" to={boardPath}>
+          Lestvica
+        </Link>
+        <Link to="/igra/vec-igralcev">Nova soba</Link>
+      </div>
+    </div>
+  );
+}
+
 function RoundReview({
   message,
   myId,
   isHost,
   onNext,
-  boardPath,
-  finished,
 }: {
   message: GameMessage;
   myId: string;
   isHost: boolean;
   onNext: () => void;
   boardPath: string;
-  finished?: boolean;
 }) {
   const advanceSeconds = message.advance_seconds ?? 5;
   const [secondsLeft, setSecondsLeft] = useState(advanceSeconds);
-  const done = Boolean(finished || message.phase === "finished");
 
   useEffect(() => {
-    if (done) return;
     setSecondsLeft(advanceSeconds);
     const started = Date.now();
     const tick = window.setInterval(() => {
@@ -569,18 +744,18 @@ function RoundReview({
       setSecondsLeft(left);
     }, 200);
     return () => window.clearInterval(tick);
-  }, [done, advanceSeconds, message.index]);
+  }, [advanceSeconds, message.index]);
 
   return (
     <div className="review good">
-      <h2>{done ? "Končna lestvica" : "Rezultat runde"}</h2>
+      <h2>Rezultat runde</h2>
       {message.explanation ? <p>{message.explanation}</p> : null}
       {message.sudden_death ? (
         <p className="fine">Sudden death · še v igri: {message.alive_count ?? "?"}</p>
       ) : null}
       <ul>
         {(message.answers || []).map((row) => (
-          <li key={`${row.member_id}-${row.nickname}`}>
+          <li key={`${row.member_id}-${row.nickname}`} className={row.is_correct ? "answered-correct" : "answered-wrong"}>
             {row.nickname}
             {row.member_id === myId ? " (ti)" : ""}: {row.timed_out ? "čas" : row.is_correct ? "prav" : "narobe"} ·{" "}
             {formatPoints(row.points)}
@@ -591,35 +766,16 @@ function RoundReview({
           </li>
         ))}
       </ul>
-      <ol>
-        {(message.standings || []).map((row) => (
-          <li key={row.member_id}>
-            #{row.rank} {row.nickname}
-            {row.is_bot ? " (AI)" : ""}
-            {row.alive === false ? " · izločen" : ""}: {formatPoints(row.score)} ({row.correct_count}{" "}
-            pravilnih)
-          </li>
-        ))}
-      </ol>
-      {done ? (
-        <div className="actions">
-          <Link className="primary" to={boardPath}>
-            Lestvica
-          </Link>
-          <Link to="/igra/vec-igralcev">Nova soba</Link>
-        </div>
-      ) : (
-        <div className="stack">
-          <p className="fine">
-            {message.is_last ? "Zaključek" : "Naslednje vprašanje"} čez {secondsLeft} s…
-          </p>
-          {isHost ? (
-            <button type="button" className="primary" onClick={onNext}>
-              {message.is_last ? "Zaključi zdaj" : "Naprej zdaj"}
-            </button>
-          ) : null}
-        </div>
-      )}
+      <div className="stack">
+        <p className="fine">
+          {message.is_last ? "Zaključek" : "Naslednje vprašanje"} čez {secondsLeft} s…
+        </p>
+        {isHost ? (
+          <button type="button" className="primary" onClick={onNext}>
+            {message.is_last ? "Zaključi zdaj" : "Naprej zdaj"}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

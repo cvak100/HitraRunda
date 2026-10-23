@@ -135,7 +135,8 @@ def start_multiplayer(member_id):
             )
         room.status = "playing"
         room.started_at = now
-        room.save(update_fields=["status", "started_at"])
+        room.last_activity = now
+        room.save(update_fields=["status", "started_at", "last_activity"])
         game_question = _current(session)
         return [question_payload(session, game_question, members[0], "game_started")]
 
@@ -271,12 +272,17 @@ def claim_bot_schedule(member_id):
                 continue
             if _answer_for(game_question, bot) is not None:
                 continue
-            delay = random.uniform(MP_BOT_DELAY_MIN, min(MP_BOT_DELAY_MAX, max(1.0, session.time_limit_seconds * 0.7)))
+            profile = bot.bot_profile
+            delay_min = float(profile.delay_min) if profile else MP_BOT_DELAY_MIN
+            delay_max = float(profile.delay_max) if profile else MP_BOT_DELAY_MAX
+            delay_max = min(delay_max, max(delay_min + 0.1, session.time_limit_seconds * 0.7))
+            delay = random.uniform(delay_min, max(delay_min, delay_max))
+            accuracy = float(profile.accuracy) if profile else MP_BOT_ACCURACY
             plans.append(
                 {
                     "member_id": str(bot.id),
                     "delay": delay,
-                    "message": _bot_answer_message(game_question),
+                    "message": _bot_answer_message(game_question, accuracy=accuracy),
                 }
             )
         return plans
@@ -416,10 +422,13 @@ def finalize_multiplayer(session, room, reason="completed"):
     duration = None
     if session.started_at:
         duration = max(0, int((now - session.started_at).total_seconds() * 1000))
-    members = list(room.members.filter(left_at__isnull=True).select_related("user"))
+    members = list(room.members.filter(left_at__isnull=True).select_related("user", "bot_profile"))
     players = state.get("players") or {}
     for member in members:
         stats = players.get(str(member.id)) or {}
+        on_board = True
+        if member.is_bot:
+            on_board = bool(member.bot_profile and member.bot_profile.count_for_leaderboard)
         GameResult.objects.create(
             game_session=session,
             user=member.user,
@@ -432,6 +441,7 @@ def finalize_multiplayer(session, room, reason="completed"):
             total_questions=session.total_questions,
             duration_ms=duration,
             is_guest=bool(member.user.is_guest) if member.user_id else True,
+            counts_for_leaderboard=on_board,
             reason=reason,
             room_code=room.code,
         )
@@ -723,7 +733,7 @@ def _store_answer(member, session, game_question, message):
     return True
 
 
-def _bot_answer_message(game_question):
+def _bot_answer_message(game_question, accuracy=None):
     """Vedno vrne veljaven submit (brez zgodnjega timeout), za vse tipe vprašanj."""
     question = game_question.question
     presentation = ensure_presentation(game_question)
@@ -733,7 +743,8 @@ def _bot_answer_message(game_question):
         game_question.save(update_fields=["presentation"])
         presentation = ensure_presentation(game_question)
     qid = str(game_question.id)
-    want_correct = random.random() < MP_BOT_ACCURACY
+    chance = MP_BOT_ACCURACY if accuracy is None else float(accuracy)
+    want_correct = random.random() < chance
     options = list(question.options.all())
 
     if question.question_type in SINGLE_TYPES:

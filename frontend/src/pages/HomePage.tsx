@@ -37,11 +37,17 @@ export function HomePage() {
 
   return (
     <section className="panel hero">
-      <p className="eyebrow">Hitra runda</p>
-      <h1>Več iger. En napačen odgovor.</h1>
-      <p className="lead">
-        Hitra runda je zbirka solo kvizov. Izbereš igro, odgovarjaš proti uri na strežniku, rezultat gre na lastno
-        lestvico. Gost se sčasoma pobriše, rezultat ostane.
+      <h1>Pozdravljeni na Hitri rundi</h1>
+      <p className="lead home-intro">
+        Tukaj tekmuješ v kratkih rundah iz različnih kategorij vprašanj. Igraj solo, izzovi računalnik ali odpri sobo
+        in tekmuj s prijatelji. Na voljo imaš različne načine — od hitrih solo rund do daljših izzivov z jokerji in
+        tekmovanja v živo. 
+        </p>
+        <p className="lead home-intro">Vsi načini uporabljajo isto bazo vprašanj, tako da izbiraš kategorije in se meriš v
+        hitrosti, natančnosti ali strategiji.
+        </p>
+        <p className="lead home-intro">Začneš lahko kot gost z vzdevkom; ko se prijaviš, rezultati ostanejo
+        in se zabeležijo na lestvici.
       </p>
 
       {!user ? (
@@ -104,9 +110,9 @@ export function HomePage() {
         </article>
         <article className="game-row">
           <div>
-            <p className="eyebrow">Skupaj proti uri</p>
-            <h2>Več igralcev</h2>
-            <p>Soba s kodo ali linkom, ready check, ista vprašanja, rundni bonus in lestvica med rundami.</p>
+            <p className="eyebrow">Igraj z drugimi</p>
+            <h2>Hitra tekma</h2>
+            <p>Odpri sobo ali se pridruži s kodo. Ista vprašanja za vse, zmaga najhitrejši.</p>
           </div>
           {user ? (
             <Link className="primary" to="/igra/vec-igralcev">
