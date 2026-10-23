@@ -18,6 +18,7 @@ import { AdminQuestionsPage } from "./pages/AdminQuestionsPage";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
 import { AdminRoomsPage } from "./pages/AdminRoomsPage";
 import { AdminSessionsPage } from "./pages/AdminSessionsPage";
+import { AdminTestsPage } from "./pages/AdminTestsPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
 import { LogoutPage } from "./pages/LogoutPage";
@@ -97,6 +98,7 @@ export function App() {
                 <Route path="sobe" element={<AdminRoomsPage />} />
                 <Route path="uporabniki" element={<AdminUsersPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
+                <Route path="testi" element={<AdminTestsPage />} />
               </Route>
               <Route path="vprasanja" element={<Navigate to="/nadzor/vsebina/vprasanja" replace />} />
             </Route>

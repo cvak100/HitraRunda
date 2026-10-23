@@ -21,6 +21,7 @@ from game.engine import (
     grade_answer,
     official_end,
     question_message,
+    require_can_advance,
     select_questions,
 )
 from game.modes import (
@@ -288,8 +289,7 @@ def next_dirka(member_id):
             raise GameError("Igra ni aktivna.")
         if session.status == "finished":
             return [finished_dirka(session, member)]
-        if not member.is_host:
-            raise GameError("Samo gostitelj lahko nadaljuje.")
+        require_can_advance(member, room)
         game_question = _current(session)
         if not _round_complete(session, game_question):
             raise GameError("Runda še ni končana.")
@@ -934,10 +934,10 @@ def _store_answer(member, session, game_question, message):
     stats = dict(players.get(key) or {"nickname": member.nickname_in_room, "color": member.color})
     wants_timeout = bool(message.get("timeout"))
     deadline = _deadline_for(session, key)
+    # Ljudje ne smejo oddati timeout pred lastnim deadlineom (enako kot Hitra tekma).
+    if wants_timeout and not member.is_bot and deadline is not None and now < deadline:
+        wants_timeout = False
     timed_out = wants_timeout or (deadline is not None and now > deadline)
-    if timed_out and not wants_timeout and not member.is_bot:
-        # Človek oddal po deadlinu → timeout.
-        timed_out = True
 
     if timed_out:
         is_correct = False

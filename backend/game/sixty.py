@@ -116,6 +116,9 @@ def submit_sixty(member_id, message):
         if bool(message.get("skip")):
             return _resolve(member, room, session, game_question, skipped=True, message=message)
         if bool(message.get("timeout")):
+            ends = _clock_ends(session)
+            if ends is None or timezone.now() < ends:
+                raise GameError("Čas še teče.")
             return _finish_clock(member, room, session)
         return _resolve(member, room, session, game_question, skipped=False, message=message)
 

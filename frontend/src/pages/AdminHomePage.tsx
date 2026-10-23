@@ -199,6 +199,9 @@ export function AdminHomePage() {
             <Link className="btn-with-icon mode-nav-btn" to="/nadzor/ukazi">
               Ukazi
             </Link>
+            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/testi">
+              Testi
+            </Link>
           </div>
 
           {summary.results_by_mode.length > 0 ? (

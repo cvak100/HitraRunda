@@ -347,6 +347,17 @@ def member_id_for(user_id, code):
     return member.id if member else None
 
 
+def require_can_advance(member, room):
+    """Host lahko vedno nadaljuje; če je host offline, lahko vsak povezan človek."""
+    if member.is_bot or member.left_at is not None:
+        raise GameError("Samo gostitelj lahko nadaljuje.")
+    if member.is_host:
+        return
+    host = room.members.filter(left_at__isnull=True, is_host=True).first()
+    if host is not None and host.is_connected:
+        raise GameError("Samo gostitelj lahko nadaljuje.")
+
+
 def set_member_connected(member_id, connected, connection_epoch=None):
     """Mark presence. On connect bumps epoch and returns it; on disconnect only clears if epoch still matches."""
     from django.db.models import F

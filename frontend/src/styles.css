@@ -454,6 +454,38 @@ a.dash-card:hover {
   .admin-dash-split { grid-template-columns: 1fr; }
 }
 
+.admin-test-group { margin-top: 1.25rem; }
+.admin-test-group h2 { margin: 0 0 10px; font-size: 1.2rem; }
+.admin-test-card-head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+.admin-test-card-head h3 { margin: 0 0 6px; font-size: 1.1rem; }
+.admin-test-result {
+  margin-top: 1.5rem;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: #121815;
+}
+.admin-test-result.is-ok { border-color: color-mix(in srgb, var(--good) 50%, var(--line)); }
+.admin-test-result.is-bad { border-color: color-mix(in srgb, var(--bad) 50%, var(--line)); }
+.admin-test-result h2 { margin: 0 0 6px; font-size: 1.25rem; }
+.admin-test-log {
+  margin: 10px 0 0;
+  padding: 12px;
+  max-height: 320px;
+  overflow: auto;
+  border-radius: 12px;
+  background: #0e1310;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.admin-test-log.is-err { color: #f5b7b1; }
+
 .linkish, button, .primary, nav a, .subnav a {
   border: 1px solid var(--line);
   background: transparent;

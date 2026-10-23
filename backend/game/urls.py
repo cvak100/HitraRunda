@@ -9,6 +9,7 @@ from game.staff_content import (
     AdminFriendListView,
     PublicFriendsView,
 )
+from game.admin_tests import AdminTestCatalogView, AdminTestRunView
 from game.views import (
     AdminSessionDetailView,
     AdminSessionListView,
@@ -28,6 +29,8 @@ urlpatterns = [
     path("results/<int:pk>/", ResultDetailView.as_view()),
     path("admin/sessions/", AdminSessionListView.as_view()),
     path("admin/sessions/<int:pk>/", AdminSessionDetailView.as_view()),
+    path("admin/tests/", AdminTestCatalogView.as_view()),
+    path("admin/tests/run/", AdminTestRunView.as_view()),
     path("admin/bonuses/", AdminBonusListView.as_view()),
     path("admin/bonuses/<int:pk>/", AdminBonusDetailView.as_view()),
     path("admin/friends/", AdminFriendListView.as_view()),

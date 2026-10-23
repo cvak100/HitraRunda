@@ -65,6 +65,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         else:
             await self._arm(payload)
             await self._arm_bots(payload)
+            if payload.get("phase") == "round_review":
+                await self._arm_auto_advance()
 
     async def disconnect(self, code):
         self._cancel_timer()
@@ -102,6 +104,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                     await self.send_json(payload)
                     if payload.get("phase") == "question":
                         await self._arm(payload)
+                    elif payload.get("phase") == "round_review":
+                        await self._arm_auto_advance()
                 return
             if kind == "set_ready":
                 await database_sync_to_async(set_ready)(self.user, self.code, bool(message.get("ready", True)))
@@ -175,6 +179,9 @@ class GameConsumer(AsyncWebsocketConsumer):
             return {"type": "error", "message": "Soba ne obstaja.", "phase": "error"}
         if room.status in {"closed", "finished"}:
             return {"type": "error", "message": "Soba je zaprta.", "phase": "error"}
+        # Med igro nikoli ne vsili lobby (TOCTOU okoli start_game / reconnect).
+        if room.status != "waiting":
+            return snapshot(self.member_id)
         mode = (room.settings or {}).get("mode")
         if mode not in LOBBY_MODES:
             return {"type": "game_state", "phase": "waiting"}
@@ -306,8 +313,13 @@ class GameConsumer(AsyncWebsocketConsumer):
                     continue
                 payloads = await database_sync_to_async(apply_timeout)(self.member_id, game_question_id)
                 await self._broadcast_all(payloads or [])
-                if payloads and payloads[0].get("phase") == "round_review":
+                phase = (payloads[0].get("phase") if payloads else None) or ""
+                if phase == "round_review":
                     await self._arm_auto_advance()
+                    return
+                # Dirka: osebni deadline — še kdo čaka; nadaljuj zanko.
+                if phase in {"answer_progress", "question"}:
+                    continue
                 return
         except asyncio.CancelledError:
             return

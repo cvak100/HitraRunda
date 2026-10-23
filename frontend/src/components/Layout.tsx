@@ -24,6 +24,7 @@ export function Layout() {
               <NavLink to="/nadzor/sobe">Sobe</NavLink>
               <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
               <NavLink to="/nadzor/ukazi">Ukazi</NavLink>
+              <NavLink to="/nadzor/testi">Testi</NavLink>
             </Menu>
           ) : null}
           <NavLink to="/lestvica" className="nav-btn">

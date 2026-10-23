@@ -244,9 +244,20 @@ def close_room(room, reason="closed"):
 
 
 def close_stale_rooms():
-    """Zapri waiting/playing sobe brez aktivnosti več kot ROOM_IDLE_SECONDS."""
+    """Zapri waiting/playing sobe brez aktivnosti več kot ROOM_IDLE_SECONDS.
+
+    Aktivne seje (preparing/active) pusti pri miru — last_activity se ob
+    odgovorih ne posodablja vedno, zato idle close ne sme ubiti igre.
+    """
+    from game.models import GameSession
+
     cutoff = timezone.now() - timedelta(seconds=ROOM_IDLE_SECONDS)
-    stale = Room.objects.filter(status__in=["waiting", "playing"], last_activity__lt=cutoff)
+    live_session_room_ids = GameSession.objects.filter(status__in=["preparing", "active"]).values_list(
+        "room_id", flat=True
+    )
+    stale = Room.objects.filter(status__in=["waiting", "playing"], last_activity__lt=cutoff).exclude(
+        pk__in=live_session_room_ids
+    )
     closed = 0
     for room in stale.iterator():
         close_room(room, reason="inactive")

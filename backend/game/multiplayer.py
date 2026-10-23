@@ -18,6 +18,7 @@ from game.engine import (
     hard_end,
     official_end,
     question_message,
+    require_can_advance,
     select_questions,
     speed_bonus,
 )
@@ -196,8 +197,7 @@ def next_multiplayer(member_id):
             raise GameError("Igra ni aktivna.")
         if session.status == "finished":
             return [finished_multiplayer(session, member)]
-        if not member.is_host:
-            raise GameError("Samo gostitelj lahko nadaljuje.")
+        require_can_advance(member, room)
         game_question = _current(session)
         if not _round_complete(session, game_question):
             raise GameError("Runda še ni končana.")
