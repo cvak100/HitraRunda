@@ -206,6 +206,50 @@ button.icon-button svg, nav a.icon-button svg { width: 22px; height: 22px; displ
   visibility: hidden;
   pointer-events: none;
 }
+.board-count-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 4px 0 8px;
+}
+.board-count-row > .fine { margin: 0; }
+.board-count-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.choices-compact {
+  gap: 4px;
+}
+.choices-compact button {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 10px;
+  min-height: 0;
+}
+.board-search-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 10px;
+}
+.board-search-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.board-search-btn.is-on {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+.modal-body .search-line {
+  width: 100%;
+}
+.modal-body .search-line input {
+  width: 100%;
+  flex: 1;
+}
 .board-mine-note {
   position: absolute;
   inset: 0;
@@ -270,20 +314,41 @@ button.icon-button svg, nav a.icon-button svg { width: 22px; height: 22px; displ
 }
 select {
   appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background-color: #0e1310;
-  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-  background-position: calc(100% - 14px) calc(50% - 2px), calc(100% - 9px) calc(50% - 2px);
-  background-size: 5px 5px, 5px 5px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 2.5L6 6.5L10.5 2.5' stroke='%23b7c2b4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-size: 12px 8px;
   background-repeat: no-repeat;
-  color: inherit;
+  color: var(--cream);
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 10px 34px 10px 14px;
+  padding: 12px 40px 12px 14px;
+  min-height: 44px;
+  line-height: 1.3;
   color-scheme: dark;
+  cursor: pointer;
 }
 select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-select option { background: #0e1310; color: var(--cream); }
+select:disabled { opacity: 0.55; cursor: not-allowed; }
+select option {
+  background-color: #1a211c;
+  color: #f2efe6;
+}
+.sim-mode-field {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.sim-mode-field legend {
+  padding: 0;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
 
 .tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--line); margin: 8px 0 4px; }
 .tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 12px 12px 0 0; background: transparent; }
@@ -961,10 +1026,52 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 .admin-card h2 { font-size: 1.25rem; margin: 0 0 8px; }
 .admin-card > button { width: 100%; text-align: left; border-radius: 16px; white-space: normal; }
 .admin-card .fine { margin: 0 0 8px; }
+.admin-collapse-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.admin-collapse-toggle h2 { margin: 0 0 4px; }
+.admin-collapse-toggle .fine { margin: 0; }
+.admin-collapse-chevron {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  color: var(--muted);
+  padding-top: 2px;
+}
+.admin-card-collapse > .admin-collapse-toggle + p,
+.admin-card-collapse > .admin-collapse-toggle + form {
+  margin-top: 8px;
+}
 
 .review { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
 .review.good h2 { color: var(--good); }
 .review.bad h2 { color: var(--bad); }
+.finish-screen {
+  border-top: 0;
+  padding-top: 0;
+}
+.finish-screen > h1 {
+  margin-bottom: 0.85rem;
+}
+.finish-screen > h2 {
+  margin-top: 0.25rem;
+}
+.finish-actions {
+  margin-top: 28px;
+  padding-top: 4px;
+  gap: 12px;
+}
 
 .q-image { max-width: 100%; border-radius: 16px; }
 
@@ -1173,47 +1280,119 @@ button.danger {
 }
 .podium {
   display: grid;
-  grid-template-columns: 1fr 1.15fr 1fr;
+  grid-template-columns: 1fr 1.25fr 1fr;
   gap: 10px;
   align-items: end;
-  margin: 8px 0 18px;
-  min-height: 220px;
+  margin: 14px 0 20px;
+  min-height: 260px;
 }
 .podium-slot {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   text-align: center;
+  min-width: 0;
+}
+.podium-slot.is-empty .podium-block {
+  opacity: 0.45;
 }
 .podium-slot .podium-name {
   font-weight: 700;
   overflow-wrap: anywhere;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+.podium-slot.is-first .podium-name {
+  font-size: 1.08rem;
 }
 .podium-slot .podium-score {
   color: var(--gold);
   font-weight: 700;
+  font-size: 1.05rem;
+}
+.podium-slot.is-first .podium-score {
+  font-size: 1.2rem;
 }
 .podium-block {
   width: 100%;
+  margin-top: 6px;
+  min-height: 72px;
   border: 1px solid var(--line);
-  border-radius: 14px 14px 8px 8px;
-  background: #182019;
+  border-radius: 16px 16px 10px 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 42%),
+    #182019;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 10px 22px rgba(0, 0, 0, 0.22);
+  position: relative;
+}
+.podium-block::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+  background: color-mix(in srgb, var(--muted) 35%, transparent);
+  pointer-events: none;
+}
+.podium-place {
+  position: absolute;
+  inset: 0;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 12px;
-  font-size: 1.4rem;
+  margin: 0;
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
   font-weight: 800;
-  color: var(--gold);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--cream);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 .podium-slot.is-first .podium-block {
-  min-height: 140px;
-  border-color: var(--gold);
-  background: color-mix(in srgb, var(--gold) 18%, #182019);
+  min-height: 148px;
+  border-color: color-mix(in srgb, var(--gold) 65%, var(--line));
+  background:
+    linear-gradient(180deg, rgba(230, 179, 37, 0.28), transparent 55%),
+    linear-gradient(180deg, #2a2614, #182019);
 }
-.podium-slot.is-second .podium-block { min-height: 110px; }
-.podium-slot.is-third .podium-block { min-height: 90px; }
+.podium-slot.is-first .podium-block::before {
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.podium-slot.is-first .podium-place {
+  color: var(--gold);
+  font-size: clamp(2.2rem, 5vw, 3rem);
+}
+.podium-slot.is-second .podium-block {
+  min-height: 112px;
+  border-color: color-mix(in srgb, #c5cdd4 55%, var(--line));
+  background:
+    linear-gradient(180deg, rgba(197, 205, 212, 0.22), transparent 55%),
+    linear-gradient(180deg, #22262a, #182019);
+}
+.podium-slot.is-second .podium-block::before {
+  background: linear-gradient(90deg, transparent, #c5cdd4, transparent);
+}
+.podium-slot.is-second .podium-place {
+  color: #d7dee4;
+}
+.podium-slot.is-third .podium-block {
+  min-height: 88px;
+  border-color: color-mix(in srgb, #c9956a 55%, var(--line));
+  background:
+    linear-gradient(180deg, rgba(201, 149, 106, 0.22), transparent 55%),
+    linear-gradient(180deg, #2a2118, #182019);
+}
+.podium-slot.is-third .podium-block::before {
+  background: linear-gradient(90deg, transparent, #c9956a, transparent);
+}
+.podium-slot.is-third .podium-place {
+  color: #e0b089;
+}
 .podium-rest {
   list-style: none;
   margin: 0;
@@ -1825,9 +2004,11 @@ a.mode-nav-btn:hover,
   }
   .match-item { padding: 14px; min-height: 48px; }
 
-  .podium { grid-template-columns: 1fr; min-height: 0; }
+  .podium { grid-template-columns: 1fr; min-height: 0; gap: 18px; }
   .podium-slot.is-first { order: -1; }
-  .podium-slot .podium-block { min-height: 72px !important; }
+  .podium-slot.is-first .podium-block { min-height: 96px; }
+  .podium-slot.is-second .podium-block { min-height: 78px; }
+  .podium-slot.is-third .podium-block { min-height: 68px; }
 
   .invite-link {
     flex-direction: column;
@@ -1887,6 +2068,11 @@ a.mode-nav-btn:hover,
   }
 }
 
+.bot-name-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
 .profile-hero {
   display: flex;
   align-items: center;

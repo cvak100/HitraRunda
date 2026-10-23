@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
+import { AVATAR_COLORS, AVATARS, avatarLabel } from "../avatars";
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { Avatar } from "../components/Avatar";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { Modal } from "../components/Modal";
 import { NicknameField } from "../components/NicknameField";
@@ -248,7 +250,10 @@ export function AdminBotsPage() {
             {rows.map((bot) => (
               <tr key={bot.id ?? bot.key} className="is-link" onClick={() => openEdit(bot)}>
                 <td>
-                  <span style={{ color: bot.color }}>●</span> {bot.name}
+                  <span className="bot-name-cell">
+                    <Avatar avatar={bot.avatar || "ris"} color={bot.color || "#7dcea0"} size={28} title={bot.name} />
+                    {bot.name}
+                  </span>
                 </td>
                 <td>{bot.key}</td>
                 <td>{modeLabel(bot.modes)}</td>
@@ -275,12 +280,52 @@ export function AdminBotsPage() {
               title={editing ? "Ključa med urejanjem ne spreminjaj" : undefined}
             />
           </label>
+          <div className="profile-hero">
+            <Avatar avatar={form.avatar} color={form.color} size={72} title={avatarLabel(form.avatar)} />
+            <p className="fine" style={{ margin: 0 }}>
+              {avatarLabel(form.avatar)}
+            </p>
+          </div>
           <NicknameField
             label="Vzdevek v sobi"
             value={form.name}
             onChange={(name) => setForm({ ...form, name })}
             required
           />
+          <fieldset>
+            <legend>Avatar</legend>
+            <div className="avatar-picker" role="list">
+              {AVATARS.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className={`avatar-pick${form.avatar === item.key ? " is-on" : ""}`}
+                  title={item.label}
+                  aria-label={item.label}
+                  aria-pressed={form.avatar === item.key}
+                  onClick={() => setForm({ ...form, avatar: item.key })}
+                >
+                  <Avatar avatar={item.key} color={form.color} size={48} />
+                  <span>{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Barva roba</legend>
+            <div className="color-swatches" role="list">
+              {AVATAR_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={`color-swatch${form.color === c ? " is-on" : ""}`}
+                  style={{ background: c }}
+                  aria-label={c}
+                  onClick={() => setForm({ ...form, color: c })}
+                />
+              ))}
+            </div>
+          </fieldset>
           <fieldset>
             <legend>Načini</legend>
             {MODE_OPTIONS.map((option) => (
@@ -294,16 +339,6 @@ export function AdminBotsPage() {
               </label>
             ))}
           </fieldset>
-          <label>
-            Barva
-            <input value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} />
-            Avatar (ključ)
-            <input
-              value={form.avatar}
-              onChange={(event) => setForm({ ...form, avatar: event.target.value })}
-              placeholder="npr. ris"
-            />
-          </label>
           <label>
             Natančnost (0–1)
             <input

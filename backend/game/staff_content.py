@@ -1,8 +1,18 @@
+import random
+import re
+import time
+
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.nicknames import (
+    AVATAR_COLORS,
+    AVATAR_KEYS,
+    random_nickname,
+    resolve_avatar_key,
+)
 from accounts.staff import StaffOnly
 from game.bonus_models import AiBot, BonusDefinition, PhoneFriend
 from game.modes import MODE_LABELS, PLAYABLE_MODES
@@ -321,3 +331,103 @@ class AdminBotDetailView(APIView):
         key = bot.key
         bot.delete()
         return Response({"detail": f"Bot „{name}“ ({key}) je izbrisan."})
+
+
+def _slug_bot_key(name: str) -> str:
+    raw = str(name or "").strip().lower()
+    raw = (
+        raw.replace("č", "c")
+        .replace("š", "s")
+        .replace("ž", "z")
+        .replace("ć", "c")
+        .replace("đ", "d")
+    )
+    slug = re.sub(r"[^a-z0-9]+", "_", raw).strip("_")
+    return (slug or "bot")[:24]
+
+
+class AdminBotGenerateView(APIView):
+    """Ustvari N random botov z admin parametri (natančnost, zakasnitev, načini…)."""
+
+    permission_classes = [StaffOnly]
+
+    def post(self, request):
+        data = request.data if isinstance(request.data, dict) else {}
+        try:
+            count = int(data.get("count", 10))
+            accuracy_min = float(data.get("accuracy_min", 0.55))
+            accuracy_max = float(data.get("accuracy_max", 0.85))
+            delay_min = float(data.get("delay_min", 1.2))
+            delay_max = float(data.get("delay_max", 7.5))
+        except (TypeError, ValueError):
+            return Response({"detail": "Številčne vrednosti niso veljavne."}, status=400)
+        if not 1 <= count <= 50:
+            return Response({"detail": "Število botov je med 1 in 50."}, status=400)
+        if not 0 <= accuracy_min <= accuracy_max <= 1:
+            return Response({"detail": "Natančnost mora biti 0–1 (min ≤ max)."}, status=400)
+        if delay_min < 0.2 or delay_max < delay_min:
+            return Response({"detail": "Zakasnitev ni veljavna."}, status=400)
+
+        count_for_leaderboard = data.get("count_for_leaderboard", False)
+        if not isinstance(count_for_leaderboard, bool):
+            return Response({"detail": "count_for_leaderboard mora biti true/false."}, status=400)
+        is_active = data.get("is_active", True)
+        if not isinstance(is_active, bool):
+            return Response({"detail": "is_active mora biti true/false."}, status=400)
+
+        raw_modes = data.get("modes", ["multiplayer", "dirka"])
+        if not isinstance(raw_modes, list):
+            return Response({"detail": "modes mora biti seznam."}, status=400)
+        modes = []
+        for item in raw_modes:
+            key_mode = str(item or "").strip()
+            if key_mode in BOT_MODE_CHOICES and key_mode not in modes:
+                modes.append(key_mode)
+        if not modes:
+            return Response({"detail": "Izberi vsaj en način (Hitra tekma ali Dirka)."}, status=400)
+
+        existing_keys = set(AiBot.objects.values_list("key", flat=True))
+        max_order = AiBot.objects.order_by("-order").values_list("order", flat=True).first() or 0
+        created = []
+        stamp = int(time.time()) % 100000
+
+        for i in range(count):
+            name = random_nickname()[:30]
+            base = _slug_bot_key(name)
+            key = f"rnd_{base}_{stamp}_{i}"
+            while key in existing_keys:
+                key = f"rnd_{base}_{stamp}_{i}_{random.randint(100, 999)}"
+            existing_keys.add(key)
+
+            accuracy = round(random.uniform(accuracy_min, accuracy_max), 3)
+            # Rahla raznolikost zakasnitev znotraj nastavljenega okvira.
+            span = delay_max - delay_min
+            bot_delay_min = round(delay_min + random.uniform(0, span * 0.25), 2)
+            bot_delay_max = round(max(bot_delay_min + 0.5, delay_max - random.uniform(0, span * 0.25)), 2)
+            color = random.choice(AVATAR_COLORS)
+            avatar = resolve_avatar_key(nickname=name, seed=key)
+            if avatar not in AVATAR_KEYS and AVATAR_KEYS:
+                avatar = random.choice(tuple(AVATAR_KEYS))
+
+            bot = AiBot.objects.create(
+                key=key,
+                name=name,
+                color=color,
+                avatar=avatar,
+                accuracy=accuracy,
+                delay_min=bot_delay_min,
+                delay_max=bot_delay_max,
+                modes=list(modes),
+                is_active=is_active,
+                count_for_leaderboard=count_for_leaderboard,
+                order=max_order + i + 1,
+            )
+            created.append(bot_payload(bot))
+
+        return Response(
+            {
+                "detail": f"Ustvarjenih {len(created)} botov.",
+                "created": len(created),
+                "bots": created,
+            }
+        )

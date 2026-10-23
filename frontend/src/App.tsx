@@ -49,6 +49,7 @@ export function App() {
             <Route path="pozabljeno-geslo" element={<ForgotPasswordPage />} />
             <Route path="ponastavi-geslo" element={<ResetPasswordPage />} />
             <Route path="lestvica" element={<Navigate to="/lestvica/hitrarunda" replace />} />
+            <Route path="lestvica/skupno" element={<Navigate to="/lestvica/hitrarunda" replace />} />
             <Route path="lestvica/hitrarunda" element={<LeaderboardPage />} />
             <Route path="lestvica/ala-milijonar" element={<LeaderboardPage />} />
             <Route path="lestvica/vec-igralcev" element={<LeaderboardPage />} />

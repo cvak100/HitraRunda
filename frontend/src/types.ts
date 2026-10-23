@@ -341,6 +341,18 @@ export type ScoreRow = {
   is_guest: boolean;
 };
 
+/** Skupna lestvica po uporabniku (vse igre). */
+export type OverallRow = {
+  user_id: number;
+  nickname: string;
+  avatar?: string;
+  preferred_color?: string;
+  total_points: number;
+  wins: number;
+  games: number;
+  is_guest: boolean;
+};
+
 export type StageRow = {
   order: number;
   text: string;

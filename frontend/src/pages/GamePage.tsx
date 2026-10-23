@@ -8,6 +8,7 @@ import { DirkaBonusBar, DirkaRaceTrack } from "../components/DirkaRaceTrack";
 import { NumberStepper } from "../components/NumberStepper";
 import { QuestionPlay } from "../components/QuestionPlay";
 import { TimerBar } from "../components/TimerBar";
+import { BoardIcon } from "../gameModes";
 import { REASONS, formatDuration, formatMode, formatPoints } from "../format";
 import type { Category, GameMessage, StandingRow } from "../types";
 
@@ -752,7 +753,13 @@ export function GamePage() {
             ) : null}
           </div>
         ) : null}
-        {question && message && playing ? (
+        {phase === "finished" && message && (message.mode === "multiplayer" || message.mode === "dirka") ? (
+          <PodiumFinish message={message} myId={myId} boardPath={boardPath} />
+        ) : null}
+        {question &&
+        message &&
+        playing &&
+        !(phase === "finished" && (message.mode === "multiplayer" || message.mode === "dirka")) ? (
           <div className={isDirka ? "dirka-play-body" : undefined}>
             <div
               className={[
@@ -964,9 +971,6 @@ export function GamePage() {
               {phase === "finished" && message.mode === "60_sekund" ? (
                 <SixtyFinish message={message} boardPath={boardPath} />
               ) : null}
-              {phase === "finished" && (message.mode === "multiplayer" || message.mode === "dirka") ? (
-                <PodiumFinish message={message} myId={myId} boardPath={boardPath} />
-              ) : null}
               </div>
             </div>
             {dirkaPlaying ? (
@@ -1133,10 +1137,19 @@ function PodiumFinish({
   const rest = rows.slice(3);
 
   function slot(row: StandingRow | undefined, place: 1 | 2 | 3) {
-    if (!row) return <div className={`podium-slot is-${place === 1 ? "first" : place === 2 ? "second" : "third"}`} />;
+    const placeClass = place === 1 ? "first" : place === 2 ? "second" : "third";
+    if (!row) {
+      return (
+        <div className={`podium-slot is-${placeClass} is-empty`} aria-hidden>
+          <div className="podium-block">
+            <span className="podium-place">{place}</span>
+          </div>
+        </div>
+      );
+    }
     return (
-      <div className={`podium-slot is-${place === 1 ? "first" : place === 2 ? "second" : "third"}`}>
-        <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={place === 1 ? 56 : 44} title={row.nickname} />
+      <div className={`podium-slot is-${placeClass}`}>
+        <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={place === 1 ? 58 : 44} title={row.nickname} />
         <div className="podium-name">
           {row.nickname}
           {row.is_bot ? " (AI)" : ""}
@@ -1144,13 +1157,19 @@ function PodiumFinish({
         </div>
         <div className="podium-score">{formatPoints(row.score)}</div>
         <div className="fine">{row.correct_count} pravilnih</div>
-        <div className="podium-block">{place}</div>
+        <div className="podium-block" aria-label={`${place}. mesto`}>
+          <span className="podium-place">{place}</span>
+        </div>
       </div>
     );
   }
 
+  const iWon = first?.member_id === myId;
+
   return (
-    <div className="review good">
+    <div className="review good finish-screen">
+      <p className="eyebrow">Konec igre</p>
+      <h1>{iWon ? "Čestitamo!" : "Konec igre"}</h1>
       <h2>Končna lestvica</h2>
       <div className="podium" aria-label="Stopničke">
         {slot(second, 2)}
@@ -1176,11 +1195,16 @@ function PodiumFinish({
           ))}
         </ol>
       ) : null}
-      <div className="actions">
-        <Link className="primary" to={boardPath}>
-          Lestvica
+      <div className="actions finish-actions">
+        <Link
+          className="primary"
+          to={message.mode === "dirka" ? "/igra/dirka" : "/igra/vec-igralcev"}
+        >
+          Nova igra
         </Link>
-        <Link to="/igra/vec-igralcev">Nova soba</Link>
+        <Link className="btn-with-icon board-icon-btn" to={boardPath} aria-label="Lestvica" title="Lestvica">
+          <BoardIcon />
+        </Link>
       </div>
     </div>
   );
