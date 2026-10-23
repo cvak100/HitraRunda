@@ -1,9 +1,11 @@
 import { FormEvent, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { NicknameField } from "../components/NicknameField";
 import { NumberStepper } from "../components/NumberStepper";
+import { ModePageNav } from "../gameModes";
 import type { Category } from "../types";
 
 type LobbyRoom = {
@@ -58,10 +60,10 @@ export function MultiplayerHubPage() {
         setSelected(data.categories.map((item) => item.slug));
       })
       .catch(() => setError("Kategorij ni bilo mogoče naložiti."));
-    api<{ rooms: LobbyRoom[] }>("/api/rooms/public/")
+    api<{ rooms: LobbyRoom[] }>("/api/rooms/public/?mode=multiplayer")
       .then((data) => setPublicRooms(data.rooms))
       .catch(() => setPublicRooms([]));
-    api<{ rooms: LobbyRoom[] }>("/api/rooms/invites/")
+    api<{ rooms: LobbyRoom[] }>("/api/rooms/invites/?mode=multiplayer")
       .then((data) => setInvites(data.rooms))
       .catch(() => setInvites([]));
   }, []);
@@ -115,9 +117,7 @@ export function MultiplayerHubPage() {
     <section className="panel">
       <p className="eyebrow">Hitra tekma</p>
       <h1>Skupna soba</h1>
-      <p className="fine">
-        <Link to="/igra">← Druge igre</Link>
-      </p>
+      <ModePageNav boardTo="/lestvica/vec-igralcev" />
       <div className="tabs content-tabs" role="tablist">
         <button type="button" className={tab === "create" ? "is-on" : ""} onClick={() => setTab("create")}>
           Ustvari
@@ -133,10 +133,7 @@ export function MultiplayerHubPage() {
 
       {tab === "create" ? (
         <form className="stack" onSubmit={onCreate}>
-          <label>
-            Vzdevek
-            <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={30} required />
-          </label>
+          <NicknameField value={nickname} onChange={setNickname} required />
           <fieldset>
             <legend>Vidnost</legend>
             <label className="check">
@@ -216,10 +213,7 @@ export function MultiplayerHubPage() {
 
       {tab === "join" ? (
         <form className="stack" onSubmit={(event) => void onJoin(event)}>
-          <label>
-            Vzdevek
-            <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={30} required />
-          </label>
+          <NicknameField value={nickname} onChange={setNickname} required />
           <label>
             Koda sobe
             <input value={joinCode} onChange={(event) => setJoinCode(event.target.value.toUpperCase())} maxLength={8} required />
@@ -257,10 +251,7 @@ export function MultiplayerHubPage() {
 
       {tab === "public" ? (
         <div className="stack">
-          <label>
-            Vzdevek
-            <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={30} required />
-          </label>
+          <NicknameField value={nickname} onChange={setNickname} required />
           {publicRooms.length === 0 ? <p className="fine">Ni odprtih javnih sob.</p> : null}
           <div className="admin-list">
             {publicRooms.map((room) => (

@@ -7,17 +7,22 @@ type Props = {
 };
 
 export function TimerBar({ deadlineAt, serverNow, onExpire }: Props) {
-  const deadline = Date.parse(deadlineAt);
-  const server = Date.parse(serverNow);
-  const total = Math.max(1, deadline - server);
-  const [left, setLeft] = useState(total);
+  const [left, setLeft] = useState(0);
+  const [total, setTotal] = useState(1);
   const fired = useRef(false);
   const expireRef = useRef(onExpire);
   expireRef.current = onExpire;
+  // Sync clock offset only when the deadline itself changes — not on every
+  // answer_progress broadcast (those refresh server_now and would refill the bar).
+  const serverNowRef = useRef(serverNow);
+  serverNowRef.current = serverNow;
 
   useEffect(() => {
     const end = Date.parse(deadlineAt);
-    const offset = Date.parse(serverNow) - Date.now();
+    const offset = Date.parse(serverNowRef.current) - Date.now();
+    const initialLeft = Math.max(0, end - (Date.now() + offset));
+    setTotal(Math.max(1, initialLeft));
+    setLeft(initialLeft);
     fired.current = false;
     const id = window.setInterval(() => {
       const remaining = end - (Date.now() + offset);
@@ -28,7 +33,7 @@ export function TimerBar({ deadlineAt, serverNow, onExpire }: Props) {
       }
     }, 100);
     return () => window.clearInterval(id);
-  }, [deadlineAt, serverNow]);
+  }, [deadlineAt]);
 
   const ratio = Math.max(0, Math.min(1, left / total));
   const seconds = Math.ceil(left / 1000);

@@ -1,16 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { SortableTh } from "../components/AdminToolbar";
 import { api } from "../api";
-import { formatMode, formatPoints, formatWhen } from "../format";
+import { formatDuration, formatMode, formatPoints, formatWhen } from "../format";
+import { BoardLink } from "../gameModes";
 import type { ScoreRow } from "../types";
 
 type ModeStat = {
   mode: string;
   label: string;
   best_score: number;
+  best_correct: number;
+  best_prize: number;
+  avg_score: number;
   games: number;
+  rank: number | null;
+  board_total: number;
+  best_duration_ms: number | null;
+  best_correct_in_run: number;
+  best_total_in_run: number;
 };
 
 type Profile = {
@@ -20,6 +29,15 @@ type Profile = {
 };
 
 type SortKey = "mode" | "score" | "correct_count" | "played_at";
+
+const BOARD_PATH: Record<string, string> = {
+  hitrarunda: "/lestvica/hitrarunda",
+  millionaire: "/lestvica/hitrarunda",
+  ala_milijonar: "/lestvica/ala-milijonar",
+  multiplayer: "/lestvica/vec-igralcev",
+  dirka: "/lestvica/dirka",
+  "60_sekund": "/lestvica/60-sekund",
+};
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -65,16 +83,54 @@ export function ProfilePage() {
           <p>
             Igraš kot <strong>{profile.nickname || "—"}</strong>.
           </p>
-          <div className="game-split">
+          <div className="game-split profile-modes">
             {profile.modes.map((mode) => (
-              <div key={mode.mode} className="game-block">
+              <article key={mode.mode} className="game-block profile-mode-card">
                 <p className="eyebrow">{mode.label}</p>
                 <h2>{formatPoints(mode.best_score)}</h2>
-                <p className="fine">Najboljši rezultat · {mode.games} iger</p>
-                <Link to={mode.mode === "ala_milijonar" ? "/lestvica/ala-milijonar" : "/lestvica/hitrarunda"}>
-                  Lestvica
-                </Link>
-              </div>
+                <p className="fine profile-mode-rank">
+                  {mode.rank != null && mode.board_total > 0
+                    ? `${mode.rank}. na skupni lestvici · od ${formatPoints(mode.board_total)}`
+                    : mode.games > 0
+                      ? "Še ni na skupni lestvici"
+                      : "Še ni iger"}
+                </p>
+                <ul className="profile-mode-stats">
+                  <li>
+                    <span>Iger</span>
+                    <strong>{formatPoints(mode.games)}</strong>
+                  </li>
+                  <li>
+                    <span>Povprečje</span>
+                    <strong>{formatPoints(mode.avg_score)}</strong>
+                  </li>
+                  <li>
+                    <span>Največ pravilnih</span>
+                    <strong>{formatPoints(mode.best_correct)}</strong>
+                  </li>
+                  {mode.mode === "ala_milijonar" ? (
+                    <li>
+                      <span>Najvišja nagrada</span>
+                      <strong>{formatPoints(mode.best_prize)}</strong>
+                    </li>
+                  ) : null}
+                  {mode.best_total_in_run > 0 ? (
+                    <li>
+                      <span>Najboljši tek</span>
+                      <strong>
+                        {mode.best_correct_in_run}/{mode.best_total_in_run}
+                      </strong>
+                    </li>
+                  ) : null}
+                  {mode.best_duration_ms != null ? (
+                    <li>
+                      <span>Čas najboljšega</span>
+                      <strong>{formatDuration(mode.best_duration_ms)}</strong>
+                    </li>
+                  ) : null}
+                </ul>
+                <BoardLink to={BOARD_PATH[mode.mode] ?? "/lestvica/hitrarunda"} />
+              </article>
             ))}
           </div>
           <h2>Zadnjih iger</h2>
@@ -86,7 +142,13 @@ export function ProfilePage() {
                   <tr>
                     <SortableTh label="Igra" column="mode" sort={sort} direction={direction} onSort={toggleSort} />
                     <SortableTh label="Točke" column="score" sort={sort} direction={direction} onSort={toggleSort} />
-                    <SortableTh label="Pravilni" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+                    <SortableTh
+                      label="Pravilni"
+                      column="correct_count"
+                      sort={sort}
+                      direction={direction}
+                      onSort={toggleSort}
+                    />
                     <SortableTh label="Kdaj" column="played_at" sort={sort} direction={direction} onSort={toggleSort} />
                   </tr>
                 </thead>

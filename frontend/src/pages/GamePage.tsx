@@ -3,10 +3,11 @@ import { Link, useParams } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { DirkaBonusBar, DirkaRaceTrack } from "../components/DirkaRaceTrack";
 import { NumberStepper } from "../components/NumberStepper";
 import { QuestionPlay } from "../components/QuestionPlay";
 import { TimerBar } from "../components/TimerBar";
-import { REASONS, formatMode, formatPoints } from "../format";
+import { REASONS, formatDuration, formatMode, formatPoints } from "../format";
 import type { Category, GameMessage, StandingRow } from "../types";
 
 const LOBBY_TIMES = [30, 60, 90, 120, 300];
@@ -33,15 +34,22 @@ export function GamePage() {
   const [editPassword, setEditPassword] = useState("");
   const [editSudden, setEditSudden] = useState(false);
   const [editBots, setEditBots] = useState(0);
+  const [editTarget, setEditTarget] = useState(200);
+  const [editSafe, setEditSafe] = useState(5);
   const [editCats, setEditCats] = useState<string[]>([]);
   const [copyNotice, setCopyNotice] = useState("");
   const [confirmWalkAway, setConfirmWalkAway] = useState(false);
+  const [sixtyFlash, setSixtyFlash] = useState<GameMessage["feedback"] | null>(null);
+  const [sixtyTickKey, setSixtyTickKey] = useState(0);
   const wsRef = useRef<WebSocket | null>(null);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const myIdRef = useRef(myId);
   myIdRef.current = myId;
-  const isMulti = message?.mode === "multiplayer" || phase === "lobby";
+  const isLobbyMode = message?.mode === "multiplayer" || message?.mode === "dirka" || phase === "lobby";
+  const isMulti = isLobbyMode;
+  const isDirka = message?.mode === "dirka";
+  const isSixty = message?.mode === "60_sekund";
 
   const sendAnswer = useCallback((body: Record<string, unknown>) => {
     const socket = wsRef.current;
@@ -69,6 +77,12 @@ export function GamePage() {
   }, []);
 
   useEffect(() => {
+    if (!sixtyFlash) return;
+    const id = window.setTimeout(() => setSixtyFlash(null), 900);
+    return () => window.clearTimeout(id);
+  }, [sixtyFlash, sixtyTickKey]);
+
+  useEffect(() => {
     let stopped = false;
     const proto = window.location.protocol === "https:" ? "wss" : "ws";
     const socket = new WebSocket(`${proto}://${window.location.host}/ws/game/${code}/`);
@@ -81,13 +95,18 @@ export function GamePage() {
         you?: { id?: string };
         visibility?: string;
         max_players?: number;
+        status?: string;
       }>(`/api/rooms/${code}/`)
         .then((room) => {
           if (stopped) return;
           if (room.you?.id) setMyId(room.you.id);
-          if (room.settings?.mode === "multiplayer") {
+          if (room.settings?.mode === "multiplayer" || room.settings?.mode === "dirka") {
             syncLobbyEditors(room);
-            socket.send(JSON.stringify({ type: "lobby_sync" }));
+            // Only sync lobby while waiting. Mid-game reconnect relies on the WS snapshot —
+            // lobby_sync would force everyone back to the lobby screen.
+            if (room.status === "waiting") {
+              socket.send(JSON.stringify({ type: "lobby_sync" }));
+            }
           } else {
             socket.send(JSON.stringify({ type: "start_game" }));
           }
@@ -117,19 +136,28 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "question") {
-        setMessage(incoming);
+        if (incoming.feedback) {
+          setSixtyFlash(incoming.feedback);
+          setSixtyTickKey((n) => n + 1);
+        }
+        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
         setPhase("question");
         return;
       }
       if (incoming.phase === "answer_progress" || incoming.phase === "waiting_answers") {
         const me = myIdRef.current;
         const iAnswered = Boolean(me && (incoming.answered_ids || []).includes(me));
-        setMessage((current) => ({
-          ...current,
-          ...incoming,
-          you: current?.you,
-          phase: iAnswered ? "waiting_answers" : current?.phase === "question" || current?.phase === "submitting" ? "question" : incoming.phase,
-        }));
+        setMessage((current) => {
+          const merged = mergeDirkaMessage(current, incoming, me);
+          return {
+            ...merged,
+            phase: iAnswered
+              ? "waiting_answers"
+              : current?.phase === "question" || current?.phase === "submitting"
+                ? "question"
+                : incoming.phase,
+          };
+        });
         if (iAnswered) {
           setPhase("waiting_answers");
         }
@@ -137,7 +165,7 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "round_review") {
-        setMessage(incoming);
+        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
         setPhase("round_review");
         return;
       }
@@ -148,7 +176,11 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "finished" || incoming.type === "game_finished") {
-        setMessage((current) => ({ ...current, ...incoming }));
+        if (incoming.feedback) {
+          setSixtyFlash(incoming.feedback);
+          setSixtyTickKey((n) => n + 1);
+        }
+        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
         setPhase("finished");
         setPickFriend(false);
       }
@@ -184,6 +216,32 @@ export function GamePage() {
     );
   }
 
+  function skipSixty() {
+    const socket = wsRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN || !message?.question || phase !== "question") return;
+    if (message.skips_left != null && message.skips_left <= 0) return;
+    setPhase("submitting");
+    socket.send(
+      JSON.stringify({
+        type: "submit_answer",
+        game_question_id: message.question.game_question_id,
+        skip: true,
+      }),
+    );
+  }
+
+  function useDirkaBonus(effect: string) {
+    const socket = wsRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN || !message?.question || phase !== "question") return;
+    socket.send(
+      JSON.stringify({
+        type: "use_bonus",
+        effect,
+        game_question_id: message.question.game_question_id,
+      }),
+    );
+  }
+
   function walkAway() {
     if (phase !== "question") return;
     setConfirmWalkAway(true);
@@ -212,12 +270,33 @@ export function GamePage() {
   const isAla = message?.mode === "ala_milijonar";
   const showLifelines = isAla && (phase === "question" || phase === "submitting");
   const canUseLifeline = phase === "question";
+  const dirkaMe = isDirka && myId ? message?.players?.[myId] : undefined;
+  const dirkaBonuses = dirkaMe?.bonuses || {};
+  const dirkaArmed = dirkaMe?.armed || {};
+  const dirkaHelps = dirkaMe?.active_helps || helps;
+  const dirkaDeadline = isDirka
+    ? dirkaMe?.deadline_at || (myId && message?.deadlines?.[myId]) || message?.deadline_at
+    : undefined;
+  const showDirkaChrome = isDirka && playing;
+  const eliminatedIds = [
+    ...((dirkaHelps.fifty_fifty?.eliminated_option_ids as number[] | undefined) || []),
+    ...(((dirkaHelps as { hint?: { eliminated_option_ids?: number[] } }).hint?.eliminated_option_ids) || []),
+  ];
   const boardPath =
     message?.mode === "ala_milijonar"
       ? "/lestvica/ala-milijonar"
       : message?.mode === "multiplayer"
         ? "/lestvica/vec-igralcev"
-        : "/lestvica/hitrarunda";
+        : message?.mode === "dirka"
+          ? "/lestvica/dirka"
+          : message?.mode === "60_sekund"
+            ? "/lestvica/60-sekund"
+            : "/lestvica/hitrarunda";
+  const sixtyDeadline = message?.clock_ends_at || message?.deadline_at;
+  const skipDisabled =
+    phase !== "question" || (message?.skips_left != null && (message.skips_left ?? 0) <= 0);
+  const flashTone =
+    sixtyFlash?.skipped ? "is-skip" : sixtyFlash?.is_correct ? "is-good" : sixtyFlash ? "is-bad" : "";
   const friends = message?.friends || [];
   const standings = message?.standings || [];
   const iAmHost = Boolean(
@@ -241,6 +320,8 @@ export function GamePage() {
     }
     if (typeof settings.sudden_death === "boolean") setEditSudden(settings.sudden_death);
     if (typeof settings.bot_count === "number") setEditBots(settings.bot_count);
+    if (typeof settings.target_score === "number") setEditTarget(settings.target_score);
+    if (typeof settings.safe_every === "number") setEditSafe(settings.safe_every);
     if (settings.categories?.length) setEditCats(settings.categories);
     if (room.max_players) setEditMax(room.max_players);
     if (room.visibility === "public" || room.visibility === "private" || room.visibility === "unlisted") {
@@ -291,22 +372,32 @@ export function GamePage() {
     max_players: number;
     bot_count: number;
     sudden_death: boolean;
+    target_score: number;
+    safe_every: number;
     visibility: "public" | "private" | "unlisted";
   }> = {}) {
     const maxPlayers = Math.min(6, Math.max(overrides.max_players ?? editMax, humanCount(), 2));
     const botCount = Math.min(overrides.bot_count ?? editBots, Math.max(0, maxPlayers - humanCount()));
     if (botCount !== editBots) setEditBots(botCount);
     if (maxPlayers !== editMax) setEditMax(maxPlayers);
+    const dirka = (message?.settings?.mode || message?.mode) === "dirka";
     wsRef.current?.send(
       JSON.stringify({
         type: "update_settings",
-        question_count: overrides.question_count ?? editCount,
-        time_limit_seconds: overrides.time_limit_seconds ?? editSeconds,
+        ...(dirka
+          ? {
+              target_score: overrides.target_score ?? editTarget,
+              safe_every: overrides.safe_every ?? editSafe,
+            }
+          : {
+              question_count: overrides.question_count ?? editCount,
+              time_limit_seconds: overrides.time_limit_seconds ?? editSeconds,
+              sudden_death: overrides.sudden_death ?? editSudden,
+            }),
         max_players: maxPlayers,
         visibility: overrides.visibility ?? editVisibility,
         password: (overrides.visibility ?? editVisibility) === "private" ? editPassword : "",
         categories: editCats.length ? editCats : message?.settings?.categories || categories.map((item) => item.slug),
-        sudden_death: overrides.sudden_death ?? editSudden,
         bot_count: botCount,
       }),
     );
@@ -326,8 +417,10 @@ export function GamePage() {
     saveLobbySettings({ max_players: nextMax, bot_count: nextBots });
   }
 
+  const dirkaPlaying = isDirka && showDirkaChrome && message;
+
   return (
-    <section className="stage">
+    <section className={dirkaPlaying ? "stage stage-dirka" : "stage"}>
       <div className="play">
         <p className="eyebrow">
           {message?.mode ? formatMode(message.mode) : "Igra"} · soba {code}
@@ -352,6 +445,8 @@ export function GamePage() {
               {message.visibility ? `${message.visibility}` : ""}
               {message.has_password ? " · geslo" : ""}
               {message.settings?.sudden_death ? " · sudden death" : ""}
+              {message.settings?.target_score ? ` · cilj ${message.settings.target_score}` : ""}
+              {message.settings?.safe_every ? ` · varna zona ${message.settings.safe_every}` : ""}
               {message.settings?.bot_count ? ` · ${message.settings.bot_count} AI` : ""}
             </p>
             <h2>
@@ -415,26 +510,66 @@ export function GamePage() {
                   </button>
                 </div>
                 <h2>Nastavitve (v živo)</h2>
-                <NumberStepper label="Število vprašanj" value={editCount} options={LOBBY_COUNTS} onChange={setEditCount} />
-                <div className="stack-gap">
-                  <span className="stepper-label">Čas na vprašanje</span>
-                  <div className="choices" role="group" aria-label="Čas na vprašanje">
-                    {LOBBY_TIMES.map((time) => (
-                      <button key={time} type="button" className={time === editSeconds ? "is-on" : ""} onClick={() => setEditSeconds(time)}>
-                        {formatLobbyTime(time)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                {(message.settings?.mode || message.mode) === "dirka" ? (
+                  <>
+                    <div className="stack-gap">
+                      <span className="stepper-label">Cilj točk</span>
+                      <div className="choices" role="group">
+                        {[100, 200, 500, 1000].map((value) => (
+                          <button
+                            key={value}
+                            type="button"
+                            className={value === editTarget ? "is-on" : ""}
+                            onClick={() => setEditTarget(value)}
+                          >
+                            {value}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <fieldset>
+                      <legend>Varna zona</legend>
+                      <label className="check">
+                        <input type="radio" checked={editSafe === 5} onChange={() => setEditSafe(5)} />
+                        Kratka (5)
+                      </label>
+                      <label className="check">
+                        <input type="radio" checked={editSafe === 10} onChange={() => setEditSafe(10)} />
+                        Daljša (10)
+                      </label>
+                    </fieldset>
+                    <p className="fine">Čas na vprašanje: 30 s (fiksno).</p>
+                  </>
+                ) : (
+                  <>
+                    <NumberStepper label="Število vprašanj" value={editCount} options={LOBBY_COUNTS} onChange={setEditCount} />
+                    <div className="stack-gap">
+                      <span className="stepper-label">Čas na vprašanje</span>
+                      <div className="choices" role="group" aria-label="Čas na vprašanje">
+                        {LOBBY_TIMES.map((time) => (
+                          <button key={time} type="button" className={time === editSeconds ? "is-on" : ""} onClick={() => setEditSeconds(time)}>
+                            {formatLobbyTime(time)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <label className="check">
+                      <input type="checkbox" checked={editSudden} onChange={(event) => setEditSudden(event.target.checked)} />
+                      Sudden death
+                    </label>
+                  </>
+                )}
                 <NumberStepper label="Največ igralcev" value={editMax} min={2} max={6} onChange={changeMaxPlayers} />
-                <NumberStepper label="AI nasprotniki" value={editBots} min={0} max={maxBotsFor()} onChange={changeBots} />
+                <NumberStepper
+                  label={(message.settings?.mode || message.mode) === "dirka" ? "Dirka AI" : "AI nasprotniki"}
+                  value={editBots}
+                  min={0}
+                  max={maxBotsFor()}
+                  onChange={changeBots}
+                />
                 <p className="fine">
                   AI se takoj doda na seznam. Največ {maxBotsFor()} (prosta mesta: {Math.max(0, editMax - humanCount())}).
                 </p>
-                <label className="check">
-                  <input type="checkbox" checked={editSudden} onChange={(event) => setEditSudden(event.target.checked)} />
-                  Sudden death
-                </label>
                 <fieldset>
                   <legend>Vidnost</legend>
                   <label className="check">
@@ -486,110 +621,254 @@ export function GamePage() {
           </div>
         ) : null}
         {question && message && playing ? (
-          <>
-            <div className="q-meta">
-              <span>
-                {(message.index ?? 0) + 1} / {message.total}
-              </span>
-              <span>{question.category_name}</span>
-              <span>Težavnost {question.difficulty}</span>
-              {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
-              {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
-                <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
-              ) : null}
-            </div>
-            {showLifelines ? (
-              <div className="lifelines" aria-label="Jokerji">
-                <button
-                  type="button"
-                  className={lifelines.fifty_fifty?.used ? "is-used" : ""}
-                  disabled={!canUseLifeline || !lifelines.fifty_fifty?.available}
-                  onClick={() => useHelp("fifty_fifty")}
-                >
-                  Polovička{lifelines.fifty_fifty?.used ? " · porabljena" : ""}
-                </button>
-                <button
-                  type="button"
-                  className={lifelines.audience?.used ? "is-used" : ""}
-                  disabled={!canUseLifeline || !lifelines.audience?.available}
-                  onClick={() => useHelp("audience")}
-                >
-                  Glas ljudstva{lifelines.audience?.used ? " · porabljen" : ""}
-                </button>
-                <button
-                  type="button"
-                  className={lifelines.phone_friend?.used ? "is-used" : ""}
-                  disabled={!canUseLifeline || !lifelines.phone_friend?.available}
-                  onClick={() => setPickFriend((current) => !current)}
-                >
-                  Klic v sili{lifelines.phone_friend?.used ? " · porabljen" : ""}
-                </button>
-                {message.can_walk_away && phase === "question" ? (
-                  <button type="button" className="walk-away" onClick={walkAway}>
-                    Odnehaj ({formatPoints(message.prize_reached ?? 0)})
-                  </button>
+          <div className={isDirka ? "dirka-play-body" : undefined}>
+            <div
+              className={[
+                isDirka ? "dirka-question-slot" : undefined,
+                isSixty ? "sixty-play" : undefined,
+                isSixty && sixtyFlash ? `sixty-flash ${flashTone}` : undefined,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              <div className="q-meta">
+                <span>
+                  {(message.index ?? 0) + 1}
+                  {isDirka || isSixty ? "" : ` / ${message.total}`}
+                </span>
+                <span>{question.category_name}</span>
+                <span>Težavnost {question.difficulty}</span>
+                {isSixty ? (
+                  <span>
+                    Pravilni {message.correct_count ?? 0}
+                    {message.answered_count != null ? ` / ${message.answered_count}` : ""}
+                  </span>
+                ) : null}
+                {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
+                {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
+                  <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
+                ) : null}
+                {isDirka && message.target_score ? <span>Cilj {formatPoints(message.target_score)}</span> : null}
+                {isDirka ? (
+                  <span title="Varna zona po N pravilnih (napačen odgovor ne resetira števca, samo clean sheet).">
+                    Varna zona {dirkaMe?.correct_in_segment ?? 0}/{dirkaMe?.safe_every ?? message.safe_every ?? 5}
+                    {` · še ${dirkaMe?.until_safe ?? message.safe_every ?? 5}`}
+                    {dirkaMe?.safe_locked ? ` · zaklenjeno ${formatPoints(dirkaMe.safe_locked)}` : ""}
+                  </span>
                 ) : null}
               </div>
-            ) : null}
-            {isAla && friends.length > 0 && (showLifelines || pickFriend) ? (
-              <div className={`friend-pick ${pickFriend ? "is-open" : ""}`}>
-                <p className="fine">{pickFriend ? "Koga kličeš?" : "Tvoji prijatelji za klic"}</p>
-                {friends.map((friend) => (
-                  <button
-                    key={friend.key}
-                    type="button"
-                    disabled={!pickFriend || !canUseLifeline || friend.used || !lifelines.phone_friend?.available}
-                    style={{ ["--friend-color" as string]: friend.avatar_color }}
-                    onClick={() => useHelp("phone_friend", friend.key)}
+              {isSixty ? (
+                <>
+                  <p
+                    className={`sixty-feedback ${sixtyFlash ? flashTone : "sixty-feedback-empty"}`}
+                    aria-live="polite"
                   >
-                    <strong>{friend.name}</strong>
-                    <span className="fine">{friend.title}{friend.used ? " · poklican" : ""}</span>
+                    {sixtyFlash?.label || "\u00a0"}
+                  </p>
+                  <div
+                    className={[
+                      "sixty-chrome",
+                      sixtyFlash
+                        ? (sixtyFlash.time_delta ?? 0) > 0
+                          ? "is-tick-up"
+                          : (sixtyFlash.time_delta ?? 0) < 0
+                            ? "is-tick-down"
+                            : ""
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    {sixtyFlash && (sixtyFlash.time_delta ?? 0) !== 0 ? (
+                      <span
+                        key={`pulse-${sixtyTickKey}`}
+                        className={`sixty-chrome-pulse ${
+                          (sixtyFlash.time_delta ?? 0) > 0 ? "is-up" : "is-down"
+                        }`}
+                        aria-hidden
+                      />
+                    ) : null}
+                    <div className="sixty-timer">
+                      {sixtyDeadline && message.server_now ? (
+                        <TimerBar
+                          deadlineAt={sixtyDeadline}
+                          serverNow={message.server_now}
+                          onExpire={expire}
+                        />
+                      ) : (
+                        <div className="timer sixty-timer-placeholder" aria-hidden>
+                          <div className="timer-track" />
+                          <span>—s</span>
+                        </div>
+                      )}
+                      {sixtyFlash && (sixtyFlash.time_delta ?? 0) !== 0 ? (
+                        <span
+                          key={`delta-${sixtyTickKey}`}
+                          className={`sixty-delta ${
+                            (sixtyFlash.time_delta ?? 0) > 0 ? "is-up" : "is-down"
+                          }`}
+                        >
+                          {(sixtyFlash.time_delta ?? 0) > 0
+                            ? `+${sixtyFlash.time_delta} s`
+                            : `${sixtyFlash.time_delta} s`}
+                        </span>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      className="sixty-skip"
+                      disabled={skipDisabled}
+                      onClick={skipSixty}
+                    >
+                      Preskoči
+                      <strong>
+                        {message.skips_left == null ? "∞" : message.skips_left}
+                      </strong>
+                    </button>
+                  </div>
+                </>
+              ) : null}
+              {showLifelines ? (
+                <div className="lifelines" aria-label="Jokerji">
+                  <button
+                    type="button"
+                    className={lifelines.fifty_fifty?.used ? "is-used" : ""}
+                    disabled={!canUseLifeline || !lifelines.fifty_fifty?.available}
+                    onClick={() => useHelp("fifty_fifty")}
+                  >
+                    Polovička{lifelines.fifty_fifty?.used ? " · porabljena" : ""}
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    className={lifelines.audience?.used ? "is-used" : ""}
+                    disabled={!canUseLifeline || !lifelines.audience?.available}
+                    onClick={() => useHelp("audience")}
+                  >
+                    Glas ljudstva{lifelines.audience?.used ? " · porabljen" : ""}
+                  </button>
+                  <button
+                    type="button"
+                    className={lifelines.phone_friend?.used ? "is-used" : ""}
+                    disabled={!canUseLifeline || !lifelines.phone_friend?.available}
+                    onClick={() => setPickFriend((current) => !current)}
+                  >
+                    Klic v sili{lifelines.phone_friend?.used ? " · porabljen" : ""}
+                  </button>
+                  {message.can_walk_away && phase === "question" ? (
+                    <button type="button" className="walk-away" onClick={walkAway}>
+                      Odnehaj ({formatPoints(message.prize_reached ?? 0)})
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+              {isAla && friends.length > 0 && (showLifelines || pickFriend) ? (
+                <div className={`friend-pick ${pickFriend ? "is-open" : ""}`}>
+                  <p className="fine">{pickFriend ? "Koga kličeš?" : "Tvoji prijatelji za klic"}</p>
+                  {friends.map((friend) => (
+                    <button
+                      key={friend.key}
+                      type="button"
+                      disabled={!pickFriend || !canUseLifeline || friend.used || !lifelines.phone_friend?.available}
+                      style={{ ["--friend-color" as string]: friend.avatar_color }}
+                      onClick={() => useHelp("phone_friend", friend.key)}
+                    >
+                      <strong>{friend.name}</strong>
+                      <span className="fine">{friend.title}{friend.used ? " · poklican" : ""}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              {phase === "question" && isDirka && dirkaDeadline && message.server_now ? (
+                <TimerBar deadlineAt={dirkaDeadline} serverNow={message.server_now} onExpire={expire} />
+              ) : phase === "question" && !isDirka && !isSixty && message.deadline_at && message.server_now ? (
+                <TimerBar deadlineAt={message.deadline_at} serverNow={message.server_now} onExpire={expire} />
+              ) : null}
+              <div className={isSixty ? "sixty-question-slot" : undefined}>
+              <h1>{question.text}</h1>
+              {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+              {helps.phone_friend ? (
+                <p className="help-banner">
+                  {helps.phone_friend.friend_name}: {helps.phone_friend.message}
+                </p>
+              ) : null}
+              {!isDirka && !isSixty && phase === "question" && (message.answered_count ?? 0) > 0 ? (
+                <p className="fine">
+                  Oddano {message.answered_count}/{message.player_count}
+                  {(message.waiting_for || []).length > 0 ? ` · čaka: ${(message.waiting_for || []).join(", ")}` : ""}
+                </p>
+              ) : null}
+              {!isDirka && !isSixty && phase === "waiting_answers" ? (
+                <p className="status">
+                  Oddano. Čakam še: {(message.waiting_for || []).join(", ") || "nikogar"} (
+                  {message.answered_count}/{message.player_count})
+                </p>
+              ) : null}
+              {phase === "question" || phase === "submitting" ? (
+                <QuestionPlay
+                  question={question}
+                  locked={phase !== "question"}
+                  result={null}
+                  eliminatedOptionIds={
+                    eliminatedIds.length
+                      ? eliminatedIds
+                      : isDirka
+                        ? undefined
+                        : helps.fifty_fifty?.eliminated_option_ids
+                  }
+                  audienceVotes={isDirka ? undefined : helps.audience?.votes}
+                  onSubmit={sendAnswer}
+                />
+              ) : null}
+              {phase === "round_review" ? (
+                <RoundReview message={message} myId={myId} isHost={iAmHost} onNext={next} boardPath={boardPath} />
+              ) : null}
+              {phase === "review" ||
+              (phase === "finished" &&
+                message.mode !== "multiplayer" &&
+                message.mode !== "dirka" &&
+                message.mode !== "60_sekund") ? (
+                <Review message={message} onNext={next} boardPath={boardPath} />
+              ) : null}
+              {phase === "finished" && message.mode === "60_sekund" ? (
+                <SixtyFinish message={message} boardPath={boardPath} />
+              ) : null}
+              {phase === "finished" && (message.mode === "multiplayer" || message.mode === "dirka") ? (
+                <PodiumFinish message={message} myId={myId} boardPath={boardPath} />
+              ) : null}
+              </div>
+            </div>
+            {dirkaPlaying ? (
+              <div className="dirka-side">
+                <DirkaBonusBar
+                  bonuses={dirkaBonuses}
+                  armed={dirkaArmed}
+                  canUse={phase === "question"}
+                  onUse={useDirkaBonus}
+                  maxTypes={message.max_bonus_types || 5}
+                />
+                <p
+                  className={`dirka-wait-status ${
+                    phase === "waiting_answers"
+                      ? "status"
+                      : phase === "question" && (message.answered_count ?? 0) > 0
+                        ? "fine"
+                        : "dirka-wait-status-empty"
+                  }`}
+                  aria-live="polite"
+                >
+                  {phase === "waiting_answers"
+                    ? `Oddano. Čakam še: ${(message.waiting_for || []).join(", ") || "nikogar"} (${message.answered_count}/${message.player_count})`
+                    : phase === "question" && (message.answered_count ?? 0) > 0
+                      ? `Oddano ${message.answered_count}/${message.player_count}${
+                          (message.waiting_for || []).length > 0
+                            ? ` · čaka: ${(message.waiting_for || []).join(", ")}`
+                            : ""
+                        }`
+                      : "\u00a0"}
+                </p>
               </div>
             ) : null}
-            {phase === "question" && message.deadline_at && message.server_now ? (
-              <TimerBar deadlineAt={message.deadline_at} serverNow={message.server_now} onExpire={expire} />
-            ) : null}
-            <h1>{question.text}</h1>
-            {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
-            {helps.phone_friend ? (
-              <p className="help-banner">
-                {helps.phone_friend.friend_name}: {helps.phone_friend.message}
-              </p>
-            ) : null}
-            {phase === "question" && (message.answered_count ?? 0) > 0 ? (
-              <p className="fine">
-                Oddano {message.answered_count}/{message.player_count}
-                {(message.waiting_for || []).length > 0 ? ` · čaka: ${(message.waiting_for || []).join(", ")}` : ""}
-              </p>
-            ) : null}
-            {phase === "waiting_answers" ? (
-              <p className="status">
-                Oddano. Čakam še: {(message.waiting_for || []).join(", ") || "nikogar"} (
-                {message.answered_count}/{message.player_count})
-              </p>
-            ) : null}
-            {phase === "question" || phase === "submitting" ? (
-              <QuestionPlay
-                question={question}
-                locked={phase !== "question"}
-                result={null}
-                eliminatedOptionIds={helps.fifty_fifty?.eliminated_option_ids}
-                audienceVotes={helps.audience?.votes}
-                onSubmit={sendAnswer}
-              />
-            ) : null}
-            {phase === "round_review" ? (
-              <RoundReview message={message} myId={myId} isHost={iAmHost} onNext={next} boardPath={boardPath} />
-            ) : null}
-            {phase === "review" || (phase === "finished" && message.mode !== "multiplayer") ? (
-              <Review message={message} onNext={next} boardPath={boardPath} />
-            ) : null}
-            {phase === "finished" && message.mode === "multiplayer" ? (
-              <PodiumFinish message={message} myId={myId} boardPath={boardPath} />
-            ) : null}
-          </>
+          </div>
         ) : null}
         {phase === "error" ? (
           <Link className="primary" to="/igra">
@@ -597,6 +876,20 @@ export function GamePage() {
           </Link>
         ) : null}
       </div>
+      {dirkaPlaying ? (
+        <div className="dirka-race-top">
+          <DirkaRaceTrack
+            standings={standings}
+            targetScore={message.target_score || message.settings?.target_score || 200}
+            myId={myId}
+            mySafeProgress={{
+              current: dirkaMe?.correct_in_segment ?? 0,
+              every: dirkaMe?.safe_every ?? message.safe_every ?? 5,
+              until: dirkaMe?.until_safe ?? message.safe_every ?? 5,
+            }}
+          />
+        </div>
+      ) : null}
       <ConfirmModal
         open={confirmWalkAway}
         title="Odnehati?"
@@ -606,7 +899,7 @@ export function GamePage() {
         onConfirm={confirmWalkAwayNow}
         onCancel={() => setConfirmWalkAway(false)}
       />
-      {message?.mode === "multiplayer" || isMulti ? (
+      {message?.mode === "multiplayer" || (isMulti && !isDirka) ? (
         <ol className="ladder">
           {standings.map((row) => {
             const answeredIds = new Set(message?.answered_ids || []);
@@ -635,7 +928,7 @@ export function GamePage() {
             );
           })}
         </ol>
-      ) : (
+      ) : !isDirka ? (
         <ol className="ladder">
           {[...ladder].reverse().map((prize, reversed) => {
             const index = ladder.length - 1 - reversed;
@@ -651,9 +944,37 @@ export function GamePage() {
             );
           })}
         </ol>
-      )}
+      ) : null}
     </section>
   );
+}
+
+function mergeDirkaMessage(current: GameMessage | null, incoming: GameMessage, myId: string): GameMessage {
+  if (incoming.mode !== "dirka") {
+    return { ...(current || {}), ...incoming };
+  }
+  const players = incoming.players || current?.players;
+  const mine = myId && players ? players[myId] : undefined;
+  return {
+    ...(current || {}),
+    ...incoming,
+    players,
+    // Nikoli ne prevzemi tujih root bonusov / helps iz botovega dogodka.
+    bonuses: mine?.bonuses || {},
+    armed: mine?.armed || {},
+    active_helps: mine?.active_helps || {},
+    you: mine
+      ? {
+          ...(current?.you || {}),
+          id: myId,
+          member_id: myId,
+          score: mine.score,
+          safe_locked: mine.safe_locked,
+          bonuses: mine.bonuses,
+        }
+      : current?.you,
+    deadline_at: mine?.deadline_at || (myId && incoming.deadlines?.[myId]) || incoming.deadline_at || current?.deadline_at,
+  };
 }
 
 function PodiumFinish({
@@ -780,6 +1101,28 @@ function RoundReview({
   );
 }
 
+function SixtyFinish({ message, boardPath }: { message: GameMessage; boardPath: string }) {
+  return (
+    <div className="review good">
+      <h2>Čas je potekel</h2>
+      <p className="sixty-score-line">
+        <strong>{formatPoints(message.score ?? message.correct_count ?? 0)}</strong> pravilnih
+      </p>
+      <p className="fine">
+        Vprašanj: {message.answered_count ?? message.total_questions ?? 0}
+        {" · "}
+        Preživel: {formatDuration(message.duration_ms ?? null)}
+      </p>
+      <div className="actions">
+        <Link className="primary" to={boardPath}>
+          Lestvica
+        </Link>
+        <Link to="/igra/60-sekund">Igraj znova</Link>
+      </div>
+    </div>
+  );
+}
+
 function Review({
   message,
   onNext,
@@ -790,7 +1133,12 @@ function Review({
   boardPath: string;
 }) {
   const question = message.question;
-  const replayPath = message.mode === "ala_milijonar" ? "/igra/ala-milijonar" : "/igra/hitrarunda";
+  const replayPath =
+    message.mode === "ala_milijonar"
+      ? "/igra/ala-milijonar"
+      : message.mode === "60_sekund"
+        ? "/igra/60-sekund"
+        : "/igra/hitrarunda";
   const title = message.walked_away
     ? "Odnehal si"
     : message.timed_out

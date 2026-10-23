@@ -76,6 +76,8 @@ class RoomMember(models.Model):
     is_host = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
     is_connected = models.BooleanField(default=False)
+    # Monotone counter so a stale WS disconnect cannot overwrite a newer reconnect.
+    connection_epoch = models.PositiveIntegerField(default=0)
     is_bot = models.BooleanField(default=False)
     bot_profile = models.ForeignKey(
         "game.AiBot",

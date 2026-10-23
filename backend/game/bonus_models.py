@@ -95,6 +95,11 @@ class AiBot(models.Model):
         validators=[MinValueValidator(0.5), MaxValueValidator(120.0)],
         help_text="Najdaljša zakasnitev odgovora v sekundah.",
     )
+    modes = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Načini igre, kjer je bot na voljo (npr. multiplayer, dirka).",
+    )
     is_active = models.BooleanField(default=True, db_index=True)
     count_for_leaderboard = models.BooleanField(
         default=False,

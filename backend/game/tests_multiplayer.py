@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from game.engine import submit_answer
+from game.engine import set_member_connected, submit_answer
 from game.modes import MODE_MULTIPLAYER, MP_CATCHUP_BONUS, MP_STREAK_BONUS_2
 from game.multiplayer import _bot_answer_message, next_multiplayer, start_multiplayer
 from game.models import GameQuestion, GameResult, GameSession
@@ -264,6 +264,33 @@ class MultiplayerLobbyTests(TestCase):
         self.assertGreaterEqual(int(host_stats.get("catchup_bonus_total") or 0), 0)
         # catch-up: host was not behind after round 0 (he led), so may be 0; ensure constant imported
         self.assertEqual(MP_CATCHUP_BONUS, 40)
+
+    def test_stale_disconnect_does_not_clear_reconnect(self):
+        created = self.host.post(
+            "/api/rooms/",
+            {
+                "mode": "multiplayer",
+                "nickname": "Hostek",
+                "visibility": "public",
+                "max_players": 4,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "categories": ["sport"],
+            },
+            format="json",
+        )
+        member = RoomMember.objects.get(room__code=created.data["code"], is_host=True)
+        old_epoch = set_member_connected(member.id, True)
+        new_epoch = set_member_connected(member.id, True)
+        self.assertNotEqual(old_epoch, new_epoch)
+        cleared = set_member_connected(member.id, False, old_epoch)
+        self.assertFalse(cleared)
+        member.refresh_from_db()
+        self.assertTrue(member.is_connected)
+        self.assertEqual(member.connection_epoch, new_epoch)
+        self.assertTrue(set_member_connected(member.id, False, new_epoch))
+        member.refresh_from_db()
+        self.assertFalse(member.is_connected)
 
     def test_bot_answers_matching_question(self):
         matching = Question.objects.create(

@@ -5,16 +5,18 @@ import { SortableTh } from "../components/AdminToolbar";
 import { SearchField } from "../components/SearchField";
 import { api } from "../api";
 import { useAuth } from "../auth";
-import { formatMode, formatPoints, formatWhen } from "../format";
+import { formatDuration, formatMode, formatPoints, formatWhen } from "../format";
 import type { GameMode, ScoreRow } from "../types";
 
-type SortKey = "nickname" | "score" | "prize_reached" | "correct_count" | "played_at";
+type SortKey = "nickname" | "score" | "prize_reached" | "correct_count" | "played_at" | "duration_ms";
 
 type BoardLimit = "10" | "100" | "all";
 
 function modeFromPath(pathname: string): GameMode {
   if (pathname.includes("/ala-milijonar")) return "ala_milijonar";
   if (pathname.includes("/vec-igralcev")) return "multiplayer";
+  if (pathname.includes("/dirka")) return "dirka";
+  if (pathname.includes("/60-sekund")) return "60_sekund";
   return "hitrarunda";
 }
 
@@ -73,6 +75,12 @@ export function LeaderboardPage() {
         <NavLink to="/lestvica/vec-igralcev" role="tab">
           Hitra tekma
         </NavLink>
+        <NavLink to="/lestvica/dirka" role="tab">
+          Dirka
+        </NavLink>
+        <NavLink to="/lestvica/60-sekund" role="tab">
+          60 sekund
+        </NavLink>
       </div>
 
       {error ? <p className="error">{error}</p> : null}
@@ -118,6 +126,7 @@ export function LeaderboardPage() {
             rows={rows}
             empty={mine ? "Še nisi končal igre." : "Še ni rezultatov."}
             defaultSort={mine ? "played_at" : "score"}
+            mode={mode}
             onOpen={(row) => navigate(`/lestvica/rezultat/${row.id}`)}
           />
         </>
@@ -129,6 +138,7 @@ export function LeaderboardPage() {
 function sortValue(row: ScoreRow, key: SortKey) {
   if (key === "played_at") return new Date(row.played_at).getTime();
   if (key === "nickname") return row.nickname.toLowerCase();
+  if (key === "duration_ms") return row.duration_ms ?? 0;
   return row[key] ?? 0;
 }
 
@@ -137,14 +147,17 @@ function ScoreTable({
   empty,
   onOpen,
   defaultSort,
+  mode,
 }: {
   rows: ScoreRow[];
   empty: string;
   onOpen: (row: ScoreRow) => void;
   defaultSort: SortKey;
+  mode: GameMode;
 }) {
   const [sort, setSort] = useState<SortKey>(defaultSort);
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
+  const isSixty = mode === "60_sekund";
 
   useEffect(() => {
     setSort(defaultSort);
@@ -179,9 +192,23 @@ function ScoreTable({
         <thead>
           <tr>
             <SortableTh label="Igralec" column="nickname" sort={sort} direction={direction} onSort={toggleSort} />
-            <SortableTh label="Točke" column="score" sort={sort} direction={direction} onSort={toggleSort} />
-            <SortableTh label="Nagrada" column="prize_reached" sort={sort} direction={direction} onSort={toggleSort} />
-            <SortableTh label="Pravilni" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+            <SortableTh
+              label={isSixty ? "Pravilni" : "Točke"}
+              column="score"
+              sort={sort}
+              direction={direction}
+              onSort={toggleSort}
+            />
+            {isSixty ? (
+              <SortableTh label="Vprašanj" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+            ) : (
+              <SortableTh label="Nagrada" column="prize_reached" sort={sort} direction={direction} onSort={toggleSort} />
+            )}
+            {isSixty ? (
+              <SortableTh label="Čas" column="duration_ms" sort={sort} direction={direction} onSort={toggleSort} />
+            ) : (
+              <SortableTh label="Pravilni" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+            )}
             <SortableTh label="Kdaj" column="played_at" sort={sort} direction={direction} onSort={toggleSort} />
           </tr>
         </thead>
@@ -190,10 +217,18 @@ function ScoreTable({
             <tr key={row.id} className="is-link" onClick={() => onOpen(row)}>
               <td>{row.nickname}</td>
               <td>{formatPoints(row.score)}</td>
-              <td>{formatPoints(row.prize_reached)}</td>
-              <td>
-                {row.correct_count}/{row.total_questions}
-              </td>
+              {isSixty ? (
+                <td>
+                  {row.correct_count}/{row.total_questions}
+                </td>
+              ) : (
+                <td>{formatPoints(row.prize_reached)}</td>
+              )}
+              {isSixty ? <td>{formatDuration(row.duration_ms)}</td> : (
+                <td>
+                  {row.correct_count}/{row.total_questions}
+                </td>
+              )}
               <td>{formatWhen(row.played_at)}</td>
             </tr>
           ))}

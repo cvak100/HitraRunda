@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { NicknameField } from "../components/NicknameField";
 import type { User } from "../types";
 
 export function SettingsPage() {
@@ -31,10 +32,7 @@ export function SettingsPage() {
       <p className="eyebrow">Račun</p>
       <h1>Nastavitve</h1>
       <form className="stack" onSubmit={onSubmit}>
-        <label>
-          Vzdevek
-          <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={30} required />
-        </label>
+        <NicknameField value={nickname} onChange={setNickname} required />
         {notice ? <p className="fine">{notice}</p> : null}
         {error ? <p className="error">{error}</p> : null}
         <button type="submit" className="primary">

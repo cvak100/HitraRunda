@@ -26,7 +26,7 @@ class RoomCreateView(APIView):
     def post(self, request):
         raw = request.data if isinstance(request.data, dict) else {}
         try:
-            if raw.get("mode") == "multiplayer":
+            if raw.get("mode") in {"multiplayer", "dirka"}:
                 room = create_multiplayer_room(request.user, raw)
             else:
                 room = create_solo_room(request.user, raw)
@@ -103,11 +103,13 @@ class PublicRoomListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"rooms": list_public_rooms()})
+        mode = request.query_params.get("mode")
+        return Response({"rooms": list_public_rooms(mode=mode)})
 
 
 class MyInvitesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"rooms": list_invites(request.user)})
+        mode = request.query_params.get("mode")
+        return Response({"rooms": list_invites(request.user, mode=mode)})
