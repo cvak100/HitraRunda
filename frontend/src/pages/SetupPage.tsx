@@ -98,7 +98,7 @@ export function SetupPage() {
         mode,
         question_count: mode === "ala_milijonar" ? 15 : count,
         categories: selected,
-        time_limit_seconds: seconds,
+        time_limit_seconds: mode === "ala_milijonar" ? 90 : seconds,
       };
       if (mode === "ala_milijonar") body.friend_keys = friendKeys;
       const room = await api<{ code: string }>("/api/rooms/", {
@@ -156,7 +156,7 @@ export function SetupPage() {
           </label>
         ) : (
           <p className="fine">
-            Vedno 15 vprašanj s 4 odgovori, stopnjevano po težavnosti 1→5 (po 3 na stopnjo). Varne točke na 5. in
+            Vedno 15 vprašanj s 4 odgovori, 90 s na vprašanje, težavnost 1→5 (po 3 na stopnjo). Varne točke na 5. in
             10. vprašanju, odnehaj in 3 jokerji (na voljo {available}).
           </p>
         )}
@@ -182,14 +182,15 @@ export function SetupPage() {
               })}
             </div>
           </fieldset>
-        ) : null}
-        <div className="choices" role="group" aria-label="Čas na vprašanje">
-          {TIMES.map((time) => (
-            <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
-              {time} s
-            </button>
-          ))}
-        </div>
+        ) : (
+          <div className="choices" role="group" aria-label="Čas na vprašanje">
+            {TIMES.map((time) => (
+              <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
+                {time} s
+              </button>
+            ))}
+          </div>
+        )}
         <p className="fine">Prvi napačen ali prepozen odgovor konča igro.</p>
         {error ? <p className="error">{error}</p> : null}
         <button

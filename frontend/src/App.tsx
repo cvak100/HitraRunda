@@ -7,6 +7,8 @@ import { AccountLayout } from "./pages/AccountLayout";
 import { AdminActionsPage } from "./pages/AdminActionsPage";
 import { AdminBonusesPage } from "./pages/AdminBonusesPage";
 import { AdminCategoriesPage } from "./pages/AdminCategoriesPage";
+import { AdminCatalogLayout } from "./pages/AdminCatalogLayout";
+import { AdminContentLayout } from "./pages/AdminContentLayout";
 import { AdminContentPage } from "./pages/AdminContentPage";
 import { AdminFriendsPage } from "./pages/AdminFriendsPage";
 import { AdminHomePage } from "./pages/AdminHomePage";
@@ -18,7 +20,7 @@ import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
 import { LogoutPage } from "./pages/LogoutPage";
 import { HomePage } from "./pages/HomePage";
-import { LeaderboardHubPage, LeaderboardPage } from "./pages/LeaderboardPage";
+import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { PlayHubPage } from "./pages/PlayHubPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -35,7 +37,7 @@ export function App() {
             <Route index element={<HomePage />} />
             <Route path="prijava" element={<LoginPage />} />
             <Route path="registracija" element={<RegisterPage />} />
-            <Route path="lestvica" element={<LeaderboardHubPage />} />
+            <Route path="lestvica" element={<Navigate to="/lestvica/hitrarunda" replace />} />
             <Route path="lestvica/hitrarunda" element={<LeaderboardPage />} />
             <Route path="lestvica/ala-milijonar" element={<LeaderboardPage />} />
             <Route path="lestvica/rezultat/:resultId" element={<ResultPage />} />
@@ -55,18 +57,34 @@ export function App() {
             <Route element={<RequireStaff />}>
               <Route path="nadzor" element={<AdminLayout />}>
                 <Route index element={<AdminHomePage />} />
-                <Route path="vsebina" element={<AdminContentPage />} />
-                <Route path="vprasanja" element={<AdminQuestionsPage />} />
-                <Route path="kategorije" element={<AdminCategoriesPage />} />
-                <Route path="bonusi" element={<AdminBonusesPage />} />
-                <Route path="prijatelji" element={<AdminFriendsPage />} />
-                <Route path="pritozbe" element={<AdminReportsPage />} />
-                <Route path="uporabniki" element={<AdminUsersPage />} />
+                <Route path="vsebina" element={<AdminContentLayout />}>
+                  <Route index element={<AdminContentPage />} />
+                  <Route path="vprasanja" element={<AdminQuestionsPage />} />
+                  <Route path="pritozbe" element={<AdminReportsPage />} />
+                </Route>
+                <Route path="vprasanja" element={<Navigate to="/nadzor/vsebina/vprasanja" replace />} />
+                <Route path="pritozbe" element={<Navigate to="/nadzor/vsebina/pritozbe" replace />} />
+                <Route path="sifranti" element={<AdminCatalogLayout />}>
+                  <Route index element={<Navigate to="kategorije" replace />} />
+                  <Route path="kategorije" element={<AdminCategoriesPage />} />
+                  <Route path="kategorije/:id" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
+                  <Route path="bonusi" element={<AdminBonusesPage />} />
+                  <Route path="bonusi/:id" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
+                  <Route path="prijatelji" element={<AdminFriendsPage />} />
+                  <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
+                </Route>
+                <Route path="kategorije" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
+                <Route path="kategorije/:id" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
+                <Route path="bonusi" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
+                <Route path="bonusi/:id" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
+                <Route path="prijatelji" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
+                <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
                 <Route path="igre" element={<AdminSessionsPage />} />
                 <Route path="igre/:sessionId" element={<AdminSessionDetailPage />} />
+                <Route path="uporabniki" element={<AdminUsersPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
               </Route>
-              <Route path="vprasanja" element={<Navigate to="/nadzor/vprasanja" replace />} />
+              <Route path="vprasanja" element={<Navigate to="/nadzor/vsebina/vprasanja" replace />} />
             </Route>
           </Route>
         </Routes>

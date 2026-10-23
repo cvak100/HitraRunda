@@ -13,24 +13,20 @@ export function Layout() {
           Hitra runda
         </Link>
         <nav>
-          <Link to="/lestvica">Lestvica</Link>
+          <NavLink to="/lestvica">Lestvica</NavLink>
           {user?.is_staff ? (
             <Menu label="Admin" active={location.pathname.startsWith("/nadzor")}>
               <NavLink to="/nadzor" end>
                 Pregled
               </NavLink>
               <NavLink to="/nadzor/vsebina">Vsebina</NavLink>
-              <NavLink to="/nadzor/vprasanja">Vprašanja</NavLink>
-              <NavLink to="/nadzor/kategorije">Kategorije</NavLink>
-              <NavLink to="/nadzor/bonusi">Bonusi</NavLink>
-              <NavLink to="/nadzor/prijatelji">Prijatelji</NavLink>
-              <NavLink to="/nadzor/pritozbe">Pritožbe</NavLink>
-              <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
+              <NavLink to="/nadzor/sifranti">Šifranti</NavLink>
               <NavLink to="/nadzor/igre">Igre</NavLink>
+              <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
               <NavLink to="/nadzor/ukazi">Ukazi</NavLink>
             </Menu>
           ) : null}
-          {user ? <Link to="/igra">Igraj</Link> : null}
+          {user ? <NavLink to="/igra">Igraj</NavLink> : null}
           {user ? (
             <Menu label={<GearIcon />} active={location.pathname.startsWith("/racun")} buttonClass="icon-button" labelText="Račun">
               <NavLink to="/racun/profil">Profil</NavLink>
@@ -38,7 +34,7 @@ export function Layout() {
               <NavLink to="/racun/odjava">Odjava</NavLink>
             </Menu>
           ) : (
-            <Link to="/prijava">Prijava</Link>
+            <NavLink to="/prijava">Prijava</NavLink>
           )}
         </nav>
       </header>
@@ -86,6 +82,7 @@ function Menu({
         type="button"
         className={[buttonClass, active || open ? "active" : ""].filter(Boolean).join(" ")}
         aria-expanded={open}
+        aria-current={active ? "page" : undefined}
         aria-label={labelText}
         onClick={() => setOpen((value) => !value)}
       >

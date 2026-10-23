@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { SearchField } from "../components/SearchField";
+import { AdminToolbar, SortableTh } from "../components/AdminToolbar";
 import { api } from "../api";
 import { REASONS, formatPoints, formatWhen } from "../format";
 import type { GameSessionRow } from "../types";
@@ -13,6 +13,8 @@ const STATUS: Record<string, string> = {
   aborted: "Prekinjena",
 };
 
+type SortKey = "code" | "nickname" | "status" | "score" | "correct_count" | "played_at";
+
 export function AdminSessionsPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -20,6 +22,8 @@ export function AdminSessionsPage() {
   const [sessions, setSessions] = useState<GameSessionRow[]>([]);
   const [total, setTotal] = useState(0);
   const [error, setError] = useState("");
+  const [sort, setSort] = useState<SortKey>("played_at");
+  const [direction, setDirection] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -32,37 +36,59 @@ export function AdminSessionsPage() {
       .catch(() => setError("Iger ni bilo mogoče naložiti."));
   }, [submitted]);
 
+  const rows = useMemo(() => {
+    const list = [...sessions];
+    list.sort((a, b) => {
+      let cmp = 0;
+      if (sort === "played_at") cmp = new Date(a.played_at).getTime() - new Date(b.played_at).getTime();
+      else if (sort === "nickname" || sort === "code" || sort === "status") {
+        cmp = String(a[sort] ?? "").localeCompare(String(b[sort] ?? ""), "sl", { numeric: true });
+      } else {
+        cmp = Number(a[sort] ?? -1) - Number(b[sort] ?? -1);
+      }
+      return direction === "asc" ? cmp : -cmp;
+    });
+    return list;
+  }, [sessions, sort, direction]);
+
+  function toggleSort(column: string) {
+    const key = column as SortKey;
+    if (sort === key) setDirection((current) => (current === "asc" ? "desc" : "asc"));
+    else {
+      setSort(key);
+      setDirection(key === "nickname" || key === "code" || key === "status" ? "asc" : "desc");
+    }
+  }
+
   return (
     <section className="panel">
       <p className="eyebrow">Admin</p>
       <h1>Igre</h1>
       <p className="fine">Zaključeno igro lahko odpreš in vidiš vse odigrane stopnje.</p>
       {error ? <p className="error">{error}</p> : null}
-      <div className="toolbar">
-        <p className="fine">
-          {sessions.length} od {total}
-        </p>
-        <SearchField value={query} onChange={setQuery} onSubmit={() => setSubmitted(query)} />
-      </div>
+      <AdminToolbar query={query} onQueryChange={setQuery} onSearch={() => setSubmitted(query)} />
+      <p className="fine">
+        {rows.length} od {total}
+      </p>
       <div className="table-wrap">
         <table className="data-table">
           <thead>
             <tr>
-              <th>Soba</th>
-              <th>Igralec</th>
-              <th>Stanje</th>
-              <th>Točke</th>
-              <th>Pravilni</th>
-              <th>Kdaj</th>
+              <SortableTh label="Soba" column="code" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Igralec" column="nickname" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Stanje" column="status" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Točke" column="score" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Pravilni" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Kdaj" column="played_at" sort={sort} direction={direction} onSort={toggleSort} />
             </tr>
           </thead>
           <tbody>
-            {sessions.length === 0 ? (
+            {rows.length === 0 ? (
               <tr>
                 <td colSpan={6}>Ni iger.</td>
               </tr>
             ) : null}
-            {sessions.map((session) => {
+            {rows.map((session) => {
               const open = session.status === "finished";
               return (
                 <tr
