@@ -14,7 +14,8 @@ class User(AbstractUser):
 
     email = models.EmailField(unique=True, null=True, blank=True)
     nickname = models.CharField(max_length=30, blank=True)
-    avatar = models.URLField(max_length=500, blank=True, null=True)
+    # Ključ risanega profila (npr. "ris", "volk") — glej accounts.nicknames.AVATAR_KEYS.
+    avatar = models.CharField(max_length=40, blank=True, default="")
     preferred_color = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.DateTimeField(null=True, blank=True)
@@ -33,10 +34,15 @@ class User(AbstractUser):
 
 
 def create_guest(nickname):
+    from accounts.nicknames import random_avatar_color, resolve_avatar_key
+
+    seed = uuid.uuid4().hex
     user = User(
-        username=f"guest-{uuid.uuid4().hex}",
+        username=f"guest-{seed}",
         email=None,
         nickname=nickname,
+        avatar=resolve_avatar_key(nickname=nickname, seed=seed),
+        preferred_color=random_avatar_color(seed),
     )
     user.set_unusable_password()
     user.save()

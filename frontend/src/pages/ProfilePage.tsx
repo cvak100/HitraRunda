@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { SortableTh } from "../components/AdminToolbar";
+import { Avatar } from "../components/Avatar";
 import { api } from "../api";
+import { useAuth } from "../auth";
+import { avatarLabel } from "../avatars";
 import { formatDuration, formatMode, formatPoints, formatWhen } from "../format";
 import { BoardLink } from "../gameModes";
 import type { ScoreRow } from "../types";
@@ -24,6 +27,8 @@ type ModeStat = {
 
 type Profile = {
   nickname: string;
+  avatar?: string;
+  preferred_color?: string;
   modes: ModeStat[];
   recent: ScoreRow[];
 };
@@ -41,6 +46,7 @@ const BOARD_PATH: Record<string, string> = {
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState("");
   const [sort, setSort] = useState<SortKey>("played_at");
@@ -73,16 +79,31 @@ export function ProfilePage() {
     }
   }
 
+  const color = profile?.preferred_color || user?.preferred_color || "#7dcea0";
+  const avatar = profile?.avatar || user?.avatar || "ris";
+
   return (
     <section className="panel">
       <p className="eyebrow">Račun</p>
-      <h1>Profil</h1>
+      <div className="profile-hero">
+        <Avatar avatar={avatar} color={color} size={64} title={avatarLabel(avatar)} />
+        <div>
+          <h1>{profile?.nickname || user?.nickname || "Profil"}</h1>
+          {user?.is_guest ? (
+            <p className="fine">
+              Gost — <Link to="/registracija">ustvari račun</Link>, da rezultati ostanejo.
+            </p>
+          ) : (
+            <p className="fine">
+              {user?.email}
+              {avatarLabel(avatar) ? ` · ${avatarLabel(avatar)}` : ""}
+            </p>
+          )}
+        </div>
+      </div>
       {error ? <p className="error">{error}</p> : null}
       {profile ? (
         <>
-          <p>
-            Igraš kot <strong>{profile.nickname || "—"}</strong>.
-          </p>
           <div className="game-split profile-modes">
             {profile.modes.map((mode) => (
               <article key={mode.mode} className="game-block profile-mode-card">

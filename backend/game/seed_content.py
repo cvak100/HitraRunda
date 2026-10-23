@@ -1,12 +1,6 @@
 from game.bonus_models import AiBot, BonusDefinition, PhoneFriend
-from game.modes import (
-    DIRKA_BOT_KEY,
-    MODE_ALA_MILIJONAR,
-    MODE_DIRKA,
-    MP_BOT_ACCURACY,
-    MP_BOT_DELAY_MAX,
-    MP_BOT_DELAY_MIN,
-)
+from game.modes import DIRKA_BOT_KEY, MODE_ALA_MILIJONAR, MODE_DIRKA
+from game.site_settings import get as site_get
 
 DEFAULT_BONUSES = (
     {
@@ -267,56 +261,62 @@ DEFAULT_BOTS = (
         "key": "marko",
         "name": "Bot Marko",
         "color": "#7dcea0",
+        "avatar": "ris",
         "accuracy": 0.7,
         "delay_min": 1.5,
         "delay_max": 6.0,
         "order": 1,
-        "modes": ["multiplayer"],
+        "modes": ["multiplayer", "dirka"],
     },
     {
         "key": "lea",
         "name": "Bot Lea",
         "color": "#85c1e9",
+        "avatar": "sokol",
         "accuracy": 0.78,
         "delay_min": 1.0,
         "delay_max": 5.5,
         "order": 2,
-        "modes": ["multiplayer"],
+        "modes": ["multiplayer", "dirka"],
     },
     {
         "key": "niko",
         "name": "Bot Niko",
         "color": "#f5b041",
+        "avatar": "volk",
         "accuracy": 0.65,
         "delay_min": 2.0,
         "delay_max": 8.0,
         "order": 3,
-        "modes": ["multiplayer"],
+        "modes": ["multiplayer", "dirka"],
     },
     {
         "key": "ina",
         "name": "Bot Ina",
         "color": "#bb8fce",
+        "avatar": "feniks",
         "accuracy": 0.82,
         "delay_min": 1.2,
         "delay_max": 4.5,
         "order": 4,
-        "modes": ["multiplayer"],
+        "modes": ["multiplayer", "dirka"],
     },
     {
         "key": "tito",
         "name": "Bot Tito",
         "color": "#e59866",
+        "avatar": "medved",
         "accuracy": 0.55,
         "delay_min": 2.5,
         "delay_max": 9.0,
         "order": 5,
-        "modes": ["multiplayer"],
+        "modes": ["multiplayer", "dirka"],
     },
     {
         "key": DIRKA_BOT_KEY,
         "name": "Dirka AI",
         "color": "#e74c3c",
+        "avatar": "zmaj",
         "accuracy": 0.74,
         "delay_min": 1.4,
         "delay_max": 7.0,
@@ -332,9 +332,10 @@ def ensure_bots():
         defaults = {
             "name": item["name"],
             "color": item["color"],
-            "accuracy": item.get("accuracy", MP_BOT_ACCURACY),
-            "delay_min": item.get("delay_min", MP_BOT_DELAY_MIN),
-            "delay_max": item.get("delay_max", MP_BOT_DELAY_MAX),
+            "avatar": str(item.get("avatar") or ""),
+            "accuracy": item.get("accuracy", float(site_get("bot_accuracy"))),
+            "delay_min": item.get("delay_min", float(site_get("bot_delay_min"))),
+            "delay_max": item.get("delay_max", float(site_get("bot_delay_max"))),
             "is_active": True,
             "count_for_leaderboard": bool(item.get("count_for_leaderboard", False)),
             "order": item["order"],
@@ -343,10 +344,16 @@ def ensure_bots():
         bot, created = AiBot.objects.get_or_create(key=item["key"], defaults=defaults)
         if created:
             continue
-        # Ne prepisuj admin urejanj; dopolni samo manjkajoče modes.
+        changed = []
+        # Ne prepisuj admin urejanj; dopolni samo manjkajoče modes/avatar.
         if not bot.modes:
             bot.modes = list(item.get("modes") or ["multiplayer"])
-            bot.save(update_fields=["modes"])
+            changed.append("modes")
+        if not bot.avatar and item.get("avatar"):
+            bot.avatar = str(item["avatar"])
+            changed.append("avatar")
+        if changed:
+            bot.save(update_fields=changed)
 
 
 def ensure_bonuses_and_friends():

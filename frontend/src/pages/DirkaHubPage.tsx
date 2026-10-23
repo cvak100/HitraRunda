@@ -24,7 +24,8 @@ type LobbyRoom = {
   };
 };
 
-const TARGETS = [100, 200, 500, 1000];
+const DEFAULT_TARGETS = [100, 200, 500, 1000];
+const DEFAULT_SAFE = [5, 10];
 
 export function DirkaHubPage() {
   const { user } = useAuth();
@@ -45,6 +46,11 @@ export function DirkaHubPage() {
   const [invites, setInvites] = useState<LobbyRoom[]>([]);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [targets, setTargets] = useState(DEFAULT_TARGETS);
+  const [safeOptions, setSafeOptions] = useState(DEFAULT_SAFE);
+  const [maxPlayersCap, setMaxPlayersCap] = useState(6);
+  const [maxBots, setMaxBots] = useState(5);
+  const [dirkaSeconds, setDirkaSeconds] = useState(30);
 
   useEffect(() => {
     api<{ categories: Category[] }>("/api/categories/")
@@ -53,6 +59,36 @@ export function DirkaHubPage() {
         setSelected(data.categories.map((item) => item.slug));
       })
       .catch(() => setError("Kategorij ni bilo mogoče naložiti."));
+    api<{
+      dirka?: {
+        targets?: number[];
+        safe_every?: number[];
+        time_limit_seconds?: number;
+        max_bots?: number;
+      };
+      multiplayer?: { max_players?: number };
+    }>("/api/game-config/")
+      .then((cfg) => {
+        const d = cfg.dirka;
+        if (d?.targets?.length) {
+          setTargets(d.targets);
+          setTargetScore((current) => (d.targets!.includes(current) ? current : d.targets![0]));
+        }
+        if (d?.safe_every?.length) {
+          setSafeOptions(d.safe_every);
+          setSafeEvery((current) => (d.safe_every!.includes(current) ? current : d.safe_every![0]));
+        }
+        if (d?.time_limit_seconds) setDirkaSeconds(d.time_limit_seconds);
+        if (typeof d?.max_bots === "number") {
+          setMaxBots(d.max_bots);
+          setBotCount((current) => Math.min(current, d.max_bots!));
+        }
+        if (cfg.multiplayer?.max_players) {
+          setMaxPlayersCap(cfg.multiplayer.max_players);
+          setMaxPlayers((current) => Math.min(current, cfg.multiplayer!.max_players!));
+        }
+      })
+      .catch(() => undefined);
     api<{ rooms: LobbyRoom[] }>("/api/rooms/public/?mode=dirka")
       .then((data) => setPublicRooms(data.rooms))
       .catch(() => setPublicRooms([]));
@@ -152,16 +188,16 @@ export function DirkaHubPage() {
             label="Največ igralcev"
             value={maxPlayers}
             min={2}
-            max={6}
+            max={maxPlayersCap}
             onChange={(value) => {
               setMaxPlayers(value);
-              setBotCount((current) => Math.min(current, Math.max(0, value - 1)));
+              setBotCount((current) => Math.min(current, Math.max(0, Math.min(maxBots, value - 1))));
             }}
           />
           <fieldset>
             <legend>Cilj točk</legend>
             <div className="chip-row">
-              {TARGETS.map((value) => (
+              {targets.map((value) => (
                 <button
                   key={value}
                   type="button"
@@ -175,20 +211,18 @@ export function DirkaHubPage() {
           </fieldset>
           <fieldset>
             <legend>Varna zona</legend>
-            <label className="check">
-              <input type="radio" checked={safeEvery === 5} onChange={() => setSafeEvery(5)} />
-              Kratka — vsakih 5 pravilnih
-            </label>
-            <label className="check">
-              <input type="radio" checked={safeEvery === 10} onChange={() => setSafeEvery(10)} />
-              Daljša — vsakih 10 pravilnih
-            </label>
+            {safeOptions.map((value) => (
+              <label key={value} className="check">
+                <input type="radio" checked={safeEvery === value} onChange={() => setSafeEvery(value)} />
+                Vsakih {value} pravilnih
+              </label>
+            ))}
           </fieldset>
           <NumberStepper
             label="Dirka AI (zapolni mesta)"
             value={botCount}
             min={0}
-            max={Math.max(0, maxPlayers - 1)}
+            max={Math.max(0, Math.min(maxBots, maxPlayers - 1))}
             onChange={setBotCount}
           />
           <fieldset>
@@ -210,7 +244,9 @@ export function DirkaHubPage() {
               </label>
             ))}
           </fieldset>
-          <p className="fine">Čas na vprašanje: 30 s. Bonusov na startu ni — pridejo s streakom in varno zono (max 5 tipov, stack OK).</p>
+          <p className="fine">
+            Čas na vprašanje: {dirkaSeconds} s. Bonusov na startu ni — pridejo s streakom in varno zono.
+          </p>
           <button className="primary" type="submit" disabled={pending || selected.length === 0}>
             Ustvari Dirko
           </button>

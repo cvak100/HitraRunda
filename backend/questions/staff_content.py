@@ -87,6 +87,12 @@ class AdminCategoryDetailView(APIView):
         category.save()
         return Response({"category": category_payload(category)})
 
+    def delete(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        category.is_active = False
+        category.save(update_fields=["is_active"])
+        return Response({"detail": "Kategorija je umaknjena.", "category": category_payload(category)})
+
 
 class AdminQuestionImportView(APIView):
     permission_classes = [StaffOnly]

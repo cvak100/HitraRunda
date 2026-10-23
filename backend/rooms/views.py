@@ -11,8 +11,11 @@ from rooms.services import (
     create_solo_room,
     invite_user,
     join_room,
+    leave_room,
     list_invites,
     list_public_rooms,
+    quick_join,
+    refresh_can_start,
     room_payload,
     set_ready,
     touch_room,
@@ -33,6 +36,19 @@ class RoomCreateView(APIView):
         except (GameError, NicknameError) as exc:
             return Response({"detail": exc.message}, status=400)
         return Response(room_payload(room, viewer=request.user))
+
+
+class RoomQuickJoinView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            room, created = quick_join(request.user, request.data)
+        except (GameError, NicknameError) as exc:
+            return Response({"detail": exc.message}, status=400)
+        payload = room_payload(room, viewer=request.user)
+        payload["created"] = created
+        return Response(payload)
 
 
 class RoomJoinView(APIView):
@@ -86,6 +102,51 @@ class RoomReadyView(APIView):
         except GameError as exc:
             return Response({"detail": exc.message}, status=400)
         return Response(room_payload(room, viewer=request.user))
+
+
+class RoomLeaveView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, code):
+        try:
+            room = leave_room(request.user, code)
+        except GameError as exc:
+            return Response({"detail": exc.message}, status=400)
+        # Ostalim pošlji osvežitev (lobby ali igra).
+        try:
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            from game.engine import snapshot
+            from game.modes import LOBBY_MODES
+
+            layer = get_channel_layer()
+            if layer is not None:
+                mode = (room.settings or {}).get("mode")
+                if room.status == "waiting" and mode in LOBBY_MODES:
+                    payload = refresh_can_start(room_payload(room, viewer=None))
+                    payload["type"] = "lobby"
+                    payload["phase"] = "lobby"
+                    payload["mode"] = mode
+                elif room.status == "closed":
+                    payload = {
+                        "type": "error",
+                        "phase": "closed",
+                        "message": "Soba je zaprta — igralci so odšli.",
+                    }
+                else:
+                    host = room.members.filter(left_at__isnull=True, is_host=True).first()
+                    payload = snapshot(str(host.id)) if host else {
+                        "type": "error",
+                        "phase": "closed",
+                        "message": "Soba je zaprta.",
+                    }
+                async_to_sync(layer.group_send)(
+                    f"room_{room.code}",
+                    {"type": "game.event", "payload": payload},
+                )
+        except Exception:
+            pass
+        return Response({"detail": "Zapustil si sobo.", "status": room.status})
 
 
 class RoomInviteView(APIView):

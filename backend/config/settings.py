@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,10 +24,29 @@ if not SECRET_KEY:
     else:
         raise RuntimeError("Nastavi DJANGO_SECRET_KEY.")
 
-ALLOWED_HOSTS = split_csv(env("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,backend"))
-CSRF_TRUSTED_ORIGINS = split_csv(
-    env("DJANGO_CSRF_TRUSTED_ORIGINS", "http://localhost:5008,http://127.0.0.1:5008")
+# Ena javna URL (http://… ali https://…) nastavi hoste, CSRF in piškotke.
+APP_URL = env("APP_URL", "").rstrip("/")
+_app = urlparse(APP_URL) if APP_URL else None
+
+_hosts_raw = env("DJANGO_ALLOWED_HOSTS", "").strip()
+ALLOWED_HOSTS = (
+    split_csv(_hosts_raw) if _hosts_raw else ["localhost", "127.0.0.1", "backend"]
 )
+_csrf_raw = env("DJANGO_CSRF_TRUSTED_ORIGINS", "").strip()
+CSRF_TRUSTED_ORIGINS = (
+    split_csv(_csrf_raw)
+    if _csrf_raw
+    else ["http://localhost:5008", "http://127.0.0.1:5008"]
+)
+
+if _app and _app.hostname:
+    for host in (_app.hostname, f"{_app.hostname}:{_app.port}" if _app.port else None):
+        if host and host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(host)
+    if "backend" not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append("backend")
+    if APP_URL not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(APP_URL)
 
 INSTALLED_APPS = [
     "daphne",
@@ -102,6 +122,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+if TESTING:
+    # WhiteNoise sicer med testi kliče UserWarning, če mapa ne obstaja.
+    Path(STATIC_ROOT).mkdir(parents=True, exist_ok=True)
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
@@ -111,12 +134,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 
-COOKIE_SECURE = env("DJANGO_COOKIE_SECURE", "0") == "1"
+_cookie_secure_raw = env("DJANGO_COOKIE_SECURE", "").strip()
+if _cookie_secure_raw in ("0", "1"):
+    COOKIE_SECURE = _cookie_secure_raw == "1"
+else:
+    COOKIE_SECURE = bool(_app and _app.scheme == "https")
 SESSION_COOKIE_SECURE = COOKIE_SECURE
 CSRF_COOKIE_SECURE = COOKIE_SECURE
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
+
+# Za reverse proxy (nginx / Caddy): spoštuj X-Forwarded-Proto in Host.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
@@ -128,6 +159,16 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "60/min",
+        "user": "300/min",
+        "auth": "20/min",
+        "guest": "10/min",
+    },
 }
 
 REDIS_URL = env("REDIS_URL", "redis://localhost:6379/0")
@@ -150,6 +191,15 @@ CHANNEL_LAYERS = {
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
+# E-pošta (ponastavitev gesla). Privzeto console — v produkciji nastavi SMTP.
+EMAIL_BACKEND = env("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = env("EMAIL_HOST", "")
+EMAIL_PORT = int(env("EMAIL_PORT", "587") or "587")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", "1") == "1"
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "noreply@hitrarunda.local")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -157,6 +207,18 @@ LOGGING = {
     "root": {"handlers": ["console"], "level": "INFO"},
 }
 
+_sentry_dsn = env("SENTRY_DSN", "").strip()
+if _sentry_dsn and not TESTING:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        traces_sample_rate=float(env("SENTRY_TRACES_SAMPLE_RATE", "0.1") or "0.1"),
+        send_default_pii=False,
+        environment=env("SENTRY_ENVIRONMENT", "production" if not DEBUG else "development"),
+    )
+
 if TESTING:
     CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+    EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"

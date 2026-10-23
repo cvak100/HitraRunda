@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { Modal } from "../components/Modal";
 import { ApiError, api } from "../api";
 import type { PhoneFriend } from "../types";
@@ -76,6 +77,7 @@ export function AdminFriendsPage() {
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function load() {
     api<{ friends: PhoneFriend[] }>("/api/admin/friends/")
@@ -155,6 +157,20 @@ export function AdminFriendsPage() {
     }
   }
 
+  async function onDelete() {
+    if (editingId == null) return;
+    setConfirmDelete(false);
+    setError("");
+    try {
+      const result = await api<{ detail: string }>(`/api/admin/friends/${editingId}/`, { method: "DELETE" });
+      setNotice(result.detail || "Prijatelj je umaknjen.");
+      closeModal();
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Brisanje ni uspelo.");
+    }
+  }
+
   return (
     <section className="panel">
       <p className="eyebrow">Admin</p>
@@ -204,8 +220,18 @@ export function AdminFriendsPage() {
           onSubmit={onSubmit}
           submitLabel={editingId == null ? "Ustvari" : "Shrani"}
           onCancel={closeModal}
+          onDelete={editingId != null ? () => setConfirmDelete(true) : undefined}
         />
       </Modal>
+      <ConfirmModal
+        open={confirmDelete}
+        title="Izbriši prijatelja"
+        message="Prijatelj se umakne (ni več na voljo za klic v sili)."
+        confirmLabel="Izbriši"
+        danger
+        onConfirm={() => void onDelete()}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </section>
   );
 }
@@ -216,12 +242,14 @@ function FriendForm({
   onSubmit,
   submitLabel,
   onCancel,
+  onDelete,
 }: {
   form: FormState;
   setForm: (form: FormState) => void;
   onSubmit: (event: FormEvent) => void;
   submitLabel: string;
   onCancel?: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <form className="stack" onSubmit={onSubmit}>
@@ -290,6 +318,11 @@ function FriendForm({
         {onCancel ? (
           <button type="button" onClick={onCancel}>
             Prekliči
+          </button>
+        ) : null}
+        {onDelete ? (
+          <button type="button" className="danger" onClick={onDelete}>
+            Izbriši
           </button>
         ) : null}
       </div>

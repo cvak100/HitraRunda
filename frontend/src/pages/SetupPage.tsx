@@ -8,8 +8,8 @@ import { formatMode } from "../format";
 import { BackNav, ModePageNav } from "../gameModes";
 import type { Category, GameMode, PhoneFriend } from "../types";
 
-const TIMES = [10, 15, 20, 30, 45, 60];
-const SKIP_OPTIONS: { value: number | null; label: string }[] = [
+const DEFAULT_TIMES = [10, 15, 20, 30, 45, 60];
+const DEFAULT_SKIP: { value: number | null; label: string }[] = [
   { value: null, label: "Neomejeno" },
   { value: 3, label: "3" },
   { value: 5, label: "5" },
@@ -50,6 +50,10 @@ export function SetupPage() {
   const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [times, setTimes] = useState(DEFAULT_TIMES);
+  const [skipOptions, setSkipOptions] = useState(DEFAULT_SKIP);
+  const [alaSeconds, setAlaSeconds] = useState(90);
+  const [friendsPick, setFriendsPick] = useState(3);
 
   const isSixty = mode === "60_sekund";
 
@@ -60,6 +64,34 @@ export function SetupPage() {
         setSelected(data.categories.map((category) => category.slug));
       })
       .catch(() => setError("Kategorij ni bilo mogoče naložiti."));
+    api<{
+      enabled_modes?: string[];
+      hitrarunda?: { times?: number[] };
+      ala_milijonar?: { time_limit_seconds?: number; friends_pick?: number };
+      sixty?: { skip_limits?: Array<number | null> };
+    }>("/api/game-config/")
+      .then((cfg) => {
+        if (mode && cfg.enabled_modes && !cfg.enabled_modes.includes(mode)) {
+          setError("Ta način trenutno ni na voljo.");
+        }
+        if (cfg.hitrarunda?.times?.length) {
+          setTimes(cfg.hitrarunda.times);
+          setSeconds((current) =>
+            cfg.hitrarunda!.times!.includes(current) ? current : cfg.hitrarunda!.times![0],
+          );
+        }
+        if (cfg.ala_milijonar?.time_limit_seconds) setAlaSeconds(cfg.ala_milijonar.time_limit_seconds);
+        if (cfg.ala_milijonar?.friends_pick) setFriendsPick(cfg.ala_milijonar.friends_pick);
+        if (cfg.sixty?.skip_limits?.length) {
+          const opts = cfg.sixty.skip_limits.map((value) => ({
+            value,
+            label: value === null ? "Neomejeno" : String(value),
+          }));
+          setSkipOptions(opts);
+          setSkipLimit((current) => (opts.some((o) => o.value === current) ? current : opts[0].value));
+        }
+      })
+      .catch(() => undefined);
     if (mode === "ala_milijonar") {
       api<{ friends: PhoneFriend[] }>("/api/friends/")
         .then((data) => setFriends(data.friends))
@@ -79,7 +111,8 @@ export function SetupPage() {
     [categories, selected, mode],
   );
   const maxCount = Math.min(15, available);
-  const alaReady = mode !== "ala_milijonar" || (available >= 15 && friendKeys.length === 3);
+  const alaReady =
+    mode !== "ala_milijonar" || (available >= 15 && friendKeys.length === friendsPick);
 
   useEffect(() => {
     if (mode === "ala_milijonar") setCount(15);
@@ -105,7 +138,7 @@ export function SetupPage() {
   function toggleFriend(key: string) {
     setFriendKeys((current) => {
       if (current.includes(key)) return current.filter((item) => item !== key);
-      if (current.length >= 3) return current;
+      if (current.length >= friendsPick) return current;
       return [...current, key];
     });
   }
@@ -122,7 +155,7 @@ export function SetupPage() {
       };
       if (mode === "ala_milijonar") {
         body.question_count = 15;
-        body.time_limit_seconds = 90;
+        body.time_limit_seconds = alaSeconds;
         body.friend_keys = friendKeys;
       } else if (isSixty) {
         body.skip_limit = skipLimit;
@@ -177,19 +210,17 @@ export function SetupPage() {
         ) : null}
         {mode === "ala_milijonar" ? (
           <p className="fine">
-            Vedno 15 vprašanj s 4 odgovori, 90 s na vprašanje, težavnost 1→5 (po 3 na stopnjo). Varne točke na 5. in
-            10. vprašanju, odnehaj in 3 jokerji (na voljo {available}).
+            Vedno 15 vprašanj s 4 odgovori, {alaSeconds} s na vprašanje, težavnost 1→5 (po 3 na stopnjo). Odnehaj in 3
+            jokerji (na voljo {available}).
           </p>
         ) : null}
         {isSixty ? (
           <>
-            <p className="fine">
-              60 s skupni čas. Pravilno +2 s, napačno −5 s, preskok −2 s.
-            </p>
+            <p className="fine">Skupni čas, bonusi in kazni so nastavljivi v adminu.</p>
             <fieldset>
               <legend>Preskoki</legend>
               <div className="choices" role="group" aria-label="Preskoki">
-                {SKIP_OPTIONS.map((option) => (
+                {skipOptions.map((option) => (
                   <button
                     key={String(option.value)}
                     type="button"
@@ -223,7 +254,9 @@ export function SetupPage() {
         ) : null}
         {mode === "ala_milijonar" ? (
           <fieldset>
-            <legend>Prijatelji za klic v sili ({friendKeys.length}/3)</legend>
+            <legend>
+              Prijatelji za klic v sili ({friendKeys.length}/{friendsPick})
+            </legend>
             <div className="friend-grid">
               {friends.map((friend) => {
                 const on = friendKeys.includes(friend.key);
@@ -246,7 +279,7 @@ export function SetupPage() {
         ) : null}
         {mode === "hitrarunda" ? (
           <div className="choices" role="group" aria-label="Čas na vprašanje">
-            {TIMES.map((time) => (
+            {times.map((time) => (
               <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
                 {time} s
               </button>

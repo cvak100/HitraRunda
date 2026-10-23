@@ -4,17 +4,26 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.nicknames import resolve_avatar_key
 from accounts.staff import StaffOnly
 from game.models import GameResult, GameSession
 from game.replay import session_detail
 
 
 def result_payload(result):
+    user = getattr(result, "user", None)
+    preferred_color = getattr(user, "preferred_color", "") if user is not None else ""
     return {
         "id": result.id,
         "session_id": result.game_session_id,
         "room_code": result.room_code,
         "nickname": result.nickname,
+        "avatar": resolve_avatar_key(
+            avatar=getattr(user, "avatar", "") if user is not None else "",
+            nickname=result.nickname,
+            seed=str(result.id),
+        ),
+        "preferred_color": preferred_color or "",
         "mode": result.mode,
         "score": result.score,
         "prize_reached": result.prize_reached,
@@ -53,7 +62,7 @@ class LeaderboardView(APIView):
         limit, error = _bounded_limit(request.query_params.get("limit"), {"10", "100"}, 10)
         if error:
             return error
-        results = GameResult.objects.filter(score__gt=0, counts_for_leaderboard=True)
+        results = GameResult.objects.filter(score__gt=0, counts_for_leaderboard=True).select_related("user")
         mode = str(request.query_params.get("mode") or "").strip()
         if mode == "millionaire":
             mode = "hitrarunda"
@@ -81,7 +90,7 @@ class MyResultsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        results = request.user.game_results.order_by("-played_at")
+        results = request.user.game_results.select_related("user").order_by("-played_at")
         mode = str(request.query_params.get("mode") or "").strip()
         if mode == "millionaire":
             mode = "hitrarunda"
@@ -168,10 +177,14 @@ class ProfileStatsView(APIView):
                     "best_total_in_run": best.total_questions if best is not None else 0,
                 }
             )
-        recent = [result_payload(row) for row in base.order_by("-played_at")[:20]]
+        recent = [
+            result_payload(row) for row in base.select_related("user").order_by("-played_at")[:20]
+        ]
         return Response(
             {
                 "nickname": request.user.nickname,
+                "avatar": request.user.avatar or "",
+                "preferred_color": request.user.preferred_color or "",
                 "modes": modes,
                 "recent": recent,
             }
@@ -182,7 +195,10 @@ class ResultDetailView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
-        result = get_object_or_404(GameResult.objects.select_related("game_session__room"), pk=pk)
+        result = get_object_or_404(
+            GameResult.objects.select_related("game_session__room", "user"),
+            pk=pk,
+        )
         is_owner = request.user.is_authenticated and result.user_id == request.user.id
         is_staff = request.user.is_authenticated and request.user.is_staff
         if result.score <= 0 and not is_owner and not is_staff:

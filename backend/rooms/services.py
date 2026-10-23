@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
-from accounts.nicknames import NicknameError, clean_nickname
+from accounts.nicknames import NicknameError, avatar_for_member, clean_nickname
 from game.bonus_models import AiBot
 from game.engine import GameError, room_name_for, validate_settings
 from game.modes import (
@@ -13,11 +13,10 @@ from game.modes import (
     LOBBY_MODES,
     MODE_DIRKA,
     MODE_MULTIPLAYER,
-    MP_MAX_PLAYERS,
     MP_MIN_PLAYERS,
-    ROOM_IDLE_SECONDS,
 )
 from game.seed_content import ensure_bots
+from game.site_settings import get as site_get
 from rooms.models import Room, RoomMember
 
 User = get_user_model()
@@ -94,8 +93,9 @@ def create_multiplayer_room(user, raw):
         max_players = int(raw.get("max_players") or 4)
     except (TypeError, ValueError):
         raise GameError("Število igralcev ni veljavno.")
-    if not MP_MIN_PLAYERS <= max_players <= MP_MAX_PLAYERS:
-        raise GameError(f"Število igralcev mora biti med {MP_MIN_PLAYERS} in {MP_MAX_PLAYERS}.")
+    max_players_cap = int(site_get("mp_max_players"))
+    if not MP_MIN_PLAYERS <= max_players <= max_players_cap:
+        raise GameError(f"Število igralcev mora biti med {MP_MIN_PLAYERS} in {max_players_cap}.")
     bot_count = int(settings.get("bot_count") or 0)
     if bot_count > max_players - 1:
         settings["bot_count"] = max(0, max_players - 1)
@@ -190,8 +190,9 @@ def update_room_settings(user, code, raw):
         max_players = int(raw.get("max_players") or room.max_players)
     except (TypeError, ValueError):
         raise GameError("Število igralcev ni veljavno.")
-    if not MP_MIN_PLAYERS <= max_players <= MP_MAX_PLAYERS:
-        raise GameError(f"Število igralcev mora biti med {MP_MIN_PLAYERS} in {MP_MAX_PLAYERS}.")
+    max_players_cap = int(site_get("mp_max_players"))
+    if not MP_MIN_PLAYERS <= max_players <= max_players_cap:
+        raise GameError(f"Število igralcev mora biti med {MP_MIN_PLAYERS} in {max_players_cap}.")
     humans = room.members.filter(left_at__isnull=True, is_bot=False).count()
     if max_players < humans:
         raise GameError("V sobi je že več igralcev, kot dovoljuješ.")
@@ -240,13 +241,74 @@ def close_room(room, reason="closed"):
         session.finished_at = now
         session.state = state
         session.save(update_fields=["status", "finished_at", "state"])
+    _notify_room_closed(room)
     return room
 
 
+def admin_kick_member(room, member_id):
+    """Admin: vrzi igralca/bota iz žive sobe (ne hosta)."""
+    if room.status not in {"waiting", "playing"}:
+        raise GameError("Soba ni aktivna.")
+    member = room.members.filter(pk=member_id, left_at__isnull=True).first()
+    if member is None:
+        raise GameError("Igralec ni v sobi.")
+    if member.is_host:
+        raise GameError("Hosta ne moreš vreči — zapri sobo.")
+    now = timezone.now()
+    member.left_at = now
+    member.is_connected = False
+    member.is_ready = False
+    member.save(update_fields=["left_at", "is_connected", "is_ready"])
+    room.last_activity = now
+    room.save(update_fields=["last_activity"])
+    if member.is_bot:
+        settings = dict(room.settings or {})
+        settings["bot_count"] = max(0, int(settings.get("bot_count") or 0) - 1)
+        room.settings = settings
+        room.save(update_fields=["settings"])
+    return member
+
+
+def _notify_room_closed(room):
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+
+        layer = get_channel_layer()
+        if layer is None:
+            return
+        async_to_sync(layer.group_send)(
+            f"room_{room.code}",
+            {
+                "type": "game.event",
+                "payload": {
+                    "type": "lobby",
+                    "phase": "closed",
+                    "status": "closed",
+                    "code": room.code,
+                    "detail": "Soba je zaprta.",
+                },
+            },
+        )
+    except Exception:
+        pass
+
+
 def close_stale_rooms():
-    """Zapri waiting/playing sobe brez aktivnosti več kot ROOM_IDLE_SECONDS."""
-    cutoff = timezone.now() - timedelta(seconds=ROOM_IDLE_SECONDS)
-    stale = Room.objects.filter(status__in=["waiting", "playing"], last_activity__lt=cutoff)
+    """Zapri waiting/playing sobe brez aktivnosti več kot room_idle_seconds.
+
+    Aktivne seje (preparing/active) pusti pri miru — last_activity se ob
+    odgovorih ne posodablja vedno, zato idle close ne sme ubiti igre.
+    """
+    from game.models import GameSession
+
+    cutoff = timezone.now() - timedelta(seconds=int(site_get("room_idle_seconds")))
+    live_session_room_ids = GameSession.objects.filter(status__in=["preparing", "active"]).values_list(
+        "room_id", flat=True
+    )
+    stale = Room.objects.filter(status__in=["waiting", "playing"], last_activity__lt=cutoff).exclude(
+        pk__in=live_session_room_ids
+    )
     closed = 0
     for room in stale.iterator():
         close_room(room, reason="inactive")
@@ -371,6 +433,67 @@ def list_public_rooms(mode=None):
     return [lobby_payload(room, viewer=None) for room in rooms[:30]]
 
 
+def quick_join(user, raw):
+    """Pridruži se odprti javni sobi ali ustvari novo (Hitra tekma / Dirka)."""
+    from questions.models import Category
+
+    close_stale_rooms()
+    raw = raw if isinstance(raw, dict) else {}
+    mode = str(raw.get("mode") or MODE_MULTIPLAYER).strip()
+    if mode not in LOBBY_MODES:
+        raise GameError("Hitri join je na voljo samo za Hitra tekma in Dirka.")
+    nickname = clean_nickname(raw.get("nickname") or user.nickname)
+
+    rooms = (
+        Room.objects.filter(status="waiting", visibility="public", settings__mode=mode)
+        .select_related("host")
+        .order_by("created_at")
+    )
+    for room in rooms[:40]:
+        if room.password:
+            continue
+        active = room.members.filter(left_at__isnull=True)
+        if active.filter(user=user).exists():
+            return room, False
+        if active.count() >= room.max_players:
+            continue
+        try:
+            join_room(user, room.code, {"nickname": nickname, "password": ""})
+            return room, False
+        except (GameError, NicknameError):
+            continue
+
+    categories = raw.get("categories")
+    if not isinstance(categories, list) or not categories:
+        categories = list(Category.objects.filter(is_active=True).values_list("slug", flat=True)[:40])
+    if not categories:
+        raise GameError("Ni aktivnih kategorij za novo sobo.")
+
+    create_raw = {
+        "mode": mode,
+        "nickname": nickname,
+        "visibility": "public",
+        "max_players": int(raw.get("max_players") or 4),
+        "categories": categories,
+    }
+    if mode == MODE_DIRKA:
+        targets = list(site_get("dirka_target_scores") or [200])
+        safes = list(site_get("dirka_safe_every") or [5])
+        create_raw["target_score"] = raw.get("target_score", 200 if 200 in targets else targets[0])
+        create_raw["safe_every"] = raw.get("safe_every", 5 if 5 in safes else safes[0])
+        create_raw["bot_count"] = raw.get("bot_count", 1)
+    else:
+        mp_counts = list(site_get("mp_question_counts") or [10])
+        mp_times = list(site_get("mp_allowed_times") or [60])
+        create_raw["question_count"] = raw.get("question_count", 10 if 10 in mp_counts else mp_counts[0])
+        create_raw["time_limit_seconds"] = raw.get(
+            "time_limit_seconds", 60 if 60 in mp_times else mp_times[0]
+        )
+        create_raw["bot_count"] = raw.get("bot_count", 0)
+    room = create_multiplayer_room(user, create_raw)
+    return room, True
+
+
 def list_invites(user, mode=None):
     close_stale_rooms()
     rooms = Room.objects.filter(status="waiting").order_by("-created_at")
@@ -388,7 +511,9 @@ def list_invites(user, mode=None):
 
 
 def lobby_payload(room, viewer=None):
-    members = list(room.members.filter(left_at__isnull=True).select_related("user").order_by("joined_at"))
+    members = list(
+        room.members.filter(left_at__isnull=True).select_related("user", "bot_profile").order_by("joined_at")
+    )
     viewer_member = None
     if viewer is not None:
         viewer_member = next((item for item in members if item.user_id == viewer.id), None)
@@ -415,6 +540,7 @@ def lobby_payload(room, viewer=None):
                 "id": str(member.id),
                 "nickname": member.nickname_in_room,
                 "color": member.color,
+                "avatar": avatar_for_member(member),
                 "is_host": member.is_host,
                 "is_ready": member.is_ready or member.is_bot,
                 "is_connected": member.is_connected or member.is_bot,
@@ -435,6 +561,8 @@ def lobby_payload(room, viewer=None):
             {
                 "id": str(viewer_member.id),
                 "nickname": viewer_member.nickname_in_room,
+                "avatar": avatar_for_member(viewer_member),
+                "color": viewer_member.color,
                 "is_host": viewer_member.is_host,
                 "is_ready": viewer_member.is_ready,
             }
@@ -479,6 +607,83 @@ def _host_waiting_room(user, code):
     if (room.settings or {}).get("mode") not in LOBBY_MODES:
         raise GameError("To ni večigralska soba.")
     return room
+
+
+def leave_room(user, code):
+    """Igralec zapusti sobo (lobby ali med igro). Ostali ne smejo ostati zataknjeni."""
+    room = Room.objects.filter(code=str(code or "").upper()).first()
+    if room is None:
+        raise GameError("Soba ne obstaja.")
+    if room.status in {"finished", "closed"}:
+        member = room.members.filter(user=user, left_at__isnull=True, is_bot=False).first()
+        if member is not None:
+            member.left_at = timezone.now()
+            member.is_connected = False
+            member.is_host = False
+            member.save(update_fields=["left_at", "is_connected", "is_host", "last_activity"])
+        return room
+    member = room.members.filter(user=user, left_at__isnull=True, is_bot=False).first()
+    if member is None:
+        raise GameError("Nisi v sobi.")
+    now = timezone.now()
+    was_host = member.is_host
+    member.left_at = now
+    member.is_connected = False
+    member.is_ready = False
+    member.is_host = False
+    member.save(update_fields=["left_at", "is_connected", "is_ready", "is_host", "last_activity"])
+
+    remaining = list(room.members.filter(left_at__isnull=True).order_by("joined_at"))
+    humans = [item for item in remaining if not item.is_bot]
+
+    if was_host and humans:
+        new_host = humans[0]
+        new_host.is_host = True
+        new_host.save(update_fields=["is_host", "last_activity"])
+        room.host = new_host.user
+        room.save(update_fields=["host", "last_activity"])
+    elif not humans:
+        # Nihče živih ljudi — zapri sobo (boti sami ne igrajo naprej).
+        room.status = "closed"
+        room.finished_at = now
+        room.save(update_fields=["status", "finished_at", "last_activity"])
+        from game.models import GameSession
+
+        GameSession.objects.filter(room=room, status="active").update(
+            status="finished",
+            finished_at=now,
+        )
+        touch_room(room)
+        return room
+
+    if room.status == "playing":
+        _reconcile_session_after_leave(room, member)
+
+    touch_room(room)
+    return room
+
+
+def _reconcile_session_after_leave(room, left_member):
+    """Odstrani zapustnika iz aktivne seje (alive) — runda se lahko nadaljuje."""
+    from game.models import GameSession
+
+    session = GameSession.objects.filter(room=room, status="active").first()
+    if session is None:
+        return
+    state = dict(session.state or {})
+    mid = str(left_member.id)
+    players = dict(state.get("players") or {})
+    if mid in players:
+        stats = dict(players[mid])
+        stats["alive"] = False
+        stats["left"] = True
+        players[mid] = stats
+        state["players"] = players
+    alive = state.get("alive")
+    if isinstance(alive, list) and mid in alive:
+        state["alive"] = [item for item in alive if item != mid]
+    session.state = state
+    session.save(update_fields=["state"])
 
 
 def _remember_nickname(user, nickname):

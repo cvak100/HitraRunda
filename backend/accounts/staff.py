@@ -61,10 +61,14 @@ class AdminCleanupGuestsView(APIView):
     permission_classes = [StaffOnly]
 
     def post(self, request):
-        deleted = cleanup_stale_guests()
+        from game.site_settings import get as site_get
+
+        days = int(site_get("guest_cleanup_days"))
+        deleted = cleanup_stale_guests(days=days)
         return Response(
             {
                 "deleted": deleted,
-                "detail": f"Pobrisanih gostov: {deleted}. Rezultati ostanejo.",
+                "days": days,
+                "detail": f"Pobrisanih gostov: {deleted} (starejših od {days} dni). Rezultati ostanejo.",
             }
         )

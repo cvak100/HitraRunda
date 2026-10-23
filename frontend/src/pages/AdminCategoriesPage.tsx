@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { Modal } from "../components/Modal";
 import { ApiError, api } from "../api";
 import type { StaffCategory } from "../types";
@@ -19,6 +20,7 @@ export function AdminCategoriesPage() {
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function load() {
     api<{ categories: StaffCategory[] }>("/api/admin/categories/")
@@ -100,6 +102,20 @@ export function AdminCategoriesPage() {
     }
   }
 
+  async function onDelete() {
+    if (editingId == null) return;
+    setConfirmDelete(false);
+    setError("");
+    try {
+      const result = await api<{ detail: string }>(`/api/admin/categories/${editingId}/`, { method: "DELETE" });
+      setNotice(result.detail || "Kategorija je umaknjena.");
+      closeModal();
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Brisanje ni uspelo.");
+    }
+  }
+
   return (
     <section className="panel">
       <p className="eyebrow">Admin</p>
@@ -176,9 +192,23 @@ export function AdminCategoriesPage() {
             <button type="button" onClick={closeModal}>
               Prekliči
             </button>
+            {editingId != null ? (
+              <button type="button" className="danger" onClick={() => setConfirmDelete(true)}>
+                Izbriši
+              </button>
+            ) : null}
           </div>
         </form>
       </Modal>
+      <ConfirmModal
+        open={confirmDelete}
+        title="Izbriši kategorijo"
+        message="Kategorija se umakne (ni več na voljo v novih igrah). Vprašanja ostanejo."
+        confirmLabel="Izbriši"
+        danger
+        onConfirm={() => void onDelete()}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </section>
   );
 }

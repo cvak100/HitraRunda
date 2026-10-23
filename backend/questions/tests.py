@@ -130,6 +130,10 @@ class ReportTests(TestCase):
         self.assertEqual(summary.status_code, 200)
         self.assertEqual(summary.data["open_reports"], 1)
         self.assertGreaterEqual(summary.data["active_questions"], 1)
+        self.assertIn("recent_reports", summary.data)
+        self.assertIn("recent_sessions", summary.data)
+        self.assertIn("attention", summary.data)
+        self.assertEqual(summary.data["attention"]["open_reports"], 1)
 
         listed = staff.get("/api/admin/reports/")
         self.assertEqual(listed.status_code, 200)

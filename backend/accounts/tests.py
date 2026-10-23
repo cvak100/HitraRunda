@@ -144,3 +144,97 @@ class AccountTests(TestCase):
             format="json",
         )
         self.assertEqual(short.status_code, 400)
+
+    def test_guest_register_keeps_same_user_and_results(self):
+        client = APIClient()
+        guest = client.post("/api/auth/guest/", {"nickname": "Gost volk"}, format="json")
+        self.assertEqual(guest.status_code, 200)
+        guest_id = guest.data["user"]["id"]
+        GameResult.objects.create(
+            user_id=guest_id,
+            nickname="Gost volk",
+            mode="hitrarunda",
+            score=777,
+            correct_count=7,
+            total_questions=10,
+            is_guest=True,
+        )
+        converted = client.post(
+            "/api/auth/register/",
+            {"email": "gost@example.com", "password": "dolgo-geslo-1", "nickname": "Gost volk"},
+            format="json",
+        )
+        self.assertEqual(converted.status_code, 200, converted.data)
+        self.assertTrue(converted.data.get("converted"))
+        self.assertEqual(converted.data["user"]["id"], guest_id)
+        self.assertFalse(converted.data["user"]["is_guest"])
+        result = GameResult.objects.get(user_id=guest_id)
+        self.assertEqual(result.score, 777)
+        self.assertFalse(result.is_guest)
+
+    def test_password_change_and_reset(self):
+        client = APIClient()
+        client.post(
+            "/api/auth/register/",
+            {"email": "geslo@example.com", "password": "staro-geslo", "nickname": "Geslar"},
+            format="json",
+        )
+        changed = client.post(
+            "/api/auth/password/",
+            {"current_password": "staro-geslo", "new_password": "novo-geslo-1"},
+            format="json",
+        )
+        self.assertEqual(changed.status_code, 200, changed.data)
+        client.post("/api/auth/logout/", format="json")
+        bad = client.post(
+            "/api/auth/login/",
+            {"email": "geslo@example.com", "password": "staro-geslo"},
+            format="json",
+        )
+        self.assertEqual(bad.status_code, 400)
+        ok = client.post(
+            "/api/auth/login/",
+            {"email": "geslo@example.com", "password": "novo-geslo-1"},
+            format="json",
+        )
+        self.assertEqual(ok.status_code, 200)
+
+        reset = client.post("/api/auth/password-reset/", {"email": "geslo@example.com"}, format="json")
+        self.assertEqual(reset.status_code, 200)
+        self.assertIn("debug_link", reset.data)
+        from urllib.parse import parse_qs, urlparse
+
+        query = parse_qs(urlparse(reset.data["debug_link"]).query)
+        confirm = client.post(
+            "/api/auth/password-reset/confirm/",
+            {"uid": query["uid"][0], "token": query["token"][0], "password": "reset-geslo-9"},
+            format="json",
+        )
+        self.assertEqual(confirm.status_code, 200, confirm.data)
+        client.post("/api/auth/logout/", format="json")
+        after = client.post(
+            "/api/auth/login/",
+            {"email": "geslo@example.com", "password": "reset-geslo-9"},
+            format="json",
+        )
+        self.assertEqual(after.status_code, 200)
+
+    def test_me_patch_color_and_avatar(self):
+        client = APIClient()
+        client.post(
+            "/api/auth/register/",
+            {"email": "barva@example.com", "password": "geslo1234", "nickname": "Barva"},
+            format="json",
+        )
+        patched = client.patch(
+            "/api/auth/me/",
+            {"preferred_color": "#85c1e9", "avatar": "ris"},
+            format="json",
+        )
+        self.assertEqual(patched.status_code, 200, patched.data)
+        self.assertEqual(patched.data["user"]["preferred_color"], "#85c1e9")
+        self.assertEqual(patched.data["user"]["avatar"], "ris")
+        bad = client.patch("/api/auth/me/", {"preferred_color": "red"}, format="json")
+        self.assertEqual(bad.status_code, 400)
+        bad_avatar = client.patch("/api/auth/me/", {"avatar": "https://x.com/a.png"}, format="json")
+        self.assertEqual(bad_avatar.status_code, 400)

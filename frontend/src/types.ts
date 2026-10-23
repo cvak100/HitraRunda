@@ -4,6 +4,8 @@ export type User = {
   nickname: string;
   is_guest: boolean;
   is_staff: boolean;
+  avatar?: string;
+  preferred_color?: string;
 };
 
 export type GameMode = "hitrarunda" | "ala_milijonar" | "multiplayer" | "dirka" | "60_sekund";
@@ -12,6 +14,7 @@ export type StandingRow = {
   member_id: string;
   nickname: string;
   color?: string;
+  avatar?: string;
   score: number;
   correct_count: number;
   round_bonuses?: number;
@@ -27,6 +30,7 @@ export type LobbyMember = {
   id: string;
   nickname: string;
   color?: string;
+  avatar?: string;
   is_host: boolean;
   is_ready: boolean;
   is_connected?: boolean;
@@ -67,6 +71,7 @@ export type AiBot = {
   key: string;
   name: string;
   color: string;
+  avatar?: string;
   accuracy?: number;
   delay_min?: number;
   delay_max?: number;
@@ -221,6 +226,8 @@ export type GameMessage = {
   deadlines?: Record<string, string>;
   answers?: {
     nickname: string;
+    avatar?: string;
+    color?: string;
     member_id?: string;
     is_correct: boolean;
     timed_out?: boolean;
@@ -320,6 +327,8 @@ export type ScoreRow = {
   session_id: number | null;
   room_code: string;
   nickname: string;
+  avatar?: string;
+  preferred_color?: string;
   mode: string;
   score: number;
   prize_reached: number;

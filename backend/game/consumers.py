@@ -65,6 +65,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         else:
             await self._arm(payload)
             await self._arm_bots(payload)
+            if payload.get("phase") == "round_review":
+                await self._arm_auto_advance()
 
     async def disconnect(self, code):
         self._cancel_timer()
@@ -102,6 +104,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                     await self.send_json(payload)
                     if payload.get("phase") == "question":
                         await self._arm(payload)
+                    elif payload.get("phase") == "round_review":
+                        await self._arm_auto_advance()
                 return
             if kind == "set_ready":
                 await database_sync_to_async(set_ready)(self.user, self.code, bool(message.get("ready", True)))
@@ -155,7 +159,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif payload.get("phase") == "answer_progress":
             # Drugi so odgovorili — ne prekini časovnika za tiste, ki še čakajo.
             pass
-        elif payload.get("phase") in {"round_review", "waiting_answers", "lobby", "finished"}:
+        elif payload.get("phase") == "round_review":
+            self._cancel_timer()
+            # Vsi klientni WS načrtujejo prehod (claim deli isti deadline) — če eden odpade, drugi potisnejo naprej.
+            await self._arm_auto_advance()
+        elif payload.get("phase") in {"waiting_answers", "lobby", "finished"}:
             self._cancel_timer()
             if payload.get("phase") in {"lobby", "finished"}:
                 self._cancel_advance()
@@ -175,6 +183,9 @@ class GameConsumer(AsyncWebsocketConsumer):
             return {"type": "error", "message": "Soba ne obstaja.", "phase": "error"}
         if room.status in {"closed", "finished"}:
             return {"type": "error", "message": "Soba je zaprta.", "phase": "error"}
+        # Med igro nikoli ne vsili lobby (TOCTOU okoli start_game / reconnect).
+        if room.status != "waiting":
+            return snapshot(self.member_id)
         mode = (room.settings or {}).get("mode")
         if mode not in LOBBY_MODES:
             return {"type": "game_state", "phase": "waiting"}
@@ -284,13 +295,20 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def _auto_advance_later(self, plan):
         try:
             await asyncio.sleep(float(plan.get("delay") or 5))
-            payloads = await database_sync_to_async(next_question)(plan["host_member_id"])
+            try:
+                payloads = await database_sync_to_async(next_question)(plan["host_member_id"])
+            except GameError:
+                # Hostov klic ni uspel — poskusi kot ta član (dovoljeno, ko je auto_advance_at zapadel).
+                payloads = await database_sync_to_async(next_question)(self.member_id)
             await self._broadcast_all(payloads or [])
             if payloads and payloads[0].get("phase") == "question":
                 await self._arm_bots(payloads[0])
+            elif payloads and payloads[0].get("phase") == "finished":
+                self._cancel_advance()
         except asyncio.CancelledError:
             return
         except GameError:
+            logger.info("Samodejni prehod runde zavrnjen", exc_info=False)
             return
         except Exception:
             logger.exception("Samodejni prehod runde ni uspel")
@@ -306,8 +324,13 @@ class GameConsumer(AsyncWebsocketConsumer):
                     continue
                 payloads = await database_sync_to_async(apply_timeout)(self.member_id, game_question_id)
                 await self._broadcast_all(payloads or [])
-                if payloads and payloads[0].get("phase") == "round_review":
+                phase = (payloads[0].get("phase") if payloads else None) or ""
+                if phase == "round_review":
                     await self._arm_auto_advance()
+                    return
+                # Dirka: osebni deadline — še kdo čaka; nadaljuj zanko.
+                if phase in {"answer_progress", "question"}:
+                    continue
                 return
         except asyncio.CancelledError:
             return

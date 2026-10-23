@@ -207,6 +207,7 @@ def bot_payload(bot):
         "key": bot.key,
         "name": bot.name,
         "color": bot.color,
+        "avatar": bot.avatar or "",
         "accuracy": bot.accuracy,
         "delay_min": bot.delay_min,
         "delay_max": bot.delay_max,
@@ -263,9 +264,14 @@ class AdminBotListView(APIView):
                 modes.append(key_mode)
         if not modes:
             return Response({"detail": "Izberi vsaj en način (Hitra tekma ali Dirka)."}, status=400)
+        from accounts.nicknames import AVATAR_KEYS, resolve_avatar_key
+
+        raw_avatar = str(data.get("avatar") or (bot.avatar if bot else "") or "").strip().lower()
+        avatar = raw_avatar if raw_avatar in AVATAR_KEYS else resolve_avatar_key(nickname=name, seed=key)
         defaults = {
             "name": name[:30],
             "color": str(data.get("color") or "#7dcea0").strip()[:20],
+            "avatar": avatar,
             "accuracy": accuracy,
             "delay_min": delay_min,
             "delay_max": delay_max,
@@ -296,7 +302,22 @@ class AdminBotDetailView(APIView):
         return AdminBotListView()._save(bot, request.data)
 
     def delete(self, request, pk):
+        from game.seed_content import DEFAULT_BOTS
+
         bot = get_object_or_404(AiBot, pk=pk)
-        bot.is_active = False
-        bot.save(update_fields=["is_active"])
-        return Response({"detail": "Bot je umaknjen.", "bot": bot_payload(bot)})
+        seed_keys = {item["key"] for item in DEFAULT_BOTS}
+        # Seed boti: samo soft-delete (ensure_bots bi jih sicer znova ustvaril).
+        # Custom boti: hard delete.
+        if bot.key in seed_keys:
+            bot.is_active = False
+            bot.save(update_fields=["is_active"])
+            return Response(
+                {
+                    "detail": f"Bot „{bot.name}“ je umaknjen (privzeti boti ostanejo v bazi, da se ne ponovno ustvarijo).",
+                    "bot": bot_payload(bot),
+                }
+            )
+        name = bot.name
+        key = bot.key
+        bot.delete()
+        return Response({"detail": f"Bot „{name}“ ({key}) je izbrisan."})
