@@ -173,12 +173,85 @@ class AdminSummaryView(APIView):
     permission_classes = [StaffOnly]
 
     def get(self, request):
+        from datetime import timedelta
+
+        from game.bonus_models import AiBot, BonusDefinition, PhoneFriend
+        from game.models import GameResult, GameSession
+        from game.modes import MODE_LABELS
+        from rooms.models import Room
+
+        now = timezone.now()
+        day_ago = now - timedelta(days=1)
+        week_ago = now - timedelta(days=7)
+
+        open_reports_qs = QuestionReport.objects.filter(status=QuestionReport.Status.OPEN).select_related(
+            "question", "question__category"
+        )
+        recent_reports = [
+            report_payload(report)
+            for report in open_reports_qs.prefetch_related("question__options").order_by("-created_at")[:5]
+        ]
+
+        recent_sessions = []
+        for session in GameSession.objects.select_related("room", "room__host").order_by("-created_at")[:8]:
+            result = session.results.order_by("-score").first()
+            host_nick = ""
+            if session.room_id and session.room.host_id:
+                host_nick = session.room.host.nickname or session.room.host.username
+            recent_sessions.append(
+                {
+                    "id": session.id,
+                    "code": session.room.code,
+                    "mode": session.mode,
+                    "mode_label": MODE_LABELS.get(session.mode, session.mode),
+                    "status": session.status,
+                    "nickname": result.nickname if result else host_nick,
+                    "score": result.score if result else None,
+                    "created_at": session.created_at.isoformat(),
+                }
+            )
+
+        results_by_mode = {
+            row["mode"]: row["c"]
+            for row in GameResult.objects.values("mode").annotate(c=Count("id")).order_by()
+        }
+
         return Response(
             {
+                "generated_at": now.isoformat(),
                 "questions": Question.objects.count(),
                 "active_questions": Question.objects.filter(is_active=True).count(),
-                "open_reports": QuestionReport.objects.filter(status=QuestionReport.Status.OPEN).count(),
+                "inactive_questions": Question.objects.filter(is_active=False).count(),
+                "categories": Category.objects.filter(is_active=True).count(),
+                "open_reports": open_reports_qs.count(),
                 "users": User.objects.count(),
+                "guests": User.objects.filter(email__isnull=True).count(),
+                "registered": User.objects.filter(email__isnull=False).count(),
+                "staff": User.objects.filter(is_staff=True).count(),
+                "rooms_waiting": Room.objects.filter(status="waiting").count(),
+                "rooms_playing": Room.objects.filter(status="playing").count(),
+                "rooms_finished_week": Room.objects.filter(status="finished", finished_at__gte=week_ago).count(),
+                "sessions_active": GameSession.objects.filter(status__in=["preparing", "active"]).count(),
+                "sessions_finished_day": GameSession.objects.filter(status="finished", finished_at__gte=day_ago).count(),
+                "sessions_finished_week": GameSession.objects.filter(
+                    status="finished", finished_at__gte=week_ago
+                ).count(),
+                "results_total": GameResult.objects.count(),
+                "results_day": GameResult.objects.filter(played_at__gte=day_ago).count(),
+                "results_by_mode": [
+                    {"mode": mode, "label": MODE_LABELS.get(mode, mode), "count": count}
+                    for mode, count in sorted(results_by_mode.items(), key=lambda item: (-item[1], item[0]))
+                ],
+                "bots": AiBot.objects.filter(is_active=True).count(),
+                "friends": PhoneFriend.objects.filter(is_active=True).count(),
+                "bonuses": BonusDefinition.objects.filter(is_active=True).count(),
+                "recent_reports": recent_reports,
+                "recent_sessions": recent_sessions,
+                "attention": {
+                    "open_reports": open_reports_qs.count(),
+                    "live_rooms": Room.objects.filter(status__in=["waiting", "playing"]).count(),
+                    "live_sessions": GameSession.objects.filter(status__in=["preparing", "active"]).count(),
+                },
             }
         )
 

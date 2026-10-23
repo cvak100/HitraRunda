@@ -360,8 +360,99 @@ button.table-action svg { width: 18px; height: 18px; display: block; }
   border-radius: 16px;
   padding: 18px;
   background: #121815;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
-.dash-card strong { font-family: "Bricolage Grotesque", Georgia, serif; font-size: 2.2rem; color: var(--gold); }
+a.dash-card:hover {
+  border-color: color-mix(in srgb, var(--gold) 45%, var(--line));
+  background: #1a221c;
+}
+.dash-card-static { cursor: default; }
+.dash-card strong {
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: 2.2rem;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.dash-card strong.is-warn { color: var(--bad); }
+
+.admin-dash-lead { max-width: 40rem; margin: 0 0 1.1rem; }
+.admin-dash-h {
+  margin: 1.6rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+.admin-dash-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 0.4rem;
+}
+.admin-dash-section-head .admin-dash-h { margin-top: 1.2rem; }
+.admin-attention {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: baseline;
+  margin: 0 0 1rem;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+  border-radius: 14px;
+  background: rgba(230, 179, 37, 0.08);
+}
+.admin-attention ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.admin-attention-ok { margin: 0 0 1rem; }
+.admin-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+}
+.admin-mode-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 0 0.5rem;
+}
+.admin-mode-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+.admin-mode-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #0e1310;
+  overflow: hidden;
+}
+.admin-mode-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--gold);
+}
+.admin-dash-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 0.5rem;
+}
+.admin-dash-split .admin-card h3 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-family: "Bricolage Grotesque", Georgia, serif;
+}
+.admin-dash-stamp { margin-top: 1.5rem; }
+@media (max-width: 800px) {
+  .admin-dash-split { grid-template-columns: 1fr; }
+}
 
 .linkish, button, .primary, nav a, .subnav a {
   border: 1px solid var(--line);
