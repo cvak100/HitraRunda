@@ -27,6 +27,9 @@ class AdminCategoryListView(APIView):
     permission_classes = [StaffOnly]
 
     def get(self, request):
+        from questions.importer import ensure_categories
+
+        ensure_categories()
         categories = Category.objects.annotate(
             question_count=Count("questions", filter=Q(questions__is_active=True))
         ).order_by("order", "name")

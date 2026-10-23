@@ -1,20 +1,24 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
+import { AVATAR_COLORS, AVATARS, avatarLabel } from "../avatars";
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { Avatar } from "../components/Avatar";
+import { CategoryPicker } from "../components/CategoryPicker";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { Modal } from "../components/Modal";
 import { ApiError, api } from "../api";
-import type { PhoneFriend } from "../types";
+import type { PhoneFriend, StaffCategory } from "../types";
 
 type FormState = {
   key: string;
   name: string;
   title: string;
   bio: string;
-  specialty_categories: string;
+  specialty_categories: string[];
   reliability: number;
   out_of_specialty_reliability: number;
   avatar_color: string;
+  avatar: string;
   order: number;
   is_active: boolean;
 };
@@ -24,10 +28,11 @@ const empty: FormState = {
   name: "",
   title: "",
   bio: "",
-  specialty_categories: "",
+  specialty_categories: [],
   reliability: 0.7,
   out_of_specialty_reliability: 0.35,
-  avatar_color: "#e6b325",
+  avatar_color: "#7dcea0",
+  avatar: "ris",
   order: 0,
   is_active: true,
 };
@@ -38,10 +43,11 @@ function toForm(friend: PhoneFriend): FormState {
     name: friend.name,
     title: friend.title,
     bio: friend.bio,
-    specialty_categories: (friend.specialty_categories || []).join(", "),
+    specialty_categories: [...(friend.specialty_categories || [])],
     reliability: friend.reliability ?? 0.7,
     out_of_specialty_reliability: friend.out_of_specialty_reliability ?? 0.35,
-    avatar_color: friend.avatar_color,
+    avatar_color: friend.avatar_color || "#7dcea0",
+    avatar: friend.avatar || "ris",
     order: friend.order ?? 0,
     is_active: friend.is_active ?? true,
   };
@@ -53,13 +59,11 @@ function bodyFromForm(form: FormState) {
     name: form.name,
     title: form.title,
     bio: form.bio,
-    specialty_categories: form.specialty_categories
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean),
+    specialty_categories: form.specialty_categories,
     reliability: form.reliability,
     out_of_specialty_reliability: form.out_of_specialty_reliability,
     avatar_color: form.avatar_color,
+    avatar: form.avatar,
     order: form.order,
     is_active: form.is_active,
   };
@@ -67,6 +71,7 @@ function bodyFromForm(form: FormState) {
 
 export function AdminFriendsPage() {
   const [friends, setFriends] = useState<PhoneFriend[]>([]);
+  const [categories, setCategories] = useState<StaffCategory[]>([]);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [limit, setLimit] = useState<AdminLimit>("50");
@@ -79,6 +84,12 @@ export function AdminFriendsPage() {
   const [notice, setNotice] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const categoryNameBySlug = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const cat of categories) map.set(cat.slug, cat.name);
+    return map;
+  }, [categories]);
+
   function load() {
     api<{ friends: PhoneFriend[] }>("/api/admin/friends/")
       .then((data) => setFriends(data.friends))
@@ -87,12 +98,19 @@ export function AdminFriendsPage() {
 
   useEffect(() => {
     load();
+    api<{ categories: StaffCategory[] }>("/api/admin/categories/")
+      .then((data) => setCategories(data.categories.filter((c) => c.is_active)))
+      .catch(() => setCategories([]));
   }, []);
 
   const rows = useMemo(() => {
     const q = submitted.trim().toLowerCase();
     let list = friends.filter(
-      (item) => !q || item.name.toLowerCase().includes(q) || item.key.toLowerCase().includes(q) || item.title.toLowerCase().includes(q),
+      (item) =>
+        !q ||
+        item.name.toLowerCase().includes(q) ||
+        item.key.toLowerCase().includes(q) ||
+        item.title.toLowerCase().includes(q),
     );
     list = [...list].sort((a, b) => {
       const av = a[sort as keyof PhoneFriend];
@@ -116,6 +134,7 @@ export function AdminFriendsPage() {
     setEditingId(null);
     setForm(empty);
     setError("");
+    setNotice("");
     setModalOpen(true);
   }
 
@@ -124,6 +143,7 @@ export function AdminFriendsPage() {
     setEditingId(friend.id);
     setForm(toForm(friend));
     setError("");
+    setNotice("");
     setModalOpen(true);
   }
 
@@ -131,6 +151,7 @@ export function AdminFriendsPage() {
     setModalOpen(false);
     setEditingId(null);
     setForm(empty);
+    setConfirmDelete(false);
   }
 
   async function onSubmit(event: FormEvent) {
@@ -162,7 +183,9 @@ export function AdminFriendsPage() {
     setConfirmDelete(false);
     setError("");
     try {
-      const result = await api<{ detail: string }>(`/api/admin/friends/${editingId}/`, { method: "DELETE" });
+      const result = await api<{ detail: string }>(`/api/admin/friends/${editingId}/`, {
+        method: "DELETE",
+      });
       setNotice(result.detail || "Prijatelj je umaknjen.");
       closeModal();
       load();
@@ -194,6 +217,7 @@ export function AdminFriendsPage() {
             <tr>
               <SortableTh label="Ime" column="name" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Naziv" column="title" sort={sort} direction={direction} onSort={toggleSort} />
+              <th>Specialnosti</th>
               <SortableTh label="Ključ" column="key" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Zanesljivost" column="reliability" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Stanje" column="is_active" sort={sort} direction={direction} onSort={toggleSort} />
@@ -201,9 +225,26 @@ export function AdminFriendsPage() {
           </thead>
           <tbody>
             {rows.map((friend) => (
-              <tr key={friend.key} className="is-link" onClick={() => openEdit(friend)}>
-                <td>{friend.name}</td>
+              <tr key={friend.id ?? friend.key} className="is-link" onClick={() => openEdit(friend)}>
+                <td>
+                  <span className="bot-name-cell">
+                    <Avatar
+                      avatar={friend.avatar || "ris"}
+                      color={friend.avatar_color || "#7dcea0"}
+                      size={28}
+                      title={friend.name}
+                    />
+                    {friend.name}
+                  </span>
+                </td>
                 <td>{friend.title}</td>
+                <td>
+                  {(friend.specialty_categories || []).length
+                    ? (friend.specialty_categories || [])
+                        .map((slug) => categoryNameBySlug.get(slug) || slug)
+                        .join(", ")
+                    : "—"}
+                </td>
                 <td>{friend.key}</td>
                 <td>{Math.round((friend.reliability || 0) * 100)}%</td>
                 <td>{friend.is_active ? "Aktiven" : "Umaknjen"}</td>
@@ -217,6 +258,8 @@ export function AdminFriendsPage() {
         <FriendForm
           form={form}
           setForm={setForm}
+          categories={categories}
+          editing={editingId != null}
           onSubmit={onSubmit}
           submitLabel={editingId == null ? "Ustvari" : "Shrani"}
           onCancel={closeModal}
@@ -239,6 +282,8 @@ export function AdminFriendsPage() {
 function FriendForm({
   form,
   setForm,
+  categories,
+  editing,
   onSubmit,
   submitLabel,
   onCancel,
@@ -246,6 +291,8 @@ function FriendForm({
 }: {
   form: FormState;
   setForm: (form: FormState) => void;
+  categories: StaffCategory[];
+  editing: boolean;
   onSubmit: (event: FormEvent) => void;
   submitLabel: string;
   onCancel?: () => void;
@@ -255,8 +302,20 @@ function FriendForm({
     <form className="stack" onSubmit={onSubmit}>
       <label>
         Ključ
-        <input value={form.key} onChange={(event) => setForm({ ...form, key: event.target.value })} required />
+        <input
+          value={form.key}
+          onChange={(event) => setForm({ ...form, key: event.target.value })}
+          required
+          disabled={editing}
+          title={editing ? "Ključa med urejanjem ne spreminjaj" : undefined}
+        />
       </label>
+      <div className="profile-hero">
+        <Avatar avatar={form.avatar} color={form.avatar_color} size={72} title={avatarLabel(form.avatar)} />
+        <p className="fine" style={{ margin: 0 }}>
+          {avatarLabel(form.avatar)}
+        </p>
+      </div>
       <label>
         Ime
         <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required />
@@ -265,18 +324,54 @@ function FriendForm({
         Naziv
         <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required />
       </label>
+      <fieldset>
+        <legend>Avatar</legend>
+        <div className="avatar-picker" role="list">
+          {AVATARS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={`avatar-pick${form.avatar === item.key ? " is-on" : ""}`}
+              title={item.label}
+              aria-label={item.label}
+              aria-pressed={form.avatar === item.key}
+              onClick={() => setForm({ ...form, avatar: item.key })}
+            >
+              <Avatar avatar={item.key} color={form.avatar_color} size={48} />
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Barva roba</legend>
+        <div className="color-swatches" role="list">
+          {AVATAR_COLORS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              className={`color-swatch${form.avatar_color === c ? " is-on" : ""}`}
+              style={{ background: c }}
+              aria-label={c}
+              onClick={() => setForm({ ...form, avatar_color: c })}
+            />
+          ))}
+        </div>
+      </fieldset>
       <label>
         Bio
         <textarea value={form.bio} onChange={(event) => setForm({ ...form, bio: event.target.value })} />
       </label>
-      <label>
-        Specialnosti (slug-i, vejica)
-        <input
-          value={form.specialty_categories}
-          onChange={(event) => setForm({ ...form, specialty_categories: event.target.value })}
-          placeholder="sport, zemljepis"
-        />
-      </label>
+      <CategoryPicker
+        legend="Specialnosti"
+        categories={categories}
+        value={form.specialty_categories}
+        onChange={(specialty_categories) => setForm({ ...form, specialty_categories })}
+        showCounts={false}
+      />
+      <p className="fine" style={{ marginTop: "-6px" }}>
+        Prazno = univerzalen nasvet. Označene kategorije = bolj zanesljiv nasvet.
+      </p>
       <label>
         Zanesljivost v specialnosti (0–1)
         <input
@@ -298,10 +393,6 @@ function FriendForm({
           value={form.out_of_specialty_reliability}
           onChange={(event) => setForm({ ...form, out_of_specialty_reliability: Number(event.target.value) })}
         />
-      </label>
-      <label>
-        Barva
-        <input value={form.avatar_color} onChange={(event) => setForm({ ...form, avatar_color: event.target.value })} />
       </label>
       <label>
         Vrstni red

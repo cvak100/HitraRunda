@@ -84,8 +84,8 @@ DEFAULTS: dict = {
     # Sobe / gosti
     "room_idle_seconds": 60 * 60,
     "guest_cleanup_days": 7,
-    # Vzdevki
-    "nickname_adjectives": [
+    # Vzdevki — pridevniki in samostalniki ločeno po spolu (nikoli mešano).
+    "nickname_adjectives_masculine": [
         "Hitri",
         "Tihi",
         "Zlati",
@@ -103,7 +103,25 @@ DEFAULTS: dict = {
         "Krasni",
         "Pravi",
     ],
-    "nickname_nouns": [
+    "nickname_adjectives_feminine": [
+        "Hitra",
+        "Tiha",
+        "Zlata",
+        "Modra",
+        "Vesela",
+        "Pogumna",
+        "Spretna",
+        "Mirna",
+        "Jasna",
+        "Topla",
+        "Hladna",
+        "Zvesta",
+        "Lahka",
+        "Ostra",
+        "Krasna",
+        "Prava",
+    ],
+    "nickname_nouns_masculine": [
         "Ris",
         "Volk",
         "Orel",
@@ -145,6 +163,15 @@ DEFAULTS: dict = {
         "Kekec",
         "Rožle",
         "Minotaver",
+    ],
+    "nickname_nouns_feminine": [
+        "Vitezinja",
+        "Princesa",
+        "Čarovnica",
+        "Kraljica",
+        "Amazonka",
+        "Indijanka",
+        "Pehta",
     ],
 }
 
@@ -552,20 +579,34 @@ FIELDS = [
         "min": 1,
         "max": 365,
     },
-    # Nicknames
+    # Nicknames (spol se nikoli ne meša: moški pridevnik + moški samostalnik, …)
     {
-        "key": "nickname_adjectives",
+        "key": "nickname_adjectives_masculine",
         "group": "nicknames",
-        "label": "Pridevniki",
+        "label": "Pridevniki (moški)",
         "type": "lines",
-        "help": "En pridevnik na vrstico.",
+        "help": "En pridevnik na vrstico. Samo z moškimi samostalniki.",
     },
     {
-        "key": "nickname_nouns",
+        "key": "nickname_adjectives_feminine",
         "group": "nicknames",
-        "label": "Samostalniki",
+        "label": "Pridevniki (ženski)",
         "type": "lines",
-        "help": "En samostalnik na vrstico.",
+        "help": "En pridevnik na vrstico. Samo z ženskimi samostalniki.",
+    },
+    {
+        "key": "nickname_nouns_masculine",
+        "group": "nicknames",
+        "label": "Samostalniki (moški)",
+        "type": "lines",
+        "help": "En samostalnik na vrstico. Samo z moškimi pridevniki.",
+    },
+    {
+        "key": "nickname_nouns_feminine",
+        "group": "nicknames",
+        "label": "Samostalniki (ženski)",
+        "type": "lines",
+        "help": "En samostalnik na vrstico. Samo z ženskimi pridevniki.",
     },
 ]
 
@@ -594,6 +635,13 @@ def get_all() -> dict:
         for key in DEFAULTS:
             if key in stored:
                 merged[key] = stored[key]
+        # Stari skupni seznami → moški (če novi ključi še niso shranjeni).
+        if "nickname_adjectives_masculine" not in stored and isinstance(
+            stored.get("nickname_adjectives"), list
+        ):
+            merged["nickname_adjectives_masculine"] = stored["nickname_adjectives"]
+        if "nickname_nouns_masculine" not in stored and isinstance(stored.get("nickname_nouns"), list):
+            merged["nickname_nouns_masculine"] = stored["nickname_nouns"]
     except Exception:
         # Migracija še ni zagnana / test DB — uporabi default.
         pass

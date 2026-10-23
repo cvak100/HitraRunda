@@ -4,9 +4,11 @@ from game.staff_content import (
     AdminBonusDetailView,
     AdminBonusListView,
     AdminBotDetailView,
+    AdminBotGenerateView,
     AdminBotListView,
     AdminFriendDetailView,
     AdminFriendListView,
+    PublicBonusesView,
     PublicFriendsView,
 )
 from game.admin_health import AdminHealthView
@@ -31,6 +33,7 @@ urlpatterns = [
     path("health/", HealthView.as_view()),
     path("leaderboard/", LeaderboardView.as_view()),
     path("friends/", PublicFriendsView.as_view()),
+    path("bonuses/", PublicBonusesView.as_view()),
     path("game-config/", PublicGameConfigView.as_view()),
     path("me/results/", MyResultsView.as_view()),
     path("me/profile/", ProfileStatsView.as_view()),
@@ -48,5 +51,6 @@ urlpatterns = [
     path("admin/friends/", AdminFriendListView.as_view()),
     path("admin/friends/<int:pk>/", AdminFriendDetailView.as_view()),
     path("admin/bots/", AdminBotListView.as_view()),
+    path("admin/bots/generate/", AdminBotGenerateView.as_view()),
     path("admin/bots/<int:pk>/", AdminBotDetailView.as_view()),
 ]

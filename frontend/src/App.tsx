@@ -21,6 +21,7 @@ import { AdminRoomsPage } from "./pages/AdminRoomsPage";
 import { AdminSessionsPage } from "./pages/AdminSessionsPage";
 import { AdminSettingsPage } from "./pages/AdminSettingsPage";
 import { AdminTestsPage } from "./pages/AdminTestsPage";
+import { AdminUiPalettePage } from "./pages/AdminUiPalettePage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
 import { LogoutPage } from "./pages/LogoutPage";
@@ -49,6 +50,7 @@ export function App() {
             <Route path="pozabljeno-geslo" element={<ForgotPasswordPage />} />
             <Route path="ponastavi-geslo" element={<ResetPasswordPage />} />
             <Route path="lestvica" element={<Navigate to="/lestvica/hitrarunda" replace />} />
+            <Route path="lestvica/skupno" element={<Navigate to="/lestvica/hitrarunda" replace />} />
             <Route path="lestvica/hitrarunda" element={<LeaderboardPage />} />
             <Route path="lestvica/ala-milijonar" element={<LeaderboardPage />} />
             <Route path="lestvica/vec-igralcev" element={<LeaderboardPage />} />
@@ -107,6 +109,7 @@ export function App() {
                 <Route path="nastavitve" element={<AdminSettingsPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
                 <Route path="simulacija" element={<Navigate to="/nadzor/ukazi" replace />} />
+                <Route path="paleta" element={<AdminUiPalettePage />} />
                 <Route path="testi" element={<AdminTestsPage />} />
               </Route>
               <Route path="vprasanja" element={<Navigate to="/nadzor/vsebina/vprasanja" replace />} />

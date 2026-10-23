@@ -3,9 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { CategoryPicker } from "../components/CategoryPicker";
+import { ChoiceGroup } from "../components/ChoiceGroup";
+import { FriendRoster, pickRandomFriendKeys } from "../components/FriendRoster";
 import { NicknameField } from "../components/NicknameField";
+import { NumberStepper } from "../components/NumberStepper";
 import { formatMode } from "../format";
-import { BackNav, ModePageNav } from "../gameModes";
+import { BackNav, ModePageNav, ModeRules, boardPath } from "../gameModes";
 import type { Category, GameMode, PhoneFriend } from "../types";
 
 const DEFAULT_TIMES = [10, 15, 20, 30, 45, 60];
@@ -28,12 +32,6 @@ function modeFromPath(pathname: string): GameMode | null {
   return null;
 }
 
-function boardPath(mode: GameMode) {
-  if (mode === "ala_milijonar") return "/lestvica/ala-milijonar";
-  if (mode === "60_sekund") return "/lestvica/60-sekund";
-  return "/lestvica/hitrarunda";
-}
-
 export function SetupPage() {
   const location = useLocation();
   const mode = modeFromPath(location.pathname);
@@ -41,8 +39,9 @@ export function SetupPage() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [friends, setFriends] = useState<PhoneFriend[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
   const [friendKeys, setFriendKeys] = useState<string[]>([]);
+  const [friendsPick, setFriendsPick] = useState(3);
+  const [selected, setSelected] = useState<string[]>([]);
   const [count, setCount] = useState(10);
   const [seconds, setSeconds] = useState(20);
   const [skipLimit, setSkipLimit] = useState<number | null>(null);
@@ -53,7 +52,6 @@ export function SetupPage() {
   const [times, setTimes] = useState(DEFAULT_TIMES);
   const [skipOptions, setSkipOptions] = useState(DEFAULT_SKIP);
   const [alaSeconds, setAlaSeconds] = useState(90);
-  const [friendsPick, setFriendsPick] = useState(3);
 
   const isSixty = mode === "60_sekund";
 
@@ -93,9 +91,18 @@ export function SetupPage() {
       })
       .catch(() => undefined);
     if (mode === "ala_milijonar") {
-      api<{ friends: PhoneFriend[] }>("/api/friends/")
-        .then((data) => setFriends(data.friends))
-        .catch(() => setFriends([]));
+      api<{ friends: PhoneFriend[]; pick?: number }>("/api/friends/")
+        .then((data) => {
+          const list = data.friends || [];
+          const pick = data.pick || 3;
+          setFriends(list);
+          setFriendsPick(pick);
+          setFriendKeys(pickRandomFriendKeys(list, pick));
+        })
+        .catch(() => {
+          setFriends([]);
+          setFriendKeys([]);
+        });
     }
   }, [mode]);
 
@@ -121,6 +128,14 @@ export function SetupPage() {
     }
   }, [available, mode]);
 
+  function toggleFriend(key: string) {
+    setFriendKeys((current) => {
+      if (current.includes(key)) return current.filter((item) => item !== key);
+      if (current.length >= friendsPick) return current;
+      return [...current, key];
+    });
+  }
+
   if (!mode) {
     return (
       <section className="panel">
@@ -129,18 +144,6 @@ export function SetupPage() {
         <p className="error">Te poti ni med znanimi načini.</p>
       </section>
     );
-  }
-
-  function toggle(slug: string) {
-    setSelected((current) => (current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug]));
-  }
-
-  function toggleFriend(key: string) {
-    setFriendKeys((current) => {
-      if (current.includes(key)) return current.filter((item) => item !== key);
-      if (current.length >= friendsPick) return current;
-      return [...current, key];
-    });
   }
 
   async function onSubmit(event: FormEvent) {
@@ -180,43 +183,38 @@ export function SetupPage() {
     <section className="panel">
       <p className="eyebrow">{formatMode(mode)}</p>
       <h1>Nastavi rundo</h1>
-      <ModePageNav boardTo={boardPath(mode)} />
+      <ModePageNav boardTo={boardPath(mode)} mode={mode} />
+      <ModeRules mode={mode} />
       <form onSubmit={onSubmit} className="stack">
         <NicknameField label="Vzdevek v tej igri" value={nickname} onChange={setNickname} required />
-        <fieldset>
-          <legend>Kategorije</legend>
-          {categories.map((category) => (
-            <label key={category.slug} className="check">
-              <input type="checkbox" checked={selected.includes(category.slug)} onChange={() => toggle(category.slug)} />
-              {category.name}
-              <span className="fine">
-                {mode === "ala_milijonar" ? category.classic_question_count ?? 0 : category.question_count} vprašanj
-              </span>
-            </label>
-          ))}
-        </fieldset>
         {mode === "hitrarunda" ? (
-          <label>
-            Število vprašanj: {count}
-            <input
-              type="range"
+          <>
+            <NumberStepper
+              label="Število vprašanj"
+              value={Math.min(count, Math.max(5, maxCount))}
               min={5}
               max={Math.max(5, maxCount)}
-              value={Math.min(count, Math.max(5, maxCount))}
-              disabled={available < 5}
-              onChange={(event) => setCount(Number(event.target.value))}
+              onChange={setCount}
             />
-          </label>
+            <ChoiceGroup
+              label="Čas na vprašanje"
+              options={times}
+              value={seconds}
+              onChange={setSeconds}
+              format={(time) => `${time} s`}
+            />
+          </>
         ) : null}
         {mode === "ala_milijonar" ? (
-          <p className="fine">
-            Vedno 15 vprašanj s 4 odgovori, {alaSeconds} s na vprašanje, težavnost 1→5 (po 3 na stopnjo). Odnehaj in 3
-            jokerji (na voljo {available}).
-          </p>
+          <FriendRoster
+            friends={friends}
+            selected={friendKeys}
+            pick={friendsPick}
+            onToggle={toggleFriend}
+          />
         ) : null}
         {isSixty ? (
           <>
-            <p className="fine">Skupni čas, bonusi in kazni so nastavljivi v adminu.</p>
             <fieldset>
               <legend>Preskoki</legend>
               <div className="choices" role="group" aria-label="Preskoki">
@@ -246,49 +244,16 @@ export function SetupPage() {
                   </button>
                 ))}
               </div>
-              <p className="fine">
-                Normalno: po 1 min tež. 4–5, po 2 min samo 5. Blago počasneje, ostro hitreje.
-              </p>
             </fieldset>
           </>
         ) : null}
-        {mode === "ala_milijonar" ? (
-          <fieldset>
-            <legend>
-              Prijatelji za klic v sili ({friendKeys.length}/{friendsPick})
-            </legend>
-            <div className="friend-grid">
-              {friends.map((friend) => {
-                const on = friendKeys.includes(friend.key);
-                return (
-                  <button
-                    key={friend.key}
-                    type="button"
-                    className={`friend-card ${on ? "is-on" : ""}`}
-                    style={{ ["--friend-color" as string]: friend.avatar_color }}
-                    onClick={() => toggleFriend(friend.key)}
-                  >
-                    <strong>{friend.name}</strong>
-                    <span>{friend.title}</span>
-                    <span className="fine">{friend.bio}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-        ) : null}
-        {mode === "hitrarunda" ? (
-          <div className="choices" role="group" aria-label="Čas na vprašanje">
-            {times.map((time) => (
-              <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
-                {time} s
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {mode === "hitrarunda" || mode === "ala_milijonar" ? (
-          <p className="fine">Prvi napačen ali prepozen odgovor konča igro.</p>
-        ) : null}
+        <CategoryPicker
+          categories={categories}
+          value={selected}
+          onChange={setSelected}
+          showCounts={mode === "ala_milijonar" ? "classic" : "all"}
+          showSelectAll
+        />
         {error ? <p className="error">{error}</p> : null}
         <button
           className="primary"

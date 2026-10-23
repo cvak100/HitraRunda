@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 
 import { ApiError, api } from "../api";
 import { ConfirmModal } from "../components/ConfirmModal";
-import { SimulatePanel } from "./AdminSimulatePage";
+import { GenerateBotsPanel, SimulatePanel } from "./AdminSimulatePage";
 
 export function AdminActionsPage() {
+  const [openCleanup, setOpenCleanup] = useState(false);
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -45,22 +46,49 @@ export function AdminActionsPage() {
       <p className="eyebrow">Admin</p>
       <h1>Ukazi</h1>
       <div className="admin-list">
-        <article className="admin-card">
-          <h2>Čiščenje gostov</h2>
-          <p>
-            Zbriše goste, starejše od {days} dni, ki nimajo sveže čakajoče ali tekoče sobe. Rezultati in lestvica
-            ostanejo. Število dni nastaviš pod Nastavitve.
-          </p>
-          <p className="fine">Isti ukaz v konzoli: docker compose exec backend python manage.py cleanup_guests</p>
-          {notice ? <p className="fine">{notice}</p> : null}
-          {error ? <p className="error">{error}</p> : null}
-          <div className="actions">
-            <button type="button" className="primary" disabled={pending} onClick={() => setConfirmOpen(true)}>
-              Počisti goste
-            </button>
-          </div>
+        <article className="admin-card admin-card-collapse">
+          <button
+            type="button"
+            className="admin-collapse-toggle"
+            aria-expanded={openCleanup}
+            onClick={() => setOpenCleanup((v) => !v)}
+          >
+            <span>
+              <h2>Čiščenje gostov</h2>
+              {!openCleanup ? (
+                <p className="fine">Zbriše stare goste brez sveže sobe — klikni za ukaz.</p>
+              ) : null}
+            </span>
+            <span className="admin-collapse-chevron" aria-hidden>
+              {openCleanup ? "▾" : "▸"}
+            </span>
+          </button>
+          {openCleanup ? (
+            <>
+              <p>
+                Zbriše goste, starejše od {days} dni, ki nimajo sveže čakajoče ali tekoče sobe. Rezultati in lestvica
+                ostanejo. Število dni nastaviš pod Nastavitve.
+              </p>
+              <p className="fine">
+                Isti ukaz v konzoli: docker compose exec backend python manage.py cleanup_guests
+              </p>
+              {notice ? <p className="fine">{notice}</p> : null}
+              {error ? <p className="error">{error}</p> : null}
+              <div className="actions">
+                <button
+                  type="button"
+                  className="primary"
+                  disabled={pending}
+                  onClick={() => setConfirmOpen(true)}
+                >
+                  Počisti goste
+                </button>
+              </div>
+            </>
+          ) : null}
         </article>
 
+        <GenerateBotsPanel />
         <SimulatePanel />
       </div>
       <ConfirmModal

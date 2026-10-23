@@ -62,6 +62,8 @@ class PhoneFriend(models.Model):
         help_text="Verjetnost zunaj specialnosti (0–1).",
     )
     avatar_color = models.CharField(max_length=20, default="#e6b325")
+    # Ključ risanega avatarja (npr. "ris") — glej accounts.nicknames.AVATAR_KEYS.
+    avatar = models.CharField(max_length=40, blank=True, default="")
     is_active = models.BooleanField(default=True, db_index=True)
     order = models.PositiveSmallIntegerField(default=0)
 

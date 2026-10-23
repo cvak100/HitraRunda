@@ -5,6 +5,7 @@ from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
 
+from accounts.nicknames import resolve_avatar_key
 from game.bonus_models import BonusDefinition, PhoneFriend
 from game.errors import GameError
 from game.lifelines import (
@@ -131,22 +132,24 @@ def validate_settings(raw):
 
     friend_keys = []
     if mode == MODE_ALA_MILIJONAR:
-        raw_friends = raw.get("friend_keys")
-        if not isinstance(raw_friends, list):
-            raise GameError(f"Izberi {friends_pick} prijatelje za klic v sili.")
-        for key in raw_friends:
-            if not isinstance(key, str) or not key.strip():
-                raise GameError("Neznan prijatelj.")
-            value = key.strip()
-            if value not in friend_keys:
-                friend_keys.append(value)
-        if len(friend_keys) != friends_pick:
-            raise GameError(f"Izberi točno {friends_pick} prijatelje.")
-        active = set(
-            PhoneFriend.objects.filter(key__in=friend_keys, is_active=True).values_list("key", flat=True)
+        active = list(
+            PhoneFriend.objects.filter(is_active=True).values_list("key", flat=True)
         )
-        if set(friend_keys) != active:
-            raise GameError("Neznan prijatelj.")
+        if len(active) < friends_pick:
+            raise GameError(
+                f"Za klic v sili potrebuješ {friends_pick} aktivnih prijateljev."
+            )
+        active_set = set(active)
+        raw_friends = raw.get("friend_keys")
+        if isinstance(raw_friends, list):
+            for key in raw_friends:
+                if not isinstance(key, str) or not key.strip():
+                    continue
+                value = key.strip()
+                if value in active_set and value not in friend_keys:
+                    friend_keys.append(value)
+        if len(friend_keys) != friends_pick:
+            friend_keys = random.sample(active, friends_pick)
 
     settings = {
         "mode": mode,
@@ -463,7 +466,25 @@ def start_game(member_id):
                 "active_helps": {},
             }
             if mode == MODE_ALA_MILIJONAR:
-                state["lifelines"] = initial_lifeline_state(settings.get("friend_keys") or [])
+                friend_keys = [
+                    str(k).strip()
+                    for k in (settings.get("friend_keys") or [])
+                    if str(k).strip()
+                ]
+                pick = int(site_get("ala_friends_pick"))
+                if len(friend_keys) < pick:
+                    active = list(
+                        PhoneFriend.objects.filter(is_active=True).values_list("key", flat=True)
+                    )
+                    if len(active) < pick:
+                        raise GameError(
+                            f"Za klic v sili potrebuješ {pick} aktivnih prijateljev."
+                        )
+                    friend_keys = random.sample(active, pick)
+                    settings = {**settings, "friend_keys": friend_keys}
+                    room.settings = settings
+                    room.save(update_fields=["settings"])
+                state["lifelines"] = initial_lifeline_state(friend_keys)
             session = GameSession.objects.create(
                 room=room,
                 mode=mode,
@@ -1008,6 +1029,11 @@ def _state(session):
                         "bio": friend.bio,
                         "specialty_categories": friend.specialty_categories,
                         "avatar_color": friend.avatar_color,
+                        "avatar": resolve_avatar_key(
+                            avatar=friend.avatar or "",
+                            nickname=friend.name,
+                            seed=friend.key,
+                        ),
                         "used": key in ((state.get("lifelines") or {}).get("phone_friend", {}).get("used_friends") or []),
                     }
                 )

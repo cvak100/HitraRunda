@@ -1,4 +1,4 @@
-/** Risani avatarji — isto kot backend `accounts.nicknames._NOUNS_FALLBACK`. */
+/** Risani avatarji — isto kot backend `accounts.nicknames._AVATAR_NOUNS`. */
 export const AVATARS = [
   { key: "ris", label: "Ris" },
   { key: "volk", label: "Volk" },
@@ -41,6 +41,14 @@ export const AVATARS = [
   { key: "kekec", label: "Kekec" },
   { key: "rozle", label: "Rožle" },
   { key: "minotaver", label: "Minotaver" },
+  // Ženski (nadaljevanje istega seznama)
+  { key: "vitezinja", label: "Vitezinja" },
+  { key: "princesa", label: "Princesa" },
+  { key: "carovnica", label: "Čarovnica" },
+  { key: "kraljica", label: "Kraljica" },
+  { key: "amazonka", label: "Amazonka" },
+  { key: "indijanka", label: "Indijanka" },
+  { key: "pehta", label: "Pehta" },
 ] as const;
 
 export type AvatarKey = (typeof AVATARS)[number]["key"];

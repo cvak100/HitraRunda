@@ -9,8 +9,8 @@ class NicknameError(Exception):
         super().__init__(message)
 
 
-# Fallback, če DB še ni pripravljena.
-_ADJECTIVES_FALLBACK = [
+# Moški pridevniki — samo z moškimi samostalniki.
+_ADJECTIVES_MASCULINE = [
     "Hitri",
     "Tihi",
     "Zlati",
@@ -29,7 +29,28 @@ _ADJECTIVES_FALLBACK = [
     "Pravi",
 ]
 
-_NOUNS_FALLBACK = [
+# Ženski pridevniki — samo z ženskimi samostalniki.
+_ADJECTIVES_FEMININE = [
+    "Hitra",
+    "Tiha",
+    "Zlata",
+    "Modra",
+    "Vesela",
+    "Pogumna",
+    "Spretna",
+    "Mirna",
+    "Jasna",
+    "Topla",
+    "Hladna",
+    "Zvesta",
+    "Lahka",
+    "Ostra",
+    "Krasna",
+    "Prava",
+]
+
+# Moški samostalniki (= tudi ključi risanih avatarjev).
+_NOUNS_MASCULINE = [
     "Ris",
     "Volk",
     "Orel",
@@ -73,6 +94,20 @@ _NOUNS_FALLBACK = [
     "Minotaver",
 ]
 
+# Ženski samostalniki (= tudi ključi risanih avatarjev, nadaljevanje seznama).
+_NOUNS_FEMININE = [
+    "Vitezinja",
+    "Princesa",
+    "Čarovnica",
+    "Kraljica",
+    "Amazonka",
+    "Indijanka",
+    "Pehta",
+]
+
+# Vsi avatarji (moški + ženski) — isti vrstni red kot frontend `AVATARS`.
+_AVATAR_NOUNS = tuple(_NOUNS_MASCULINE) + tuple(_NOUNS_FEMININE)
+
 _SLUG_MAP = str.maketrans(
     {
         "č": "c",
@@ -93,9 +128,9 @@ def noun_to_avatar_key(noun: str) -> str:
     return str(noun or "").strip().translate(_SLUG_MAP).lower()
 
 
-# Risani profili — ključ = slug iz samostalnika.
+# Risani profili — ključ = slug samostalnika (obstaja JPG v /avatars/).
 AVATAR_PROFILES = tuple(
-    {"key": noun_to_avatar_key(noun), "label": noun} for noun in _NOUNS_FALLBACK
+    {"key": noun_to_avatar_key(noun), "label": noun} for noun in _AVATAR_NOUNS
 )
 AVATAR_KEYS = {item["key"] for item in AVATAR_PROFILES}
 _AVATAR_KEY_LIST = tuple(item["key"] for item in AVATAR_PROFILES)
@@ -110,6 +145,10 @@ AVATAR_COLORS = (
     "#e74c3c",
     "#e59866",
 )
+
+# Zastarelo: en skupni seznam (samo za uvoz/kompatibilnost).
+_ADJECTIVES_FALLBACK = _ADJECTIVES_MASCULINE
+_NOUNS_FALLBACK = list(_AVATAR_NOUNS)
 
 
 def resolve_avatar_key(avatar="", nickname="", seed=""):
@@ -152,20 +191,34 @@ def avatar_for_member(member):
     )
 
 
-def _adjectives():
-    try:
-        words = [str(w).strip() for w in site_get("nickname_adjectives") if str(w).strip()]
-        return words or _ADJECTIVES_FALLBACK
-    except Exception:
-        return _ADJECTIVES_FALLBACK
+def _site_words(*keys):
+    """Prvi neprazen seznam iz site_settings (podpira tudi stare ključe)."""
+    for key in keys:
+        try:
+            words = [str(w).strip() for w in (site_get(key) or []) if str(w).strip()]
+            if words:
+                return words
+        except Exception:
+            continue
+    return []
 
 
-def _nouns():
-    try:
-        words = [str(w).strip() for w in site_get("nickname_nouns") if str(w).strip()]
-        return words or _NOUNS_FALLBACK
-    except Exception:
-        return _NOUNS_FALLBACK
+def _adjectives_masculine():
+    return _site_words("nickname_adjectives_masculine", "nickname_adjectives") or list(
+        _ADJECTIVES_MASCULINE
+    )
+
+
+def _adjectives_feminine():
+    return _site_words("nickname_adjectives_feminine") or list(_ADJECTIVES_FEMININE)
+
+
+def _nouns_masculine():
+    return _site_words("nickname_nouns_masculine", "nickname_nouns") or list(_NOUNS_MASCULINE)
+
+
+def _nouns_feminine():
+    return _site_words("nickname_nouns_feminine") or list(_NOUNS_FEMININE)
 
 
 def clean_nickname(value):
@@ -176,4 +229,7 @@ def clean_nickname(value):
 
 
 def random_nickname():
-    return f"{random.choice(_adjectives())} {random.choice(_nouns())}"
+    """Naključni vzdevek: pridevnik + samostalnik istega spola (nikoli mešano)."""
+    if random.random() < 0.5:
+        return f"{random.choice(_adjectives_masculine())} {random.choice(_nouns_masculine())}"
+    return f"{random.choice(_adjectives_feminine())} {random.choice(_nouns_feminine())}"

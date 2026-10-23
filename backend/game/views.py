@@ -1,4 +1,5 @@
-from django.db.models import F, Q
+from django.contrib.auth import get_user_model
+from django.db.models import Avg, F, Max, Q, Sum
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -6,8 +7,11 @@ from rest_framework.views import APIView
 
 from accounts.nicknames import resolve_avatar_key
 from accounts.staff import StaffOnly
+from game.leaderboard_stats import totals_for_users, user_mode_totals
 from game.models import GameResult, GameSession
 from game.replay import session_detail
+
+User = get_user_model()
 
 
 def result_payload(result):
@@ -55,6 +59,68 @@ class HealthView(APIView):
         return Response({"ok": True})
 
 
+def _normalize_board_mode(mode: str) -> str:
+    mode = str(mode or "").strip()
+    if mode == "millionaire":
+        return "hitrarunda"
+    return mode
+
+
+def _mode_filter_q(mode: str) -> Q | None:
+    mode = _normalize_board_mode(mode)
+    if not mode:
+        return None
+    if mode == "hitrarunda":
+        return Q(mode__in=["hitrarunda", "millionaire"])
+    return Q(mode=mode)
+
+
+def _totals_leaderboard(limit, query: str, mode: str):
+    """Skupna lestvica po uporabniku znotraj enega načina: vsota točk, igre, zmage (MP/Dirka).
+
+    Zmage: en zmagovalec na sejo (score → pravilni → čas → played_at).
+    Gosti po cleanup (user SET_NULL) izpadejo iz agregatov — glej leaderboard_stats.
+    """
+    mode = _normalize_board_mode(mode)
+    rows, total = totals_for_users(mode, query=query, limit=limit)
+    user_ids = [row["user_id"] for row in rows]
+    users = {
+        user.id: user
+        for user in User.objects.filter(id__in=user_ids).only(
+            "id", "nickname", "avatar", "preferred_color", "email"
+        )
+    }
+    results = []
+    for row in rows:
+        user = users.get(row["user_id"])
+        nickname = (user.nickname if user and user.nickname else "") or ""
+        if not nickname:
+            last = (
+                GameResult.objects.filter(user_id=row["user_id"])
+                .order_by("-played_at")
+                .values_list("nickname", flat=True)
+                .first()
+            )
+            nickname = last or f"Igralec {row['user_id']}"
+        results.append(
+            {
+                "user_id": row["user_id"],
+                "nickname": nickname,
+                "avatar": resolve_avatar_key(
+                    avatar=getattr(user, "avatar", "") if user else "",
+                    nickname=nickname,
+                    seed=str(row["user_id"]),
+                ),
+                "preferred_color": (getattr(user, "preferred_color", "") if user else "") or "",
+                "total_points": row["total_points"],
+                "wins": row["wins"],
+                "games": row["games"],
+                "is_guest": bool(user.is_guest) if user is not None else False,
+            }
+        )
+    return Response({"kind": "totals", "mode": mode, "results": results, "total": total})
+
+
 class LeaderboardView(APIView):
     permission_classes = [AllowAny]
 
@@ -62,16 +128,16 @@ class LeaderboardView(APIView):
         limit, error = _bounded_limit(request.query_params.get("limit"), {"10", "100"}, 10)
         if error:
             return error
-        results = GameResult.objects.filter(score__gt=0, counts_for_leaderboard=True).select_related("user")
-        mode = str(request.query_params.get("mode") or "").strip()
-        if mode == "millionaire":
-            mode = "hitrarunda"
-        if mode:
-            if mode == "hitrarunda":
-                results = results.filter(mode__in=["hitrarunda", "millionaire"])
-            else:
-                results = results.filter(mode=mode)
+        mode = _normalize_board_mode(request.query_params.get("mode") or "")
+        view = str(request.query_params.get("view") or "").strip().lower()
         query = str(request.query_params.get("q") or "").strip()
+        if view in ("totals", "skupno", "overall"):
+            return _totals_leaderboard(limit, query, mode)
+
+        results = GameResult.objects.filter(score__gt=0, counts_for_leaderboard=True).select_related("user")
+        mode_q = _mode_filter_q(mode)
+        if mode_q is not None:
+            results = results.filter(mode_q)
         if query:
             results = results.filter(nickname__icontains=query)
         results = results.order_by(
@@ -110,8 +176,6 @@ class ProfileStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from django.db.models import Avg, F, Max, Q
-
         from game.modes import (
             MODE_60_SEKUND,
             MODE_ALA_MILIJONAR,
@@ -161,6 +225,7 @@ class ProfileStatsView(APIView):
                 best_prize=Max("prize_reached"),
                 avg_score=Avg("score"),
             )
+            totals = user_mode_totals(request.user.id, mode_values)
             modes.append(
                 {
                     "mode": mode_key,
@@ -170,6 +235,8 @@ class ProfileStatsView(APIView):
                     "best_prize": aggregates["best_prize"] or 0,
                     "avg_score": int(round(aggregates["avg_score"] or 0)),
                     "games": qs.count(),
+                    "total_points": totals["total_points"],
+                    "wins": totals["wins"],
                     "rank": rank,
                     "board_total": board_qs.count(),
                     "best_duration_ms": best.duration_ms if best is not None else None,

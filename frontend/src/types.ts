@@ -48,6 +48,7 @@ export type PhoneFriend = {
   reliability?: number;
   out_of_specialty_reliability?: number;
   avatar_color: string;
+  avatar?: string;
   is_active?: boolean;
   order?: number;
   used?: boolean;
@@ -338,6 +339,18 @@ export type ScoreRow = {
   duration_ms: number | null;
   reason: string;
   played_at: string;
+  is_guest: boolean;
+};
+
+/** Skupna lestvica po uporabniku (vse igre). */
+export type OverallRow = {
+  user_id: number;
+  nickname: string;
+  avatar?: string;
+  preferred_color?: string;
+  total_points: number;
+  wins: number;
+  games: number;
   is_guest: boolean;
 };
 

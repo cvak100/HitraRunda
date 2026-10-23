@@ -3,8 +3,10 @@ import { Link, Navigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { Avatar } from "../components/Avatar";
+import { CategoryPicker } from "../components/CategoryPicker";
 import { NumberStepper } from "../components/NumberStepper";
 import { formatMode, formatPoints } from "../format";
+import { boardPath as modeBoardPath } from "../gameModes";
 
 type CategoryOpt = { slug: string; name: string };
 type BotOpt = {
@@ -41,7 +43,9 @@ type Meta = {
   options: {
     bot_counts: number[];
     question_counts: number[];
+    hr_question_counts?: number[];
     time_limits: number[];
+    hr_time_limits?: number[];
     targets: number[];
     safe_every: number[];
   };
@@ -62,13 +66,19 @@ type Meta = {
 const FALLBACK_OPTIONS = {
   bot_counts: [2, 3, 4, 5, 6, 7, 8],
   question_counts: [5, 10, 20, 40],
+  hr_question_counts: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
   time_limits: [30, 60, 90, 120],
+  hr_time_limits: [10, 15, 20, 30, 45, 60],
   targets: [100, 200, 500, 1000],
   safe_every: [5, 10],
 };
 
-/** Panel za Ukazi — simulacija bot tekem. */
+const LOBBY_MODES = new Set(["multiplayer", "dirka"]);
+const SOLO_MODES = new Set(["hitrarunda", "ala_milijonar", "60_sekund"]);
+
+/** Panel za Ukazi — simulacija bot tekem (privzeto zloženo). */
 export function SimulatePanel() {
+  const [open, setOpen] = useState(false);
   const [meta, setMeta] = useState<Meta | null>(null);
   const [mode, setMode] = useState("multiplayer");
   const [botCount, setBotCount] = useState(3);
@@ -78,6 +88,7 @@ export function SimulatePanel() {
   const [safeEvery, setSafeEvery] = useState(5);
   const [suddenDeath, setSuddenDeath] = useState(false);
   const [onBoard, setOnBoard] = useState(true);
+  const [playToEnd, setPlayToEnd] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [botKeys, setBotKeys] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -105,28 +116,38 @@ export function SimulatePanel() {
 
   const options = meta?.options || FALLBACK_OPTIONS;
 
+  const isLobby = LOBBY_MODES.has(mode);
+  const isSolo = SOLO_MODES.has(mode);
+  const isDirka = mode === "dirka";
+  const isAla = mode === "ala_milijonar";
+  const isSixty = mode === "60_sekund";
+  const isHitra = mode === "hitrarunda";
+
   const botsForMode = useMemo(() => {
     const all = meta?.bots || [];
+    if (isSolo) return all;
     return all.filter((bot) => !bot.modes?.length || bot.modes.includes(mode));
-  }, [meta, mode]);
+  }, [meta, mode, isSolo]);
 
   useEffect(() => {
     if (!meta) return;
     const available = new Set(botsForMode.map((b) => b.key));
     setBotKeys((current) => {
       const kept = current.filter((key) => available.has(key));
+      if (isSolo) {
+        if (kept.length >= 1) return kept.slice(0, 1);
+        return botsForMode[0] ? [botsForMode[0].key] : [];
+      }
       if (kept.length >= 2) return kept;
       return botsForMode.map((b) => b.key);
     });
-  }, [mode, botsForMode, meta]);
-
-  function toggleCategory(slug: string) {
-    setCategories((current) =>
-      current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug],
-    );
-  }
+  }, [mode, botsForMode, meta, isSolo]);
 
   function toggleBot(key: string) {
+    if (isSolo) {
+      setBotKeys([key]);
+      return;
+    }
     setBotKeys((current) =>
       current.includes(key) ? current.filter((item) => item !== key) : [...current, key],
     );
@@ -138,8 +159,12 @@ export function SimulatePanel() {
       setError("Izberi vsaj eno kategorijo.");
       return;
     }
-    if (botKeys.length < 2) {
+    if (isLobby && botKeys.length < 2) {
       setError("Izberi vsaj 2 bota.");
+      return;
+    }
+    if (isSolo && botKeys.length < 1) {
+      setError("Izberi bota (profil natančnosti).");
       return;
     }
     setBusy(true);
@@ -166,6 +191,7 @@ export function SimulatePanel() {
           safe_every: safeEvery,
           sudden_death: suddenDeath,
           count_for_leaderboard: onBoard,
+          play_to_end: isSolo ? playToEnd : undefined,
           categories,
         }),
       });
@@ -180,54 +206,80 @@ export function SimulatePanel() {
     }
   }
 
-  const isDirka = mode === "dirka";
-  const boardPath =
-    mode === "dirka" ? "/lestvica/dirka" : mode === "multiplayer" ? "/lestvica/vec-igralcev" : "/lestvica";
+  const boardPath = modeBoardPath(mode);
+
+  const questionOpts = isHitra
+    ? options.hr_question_counts || FALLBACK_OPTIONS.hr_question_counts
+    : options.question_counts;
+  const timeOpts = isHitra || isAla ? options.hr_time_limits || FALLBACK_OPTIONS.hr_time_limits : options.time_limits;
 
   return (
-    <article className="admin-card">
-      <h2>Simulacija tekem</h2>
+    <article className="admin-card admin-card-collapse">
+      <button
+        type="button"
+        className="admin-collapse-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span>
+          <h2>Simulacija tekem</h2>
+          {!open ? (
+            <p className="fine">Zažene tekmo z boti — klikni za nastavitve.</p>
+          ) : null}
+        </span>
+        <span className="admin-collapse-chevron" aria-hidden>
+          {open ? "▾" : "▸"}
+        </span>
+      </button>
+      {open ? (
+        <>
       <p>
-        Zažene pravo tekmo z boti (brez živih igralcev), da napolni lestvico in preveri potek. Rezultati botov lahko
-        štejejo za javno lestvico.
+        Zaženi pravo tekmo z boti (brez živih igralcev), da napolni lestvico in preveri potek. Pri solo načinih
+        igra en bot-profil; pri Hitri tekmi/Dirki več botov.
       </p>
+      {isSixty ? (
+        <p className="fine">
+          60 sekund: simulacija ne čaka realnega časa — ob koncu zanke umetno poteka časovni bazen (samo za
+          admin seed).
+        </p>
+      ) : null}
       {error ? <p className="error">{error}</p> : null}
       {statusLine ? <p className="fine sim-status">{statusLine}</p> : null}
 
       <form className="stack sim-form" onSubmit={onSubmit}>
-        <label>
-          Način
-          <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
-            disabled={busy}
-          >
+        <fieldset className="sim-mode-field">
+          <legend>Način</legend>
+          <div className="choices" style={{ flexWrap: "wrap" }} role="group" aria-label="Način">
             {(meta?.modes || [
+              { key: "hitrarunda", label: "Hitra runda" },
+              { key: "ala_milijonar", label: "Ala milijonar" },
               { key: "multiplayer", label: "Hitra tekma" },
               { key: "dirka", label: "Dirka" },
+              { key: "60_sekund", label: "60 sekund" },
             ]).map((item) => (
-              <option key={item.key} value={item.key}>
+              <button
+                key={item.key}
+                type="button"
+                className={mode === item.key ? "is-on" : ""}
+                disabled={busy}
+                onClick={() => setMode(item.key)}
+              >
                 {item.label}
-              </option>
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </fieldset>
 
-        <NumberStepper
-          label="Število botov"
-          value={botCount}
-          options={options.bot_counts}
-          onChange={setBotCount}
-        />
-
-        {!isDirka ? (
+        {isLobby ? (
           <NumberStepper
-            label="Število vprašanj"
-            value={questionCount}
-            options={options.question_counts}
-            onChange={setQuestionCount}
+            label="Število botov"
+            value={botCount}
+            options={options.bot_counts}
+            onChange={setBotCount}
           />
-        ) : (
+        ) : null}
+
+        {isDirka ? (
           <>
             <NumberStepper
               label="Cilj točk"
@@ -242,17 +294,28 @@ export function SimulatePanel() {
               onChange={setSafeEvery}
             />
           </>
-        )}
+        ) : null}
 
-        <NumberStepper
-          label="Čas na vprašanje"
-          value={timeLimit}
-          options={options.time_limits}
-          format={(v) => `${v} s`}
-          onChange={setTimeLimit}
-        />
+        {isHitra || mode === "multiplayer" ? (
+          <NumberStepper
+            label="Število vprašanj"
+            value={questionCount}
+            options={questionOpts}
+            onChange={setQuestionCount}
+          />
+        ) : null}
 
-        {!isDirka ? (
+        {!isDirka && !isSixty && !isAla ? (
+          <NumberStepper
+            label="Čas na vprašanje"
+            value={timeLimit}
+            options={timeOpts}
+            format={(v) => `${v} s`}
+            onChange={setTimeLimit}
+          />
+        ) : null}
+
+        {mode === "multiplayer" ? (
           <label className="check">
             <input
               type="checkbox"
@@ -271,14 +334,32 @@ export function SimulatePanel() {
             disabled={busy}
             onChange={(e) => setOnBoard(e.target.checked)}
           />
-          Boti grejo na javno lestvico
+          {isSolo ? "Rezultat gre na javno lestvico" : "Boti grejo na javno lestvico"}
         </label>
+
+        {isSolo && !isSixty ? (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={playToEnd}
+              disabled={busy}
+              onChange={(e) => setPlayToEnd(e.target.checked)}
+            />
+            Igraj do konca (100 % natančnost — seed lestvice)
+          </label>
+        ) : null}
 
         <fieldset>
           <legend>
-            Boti za {isDirka ? "Dirko" : "Hitra tekma"} ({botKeys.length} izbranih)
+            {isSolo
+              ? `Bot profil (${botKeys.length ? "1 izbran" : "izberi"})`
+              : `Boti (${botKeys.length} izbranih)`}
           </legend>
-          <p className="fine">Število botov zgoraj lahko ponovi profile, če izbereš manj tipov kot število.</p>
+          <p className="fine">
+            {isSolo
+              ? "Solo tekmo odigra izbrani bot (natančnost in ime na lestvici)."
+              : "Število botov zgoraj lahko ponovi profile, če izbereš manj tipov kot število."}
+          </p>
           <div className="sim-bot-grid">
             {botsForMode.map((bot) => {
               const on = botKeys.includes(bot.key);
@@ -298,50 +379,31 @@ export function SimulatePanel() {
                 </button>
               );
             })}
-            {botsForMode.length === 0 ? <p className="fine">Ni botov za ta način.</p> : null}
+            {botsForMode.length === 0 ? <p className="fine">Ni botov.</p> : null}
           </div>
-          <div className="actions" style={{ marginTop: 8 }}>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setBotKeys(botsForMode.map((b) => b.key))}
-            >
-              Vsi
-            </button>
-            <button type="button" disabled={busy} onClick={() => setBotKeys([])}>
-              Noben
-            </button>
-          </div>
+          {isLobby ? (
+            <div className="actions" style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setBotKeys(botsForMode.map((b) => b.key))}
+              >
+                Vsi
+              </button>
+              <button type="button" disabled={busy} onClick={() => setBotKeys([])}>
+                Noben
+              </button>
+            </div>
+          ) : null}
         </fieldset>
 
-        <fieldset>
-          <legend>Kategorije ({categories.length})</legend>
-          <div className="choices" style={{ flexWrap: "wrap" }}>
-            {(meta?.categories || []).map((cat) => (
-              <button
-                key={cat.slug}
-                type="button"
-                className={categories.includes(cat.slug) ? "is-on" : ""}
-                disabled={busy}
-                onClick={() => toggleCategory(cat.slug)}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-          <div className="actions" style={{ marginTop: 8 }}>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setCategories((meta?.categories || []).map((c) => c.slug))}
-            >
-              Vse
-            </button>
-            <button type="button" disabled={busy} onClick={() => setCategories([])}>
-              Nobena
-            </button>
-          </div>
-        </fieldset>
+        <CategoryPicker
+          categories={meta?.categories || []}
+          value={categories}
+          onChange={setCategories}
+          disabled={busy}
+          showSelectAll
+        />
 
         <div className="actions">
           <button type="submit" className="primary" disabled={busy}>
@@ -398,6 +460,194 @@ export function SimulatePanel() {
             {result.session_id ? <Link to={`/nadzor/igre/${result.session_id}`}>Seja</Link> : null}
           </div>
         </div>
+      ) : null}
+        </>
+      ) : null}
+    </article>
+  );
+}
+
+/** Panel za Ukazi — generira N random botov z nastavljivimi parametri. */
+export function GenerateBotsPanel() {
+  const [open, setOpen] = useState(false);
+  const [count, setCount] = useState(10);
+  const [accuracyMin, setAccuracyMin] = useState(55);
+  const [accuracyMax, setAccuracyMax] = useState(85);
+  const [delayMin, setDelayMin] = useState(1.2);
+  const [delayMax, setDelayMax] = useState(7.5);
+  const [modes, setModes] = useState<string[]>(["multiplayer", "dirka"]);
+  const [onBoard, setOnBoard] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [createdNames, setCreatedNames] = useState<string[]>([]);
+
+  function toggleMode(mode: string) {
+    setModes((current) =>
+      current.includes(mode) ? current.filter((item) => item !== mode) : [...current, mode],
+    );
+  }
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (modes.length < 1) {
+      setError("Izberi vsaj en način.");
+      return;
+    }
+    if (accuracyMin > accuracyMax) {
+      setError("Min. natančnost ne sme biti večja od max.");
+      return;
+    }
+    if (delayMin > delayMax) {
+      setError("Min. zakasnitev ne sme biti večja od max.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    setNotice("");
+    setCreatedNames([]);
+    try {
+      const data = await api<{ detail: string; created: number; bots: { name: string }[] }>(
+        "/api/admin/bots/generate/",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            count,
+            accuracy_min: accuracyMin / 100,
+            accuracy_max: accuracyMax / 100,
+            delay_min: delayMin,
+            delay_max: delayMax,
+            modes,
+            count_for_leaderboard: onBoard,
+            is_active: true,
+          }),
+        },
+      );
+      setNotice(data.detail);
+      setCreatedNames((data.bots || []).map((b) => b.name));
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Generiranje ni uspelo.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <article className="admin-card admin-card-collapse">
+      <button
+        type="button"
+        className="admin-collapse-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span>
+          <h2>Novi random boti</h2>
+          {!open ? <p className="fine">Ustvari N botov z nastavljenimi parametri.</p> : null}
+        </span>
+        <span className="admin-collapse-chevron" aria-hidden>
+          {open ? "▾" : "▸"}
+        </span>
+      </button>
+      {open ? (
+        <>
+          <p>
+            Doda nove bote z naključnimi imeni/avatarji. Natančnost vsakega bota je naključna znotraj tvojega
+            razpona; zakasnitev ostane v nastavljenem oknu.
+          </p>
+          {error ? <p className="error">{error}</p> : null}
+          {notice ? <p className="fine sim-status">{notice}</p> : null}
+
+          <form className="stack sim-form" onSubmit={onSubmit}>
+            <NumberStepper
+              label="Število botov"
+              value={count}
+              min={1}
+              max={50}
+              step={1}
+              onChange={setCount}
+            />
+            <NumberStepper
+              label="Natančnost min %"
+              value={accuracyMin}
+              min={0}
+              max={100}
+              step={5}
+              format={(v) => `${v} %`}
+              onChange={setAccuracyMin}
+            />
+            <NumberStepper
+              label="Natančnost max %"
+              value={accuracyMax}
+              min={0}
+              max={100}
+              step={5}
+              format={(v) => `${v} %`}
+              onChange={setAccuracyMax}
+            />
+            <NumberStepper
+              label="Zakasnitev min (s)"
+              value={delayMin}
+              min={0.2}
+              max={20}
+              step={0.1}
+              format={(v) => `${v.toFixed(1)} s`}
+              onChange={(v) => setDelayMin(Math.round(v * 10) / 10)}
+            />
+            <NumberStepper
+              label="Zakasnitev max (s)"
+              value={delayMax}
+              min={0.5}
+              max={30}
+              step={0.5}
+              format={(v) => `${v.toFixed(1)} s`}
+              onChange={(v) => setDelayMax(Math.round(v * 10) / 10)}
+            />
+
+            <fieldset>
+              <legend>Načini</legend>
+              <div className="choices" style={{ flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  className={modes.includes("multiplayer") ? "is-on" : ""}
+                  disabled={busy}
+                  onClick={() => toggleMode("multiplayer")}
+                >
+                  Hitra tekma
+                </button>
+                <button
+                  type="button"
+                  className={modes.includes("dirka") ? "is-on" : ""}
+                  disabled={busy}
+                  onClick={() => toggleMode("dirka")}
+                >
+                  Dirka
+                </button>
+              </div>
+            </fieldset>
+
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={onBoard}
+                disabled={busy}
+                onChange={(e) => setOnBoard(e.target.checked)}
+              />
+              Boti grejo na javno lestvico
+            </label>
+
+            <div className="actions">
+              <button type="submit" className="primary" disabled={busy}>
+                {busy ? "Ustvarjam…" : `Ustvari ${count} botov`}
+              </button>
+            </div>
+          </form>
+
+          {createdNames.length ? (
+            <p className="fine" style={{ marginTop: 12 }}>
+              {createdNames.join(" · ")}
+            </p>
+          ) : null}
+        </>
       ) : null}
     </article>
   );

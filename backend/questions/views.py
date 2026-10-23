@@ -14,6 +14,9 @@ class CategoryListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        from questions.importer import ensure_categories
+
+        ensure_categories()
         categories = (
             Category.objects.filter(is_active=True)
             .annotate(

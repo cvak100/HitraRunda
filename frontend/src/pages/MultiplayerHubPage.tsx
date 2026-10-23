@@ -3,9 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { AiOpponentsField, maxAiSlots } from "../components/AiOpponentsField";
+import { CategoryPicker } from "../components/CategoryPicker";
+import { ChoiceGroup } from "../components/ChoiceGroup";
 import { NicknameField } from "../components/NicknameField";
 import { NumberStepper } from "../components/NumberStepper";
-import { ModePageNav } from "../gameModes";
+import { VisibilityField } from "../components/VisibilityField";
+import { ModePageNav, ModeRules } from "../gameModes";
 import type { Category } from "../types";
 
 type LobbyRoom = {
@@ -149,7 +153,8 @@ export function MultiplayerHubPage() {
     <section className="panel">
       <p className="eyebrow">Hitra tekma</p>
       <h1>Skupna soba</h1>
-      <ModePageNav boardTo="/lestvica/vec-igralcev" />
+      <ModePageNav mode="multiplayer" />
+      <ModeRules mode="multiplayer" />
       <div className="tabs content-tabs" role="tablist">
         <button type="button" className={tab === "create" ? "is-on" : ""} onClick={() => setTab("create")}>
           Ustvari
@@ -166,27 +171,12 @@ export function MultiplayerHubPage() {
       {tab === "create" ? (
         <form className="stack" onSubmit={onCreate}>
           <NicknameField value={nickname} onChange={setNickname} required />
-          <fieldset>
-            <legend>Vidnost</legend>
-            <label className="check">
-              <input type="radio" checked={visibility === "public"} onChange={() => setVisibility("public")} />
-              Javna
-            </label>
-            <label className="check">
-              <input type="radio" checked={visibility === "unlisted"} onChange={() => setVisibility("unlisted")} />
-              Skrita (samo link)
-            </label>
-            <label className="check">
-              <input type="radio" checked={visibility === "private"} onChange={() => setVisibility("private")} />
-              Zasebna (geslo)
-            </label>
-          </fieldset>
-          {visibility === "private" ? (
-            <label>
-              Geslo
-              <input value={password} onChange={(event) => setPassword(event.target.value)} required />
-            </label>
-          ) : null}
+          <VisibilityField
+            value={visibility}
+            onChange={setVisibility}
+            password={password}
+            onPasswordChange={setPassword}
+          />
           <NumberStepper
             label="Največ igralcev"
             value={maxPlayers}
@@ -194,49 +184,28 @@ export function MultiplayerHubPage() {
             max={maxPlayersCap}
             onChange={(value) => {
               setMaxPlayers(value);
-              setBotCount((current) => Math.min(current, Math.max(0, Math.min(maxBots, value - 1))));
+              setBotCount((current) => Math.min(current, maxAiSlots(value, 1, maxBots)));
             }}
           />
-          <fieldset>
-            <legend>Kategorije</legend>
-            {categories.map((category) => (
-              <label key={category.slug} className="check">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(category.slug)}
-                  onChange={() =>
-                    setSelected((current) =>
-                      current.includes(category.slug) ? current.filter((item) => item !== category.slug) : [...current, category.slug],
-                    )
-                  }
-                />
-                {category.name}
-              </label>
-            ))}
-          </fieldset>
           <NumberStepper label="Število vprašanj" value={count} options={counts} onChange={setCount} />
-          <div className="stack-gap">
-            <span className="stepper-label">Čas na vprašanje</span>
-            <div className="choices" role="group" aria-label="Čas na vprašanje">
-              {times.map((time) => (
-                <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
-                  {formatTime(time)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <NumberStepper
-            label="AI nasprotniki"
+          <AiOpponentsField
+            mode="multiplayer"
             value={botCount}
-            min={0}
-            max={Math.max(0, Math.min(maxBots, maxPlayers - 1))}
             onChange={setBotCount}
+            max={maxAiSlots(maxPlayers, 1, maxBots)}
           />
-          <p className="fine">AI + ti ne sme preseči največ igralcev ({maxPlayers}).</p>
+          <ChoiceGroup
+            label="Čas na vprašanje"
+            options={times}
+            value={seconds}
+            onChange={setSeconds}
+            format={formatTime}
+          />
           <label className="check">
             <input type="checkbox" checked={suddenDeath} onChange={(event) => setSuddenDeath(event.target.checked)} />
             Sudden death (napačen odgovor te izloči)
           </label>
+          <CategoryPicker categories={categories} value={selected} onChange={setSelected} showCounts="all" showSelectAll />
           <button className="primary" type="submit" disabled={pending || selected.length === 0}>
             Ustvari sobo
           </button>
@@ -268,7 +237,7 @@ export function MultiplayerHubPage() {
                       Host: {room.host_nickname || "—"} · {room.member_count}/{room.max_players}
                     </p>
                     <p className="fine">
-                      <code>/igra/{room.code}</code>
+                      <code>{room.code}</code>
                     </p>
                     <button type="button" className="primary" onClick={(event) => void onJoin(event, room.code, "")}>
                       Sprejmi
@@ -293,7 +262,7 @@ export function MultiplayerHubPage() {
                   Host: <strong>{room.host_nickname || "—"}</strong> · {room.member_count}/{room.max_players} igralcev
                 </p>
                 <p className="fine">
-                  Koda: <code>{room.code}</code> · <code>/igra/{room.code}</code>
+                  Koda: <code>{room.code}</code>
                 </p>
                 <p className="fine">
                   {room.settings.question_count ?? "?"} vprašanj · {formatTime(room.settings.time_limit_seconds ?? 60)}
