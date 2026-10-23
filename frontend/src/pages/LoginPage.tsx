@@ -44,6 +44,9 @@ export function LoginPage() {
           Vstopi
         </button>
         <p className="fine">
+          <Link to="/pozabljeno-geslo">Pozabljeno geslo?</Link>
+        </p>
+        <p className="fine">
           Še nimaš računa? <Link to="/registracija">Registracija</Link>
         </p>
       </form>

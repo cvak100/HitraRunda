@@ -26,33 +26,23 @@ from game.engine import (
 )
 from game.modes import (
     DIRKA_ACTIVE_BONUSES,
-    DIRKA_BASE_POINTS,
     DIRKA_BOT_KEY,
     DIRKA_CLEAN_SHEET,
-    DIRKA_COMEBACK_GAP,
-    DIRKA_COMEBACK_MULT,
     DIRKA_EXTRA_TIME,
-    DIRKA_HOT_STREAK_AT,
-    DIRKA_HOT_STREAK_BONUS,
-    DIRKA_MAX_BONUS_TYPES,
     DIRKA_MAX_SPEED_BONUS,
-    DIRKA_PENALTY,
     DIRKA_QUESTION_POOL,
     DIRKA_ROUND_ADVANCE_SECONDS,
     DIRKA_RUSH_CAP,
     DIRKA_SAFE_REWARD,
-    DIRKA_STEAL_MAX,
-    DIRKA_STEAL_MIN,
-    DIRKA_STREAK_AT,
-    DIRKA_STREAK_BONUS,
     DIRKA_STRONG_BONUSES,
-    DIRKA_TIME_SECONDS,
     DIRKA_WEAK_BONUSES,
     MODE_DIRKA,
     MP_MIN_PLAYERS,
 )
+from accounts.nicknames import avatar_for_member, resolve_avatar_key
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.multiplayer import _bot_answer_message
+from game.site_settings import get as site_get
 from game.presentation import ensure_presentation, public_question
 from questions.models import Question
 from rooms.services import lobby_payload, refresh_can_start
@@ -96,13 +86,13 @@ def _held_bonus_types(bonuses):
 def _grant_bonus(stats, effect, amount=1):
     """
     Doda charge. Isti tip se stacka.
-    Največ DIRKA_MAX_BONUS_TYPES različnih tipov; če bi bil nov 6., ne doda.
+    Največ int(site_get("dirka_max_bonus_types")) različnih tipov; če bi bil nov 6., ne doda.
     """
     if effect not in DIRKA_ACTIVE_BONUSES or amount <= 0:
         return None
     bonuses = dict(stats.get("bonuses") or {})
     held = _held_bonus_types(bonuses)
-    if effect not in held and len(held) >= DIRKA_MAX_BONUS_TYPES:
+    if effect not in held and len(held) >= int(site_get("dirka_max_bonus_types")):
         return None
     bonuses[effect] = int(bonuses.get(effect) or 0) + int(amount)
     stats["bonuses"] = bonuses
@@ -111,7 +101,7 @@ def _grant_bonus(stats, effect, amount=1):
 
 def _grant_random_bonus(stats, pool):
     held = set(_held_bonus_types(stats.get("bonuses") or {}))
-    if len(held) >= DIRKA_MAX_BONUS_TYPES:
+    if len(held) >= int(site_get("dirka_max_bonus_types")):
         # Samo stack obstoječih tipov.
         candidates = [key for key in pool if key in held]
     else:
@@ -130,7 +120,7 @@ def start_dirka(member_id):
             return [snapshot_dirka(member_id)]
         if room.status != "waiting":
             raise GameError("Igre ni mogoče začeti.")
-        members = list(room.members.filter(left_at__isnull=True))
+        members = list(room.members.filter(left_at__isnull=True).select_related("user"))
         if len(members) < MP_MIN_PLAYERS:
             raise GameError(f"Potrebujeta vsaj {MP_MIN_PLAYERS} igralca.")
         if not all(item.is_ready or item.is_bot for item in members):
@@ -152,6 +142,7 @@ def start_dirka(member_id):
             players[str(item.id)] = {
                 "nickname": item.nickname_in_room,
                 "color": item.color,
+                "avatar": avatar_for_member(item),
                 "score": 0,
                 "safe_locked": 0,
                 "correct_count": 0,
@@ -175,7 +166,7 @@ def start_dirka(member_id):
             status="active",
             total_questions=len(questions),
             current_question_index=0,
-            time_limit_seconds=DIRKA_TIME_SECONDS,
+            time_limit_seconds=int(site_get("dirka_time_seconds")),
             state={
                 "players": players,
                 "reason": "",
@@ -214,7 +205,7 @@ def _reset_round_state(session, game_question, now=None):
     state = dict(session.state or {})
     players = dict(state.get("players") or {})
     deadlines = {}
-    deadline = now + timedelta(seconds=DIRKA_TIME_SECONDS)
+    deadline = now + timedelta(seconds=int(site_get("dirka_time_seconds")))
     for key, stats in players.items():
         stats = dict(stats)
         stats["active_helps"] = {}
@@ -289,12 +280,19 @@ def next_dirka(member_id):
             raise GameError("Igra ni aktivna.")
         if session.status == "finished":
             return [finished_dirka(session, member)]
-        require_can_advance(member, room)
         game_question = _current(session)
+        state = dict(session.state or {})
+        # Sočasni / ponovni next po že opravljenem prehodu — samo ponovno pošlji vprašanje.
+        if str(state.get("auto_advance_for") or "").startswith("done:") and not _round_complete(
+            session, game_question
+        ):
+            return [question_payload(session, game_question, member, "question")]
+        require_can_advance(member, room, session)
         if not _round_complete(session, game_question):
             raise GameError("Runda še ni končana.")
         if _check_winner(session) is not None:
             return finalize_dirka(session, room, reason="race_won")
+        old_id = game_question.id
         nxt = _ensure_next_question(session, game_question)
         if nxt is None:
             return finalize_dirka(session, room, reason="pool_exhausted")
@@ -305,6 +303,12 @@ def next_dirka(member_id):
         session.current_question_index = nxt.order
         session.save(update_fields=["current_question_index"])
         _reset_round_state(session, nxt, now)
+        # _reset_round_state zbriše auto_advance_for — označi, da je prehod iz te runde končan.
+        state = dict(session.state or {})
+        state["auto_advance_for"] = f"done:{old_id}"
+        state.pop("auto_advance_at", None)
+        session.state = state
+        session.save(update_fields=["state"])
         return [question_payload(session, nxt, member, "question")]
 
 
@@ -345,6 +349,7 @@ def _ensure_next_question(session, game_question):
 
 
 def claim_auto_advance_dirka(member_id):
+    """Načrt samodejnega next. Vrne plan tudi, če je že claiman (preostali delay) — za vse WS."""
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active" or session.mode != MODE_DIRKA:
@@ -359,15 +364,27 @@ def claim_auto_advance_dirka(member_id):
             marker = f"next:{game_question.id}"
             finish = False
         state = dict(session.state or {})
-        if state.get("auto_advance_for") == marker:
+        if str(state.get("auto_advance_for") or "") == f"done:{game_question.id}":
             return None
+        now = timezone.now()
+        host = room.members.filter(left_at__isnull=True, is_host=True).first() or member
+        if state.get("auto_advance_for") == marker:
+            advance_at = _parse_dt(state.get("auto_advance_at"))
+            delay = max(0.0, (advance_at - now).total_seconds()) if advance_at else 0.0
+            return {
+                "host_member_id": str(host.id),
+                "delay": delay,
+                "finish": finish,
+                "marker": marker,
+            }
+        delay = float(DIRKA_ROUND_ADVANCE_SECONDS)
         state["auto_advance_for"] = marker
+        state["auto_advance_at"] = (now + timedelta(seconds=delay)).isoformat()
         session.state = state
         session.save(update_fields=["state"])
-        host = room.members.filter(left_at__isnull=True, is_host=True).first() or member
         return {
             "host_member_id": str(host.id),
-            "delay": DIRKA_ROUND_ADVANCE_SECONDS,
+            "delay": delay,
             "finish": finish,
             "marker": marker,
         }
@@ -471,7 +488,7 @@ def use_dirka_bonus(member_id, message):
         elif effect == "extra_time":
             deadlines = dict(state.get("deadlines") or {})
             current = _parse_dt(deadlines.get(key)) or (
-                game_question.started_at + timedelta(seconds=DIRKA_TIME_SECONDS)
+                game_question.started_at + timedelta(seconds=int(site_get("dirka_time_seconds")))
                 if game_question.started_at
                 else timezone.now()
             )
@@ -508,7 +525,7 @@ def use_dirka_bonus(member_id, message):
                 raise GameError("Ni nasprotnika za Rush.")
             deadlines = dict(state.get("deadlines") or {})
             now = timezone.now()
-            current = _parse_dt(deadlines.get(target)) or now + timedelta(seconds=DIRKA_TIME_SECONDS)
+            current = _parse_dt(deadlines.get(target)) or now + timedelta(seconds=int(site_get("dirka_time_seconds")))
             remaining = max(0.0, (current - now).total_seconds())
             rushed = now + timedelta(seconds=min(DIRKA_RUSH_CAP, remaining * 0.5))
             deadlines[target] = rushed.isoformat()
@@ -587,13 +604,20 @@ def waiting_answers_message(session, game_question, member, message_type="answer
 
 def round_review_message(session, game_question, member, message_type="round_review"):
     answers = list(
-        game_question.answers.select_related("room_member").order_by("time_taken_ms", "answered_at")
+        game_question.answers.select_related("room_member", "room_member__user").order_by(
+            "time_taken_ms", "answered_at"
+        )
     )
+    players = (session.state or {}).get("players") or {}
     rows = []
     for answer in answers:
         data = answer.answer_data or {}
+        mid = str(answer.room_member_id)
+        stats = players.get(mid) or {}
         row = {
             "nickname": answer.room_member.nickname_in_room,
+            "avatar": stats.get("avatar") or avatar_for_member(answer.room_member),
+            "color": stats.get("color") or answer.room_member.color or "",
             "is_correct": bool(answer.is_correct),
             "timed_out": bool(data.get("timeout")),
             "skipped": bool(data.get("skip")),
@@ -601,7 +625,7 @@ def round_review_message(session, game_question, member, message_type="round_rev
             "time_taken_ms": answer.time_taken_ms,
             "steal": int(data.get("steal") or 0),
             "streak_bonus": int(data.get("streak_bonus") or 0),
-            "member_id": str(answer.room_member_id),
+            "member_id": mid,
         }
         row.update(_selected(answer))
         rows.append(row)
@@ -699,6 +723,8 @@ def standings(session):
                 "member_id": member_id,
                 "nickname": stats.get("nickname") or "?",
                 "color": stats.get("color") or "",
+                "avatar": stats.get("avatar")
+                or resolve_avatar_key(nickname=stats.get("nickname") or "", seed=member_id),
                 "score": int(stats.get("score") or 0),
                 "safe_locked": int(stats.get("safe_locked") or 0),
                 "correct_count": int(stats.get("correct_count") or 0),
@@ -766,7 +792,7 @@ def _attach_shared_player_state(payload, session):
     payload["standings"] = standings(session)
     payload["target_score"] = int((session.state or {}).get("target_score") or 200)
     payload["safe_every"] = int((session.state or {}).get("safe_every") or 5)
-    payload["max_bonus_types"] = DIRKA_MAX_BONUS_TYPES
+    payload["max_bonus_types"] = int(site_get("dirka_max_bonus_types"))
     payload["deadlines"] = (session.state or {}).get("deadlines") or {}
     # Ne vtakni tujih bonusov na root — klient bere players[myId].
     payload.pop("bonuses", None)
@@ -966,8 +992,8 @@ def _store_answer(member, session, game_question, message):
     target_score = int(state.get("target_score") or 200)
 
     if is_correct:
-        base = DIRKA_BASE_POINTS
-        limit_ms = DIRKA_TIME_SECONDS * 1000
+        base = int(site_get("dirka_base_points"))
+        limit_ms = int(site_get("dirka_time_seconds")) * 1000
         speed = round(((limit_ms - min(elapsed, limit_ms)) / limit_ms) * DIRKA_MAX_SPEED_BONUS)
         if armed.pop("double", None):
             base *= 2
@@ -977,21 +1003,21 @@ def _store_answer(member, session, game_question, message):
         leaders = standings(session)
         leader_score = leaders[0]["score"] if leaders else 0
         my_score = int(stats.get("score") or 0)
-        if leader_score - my_score >= DIRKA_COMEBACK_GAP or stats.get("comeback_armed"):
-            base = int(round(base * DIRKA_COMEBACK_MULT))
+        if leader_score - my_score >= int(site_get("dirka_comeback_gap")) or stats.get("comeback_armed"):
+            base = int(round(base * float(site_get("dirka_comeback_mult"))))
             answer_data["comeback"] = True
             stats["comeback_armed"] = False
         points = base + speed
         streak = int(stats.get("streak") or 0) + 1
         stats["streak"] = streak
         streak_bonus = 0
-        if streak == DIRKA_STREAK_AT:
-            streak_bonus = DIRKA_STREAK_BONUS
+        if streak == int(site_get("dirka_streak_at")):
+            streak_bonus = int(site_get("dirka_streak_bonus"))
             granted = _grant_random_bonus(stats, DIRKA_WEAK_BONUSES)
             if granted:
                 answer_data["bonus_gained"] = granted
-        elif streak == DIRKA_HOT_STREAK_AT:
-            streak_bonus = DIRKA_HOT_STREAK_BONUS
+        elif streak == int(site_get("dirka_hot_streak_at")):
+            streak_bonus = int(site_get("dirka_hot_streak_bonus"))
             granted = _grant_random_bonus(stats, DIRKA_STRONG_BONUSES)
             if granted:
                 answer_data["hot_streak_bonus"] = granted
@@ -1023,7 +1049,7 @@ def _store_answer(member, session, game_question, message):
         if armed.pop("steal", None):
             target_id = _target_ahead(session, key)
             if target_id and target_id in players:
-                steal_amt = random.randint(DIRKA_STEAL_MIN, DIRKA_STEAL_MAX)
+                steal_amt = random.randint(int(site_get("dirka_steal_min")), int(site_get("dirka_steal_max")))
                 tstats = dict(players.get(target_id) or {})
                 before = int(tstats.get("score") or 0)
                 tstats = _clamp_score(tstats, -steal_amt)
@@ -1044,15 +1070,15 @@ def _store_answer(member, session, game_question, message):
             answer_data["shielded"] = True
             points = 0
         else:
-            points = -DIRKA_PENALTY
+            points = -int(site_get("dirka_penalty"))
             stats = _clamp_score(stats, points)
-            stats["penalty_total"] = int(stats.get("penalty_total") or 0) + DIRKA_PENALTY
+            stats["penalty_total"] = int(stats.get("penalty_total") or 0) + int(site_get("dirka_penalty"))
         # Arm comeback if far behind after miss
         leaders = standings(session)
         # temporary standings without this update — use current scores
         others = [int((players.get(mid) or {}).get("score") or 0) for mid in players if mid != key]
         lead = max(others) if others else 0
-        if lead - int(stats.get("score") or 0) >= DIRKA_COMEBACK_GAP:
+        if lead - int(stats.get("score") or 0) >= int(site_get("dirka_comeback_gap")):
             stats["comeback_armed"] = True
 
     PlayerAnswer.objects.create(

@@ -16,18 +16,10 @@ from game.engine import (
     _stored_answer,
     grade_answer,
 )
-from game.modes import (
-    MODE_60_SEKUND,
-    SIXTY_CLOCK_CAP,
-    SIXTY_CORRECT_BONUS,
-    SIXTY_DIFFICULTY_BANDS,
-    SIXTY_QUESTION_TYPES,
-    SIXTY_SKIP_PENALTY,
-    SIXTY_START_SECONDS,
-    SIXTY_WRONG_PENALTY,
-)
+from game.modes import MODE_60_SEKUND, SIXTY_DIFFICULTY_BANDS, SIXTY_QUESTION_TYPES
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
+from game.site_settings import get as site_get
 from questions.models import Question
 
 
@@ -64,17 +56,17 @@ def start_sixty(member_id):
         now = timezone.now()
         skip_limit = settings.get("skip_limit")
         skips_left = None if skip_limit is None else int(skip_limit)
-        clock_ends = now + timedelta(seconds=SIXTY_START_SECONDS)
+        clock_ends = now + timedelta(seconds=int(site_get("sixty_start_seconds")))
         session = GameSession.objects.create(
             room=room,
             mode=MODE_60_SEKUND,
             status="active",
             total_questions=1,
             current_question_index=0,
-            time_limit_seconds=SIXTY_START_SECONDS,
+            time_limit_seconds=int(site_get("sixty_start_seconds")),
             state={
                 "clock_ends_at": clock_ends.isoformat(),
-                "clock_cap": SIXTY_CLOCK_CAP,
+                "clock_cap": int(site_get("sixty_clock_cap")),
                 "skips_left": skips_left,
                 "skip_limit": skip_limit,
                 "correct_count": 0,
@@ -176,7 +168,7 @@ def question_payload(session, game_question, message_type="question"):
         "deadline_at": state.get("clock_ends_at"),
         "server_now": now.isoformat(),
         "clock_remaining_ms": remaining,
-        "time_limit_seconds": SIXTY_START_SECONDS,
+        "time_limit_seconds": int(site_get("sixty_start_seconds")),
         "prize_ladder": [],
         "lifelines": {},
         "active_helps": {},
@@ -226,7 +218,7 @@ def _resolve(member, room, session, game_question, skipped, message):
             raise GameError("Nimaš več preskokov.")
         if skips is not None:
             state["skips_left"] = int(skips) - 1
-        time_delta = -SIXTY_SKIP_PENALTY
+        time_delta = -int(site_get("sixty_skip_penalty"))
         answer_data = {"skip": True}
         is_correct = False
     else:
@@ -234,7 +226,9 @@ def _resolve(member, room, session, game_question, skipped, message):
         is_correct = grade_answer(game_question.question, message, presentation)
         answer_data = _stored_answer(message)
         selected = _selected_option(game_question, message)
-        time_delta = SIXTY_CORRECT_BONUS if is_correct else -SIXTY_WRONG_PENALTY
+        time_delta = (
+            int(site_get("sixty_correct_bonus")) if is_correct else -int(site_get("sixty_wrong_penalty"))
+        )
 
     elapsed_ms = 0
     if game_question.started_at:
@@ -257,7 +251,9 @@ def _resolve(member, room, session, game_question, skipped, message):
         state["correct_count"] = int(state.get("correct_count") or 0) + 1
         state["score"] = state["correct_count"]
 
-    new_ends = _adjust_clock(ends or now, time_delta, int(state.get("clock_cap") or SIXTY_CLOCK_CAP), now)
+    new_ends = _adjust_clock(
+        ends or now, time_delta, int(state.get("clock_cap") or site_get("sixty_clock_cap")), now
+    )
     state["clock_ends_at"] = new_ends.isoformat()
     session.state = state
     session.save(update_fields=["state"])

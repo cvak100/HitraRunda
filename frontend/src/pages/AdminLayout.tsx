@@ -12,6 +12,7 @@ export function AdminLayout() {
         <NavLink to="/nadzor/igre">Igre</NavLink>
         <NavLink to="/nadzor/sobe">Sobe</NavLink>
         <NavLink to="/nadzor/uporabniki">Uporabniki</NavLink>
+        <NavLink to="/nadzor/nastavitve">Nastavitve</NavLink>
         <NavLink to="/nadzor/ukazi">Ukazi</NavLink>
         <NavLink to="/nadzor/testi">Testi</NavLink>
       </nav>

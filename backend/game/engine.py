@@ -15,15 +15,8 @@ from game.lifelines import (
     mark_lifeline_used,
 )
 from game.modes import (
-    ALA_DIFFICULTY_TARGETS,
     ALA_OPTION_COUNT,
-    ALA_QUESTION_COUNT,
     ALA_QUESTION_TYPES,
-    ALA_SAFE_ORDERS,
-    DIRKA_SAFE_EVERY,
-    DIRKA_TARGET_SCORES,
-    DIRKA_TIME_SECONDS,
-    FRIENDS_PICK,
     LOBBY_MODES,
     MODE_60_SEKUND,
     MODE_ALA_MILIJONAR,
@@ -31,45 +24,23 @@ from game.modes import (
     MODE_HITRARUNDA,
     MODE_LABELS,
     MODE_MULTIPLAYER,
-    MP_ALLOWED_TIMES,
-    MP_MAX_BOTS,
-    MP_QUESTION_COUNTS,
     PLAYABLE_MODES,
     SIXTY_DIFFICULTY_PROFILES,
     SIXTY_QUESTION_TYPES,
-    SIXTY_SKIP_LIMITS,
-    SIXTY_START_SECONDS,
 )
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
+from game.site_settings import get as site_get
+from game.site_settings import get_int_set, get_skip_limits, is_mode_enabled
 from questions.models import Category, Question
 from rooms.models import Room, RoomMember
 
-PRIZE_LADDER = [
-    100,
-    200,
-    300,
-    500,
-    1_000,
-    2_000,
-    4_000,
-    8_000,
-    16_000,
-    32_000,
-    64_000,
-    125_000,
-    250_000,
-    500_000,
-    1_000_000,
-]
 GRACE = timedelta(milliseconds=1500)
-MAX_SPEED_BONUS = 100
-ALLOWED_TIMES = {10, 15, 20, 30, 45, 60}
 SINGLE_TYPES = {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE}
 
 
 def ladder_for(total):
-    return PRIZE_LADDER[:total]
+    return list(site_get("ala_prize_ladder"))[:total]
 
 
 def speed_bonus(time_taken_ms, time_limit_seconds):
@@ -77,7 +48,8 @@ def speed_bonus(time_taken_ms, time_limit_seconds):
     taken = max(0, time_taken_ms)
     if taken >= limit_ms:
         return 0
-    return round(((limit_ms - taken) / limit_ms) * MAX_SPEED_BONUS)
+    max_bonus = int(site_get("hr_max_speed_bonus"))
+    return round(((limit_ms - taken) / limit_ms) * max_bonus)
 
 
 def official_end(game_question, session):
@@ -96,30 +68,38 @@ def validate_settings(raw):
         mode = MODE_HITRARUNDA
     if mode not in PLAYABLE_MODES:
         raise GameError("Neznan način igre.")
+    if not is_mode_enabled(mode):
+        raise GameError("Ta način igre trenutno ni na voljo.")
+    friends_pick = int(site_get("ala_friends_pick"))
+    difficulty_targets = list(site_get("ala_difficulty_targets"))
+    ala_question_count = len(difficulty_targets)
     try:
         seconds = int(raw.get("time_limit_seconds", 20))
         if mode == MODE_ALA_MILIJONAR:
-            count = ALA_QUESTION_COUNT
-            seconds = 90
+            count = ala_question_count
+            seconds = int(site_get("ala_time_seconds"))
         else:
             count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
     if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
         raise GameError("Število vprašanj mora biti med 5 in 15.")
-    if mode == MODE_MULTIPLAYER and count not in MP_QUESTION_COUNTS:
-        raise GameError("Število vprašanj je 5, 10, 20, 40, 50 ali 100.")
+    mp_counts = get_int_set("mp_question_counts")
+    if mode == MODE_MULTIPLAYER and count not in mp_counts:
+        raise GameError("Število vprašanj ni med dovoljenimi.")
     if mode == MODE_DIRKA:
         count = 0
-        seconds = DIRKA_TIME_SECONDS
+        seconds = int(site_get("dirka_time_seconds"))
     if mode == MODE_60_SEKUND:
         count = 0
-        seconds = SIXTY_START_SECONDS
+        seconds = int(site_get("sixty_start_seconds"))
     if mode == MODE_MULTIPLAYER:
-        if seconds not in MP_ALLOWED_TIMES:
-            raise GameError("Čas na vprašanje je 30 s, 60 s, 90 s, 2 min ali 5 min.")
-    elif mode not in {MODE_ALA_MILIJONAR, MODE_DIRKA, MODE_60_SEKUND} and seconds not in ALLOWED_TIMES:
-        raise GameError("Čas na vprašanje je 10, 15, 20, 30, 45 ali 60 sekund.")
+        if seconds not in get_int_set("mp_allowed_times"):
+            raise GameError("Čas na vprašanje ni med dovoljenimi.")
+    elif mode not in {MODE_ALA_MILIJONAR, MODE_DIRKA, MODE_60_SEKUND} and seconds not in get_int_set(
+        "hr_allowed_times"
+    ):
+        raise GameError("Čas na vprašanje ni med dovoljenimi.")
     slugs = raw.get("categories")
     if not isinstance(slugs, list) or not slugs:
         raise GameError("Izberi vsaj eno kategorijo.")
@@ -153,15 +133,15 @@ def validate_settings(raw):
     if mode == MODE_ALA_MILIJONAR:
         raw_friends = raw.get("friend_keys")
         if not isinstance(raw_friends, list):
-            raise GameError(f"Izberi {FRIENDS_PICK} prijatelje za klic v sili.")
+            raise GameError(f"Izberi {friends_pick} prijatelje za klic v sili.")
         for key in raw_friends:
             if not isinstance(key, str) or not key.strip():
                 raise GameError("Neznan prijatelj.")
             value = key.strip()
             if value not in friend_keys:
                 friend_keys.append(value)
-        if len(friend_keys) != FRIENDS_PICK:
-            raise GameError(f"Izberi točno {FRIENDS_PICK} prijatelje.")
+        if len(friend_keys) != friends_pick:
+            raise GameError(f"Izberi točno {friends_pick} prijatelje.")
         active = set(
             PhoneFriend.objects.filter(key__in=friend_keys, is_active=True).values_list("key", flat=True)
         )
@@ -182,8 +162,9 @@ def validate_settings(raw):
             bot_count = int(raw.get("bot_count") or 0)
         except (TypeError, ValueError):
             raise GameError("Število botov ni veljavno.")
-        if not 0 <= bot_count <= MP_MAX_BOTS:
-            raise GameError(f"Število botov mora biti med 0 in {MP_MAX_BOTS}.")
+        max_bots = int(site_get("mp_max_bots"))
+        if not 0 <= bot_count <= max_bots:
+            raise GameError(f"Število botov mora biti med 0 in {max_bots}.")
         settings["bot_count"] = bot_count
     if mode == MODE_MULTIPLAYER:
         settings["sudden_death"] = bool(raw.get("sudden_death"))
@@ -192,17 +173,17 @@ def validate_settings(raw):
             target = int(raw.get("target_score") or 200)
         except (TypeError, ValueError):
             raise GameError("Cilj točk ni veljaven.")
-        if target not in DIRKA_TARGET_SCORES:
-            raise GameError("Cilj točk je 100, 200, 500 ali 1000.")
+        if target not in get_int_set("dirka_target_scores"):
+            raise GameError("Cilj točk ni med dovoljenimi.")
         try:
             safe_every = int(raw.get("safe_every") or 5)
         except (TypeError, ValueError):
             raise GameError("Safe zone ni veljavna.")
-        if safe_every not in DIRKA_SAFE_EVERY:
-            raise GameError("Safe zone je vsakih 5 ali 10 pravilnih.")
+        if safe_every not in get_int_set("dirka_safe_every"):
+            raise GameError("Safe zone ni med dovoljenimi.")
         settings["target_score"] = target
         settings["safe_every"] = safe_every
-        settings["time_limit_seconds"] = DIRKA_TIME_SECONDS
+        settings["time_limit_seconds"] = int(site_get("dirka_time_seconds"))
         settings["question_count"] = 0
     if mode == MODE_60_SEKUND:
         raw_skip = raw.get("skip_limit", None)
@@ -213,14 +194,14 @@ def validate_settings(raw):
                 skip_limit = int(raw_skip)
             except (TypeError, ValueError):
                 raise GameError("Število preskokov ni veljavno.")
-        if skip_limit not in SIXTY_SKIP_LIMITS:
-            raise GameError("Preskoki: neomejeno, 3, 5 ali 10.")
+        if skip_limit not in get_skip_limits():
+            raise GameError("Število preskokov ni med dovoljenimi.")
         profile = str(raw.get("difficulty_profile") or "normal").strip()
         if profile not in SIXTY_DIFFICULTY_PROFILES:
             raise GameError("Težavnostni profil je blago, normalno ali ostro.")
         settings["skip_limit"] = skip_limit
         settings["difficulty_profile"] = profile
-        settings["time_limit_seconds"] = SIXTY_START_SECONDS
+        settings["time_limit_seconds"] = int(site_get("sixty_start_seconds"))
         settings["question_count"] = 0
     return settings
 
@@ -255,9 +236,9 @@ def select_questions(slugs, count, progression="increasing", question_types=None
         random.shuffle(bucket)
 
     if progression == "ala_ladder":
-        if count != len(ALA_DIFFICULTY_TARGETS):
-            raise GameError("Ala milijonar potrebuje 15 vprašanj za stopnjevanje 1–5.")
-        targets = list(ALA_DIFFICULTY_TARGETS)
+        targets = list(site_get("ala_difficulty_targets"))
+        if count != len(targets):
+            raise GameError(f"Ala milijonar potrebuje {len(targets)} vprašanj za težavnostni vzorec.")
     elif count == 1:
         targets = [3]
     else:
@@ -343,16 +324,37 @@ def grade_answer(question, data, presentation=None):
 
 
 def member_id_for(user_id, code):
-    member = RoomMember.objects.filter(user_id=user_id, room__code=code).order_by("-joined_at").first()
+    member = (
+        RoomMember.objects.filter(user_id=user_id, room__code=code, left_at__isnull=True)
+        .order_by("-joined_at")
+        .first()
+    )
     return member.id if member else None
 
 
-def require_can_advance(member, room):
-    """Host lahko vedno nadaljuje; če je host offline, lahko vsak povezan človek."""
+def require_can_advance(member, room, session=None):
+    """Host lahko vedno nadaljuje; če je host offline, lahko vsak povezan človek.
+
+    Ko je načrtovan samodejni prehod že zapadel (`auto_advance_at`), sme nadaljevati
+    kateri koli povezan človek — da se igra ne zatakne, če hostov WS odpade.
+    """
     if member.is_bot or member.left_at is not None:
         raise GameError("Samo gostitelj lahko nadaljuje.")
     if member.is_host:
         return
+    if session is not None:
+        state = session.state or {}
+        marker = str(state.get("auto_advance_for") or "")
+        raw_at = state.get("auto_advance_at")
+        if raw_at and (marker.startswith("next:") or marker.startswith("finish:")):
+            from django.utils.dateparse import parse_datetime
+
+            advance_at = raw_at if hasattr(raw_at, "isoformat") else parse_datetime(str(raw_at))
+            if advance_at is not None:
+                if timezone.is_naive(advance_at):
+                    advance_at = timezone.make_aware(advance_at, timezone.get_current_timezone())
+                if timezone.now() >= advance_at:
+                    return
     host = room.members.filter(left_at__isnull=True, is_host=True).first()
     if host is not None and host.is_connected:
         raise GameError("Samo gostitelj lahko nadaljuje.")
@@ -728,7 +730,7 @@ def walk_away(member_id):
 
 def guaranteed_prize(correct_count, ladder):
     guaranteed = 0
-    for order in ALA_SAFE_ORDERS:
+    for order in site_get("ala_safe_orders"):
         if correct_count > order and order < len(ladder):
             guaranteed = ladder[order]
     return guaranteed
@@ -751,7 +753,7 @@ def question_message(session, game_question, message_type):
         "index": index,
         "total": session.total_questions,
         "prize_ladder": ladder,
-        "safe_orders": list(ALA_SAFE_ORDERS) if session.mode == MODE_ALA_MILIJONAR else [],
+        "safe_orders": list(site_get("ala_safe_orders")) if session.mode == MODE_ALA_MILIJONAR else [],
         "guaranteed_prize": guaranteed_prize(state["correct_count"], ladder)
         if session.mode == MODE_ALA_MILIJONAR
         else 0,
@@ -799,7 +801,7 @@ def result_message(session, game_question, answer, member, message_type="answer_
         "next_stake": None if finished or index + 1 >= len(ladder) else ladder[index + 1],
         "nickname": member.nickname_in_room,
         "server_now": timezone.now().isoformat(),
-        "safe_orders": list(ALA_SAFE_ORDERS) if session.mode == MODE_ALA_MILIJONAR else [],
+        "safe_orders": list(site_get("ala_safe_orders")) if session.mode == MODE_ALA_MILIJONAR else [],
         "guaranteed_prize": guaranteed_prize(state["correct_count"], ladder)
         if session.mode == MODE_ALA_MILIJONAR
         else 0,

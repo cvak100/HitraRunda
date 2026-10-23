@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { ApiError, api } from "../api";
+import { Avatar } from "../components/Avatar";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { DirkaBonusBar, DirkaRaceTrack } from "../components/DirkaRaceTrack";
 import { NumberStepper } from "../components/NumberStepper";
@@ -10,8 +11,10 @@ import { TimerBar } from "../components/TimerBar";
 import { REASONS, formatDuration, formatMode, formatPoints } from "../format";
 import type { Category, GameMessage, StandingRow } from "../types";
 
-const LOBBY_TIMES = [30, 60, 90, 120, 300];
-const LOBBY_COUNTS = [5, 10, 20, 40, 50, 100];
+const DEFAULT_LOBBY_TIMES = [30, 60, 90, 120, 300];
+const DEFAULT_LOBBY_COUNTS = [5, 10, 20, 40, 50, 100];
+const DEFAULT_TARGETS = [100, 200, 500, 1000];
+const DEFAULT_SAFE = [5, 10];
 
 function formatLobbyTime(seconds: number) {
   if (seconds < 120) return `${seconds} s`;
@@ -20,13 +23,22 @@ function formatLobbyTime(seconds: number) {
 
 export function GamePage() {
   const { code = "" } = useParams();
+  const navigate = useNavigate();
   const [message, setMessage] = useState<GameMessage | null>(null);
   const [phase, setPhase] = useState("connecting");
   const [error, setError] = useState("");
+  const [reconnectNote, setReconnectNote] = useState("");
+  const [leaving, setLeaving] = useState(false);
   const [pickFriend, setPickFriend] = useState(false);
   const [myId, setMyId] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [lobbyTimes, setLobbyTimes] = useState(DEFAULT_LOBBY_TIMES);
+  const [lobbyCounts, setLobbyCounts] = useState(DEFAULT_LOBBY_COUNTS);
+  const [lobbyTargets, setLobbyTargets] = useState(DEFAULT_TARGETS);
+  const [lobbySafe, setLobbySafe] = useState(DEFAULT_SAFE);
+  const [maxPlayersCap, setMaxPlayersCap] = useState(6);
+  const [maxBots, setMaxBots] = useState(5);
   const [editCount, setEditCount] = useState(10);
   const [editSeconds, setEditSeconds] = useState(60);
   const [editMax, setEditMax] = useState(4);
@@ -74,6 +86,26 @@ export function GamePage() {
     api<{ categories: Category[] }>("/api/categories/")
       .then((data) => setCategories(data.categories))
       .catch(() => setCategories([]));
+    api<{
+      multiplayer?: {
+        times?: number[];
+        question_counts?: number[];
+        max_players?: number;
+        max_bots?: number;
+      };
+      dirka?: { targets?: number[]; safe_every?: number[]; max_bots?: number };
+    }>("/api/game-config/")
+      .then((cfg) => {
+        const mp = cfg.multiplayer;
+        if (mp?.times?.length) setLobbyTimes(mp.times);
+        if (mp?.question_counts?.length) setLobbyCounts(mp.question_counts);
+        if (mp?.max_players) setMaxPlayersCap(mp.max_players);
+        if (typeof mp?.max_bots === "number") setMaxBots(mp.max_bots);
+        if (cfg.dirka?.targets?.length) setLobbyTargets(cfg.dirka.targets);
+        if (cfg.dirka?.safe_every?.length) setLobbySafe(cfg.dirka.safe_every);
+        if (typeof cfg.dirka?.max_bots === "number") setMaxBots(cfg.dirka.max_bots);
+      })
+      .catch(() => undefined);
   }, []);
 
   useEffect(() => {
@@ -84,45 +116,22 @@ export function GamePage() {
 
   useEffect(() => {
     let stopped = false;
+    let attempt = 0;
+    let retryTimer: number | undefined;
     const proto = window.location.protocol === "https:" ? "wss" : "ws";
-    const socket = new WebSocket(`${proto}://${window.location.host}/ws/game/${code}/`);
-    wsRef.current = socket;
-    socket.onopen = () => {
-      if (stopped) return;
-      // Solo seje se začnejo same; multiplayer čaka v lobbyju.
-      api<{
-        settings?: GameMessage["settings"];
-        you?: { id?: string };
-        visibility?: string;
-        max_players?: number;
-        status?: string;
-      }>(`/api/rooms/${code}/`)
-        .then((room) => {
-          if (stopped) return;
-          if (room.you?.id) setMyId(room.you.id);
-          if (room.settings?.mode === "multiplayer" || room.settings?.mode === "dirka") {
-            syncLobbyEditors(room);
-            // Only sync lobby while waiting. Mid-game reconnect relies on the WS snapshot —
-            // lobby_sync would force everyone back to the lobby screen.
-            if (room.status === "waiting") {
-              socket.send(JSON.stringify({ type: "lobby_sync" }));
-            }
-          } else {
-            socket.send(JSON.stringify({ type: "start_game" }));
-          }
-        })
-        .catch(() => {
-          if (!stopped) socket.send(JSON.stringify({ type: "start_game" }));
-        });
-    };
-    socket.onmessage = (event) => {
-      if (stopped) return;
-      const incoming = JSON.parse(event.data) as GameMessage;
-      if (incoming.type === "error") {
-        setError(incoming.message || "Napaka v igri.");
+
+    function handleMessage(incoming: GameMessage) {
+      if (incoming.type === "error" || incoming.phase === "closed" || incoming.phase === "error") {
+        const msg = incoming.message || "Napaka v igri.";
+        setError(msg);
+        if (incoming.phase === "closed") {
+          setPhase("closed");
+          stopped = true;
+        }
         return;
       }
       setError("");
+      setReconnectNote("");
       if (incoming.you?.id) setMyId(incoming.you.id);
       if (incoming.phase === "lobby") {
         setMessage(incoming);
@@ -161,7 +170,6 @@ export function GamePage() {
         if (iAnswered) {
           setPhase("waiting_answers");
         }
-        // Če še nisem oddal, ostani na question (bot/drugi so oddali prej).
         return;
       }
       if (incoming.phase === "round_review") {
@@ -184,18 +192,96 @@ export function GamePage() {
         setPhase("finished");
         setPickFriend(false);
       }
-    };
-    socket.onclose = () => {
-      if (!stopped) {
-        setError("Povezava je prekinjena.");
-        setPhase("error");
-      }
-    };
+    }
+
+    function connect() {
+      if (stopped) return;
+      const socket = new WebSocket(`${proto}://${window.location.host}/ws/game/${code}/`);
+      wsRef.current = socket;
+      socket.onopen = () => {
+        if (stopped) return;
+        attempt = 0;
+        setReconnectNote("");
+        api<{
+          settings?: GameMessage["settings"];
+          you?: { id?: string };
+          visibility?: string;
+          max_players?: number;
+          status?: string;
+        }>(`/api/rooms/${code}/`)
+          .then((room) => {
+            if (stopped) return;
+            if (room.you?.id) setMyId(room.you.id);
+            if (room.settings?.mode === "multiplayer" || room.settings?.mode === "dirka") {
+              syncLobbyEditors(room);
+              if (room.status === "waiting") {
+                socket.send(JSON.stringify({ type: "lobby_sync" }));
+              } else if (room.status === "playing") {
+                // Mid-game: strežnik pošlje snapshot ob connect; dodatno sync za zanesljivost.
+                socket.send(JSON.stringify({ type: "lobby_sync" }));
+              }
+            } else {
+              socket.send(JSON.stringify({ type: "start_game" }));
+            }
+          })
+          .catch((err) => {
+            if (stopped) return;
+            const detail = err instanceof ApiError ? err.message : "";
+            if (detail.includes("zaprta") || detail.includes("ne obstaja")) {
+              setError(detail || "Soba ni na voljo.");
+              setPhase("closed");
+              stopped = true;
+              socket.close();
+              return;
+            }
+            socket.send(JSON.stringify({ type: "start_game" }));
+          });
+      };
+      socket.onmessage = (event) => {
+        if (stopped) return;
+        try {
+          handleMessage(JSON.parse(event.data) as GameMessage);
+        } catch {
+          setError("Neveljavno sporočilo strežnika.");
+        }
+      };
+      socket.onclose = () => {
+        if (stopped) return;
+        attempt += 1;
+        if (attempt > 8) {
+          setError("Povezava je prekinjena. Osveži stran ali se vrni v lobby.");
+          setPhase("error");
+          setReconnectNote("");
+          return;
+        }
+        const delay = Math.min(8000, 600 * 2 ** (attempt - 1));
+        setReconnectNote(`Ponovna povezava čez ${Math.ceil(delay / 1000)} s… (${attempt}/8)`);
+        setPhase((current) => (current === "finished" || current === "closed" ? current : "connecting"));
+        retryTimer = window.setTimeout(connect, delay);
+      };
+    }
+
+    connect();
     return () => {
       stopped = true;
-      socket.close();
+      if (retryTimer) window.clearTimeout(retryTimer);
+      wsRef.current?.close();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reconnect loop binds to room code only
   }, [code]);
+
+  async function leaveRoom() {
+    if (leaving) return;
+    setLeaving(true);
+    try {
+      await api(`/api/rooms/${code}/leave/`, { method: "POST", body: "{}" });
+    } catch {
+      // Vseeno odidi — WS/HTTP lahko že odpade.
+    }
+    wsRef.current?.close();
+    const mode = message?.settings?.mode || message?.mode;
+    navigate(mode === "dirka" ? "/igra/dirka" : mode === "multiplayer" ? "/igra/vec-igralcev" : "/igra");
+  }
 
   function next() {
     const socket = wsRef.current;
@@ -313,10 +399,12 @@ export function GamePage() {
   }) {
     const settings = room.settings || {};
     if (settings.question_count) {
-      setEditCount(LOBBY_COUNTS.includes(settings.question_count) ? settings.question_count : 10);
+      setEditCount(lobbyCounts.includes(settings.question_count) ? settings.question_count : lobbyCounts[0] ?? 10);
     }
     if (settings.time_limit_seconds) {
-      setEditSeconds(LOBBY_TIMES.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : 60);
+      setEditSeconds(
+        lobbyTimes.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : lobbyTimes[0] ?? 60,
+      );
     }
     if (typeof settings.sudden_death === "boolean") setEditSudden(settings.sudden_death);
     if (typeof settings.bot_count === "number") setEditBots(settings.bot_count);
@@ -363,7 +451,7 @@ export function GamePage() {
   }
 
   function maxBotsFor(maxPlayers = editMax) {
-    return Math.max(0, Math.min(5, maxPlayers - humanCount()));
+    return Math.max(0, Math.min(maxBots, maxPlayers - humanCount()));
   }
 
   function saveLobbySettings(overrides: Partial<{
@@ -376,7 +464,7 @@ export function GamePage() {
     safe_every: number;
     visibility: "public" | "private" | "unlisted";
   }> = {}) {
-    const maxPlayers = Math.min(6, Math.max(overrides.max_players ?? editMax, humanCount(), 2));
+    const maxPlayers = Math.min(maxPlayersCap, Math.max(overrides.max_players ?? editMax, humanCount(), 2));
     const botCount = Math.min(overrides.bot_count ?? editBots, Math.max(0, maxPlayers - humanCount()));
     if (botCount !== editBots) setEditBots(botCount);
     if (maxPlayers !== editMax) setEditMax(maxPlayers);
@@ -422,12 +510,44 @@ export function GamePage() {
   return (
     <section className={dirkaPlaying ? "stage stage-dirka" : "stage"}>
       <div className="play">
-        <p className="eyebrow">
-          {message?.mode ? formatMode(message.mode) : "Igra"} · soba {code}
-          {message?.sudden_death ? " · sudden death" : ""}
-        </p>
-        {phase === "connecting" || phase === "waiting" ? <p className="status">Pripravljam vprašanja…</p> : null}
+        <div className="stage-head-row">
+          <p className="eyebrow">
+            {message?.mode ? formatMode(message.mode) : "Igra"} · soba {code}
+            {message?.sudden_death ? " · sudden death" : ""}
+          </p>
+          {phase === "lobby" ||
+          phase === "question" ||
+          phase === "waiting_answers" ||
+          phase === "round_review" ||
+          phase === "submitting" ? (
+            <button type="button" className="ghost-leave" disabled={leaving} onClick={() => void leaveRoom()}>
+              {leaving ? "…" : "Zapusti"}
+            </button>
+          ) : null}
+        </div>
+        {phase === "connecting" || phase === "waiting" ? (
+          <p className="status">{reconnectNote || "Pripravljam vprašanja…"}</p>
+        ) : null}
+        {reconnectNote && phase !== "connecting" && phase !== "waiting" ? (
+          <p className="fine">{reconnectNote}</p>
+        ) : null}
         {error ? <p className="error">{error}</p> : null}
+        {phase === "closed" || phase === "error" ? (
+          <div className="stack">
+            <h1>{phase === "closed" ? "Soba je zaprta" : "Povezava prekinjena"}</h1>
+            <p className="fine">{error || "Vrni se v izbiro igre in poskusi znova."}</p>
+            <div className="actions">
+              <Link className="primary" to="/igra">
+                Nazaj na igre
+              </Link>
+              {phase === "error" ? (
+                <button type="button" onClick={() => window.location.reload()}>
+                  Osveži
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
         {phase === "lobby" && message ? (
           <div className="stack">
             <h1>{message.name || "Lobby"}</h1>
@@ -459,16 +579,19 @@ export function GamePage() {
                 return (
                   <li key={member.id} className={ready ? "is-ready" : "is-waiting"}>
                     <div className="lobby-member-main">
-                      <strong>{member.nickname}</strong>
-                      <span className="fine">
-                        {member.is_host ? "host" : ""}
-                        {member.is_bot ? `${member.is_host ? " · " : ""}AI` : ""}
-                        {isYou ? `${member.is_host || member.is_bot ? " · " : ""}ti` : ""}
-                        {member.is_connected === false && !member.is_bot ? " · offline" : ""}
-                      </span>
-                      <span className={`lobby-ready-tag ${ready ? "is-on" : ""}`}>
-                        {ready ? "pripravljen" : "ni pripravljen"}
-                      </span>
+                      <Avatar avatar={member.avatar} color={member.color || "#7dcea0"} size={36} title={member.nickname} />
+                      <div className="lobby-member-text">
+                        <strong>{member.nickname}</strong>
+                        <span className="fine">
+                          {member.is_host ? "host" : ""}
+                          {member.is_bot ? `${member.is_host ? " · " : ""}AI` : ""}
+                          {isYou ? `${member.is_host || member.is_bot ? " · " : ""}ti` : ""}
+                          {member.is_connected === false && !member.is_bot ? " · offline" : ""}
+                        </span>
+                        <span className={`lobby-ready-tag ${ready ? "is-on" : ""}`}>
+                          {ready ? "pripravljen" : "ni pripravljen"}
+                        </span>
+                      </div>
                     </div>
                     {isYou && !member.is_bot ? (
                       <button
@@ -493,9 +616,17 @@ export function GamePage() {
                 >
                   Začni igro
                 </button>
+                <button type="button" disabled={leaving} onClick={() => void leaveRoom()}>
+                  {leaving ? "Zapuščam…" : "Zapusti sobo"}
+                </button>
               </div>
             ) : (
-              <p className="fine">Čakaj, da host začne, ko so vsi pripravljeni.</p>
+              <div className="actions">
+                <p className="fine">Čakaj, da host začne, ko so vsi pripravljeni.</p>
+                <button type="button" disabled={leaving} onClick={() => void leaveRoom()}>
+                  {leaving ? "Zapuščam…" : "Zapusti sobo"}
+                </button>
+              </div>
             )}
             {iAmHost ? (
               <>
@@ -515,7 +646,7 @@ export function GamePage() {
                     <div className="stack-gap">
                       <span className="stepper-label">Cilj točk</span>
                       <div className="choices" role="group">
-                        {[100, 200, 500, 1000].map((value) => (
+                        {lobbyTargets.map((value) => (
                           <button
                             key={value}
                             type="button"
@@ -529,24 +660,25 @@ export function GamePage() {
                     </div>
                     <fieldset>
                       <legend>Varna zona</legend>
-                      <label className="check">
-                        <input type="radio" checked={editSafe === 5} onChange={() => setEditSafe(5)} />
-                        Kratka (5)
-                      </label>
-                      <label className="check">
-                        <input type="radio" checked={editSafe === 10} onChange={() => setEditSafe(10)} />
-                        Daljša (10)
-                      </label>
+                      {lobbySafe.map((value) => (
+                        <label key={value} className="check">
+                          <input
+                            type="radio"
+                            checked={editSafe === value}
+                            onChange={() => setEditSafe(value)}
+                          />
+                          Vsakih {value} pravilnih
+                        </label>
+                      ))}
                     </fieldset>
-                    <p className="fine">Čas na vprašanje: 30 s (fiksno).</p>
                   </>
                 ) : (
                   <>
-                    <NumberStepper label="Število vprašanj" value={editCount} options={LOBBY_COUNTS} onChange={setEditCount} />
+                    <NumberStepper label="Število vprašanj" value={editCount} options={lobbyCounts} onChange={setEditCount} />
                     <div className="stack-gap">
                       <span className="stepper-label">Čas na vprašanje</span>
                       <div className="choices" role="group" aria-label="Čas na vprašanje">
-                        {LOBBY_TIMES.map((time) => (
+                        {lobbyTimes.map((time) => (
                           <button key={time} type="button" className={time === editSeconds ? "is-on" : ""} onClick={() => setEditSeconds(time)}>
                             {formatLobbyTime(time)}
                           </button>
@@ -559,7 +691,7 @@ export function GamePage() {
                     </label>
                   </>
                 )}
-                <NumberStepper label="Največ igralcev" value={editMax} min={2} max={6} onChange={changeMaxPlayers} />
+                <NumberStepper label="Največ igralcev" value={editMax} min={2} max={maxPlayersCap} onChange={changeMaxPlayers} />
                 <NumberStepper
                   label={(message.settings?.mode || message.mode) === "dirka" ? "Dirka AI" : "AI nasprotniki"}
                   value={editBots}
@@ -920,10 +1052,18 @@ export function GamePage() {
               .join(" ");
             return (
               <li key={row.member_id} className={classes}>
-                #{row.rank || "?"} {row.nickname}
-                {row.is_bot ? " (AI)" : ""}
-                {row.alive === false ? " · izločen" : ""}: {formatPoints(row.score)}
-                {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
+                <span className="ladder-player">
+                  <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
+                  <span>
+                    #{row.rank || "?"} {row.nickname}
+                    {row.is_bot ? " (AI)" : ""}
+                    {row.alive === false ? " · izločen" : ""}
+                  </span>
+                </span>
+                <span>
+                  {formatPoints(row.score)}
+                  {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
+                </span>
               </li>
             );
           })}
@@ -996,6 +1136,7 @@ function PodiumFinish({
     if (!row) return <div className={`podium-slot is-${place === 1 ? "first" : place === 2 ? "second" : "third"}`} />;
     return (
       <div className={`podium-slot is-${place === 1 ? "first" : place === 2 ? "second" : "third"}`}>
+        <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={place === 1 ? 56 : 44} title={row.nickname} />
         <div className="podium-name">
           {row.nickname}
           {row.is_bot ? " (AI)" : ""}
@@ -1020,10 +1161,13 @@ function PodiumFinish({
         <ol className="podium-rest">
           {rest.map((row) => (
             <li key={row.member_id}>
-              <span>
-                #{row.rank} {row.nickname}
-                {row.is_bot ? " (AI)" : ""}
-                {row.member_id === myId ? " · ti" : ""}
+              <span className="podium-rest-player">
+                <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
+                <span>
+                  #{row.rank} {row.nickname}
+                  {row.is_bot ? " (AI)" : ""}
+                  {row.member_id === myId ? " · ti" : ""}
+                </span>
               </span>
               <strong>
                 {formatPoints(row.score)} · {row.correct_count} pravilnih
@@ -1056,13 +1200,21 @@ function RoundReview({
 }) {
   const advanceSeconds = message.advance_seconds ?? 5;
   const [secondsLeft, setSecondsLeft] = useState(advanceSeconds);
+  const onNextRef = useRef(onNext);
+  onNextRef.current = onNext;
 
   useEffect(() => {
     setSecondsLeft(advanceSeconds);
     const started = Date.now();
+    let fired = false;
     const tick = window.setInterval(() => {
       const left = Math.max(0, advanceSeconds - Math.floor((Date.now() - started) / 1000));
       setSecondsLeft(left);
+      // Rezerva, če strežnikov timer odpade — kateri koli klient potisne next ob 0.
+      if (left <= 0 && !fired) {
+        fired = true;
+        onNextRef.current();
+      }
     }, 200);
     return () => window.clearInterval(tick);
   }, [advanceSeconds, message.index]);
@@ -1077,13 +1229,20 @@ function RoundReview({
       <ul>
         {(message.answers || []).map((row) => (
           <li key={`${row.member_id}-${row.nickname}`} className={row.is_correct ? "answered-correct" : "answered-wrong"}>
-            {row.nickname}
-            {row.member_id === myId ? " (ti)" : ""}: {row.timed_out ? "čas" : row.is_correct ? "prav" : "narobe"} ·{" "}
-            {formatPoints(row.points)}
-            {row.round_bonus ? " · rundni bonus" : ""}
-            {row.streak_bonus ? ` · streak +${row.streak_bonus}` : ""}
-            {row.catchup_bonus ? ` · catch-up +${row.catchup_bonus}` : ""}
-            {row.eliminated ? " · izločen" : ""}
+            <span className="answer-player">
+              <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
+              <span>
+                {row.nickname}
+                {row.member_id === myId ? " (ti)" : ""}
+              </span>
+            </span>
+            <span>
+              {row.timed_out ? "čas" : row.is_correct ? "prav" : "narobe"} · {formatPoints(row.points)}
+              {row.round_bonus ? " · rundni bonus" : ""}
+              {row.streak_bonus ? ` · streak +${row.streak_bonus}` : ""}
+              {row.catchup_bonus ? ` · catch-up +${row.catchup_bonus}` : ""}
+              {row.eliminated ? " · izločen" : ""}
+            </span>
           </li>
         ))}
       </ul>

@@ -105,6 +105,8 @@ class AiBot(models.Model):
         default=False,
         help_text="Če je vklopljeno, gre rezultat bota na javno lestvico.",
     )
+    # Ključ risanega avatarja (npr. "ris") — glej accounts.nicknames.AVATAR_KEYS.
+    avatar = models.CharField(max_length=40, blank=True, default="")
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:

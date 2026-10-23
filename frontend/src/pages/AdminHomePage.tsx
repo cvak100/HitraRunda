@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { api } from "../api";
+import { ApiError, api } from "../api";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { formatMode, formatPoints, formatWhen } from "../format";
 import type { QuestionReportRow } from "../types";
 
@@ -18,8 +19,35 @@ type RecentSession = {
   created_at: string;
 };
 
+type LiveMember = {
+  id: string;
+  nickname: string;
+  is_host: boolean;
+  is_bot: boolean;
+};
+
+type LiveRoom = {
+  code: string;
+  name: string;
+  status: string;
+  mode: string;
+  mode_label: string;
+  member_count: number;
+  max_players: number;
+  host_nickname: string;
+  last_activity: string | null;
+  members: LiveMember[];
+};
+
+type HealthPart = { ok: boolean; detail: string };
+
 type Summary = {
   generated_at: string;
+  health?: {
+    ok: boolean;
+    db: HealthPart;
+    redis: HealthPart & { ping_ms?: number | null; url?: string };
+  };
   questions: number;
   active_questions: number;
   inactive_questions: number;
@@ -41,6 +69,7 @@ type Summary = {
   bots: number;
   friends: number;
   bonuses: number;
+  live_rooms?: LiveRoom[];
   recent_reports: QuestionReportRow[];
   recent_sessions: RecentSession[];
   attention: {
@@ -57,13 +86,22 @@ const SESSION_STATUS: Record<string, string> = {
   aborted: "Prekinjena",
 };
 
+const ROOM_STATUS: Record<string, string> = {
+  waiting: "Čakanje",
+  playing: "V teku",
+};
+
 export function AdminHomePage() {
   const navigate = useNavigate();
   const [summary, setSummary] = useState<Summary | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(true);
+  const [pendingClose, setPendingClose] = useState("");
+  const [pendingKick, setPendingKick] = useState<{ code: string; memberId: string; nick: string } | null>(null);
+  const [busy, setBusy] = useState("");
 
-  useEffect(() => {
+  const load = useCallback(() => {
     setLoading(true);
     api<Summary>("/api/admin/summary/")
       .then((data) => {
@@ -74,10 +112,68 @@ export function AdminHomePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function exportQuestions() {
+    setError("");
+    setNotice("");
+    try {
+      const data = await api<Record<string, unknown>>("/api/admin/questions/export/");
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      const stamp = new Date().toISOString().slice(0, 10);
+      anchor.href = url;
+      anchor.download = `hitrarunda-questions-${stamp}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setNotice("Izvoz vprašanj prenesen.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Izvoz ni uspel.");
+    }
+  }
+
+  async function closeRoom(code: string) {
+    setBusy(code);
+    setPendingClose("");
+    setError("");
+    try {
+      await api(`/api/admin/rooms/${code}/close/`, { method: "POST", body: "{}" });
+      setNotice(`Soba ${code} je zaprta.`);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Zapiranje ni uspelo.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function kickMember(code: string, memberId: string) {
+    setBusy(`${code}:${memberId}`);
+    setPendingKick(null);
+    setError("");
+    try {
+      const result = await api<{ detail: string }>(`/api/admin/rooms/${code}/kick/`, {
+        method: "POST",
+        body: JSON.stringify({ member_id: memberId }),
+      });
+      setNotice(result.detail);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Kick ni uspel.");
+    } finally {
+      setBusy("");
+    }
+  }
+
   const attention = summary?.attention;
   const needsAttention = Boolean(
     attention && (attention.open_reports > 0 || attention.live_rooms > 0 || attention.live_sessions > 0),
   );
+  const health = summary?.health;
+  const liveRooms = summary?.live_rooms ?? [];
 
   return (
     <section className="panel admin-dash">
@@ -87,10 +183,46 @@ export function AdminHomePage() {
         Pregled vsebine, živih sob in nedavne aktivnosti. Številke se osvežijo ob vsakem odprtju strani.
       </p>
       {error ? <p className="error">{error}</p> : null}
+      {notice ? <p className="fine">{notice}</p> : null}
       {loading && !summary ? <p className="status">Nalagam…</p> : null}
 
       {summary ? (
         <>
+          <h2 className="admin-dash-h">Ops</h2>
+          <div className="dash-grid">
+            <Link className={`dash-card ${health?.ok ? "" : "is-health-bad"}`} to="/nadzor/health">
+              <span>Sistem</span>
+              <strong className={health?.ok ? undefined : "is-warn"}>{health?.ok ? "OK" : "Težava"}</strong>
+              <span className="fine">
+                DB {health?.db.ok ? "OK" : "FAIL"} · Redis {health?.redis.ok ? "OK" : "FAIL"} · podrobnosti
+              </span>
+            </Link>
+            <Link className="dash-card" to="/nadzor/health">
+              <span>Baza</span>
+              <strong className={health?.db.ok ? undefined : "is-warn"}>{health?.db.ok ? "OK" : "FAIL"}</strong>
+              <span className="fine">{health?.db.detail}</span>
+            </Link>
+            <Link className="dash-card" to="/nadzor/health">
+              <span>Redis</span>
+              <strong className={health?.redis.ok ? undefined : "is-warn"}>{health?.redis.ok ? "OK" : "FAIL"}</strong>
+              <span className="fine">
+                {health?.redis.detail}
+                {health?.redis.ping_ms != null ? ` · ${health.redis.ping_ms} ms` : ""} · odpri
+              </span>
+            </Link>
+            <div className="dash-card dash-card-static">
+              <span>Backup vprašanj</span>
+              <strong>{formatPoints(summary.active_questions)}</strong>
+              <span className="fine">aktivnih · JSON export</span>
+              <div className="actions" style={{ marginTop: 10 }}>
+                <button type="button" className="primary" onClick={() => void exportQuestions()}>
+                  Izvozi JSON
+                </button>
+                <Link to="/nadzor/vsebina">Uvoz</Link>
+              </div>
+            </div>
+          </div>
+
           {needsAttention ? (
             <div className="admin-attention" role="status">
               <strong>Zdaj</strong>
@@ -118,6 +250,61 @@ export function AdminHomePage() {
             </div>
           ) : (
             <p className="fine admin-attention-ok">Ni odprtih opozoril — ni pritožb, ni živih sob.</p>
+          )}
+
+          <div className="admin-dash-section-head">
+            <h2 className="admin-dash-h">Žive sobe</h2>
+            <Link to="/nadzor/sobe">Vse</Link>
+          </div>
+          {liveRooms.length === 0 ? (
+            <p className="fine">Ni živih sob.</p>
+          ) : (
+            <div className="admin-list">
+              {liveRooms.map((room) => (
+                <article key={room.code} className="admin-card">
+                  <div className="admin-dash-section-head" style={{ marginTop: 0 }}>
+                    <div>
+                      <h3 style={{ margin: 0 }}>
+                        {room.code} · {ROOM_STATUS[room.status] || room.status}
+                      </h3>
+                      <p className="fine" style={{ margin: "4px 0 0" }}>
+                        {room.mode_label || formatMode(room.mode) || "—"} · {room.member_count}/{room.max_players} ·
+                        host {room.host_nickname || "—"}
+                        {room.last_activity ? ` · ${formatWhen(room.last_activity)}` : ""}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={busy === room.code}
+                      onClick={() => setPendingClose(room.code)}
+                    >
+                      Zapri
+                    </button>
+                  </div>
+                  <div className="chip-row" style={{ marginTop: 10 }}>
+                    {room.members.map((member) => (
+                      <span key={member.id} className="chip" style={{ gap: 8 }}>
+                        {member.nickname}
+                        {member.is_host ? " (host)" : ""}
+                        {member.is_bot ? " · AI" : ""}
+                        {!member.is_host ? (
+                          <button
+                            type="button"
+                            className="table-action"
+                            disabled={busy === `${room.code}:${member.id}`}
+                            onClick={() =>
+                              setPendingKick({ code: room.code, memberId: member.id, nick: member.nickname })
+                            }
+                          >
+                            Kick
+                          </button>
+                        ) : null}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
           )}
 
           <h2 className="admin-dash-h">Stanje</h2>
@@ -179,28 +366,6 @@ export function AdminHomePage() {
               <span className="fine">
                 {summary.bots} botov · {summary.friends} prijateljev · {summary.bonuses} bonusov
               </span>
-            </Link>
-          </div>
-
-          <h2 className="admin-dash-h">Hitre poti</h2>
-          <div className="admin-quick-links">
-            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/vsebina">
-              Uvoz / kakovost
-            </Link>
-            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/vsebina/vprasanja">
-              Vprašanja
-            </Link>
-            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/igre">
-              Igre
-            </Link>
-            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/sobe">
-              Sobe
-            </Link>
-            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/ukazi">
-              Ukazi
-            </Link>
-            <Link className="btn-with-icon mode-nav-btn" to="/nadzor/testi">
-              Testi
             </Link>
           </div>
 
@@ -296,6 +461,31 @@ export function AdminHomePage() {
           <p className="fine admin-dash-stamp">Posodobljeno {formatWhen(summary.generated_at)}</p>
         </>
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(pendingClose)}
+        title="Zapri sobo"
+        message={pendingClose ? `Zaprem sobo ${pendingClose}? Igra se prekine.` : ""}
+        confirmLabel="Zapri"
+        danger
+        onConfirm={() => {
+          if (pendingClose) void closeRoom(pendingClose);
+        }}
+        onCancel={() => setPendingClose("")}
+      />
+      <ConfirmModal
+        open={Boolean(pendingKick)}
+        title="Kick igralca"
+        message={
+          pendingKick ? `Odstranim ${pendingKick.nick} iz sobe ${pendingKick.code}?` : ""
+        }
+        confirmLabel="Kick"
+        danger
+        onConfirm={() => {
+          if (pendingKick) void kickMember(pendingKick.code, pendingKick.memberId);
+        }}
+        onCancel={() => setPendingKick(null)}
+      />
     </section>
   );
 }

@@ -71,7 +71,9 @@ def question_payload(question):
         "explanation": question.explanation,
         "image": question.image,
         "is_active": question.is_active,
-        "open_reports": question.open_reports,
+        "open_reports": getattr(question, "open_reports", None)
+        if hasattr(question, "open_reports")
+        else question.reports.filter(status=QuestionReport.Status.OPEN).count(),
     }
     if question.question_type == Question.Type.MATCHING:
         payload["pairs"] = (question.config or {}).get("pairs") or []
@@ -169,6 +171,22 @@ class ReportCreateView(APIView):
         return Response({"id": report.id, "detail": "Pritožba je zabeležena."})
 
 
+def _admin_health():
+    from game.admin_health import collect_health
+
+    full = collect_health(detail=False)
+    return {
+        "ok": full["ok"],
+        "db": {"ok": full["db"]["ok"], "detail": full["db"]["detail"]},
+        "redis": {
+            "ok": full["redis"]["ok"],
+            "detail": full["redis"]["detail"],
+            "ping_ms": full["redis"].get("ping_ms"),
+            "url": full["redis"].get("url"),
+        },
+    }
+
+
 class AdminSummaryView(APIView):
     permission_classes = [StaffOnly]
 
@@ -216,9 +234,43 @@ class AdminSummaryView(APIView):
             for row in GameResult.objects.values("mode").annotate(c=Count("id")).order_by()
         }
 
+        live_rooms = []
+        for room in (
+            Room.objects.filter(status__in=["waiting", "playing"])
+            .select_related("host")
+            .prefetch_related("members")
+            .order_by("-last_activity")[:12]
+        ):
+            members = [
+                {
+                    "id": str(m.id),
+                    "nickname": m.nickname_in_room,
+                    "is_host": m.is_host,
+                    "is_bot": m.is_bot,
+                }
+                for m in room.members.filter(left_at__isnull=True).order_by("joined_at")
+            ]
+            live_rooms.append(
+                {
+                    "code": room.code,
+                    "name": room.name,
+                    "status": room.status,
+                    "mode": (room.settings or {}).get("mode") or "",
+                    "mode_label": MODE_LABELS.get((room.settings or {}).get("mode") or "", ""),
+                    "member_count": len(members),
+                    "max_players": room.max_players,
+                    "host_nickname": room.host.nickname if room.host_id else "",
+                    "last_activity": room.last_activity.isoformat() if room.last_activity else None,
+                    "members": members,
+                }
+            )
+
+        health = _admin_health()
+
         return Response(
             {
                 "generated_at": now.isoformat(),
+                "health": health,
                 "questions": Question.objects.count(),
                 "active_questions": Question.objects.filter(is_active=True).count(),
                 "inactive_questions": Question.objects.filter(is_active=False).count(),
@@ -245,6 +297,7 @@ class AdminSummaryView(APIView):
                 "bots": AiBot.objects.filter(is_active=True).count(),
                 "friends": PhoneFriend.objects.filter(is_active=True).count(),
                 "bonuses": BonusDefinition.objects.filter(is_active=True).count(),
+                "live_rooms": live_rooms,
                 "recent_reports": recent_reports,
                 "recent_sessions": recent_sessions,
                 "attention": {

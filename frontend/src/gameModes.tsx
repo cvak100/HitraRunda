@@ -1,7 +1,11 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
+import { api } from "./api";
 
 export const GAME_MODES = [
   {
+    id: "hitrarunda",
     eyebrow: "Kratke solo runde",
     title: "Hitra runda",
     blurb: "5–15 vprašanj iz izbranih kategorij. Brez jokerjev — šteje hitrost.",
@@ -9,6 +13,7 @@ export const GAME_MODES = [
     boardTo: "/lestvica/hitrarunda",
   },
   {
+    id: "ala_milijonar",
     eyebrow: "15 stopenj z jokerji",
     title: "Ala milijonar",
     blurb:
@@ -17,6 +22,7 @@ export const GAME_MODES = [
     boardTo: "/lestvica/ala-milijonar",
   },
   {
+    id: "multiplayer",
     eyebrow: "Igraj z drugimi",
     title: "Hitra tekma",
     blurb: "Odpri sobo ali se pridruži s kodo. Ista vprašanja za vse, zmaga najhitrejši.",
@@ -24,6 +30,7 @@ export const GAME_MODES = [
     boardTo: "/lestvica/vec-igralcev",
   },
   {
+    id: "dirka",
     eyebrow: "Dirka do točk",
     title: "Dirka",
     blurb: "Prvi do cilja. Fiksni bonusi, varna zona in Dirka AI. Ista vprašanja, naprej ko vsi odgovorijo.",
@@ -31,6 +38,7 @@ export const GAME_MODES = [
     boardTo: "/lestvica/dirka",
   },
   {
+    id: "60_sekund",
     eyebrow: "Preživi minuto",
     title: "60 sekund",
     blurb: "Skupni čas. Pravilno +2 s, napačno −5 s, preskok −2 s. Čim več pravilnih, preden ura pride na 0.",
@@ -40,9 +48,21 @@ export const GAME_MODES = [
 ] as const;
 
 export function GameModeRows({ lockedHint }: { lockedHint?: string }) {
+  const [enabled, setEnabled] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    api<{ enabled_modes?: string[] }>("/api/game-config/")
+      .then((cfg) => setEnabled(cfg.enabled_modes ?? GAME_MODES.map((g) => g.id)))
+      .catch(() => setEnabled(GAME_MODES.map((g) => g.id)));
+  }, []);
+
+  const modes = enabled
+    ? GAME_MODES.filter((game) => enabled.includes(game.id))
+    : GAME_MODES;
+
   return (
     <div className="game-rows">
-      {GAME_MODES.map((game) => (
+      {modes.map((game) => (
         <article key={game.playTo} className="game-row">
           <div>
             <p className="eyebrow">{game.eyebrow}</p>
@@ -57,9 +77,8 @@ export function GameModeRows({ lockedHint }: { lockedHint?: string }) {
                 <PlayIcon />
                 Igraj
               </Link>
-              <Link className="btn-with-icon mode-nav-btn" to={game.boardTo}>
+              <Link className="btn-with-icon board-icon-btn" to={game.boardTo} aria-label="Lestvica" title="Lestvica">
                 <BoardIcon />
-                Lestvica
               </Link>
             </div>
           )}
@@ -101,7 +120,7 @@ export function BoardLink({ to }: { to: string }) {
   return (
     <Link className="btn-with-icon mode-nav-btn" to={to}>
       <BoardIcon />
-      Lestvica
+      
     </Link>
   );
 }

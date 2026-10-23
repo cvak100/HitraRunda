@@ -8,22 +8,23 @@ import type { User } from "../types";
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { refresh } = useAuth();
+  const { user, refresh } = useAuth();
+  const converting = Boolean(user?.is_guest);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nickname, setNickname] = useState("");
+  const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [error, setError] = useState("");
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
     try {
-      await api<{ user: User }>("/api/auth/register/", {
+      const result = await api<{ user: User; converted?: boolean }>("/api/auth/register/", {
         method: "POST",
         body: JSON.stringify({ email, password, nickname }),
       });
       await refresh();
-      navigate("/igra");
+      navigate(result.converted ? "/racun/profil" : "/igra");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Registracija ni uspela.");
     }
@@ -31,7 +32,12 @@ export function RegisterPage() {
 
   return (
     <section className="panel narrow">
-      <h1>Registracija</h1>
+      <h1>{converting ? "Ustvari račun" : "Registracija"}</h1>
+      {converting ? (
+        <p className="fine">
+          Rezultati in vzdevek ostanejo. Dodaš e-pošto in geslo — isti profil, brez novega začetka.
+        </p>
+      ) : null}
       <form onSubmit={onSubmit} className="stack">
         <label>
           E-pošta
@@ -39,16 +45,24 @@ export function RegisterPage() {
         </label>
         <label>
           Geslo
-          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={4} required />
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            minLength={4}
+            required
+          />
         </label>
         <NicknameField value={nickname} onChange={setNickname} required />
         {error ? <p className="error">{error}</p> : null}
         <button className="primary" type="submit">
-          Ustvari račun
+          {converting ? "Pretvori v račun" : "Ustvari račun"}
         </button>
-        <p className="fine">
-          Že imaš račun? <Link to="/prijava">Prijava</Link>
-        </p>
+        {!converting ? (
+          <p className="fine">
+            Že imaš račun? <Link to="/prijava">Prijava</Link>
+          </p>
+        ) : null}
       </form>
     </section>
   );

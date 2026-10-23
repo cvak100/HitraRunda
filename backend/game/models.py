@@ -112,5 +112,31 @@ class GameResult(models.Model):
         return f"{self.nickname}: {self.score}"
 
 
+class SiteConfig(models.Model):
+    """Singleton: admin nastavitve iger (JSON override nad defaulti)."""
+
+    values = models.JSONField(default=dict, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "nastavitve spletnega mesta"
+        verbose_name_plural = "nastavitve spletnega mesta"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return "Nastavitve"
+
+
 from game.bonus_models import AiBot, BonusDefinition, PhoneFriend  # noqa: E402,F401
 

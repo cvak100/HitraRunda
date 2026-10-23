@@ -1,3 +1,4 @@
+import { Avatar } from "./Avatar";
 import { formatPoints } from "../format";
 import type { StandingRow } from "../types";
 
@@ -92,10 +93,13 @@ export function DirkaRaceTrack({
           return (
             <li key={row.member_id} className={isMe ? "is-me" : undefined}>
               <div className="dirka-race-row-head">
-                <span>
-                  #{row.rank || "?"} {row.nickname}
-                  {row.is_bot ? " (AI)" : ""}
-                  {isMe ? " · ti" : ""}
+                <span className="dirka-race-player">
+                  <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
+                  <span>
+                    #{row.rank || "?"} {row.nickname}
+                    {row.is_bot ? " (AI)" : ""}
+                    {isMe ? " · ti" : ""}
+                  </span>
                 </span>
                 <strong>{formatPoints(score)}</strong>
               </div>

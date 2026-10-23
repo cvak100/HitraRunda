@@ -24,8 +24,8 @@ type LobbyRoom = {
   };
 };
 
-const TIMES = [30, 60, 90, 120, 300];
-const COUNTS = [5, 10, 20, 40, 50, 100];
+const DEFAULT_TIMES = [30, 60, 90, 120, 300];
+const DEFAULT_COUNTS = [5, 10, 20, 40, 50, 100];
 
 function formatTime(seconds: number) {
   if (seconds < 120) return `${seconds} s`;
@@ -52,6 +52,10 @@ export function MultiplayerHubPage() {
   const [invites, setInvites] = useState<LobbyRoom[]>([]);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [times, setTimes] = useState(DEFAULT_TIMES);
+  const [counts, setCounts] = useState(DEFAULT_COUNTS);
+  const [maxPlayersCap, setMaxPlayersCap] = useState(6);
+  const [maxBots, setMaxBots] = useState(5);
 
   useEffect(() => {
     api<{ categories: Category[] }>("/api/categories/")
@@ -60,6 +64,34 @@ export function MultiplayerHubPage() {
         setSelected(data.categories.map((item) => item.slug));
       })
       .catch(() => setError("Kategorij ni bilo mogoče naložiti."));
+    api<{
+      multiplayer?: {
+        times?: number[];
+        question_counts?: number[];
+        max_players?: number;
+        max_bots?: number;
+      };
+    }>("/api/game-config/")
+      .then((cfg) => {
+        const mp = cfg.multiplayer;
+        if (mp?.times?.length) {
+          setTimes(mp.times);
+          setSeconds((current) => (mp.times!.includes(current) ? current : mp.times![0]));
+        }
+        if (mp?.question_counts?.length) {
+          setCounts(mp.question_counts);
+          setCount((current) => (mp.question_counts!.includes(current) ? current : mp.question_counts![0]));
+        }
+        if (mp?.max_players) {
+          setMaxPlayersCap(mp.max_players);
+          setMaxPlayers((current) => Math.min(current, mp.max_players!));
+        }
+        if (typeof mp?.max_bots === "number") {
+          setMaxBots(mp.max_bots);
+          setBotCount((current) => Math.min(current, mp.max_bots!));
+        }
+      })
+      .catch(() => undefined);
     api<{ rooms: LobbyRoom[] }>("/api/rooms/public/?mode=multiplayer")
       .then((data) => setPublicRooms(data.rooms))
       .catch(() => setPublicRooms([]));
@@ -159,10 +191,10 @@ export function MultiplayerHubPage() {
             label="Največ igralcev"
             value={maxPlayers}
             min={2}
-            max={6}
+            max={maxPlayersCap}
             onChange={(value) => {
               setMaxPlayers(value);
-              setBotCount((current) => Math.min(current, Math.max(0, value - 1)));
+              setBotCount((current) => Math.min(current, Math.max(0, Math.min(maxBots, value - 1))));
             }}
           />
           <fieldset>
@@ -182,11 +214,11 @@ export function MultiplayerHubPage() {
               </label>
             ))}
           </fieldset>
-          <NumberStepper label="Število vprašanj" value={count} options={COUNTS} onChange={setCount} />
+          <NumberStepper label="Število vprašanj" value={count} options={counts} onChange={setCount} />
           <div className="stack-gap">
             <span className="stepper-label">Čas na vprašanje</span>
             <div className="choices" role="group" aria-label="Čas na vprašanje">
-              {TIMES.map((time) => (
+              {times.map((time) => (
                 <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
                   {formatTime(time)}
                 </button>
@@ -197,7 +229,7 @@ export function MultiplayerHubPage() {
             label="AI nasprotniki"
             value={botCount}
             min={0}
-            max={Math.max(0, maxPlayers - 1)}
+            max={Math.max(0, Math.min(maxBots, maxPlayers - 1))}
             onChange={setBotCount}
           />
           <p className="fine">AI + ti ne sme preseči največ igralcev ({maxPlayers}).</p>

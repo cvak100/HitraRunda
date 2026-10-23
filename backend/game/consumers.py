@@ -159,7 +159,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         elif payload.get("phase") == "answer_progress":
             # Drugi so odgovorili — ne prekini časovnika za tiste, ki še čakajo.
             pass
-        elif payload.get("phase") in {"round_review", "waiting_answers", "lobby", "finished"}:
+        elif payload.get("phase") == "round_review":
+            self._cancel_timer()
+            # Vsi klientni WS načrtujejo prehod (claim deli isti deadline) — če eden odpade, drugi potisnejo naprej.
+            await self._arm_auto_advance()
+        elif payload.get("phase") in {"waiting_answers", "lobby", "finished"}:
             self._cancel_timer()
             if payload.get("phase") in {"lobby", "finished"}:
                 self._cancel_advance()
@@ -291,13 +295,20 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def _auto_advance_later(self, plan):
         try:
             await asyncio.sleep(float(plan.get("delay") or 5))
-            payloads = await database_sync_to_async(next_question)(plan["host_member_id"])
+            try:
+                payloads = await database_sync_to_async(next_question)(plan["host_member_id"])
+            except GameError:
+                # Hostov klic ni uspel — poskusi kot ta član (dovoljeno, ko je auto_advance_at zapadel).
+                payloads = await database_sync_to_async(next_question)(self.member_id)
             await self._broadcast_all(payloads or [])
             if payloads and payloads[0].get("phase") == "question":
                 await self._arm_bots(payloads[0])
+            elif payloads and payloads[0].get("phase") == "finished":
+                self._cancel_advance()
         except asyncio.CancelledError:
             return
         except GameError:
+            logger.info("Samodejni prehod runde zavrnjen", exc_info=False)
             return
         except Exception:
             logger.exception("Samodejni prehod runde ni uspel")

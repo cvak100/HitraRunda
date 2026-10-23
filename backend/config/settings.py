@@ -122,6 +122,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+if TESTING:
+    # WhiteNoise sicer med testi kliče UserWarning, če mapa ne obstaja.
+    Path(STATIC_ROOT).mkdir(parents=True, exist_ok=True)
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
@@ -156,6 +159,16 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "60/min",
+        "user": "300/min",
+        "auth": "20/min",
+        "guest": "10/min",
+    },
 }
 
 REDIS_URL = env("REDIS_URL", "redis://localhost:6379/0")
@@ -178,6 +191,15 @@ CHANNEL_LAYERS = {
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
+# E-pošta (ponastavitev gesla). Privzeto console — v produkciji nastavi SMTP.
+EMAIL_BACKEND = env("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = env("EMAIL_HOST", "")
+EMAIL_PORT = int(env("EMAIL_PORT", "587") or "587")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS", "1") == "1"
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "noreply@hitrarunda.local")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -185,6 +207,18 @@ LOGGING = {
     "root": {"handlers": ["console"], "level": "INFO"},
 }
 
+_sentry_dsn = env("SENTRY_DSN", "").strip()
+if _sentry_dsn and not TESTING:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        dsn=_sentry_dsn,
+        traces_sample_rate=float(env("SENTRY_TRACES_SAMPLE_RATE", "0.1") or "0.1"),
+        send_default_pii=False,
+        environment=env("SENTRY_ENVIRONMENT", "production" if not DEBUG else "development"),
+    )
+
 if TESTING:
     CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+    EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"

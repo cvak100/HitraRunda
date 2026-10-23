@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { Modal } from "../components/Modal";
 import { ApiError, api } from "../api";
 import { formatMode } from "../format";
@@ -79,6 +80,7 @@ export function AdminBonusesPage() {
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   function load() {
     api<{ bonuses: BonusDefinition[]; kinds: { key: string; label: string }[] }>("/api/admin/bonuses/")
@@ -169,6 +171,20 @@ export function AdminBonusesPage() {
     }
   }
 
+  async function onDelete() {
+    if (editingId == null) return;
+    setConfirmDelete(false);
+    setError("");
+    try {
+      const result = await api<{ detail: string }>(`/api/admin/bonuses/${editingId}/`, { method: "DELETE" });
+      setNotice(result.detail || "Bonus je umaknjen.");
+      closeModal();
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Brisanje ni uspelo.");
+    }
+  }
+
   return (
     <section className="panel">
       <p className="eyebrow">Admin</p>
@@ -214,8 +230,25 @@ export function AdminBonusesPage() {
       </div>
       <Modal title={editingId == null ? "Nov bonus" : "Uredi bonus"} open={modalOpen} onClose={closeModal}>
         {error && modalOpen ? <p className="error">{error}</p> : null}
-        <BonusForm form={form} setForm={setForm} kinds={kinds} onSubmit={onSubmit} submitLabel={editingId == null ? "Ustvari" : "Shrani"} onCancel={closeModal} />
+        <BonusForm
+          form={form}
+          setForm={setForm}
+          kinds={kinds}
+          onSubmit={onSubmit}
+          submitLabel={editingId == null ? "Ustvari" : "Shrani"}
+          onCancel={closeModal}
+          onDelete={editingId != null ? () => setConfirmDelete(true) : undefined}
+        />
       </Modal>
+      <ConfirmModal
+        open={confirmDelete}
+        title="Izbriši bonus"
+        message="Bonus se umakne (ni več na voljo v novih igrah)."
+        confirmLabel="Izbriši"
+        danger
+        onConfirm={() => void onDelete()}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </section>
   );
 }
@@ -227,6 +260,7 @@ function BonusForm({
   onSubmit,
   submitLabel,
   onCancel,
+  onDelete,
 }: {
   form: FormState;
   setForm: (form: FormState) => void;
@@ -234,6 +268,7 @@ function BonusForm({
   onSubmit: (event: FormEvent) => void;
   submitLabel: string;
   onCancel?: () => void;
+  onDelete?: () => void;
 }) {
   return (
     <form className="stack" onSubmit={onSubmit}>
@@ -286,6 +321,11 @@ function BonusForm({
         {onCancel ? (
           <button type="button" onClick={onCancel}>
             Prekliči
+          </button>
+        ) : null}
+        {onDelete ? (
+          <button type="button" className="danger" onClick={onDelete}>
+            Izbriši
           </button>
         ) : null}
       </div>

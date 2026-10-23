@@ -12,23 +12,27 @@ import { AdminCatalogLayout } from "./pages/AdminCatalogLayout";
 import { AdminContentLayout } from "./pages/AdminContentLayout";
 import { AdminContentPage } from "./pages/AdminContentPage";
 import { AdminFriendsPage } from "./pages/AdminFriendsPage";
+import { AdminHealthPage } from "./pages/AdminHealthPage";
 import { AdminHomePage } from "./pages/AdminHomePage";
 import { AdminLayout } from "./pages/AdminLayout";
 import { AdminQuestionsPage } from "./pages/AdminQuestionsPage";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
 import { AdminRoomsPage } from "./pages/AdminRoomsPage";
 import { AdminSessionsPage } from "./pages/AdminSessionsPage";
+import { AdminSettingsPage } from "./pages/AdminSettingsPage";
 import { AdminTestsPage } from "./pages/AdminTestsPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
 import { LogoutPage } from "./pages/LogoutPage";
 import { HomePage } from "./pages/HomePage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { LoginPage } from "./pages/LoginPage";
 import { DirkaHubPage } from "./pages/DirkaHubPage";
 import { MultiplayerHubPage } from "./pages/MultiplayerHubPage";
 import { PlayHubPage } from "./pages/PlayHubPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SetupPage } from "./pages/SetupPage";
@@ -42,6 +46,8 @@ export function App() {
             <Route index element={<HomePage />} />
             <Route path="prijava" element={<LoginPage />} />
             <Route path="registracija" element={<RegisterPage />} />
+            <Route path="pozabljeno-geslo" element={<ForgotPasswordPage />} />
+            <Route path="ponastavi-geslo" element={<ResetPasswordPage />} />
             <Route path="lestvica" element={<Navigate to="/lestvica/hitrarunda" replace />} />
             <Route path="lestvica/hitrarunda" element={<LeaderboardPage />} />
             <Route path="lestvica/ala-milijonar" element={<LeaderboardPage />} />
@@ -68,6 +74,7 @@ export function App() {
             <Route element={<RequireStaff />}>
               <Route path="nadzor" element={<AdminLayout />}>
                 <Route index element={<AdminHomePage />} />
+                <Route path="health" element={<AdminHealthPage />} />
                 <Route path="vsebina" element={<AdminContentLayout />}>
                   <Route index element={<AdminContentPage />} />
                   <Route path="vprasanja" element={<AdminQuestionsPage />} />
@@ -97,7 +104,9 @@ export function App() {
                 <Route path="igre/:sessionId" element={<AdminSessionDetailPage />} />
                 <Route path="sobe" element={<AdminRoomsPage />} />
                 <Route path="uporabniki" element={<AdminUsersPage />} />
+                <Route path="nastavitve" element={<AdminSettingsPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
+                <Route path="simulacija" element={<Navigate to="/nadzor/ukazi" replace />} />
                 <Route path="testi" element={<AdminTestsPage />} />
               </Route>
               <Route path="vprasanja" element={<Navigate to="/nadzor/vsebina/vprasanja" replace />} />

@@ -17,6 +17,7 @@ type AdminRoom = {
   created_at?: string;
   close_reason?: string;
   settings?: { mode?: string; question_count?: number; time_limit_seconds?: number; bot_count?: number };
+  members?: { id: string; nickname: string; is_host?: boolean; is_bot?: boolean }[];
 };
 
 const STATUS: Record<string, string> = {
@@ -39,6 +40,7 @@ export function AdminRoomsPage() {
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
   const [pending, setPending] = useState("");
   const [pendingClose, setPendingClose] = useState("");
+  const [pendingKick, setPendingKick] = useState<{ code: string; memberId: string; nick: string } | null>(null);
 
   function load() {
     const params = new URLSearchParams();
@@ -99,6 +101,24 @@ export function AdminRoomsPage() {
     }
   }
 
+  async function kickMember(code: string, memberId: string) {
+    setPending(`${code}:${memberId}`);
+    setPendingKick(null);
+    setError("");
+    try {
+      const result = await api<{ detail: string }>(`/api/admin/rooms/${code}/kick/`, {
+        method: "POST",
+        body: JSON.stringify({ member_id: memberId }),
+      });
+      setNotice(result.detail);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Kick ni uspel.");
+    } finally {
+      setPending("");
+    }
+  }
+
   return (
     <section className="panel">
       <p className="eyebrow">Admin</p>
@@ -153,6 +173,36 @@ export function AdminRoomsPage() {
                 <td>
                   {room.member_count}/{room.max_players}
                   {room.settings?.bot_count ? ` · ${room.settings.bot_count} AI` : ""}
+                  {room.members?.length ? (
+                    <div className="fine" style={{ marginTop: 6 }}>
+                      {room.members.map((member) => (
+                        <div key={member.id}>
+                          {member.nickname}
+                          {member.is_host ? " (host)" : ""}
+                          {member.is_bot ? " · AI" : ""}
+                          {!member.is_host && (room.status === "waiting" || room.status === "playing") ? (
+                            <>
+                              {" "}
+                              <button
+                                type="button"
+                                className="table-action"
+                                disabled={pending === `${room.code}:${member.id}`}
+                                onClick={() =>
+                                  setPendingKick({
+                                    code: room.code,
+                                    memberId: member.id,
+                                    nick: member.nickname,
+                                  })
+                                }
+                              >
+                                Kick
+                              </button>
+                            </>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </td>
                 <td>{room.last_activity ? formatWhen(room.last_activity) : "—"}</td>
                 <td>
@@ -179,6 +229,17 @@ export function AdminRoomsPage() {
           if (pendingClose) void closeRoom(pendingClose);
         }}
         onCancel={() => setPendingClose("")}
+      />
+      <ConfirmModal
+        open={Boolean(pendingKick)}
+        title="Kick igralca"
+        message={pendingKick ? `Odstranim ${pendingKick.nick} iz ${pendingKick.code}?` : ""}
+        confirmLabel="Kick"
+        danger
+        onConfirm={() => {
+          if (pendingKick) void kickMember(pendingKick.code, pendingKick.memberId);
+        }}
+        onCancel={() => setPendingKick(null)}
       />
     </section>
   );

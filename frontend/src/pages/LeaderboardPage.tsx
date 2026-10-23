@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import { SortableTh } from "../components/AdminToolbar";
+import { Avatar } from "../components/Avatar";
 import { SearchField } from "../components/SearchField";
 import { api } from "../api";
 import { useAuth } from "../auth";
@@ -215,7 +216,12 @@ function ScoreTable({
         <tbody>
           {sorted.map((row) => (
             <tr key={row.id} className="is-link" onClick={() => onOpen(row)}>
-              <td>{row.nickname}</td>
+              <td>
+                <span className="board-player">
+                  <Avatar avatar={row.avatar} color={row.preferred_color || "#7dcea0"} size={32} title={row.nickname} />
+                  <span>{row.nickname}</span>
+                </span>
+              </td>
               <td>{formatPoints(row.score)}</td>
               {isSixty ? (
                 <td>

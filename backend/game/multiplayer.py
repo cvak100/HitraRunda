@@ -1,9 +1,11 @@
 """Večigralski potek: isto vprašanje, čakanje na odgovore, rundni bonus, lestvica."""
 
 import random
+from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from game.engine import (
     GameError,
@@ -22,21 +24,11 @@ from game.engine import (
     select_questions,
     speed_bonus,
 )
-from game.modes import (
-    MODE_MULTIPLAYER,
-    MP_BOT_ACCURACY,
-    MP_BOT_DELAY_MAX,
-    MP_BOT_DELAY_MIN,
-    MP_CATCHUP_BONUS,
-    MP_CORRECT_POINTS,
-    MP_MIN_PLAYERS,
-    MP_ROUND_ADVANCE_SECONDS,
-    MP_ROUND_BONUS,
-    MP_STREAK_BONUS_2,
-    MP_STREAK_BONUS_3,
-)
+from accounts.nicknames import avatar_for_member, resolve_avatar_key
+from game.modes import MODE_MULTIPLAYER, MP_MIN_PLAYERS
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
+from game.site_settings import get as site_get
 from questions.models import Question
 from rooms.models import RoomMember
 from rooms.services import lobby_payload, refresh_can_start
@@ -81,7 +73,7 @@ def start_multiplayer(member_id):
             return [snapshot_multiplayer(member_id)]
         if room.status != "waiting":
             raise GameError("Igre ni mogoče začeti.")
-        members = list(room.members.filter(left_at__isnull=True))
+        members = list(room.members.filter(left_at__isnull=True).select_related("user"))
         if len(members) < MP_MIN_PLAYERS:
             raise GameError(f"Potrebujeta vsaj {MP_MIN_PLAYERS} igralca.")
         if not all(item.is_ready or item.is_bot for item in members):
@@ -97,6 +89,7 @@ def start_multiplayer(member_id):
             str(item.id): {
                 "nickname": item.nickname_in_room,
                 "color": item.color,
+                "avatar": avatar_for_member(item),
                 "score": 0,
                 "correct_count": 0,
                 "round_bonuses": 0,
@@ -197,12 +190,18 @@ def next_multiplayer(member_id):
             raise GameError("Igra ni aktivna.")
         if session.status == "finished":
             return [finished_multiplayer(session, member)]
-        require_can_advance(member, room)
         game_question = _current(session)
+        state = dict(session.state or {})
+        if str(state.get("auto_advance_for") or "").startswith("done:") and not _round_complete(
+            session, game_question
+        ):
+            return [question_payload(session, game_question, member, "question")]
+        require_can_advance(member, room, session)
         if not _round_complete(session, game_question):
             raise GameError("Runda še ni končana.")
         if game_question.order + 1 >= session.total_questions:
             return finalize_multiplayer(session, room)
+        old_id = game_question.id
         nxt = (
             session.game_questions.select_related("question__category")
             .prefetch_related("question__options")
@@ -214,7 +213,8 @@ def next_multiplayer(member_id):
         state = dict(session.state or {})
         state["round_bonus_awarded"] = False
         state["bots_scheduled_for"] = None
-        state["auto_advance_for"] = None
+        state["auto_advance_for"] = f"done:{old_id}"
+        state.pop("auto_advance_at", None)
         session.state = state
         session.current_question_index = nxt.order
         session.save(update_fields=["state", "current_question_index"])
@@ -222,7 +222,7 @@ def next_multiplayer(member_id):
 
 
 def claim_auto_advance(member_id):
-    """Samodejni next po rundi; samo prvi klic zmaga. Vrne host member id + delay."""
+    """Načrt samodejnega next. Vrne plan tudi, če je že claiman (preostali delay) — za vse WS."""
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active" or session.mode != MODE_MULTIPLAYER:
@@ -231,20 +231,34 @@ def claim_auto_advance(member_id):
         if not _round_complete(session, game_question):
             return None
         if game_question.order + 1 >= session.total_questions:
-            # Zadnja runda — host še vedno potrdi zaključek, ali avtomatsko zaključi.
             marker = f"finish:{game_question.id}"
         else:
             marker = f"next:{game_question.id}"
         state = dict(session.state or {})
-        if state.get("auto_advance_for") == marker:
+        if str(state.get("auto_advance_for") or "") == f"done:{game_question.id}":
             return None
+        now = timezone.now()
+        delay_full = float(int(site_get("mp_round_advance_seconds")))
+        host = room.members.filter(left_at__isnull=True, is_host=True).first() or member
+        if state.get("auto_advance_for") == marker:
+            raw_at = state.get("auto_advance_at")
+            advance_at = raw_at if hasattr(raw_at, "isoformat") else parse_datetime(str(raw_at or ""))
+            if advance_at is not None and timezone.is_naive(advance_at):
+                advance_at = timezone.make_aware(advance_at, timezone.get_current_timezone())
+            delay = max(0.0, (advance_at - now).total_seconds()) if advance_at else 0.0
+            return {
+                "host_member_id": str(host.id),
+                "delay": delay,
+                "finish": game_question.order + 1 >= session.total_questions,
+                "marker": marker,
+            }
         state["auto_advance_for"] = marker
+        state["auto_advance_at"] = (now + timedelta(seconds=delay_full)).isoformat()
         session.state = state
         session.save(update_fields=["state"])
-        host = room.members.filter(left_at__isnull=True, is_host=True).first() or member
         return {
             "host_member_id": str(host.id),
-            "delay": MP_ROUND_ADVANCE_SECONDS,
+            "delay": delay_full,
             "finish": game_question.order + 1 >= session.total_questions,
             "marker": marker,
         }
@@ -273,11 +287,11 @@ def claim_bot_schedule(member_id):
             if _answer_for(game_question, bot) is not None:
                 continue
             profile = bot.bot_profile
-            delay_min = float(profile.delay_min) if profile else MP_BOT_DELAY_MIN
-            delay_max = float(profile.delay_max) if profile else MP_BOT_DELAY_MAX
+            delay_min = float(profile.delay_min) if profile else float(site_get("bot_delay_min"))
+            delay_max = float(profile.delay_max) if profile else float(site_get("bot_delay_max"))
             delay_max = min(delay_max, max(delay_min + 0.1, session.time_limit_seconds * 0.7))
             delay = random.uniform(delay_min, max(delay_min, delay_max))
-            accuracy = float(profile.accuracy) if profile else MP_BOT_ACCURACY
+            accuracy = float(profile.accuracy) if profile else float(site_get("bot_accuracy"))
             plans.append(
                 {
                     "member_id": str(bot.id),
@@ -340,13 +354,20 @@ def waiting_answers_message(session, game_question, member, message_type="answer
 
 def round_review_message(session, game_question, member, message_type="round_review"):
     answers = list(
-        game_question.answers.select_related("room_member").order_by("time_taken_ms", "answered_at")
+        game_question.answers.select_related("room_member", "room_member__user").order_by(
+            "time_taken_ms", "answered_at"
+        )
     )
+    players = (session.state or {}).get("players") or {}
     rows = []
     for answer in answers:
         data = answer.answer_data or {}
+        mid = str(answer.room_member_id)
+        stats = players.get(mid) or {}
         row = {
             "nickname": answer.room_member.nickname_in_room,
+            "avatar": stats.get("avatar") or avatar_for_member(answer.room_member),
+            "color": stats.get("color") or answer.room_member.color or "",
             "is_correct": bool(answer.is_correct),
             "timed_out": bool(data.get("timeout")),
             "points": answer.points,
@@ -354,7 +375,7 @@ def round_review_message(session, game_question, member, message_type="round_rev
             "round_bonus": bool(data.get("round_bonus")),
             "streak_bonus": int(data.get("streak_bonus") or 0),
             "catchup_bonus": int(data.get("catchup_bonus") or 0),
-            "member_id": str(answer.room_member_id),
+            "member_id": mid,
             "eliminated": bool(data.get("eliminated")),
         }
         row.update(_selected(answer))
@@ -375,7 +396,7 @@ def round_review_message(session, game_question, member, message_type="round_rev
         "is_last": is_last,
         "is_host": member.is_host,
         "host_member_id": host_id,
-        "advance_seconds": MP_ROUND_ADVANCE_SECONDS,
+        "advance_seconds": int(site_get("mp_round_advance_seconds")),
         "sudden_death": bool((session.state or {}).get("sudden_death")),
         "alive_count": len(_alive_ids(session)),
         "server_now": timezone.now().isoformat(),
@@ -459,6 +480,8 @@ def standings(session):
                 "member_id": member_id,
                 "nickname": stats.get("nickname") or "?",
                 "color": stats.get("color") or "",
+                "avatar": stats.get("avatar")
+                or resolve_avatar_key(nickname=stats.get("nickname") or "", seed=member_id),
                 "score": int(stats.get("score") or 0),
                 "correct_count": int(stats.get("correct_count") or 0),
                 "round_bonuses": int(stats.get("round_bonuses") or 0),
@@ -556,13 +579,13 @@ def _award_round_bonus(session, game_question):
         data = dict(winner.answer_data or {})
         data["round_bonus"] = True
         winner.answer_data = data
-        winner.points = int(winner.points or 0) + MP_ROUND_BONUS
+        winner.points = int(winner.points or 0) + int(site_get("mp_round_bonus"))
         winner.save(update_fields=["answer_data", "points"])
         players = dict(state.get("players") or {})
         key = str(winner.room_member_id)
         stats = dict(players.get(key) or {})
-        stats["score"] = int(stats.get("score") or 0) + MP_ROUND_BONUS
-        stats["round_bonuses"] = int(stats.get("round_bonuses") or 0) + MP_ROUND_BONUS
+        stats["score"] = int(stats.get("score") or 0) + int(site_get("mp_round_bonus"))
+        stats["round_bonuses"] = int(stats.get("round_bonuses") or 0) + int(site_get("mp_round_bonus"))
         players[key] = stats
         state["players"] = players
     state["round_bonus_awarded"] = True
@@ -616,14 +639,14 @@ def _award_catchup_bonus(session, game_question):
         session.state = state
         session.save(update_fields=["state"])
         return
-    data["catchup_bonus"] = MP_CATCHUP_BONUS
+    data["catchup_bonus"] = int(site_get("mp_catchup_bonus"))
     winner.answer_data = data
-    winner.points = int(winner.points or 0) + MP_CATCHUP_BONUS
+    winner.points = int(winner.points or 0) + int(site_get("mp_catchup_bonus"))
     winner.save(update_fields=["answer_data", "points"])
     key = str(winner.room_member_id)
     stats = dict(players.get(key) or {})
-    stats["score"] = int(stats.get("score") or 0) + MP_CATCHUP_BONUS
-    stats["catchup_bonus_total"] = int(stats.get("catchup_bonus_total") or 0) + MP_CATCHUP_BONUS
+    stats["score"] = int(stats.get("score") or 0) + int(site_get("mp_catchup_bonus"))
+    stats["catchup_bonus_total"] = int(stats.get("catchup_bonus_total") or 0) + int(site_get("mp_catchup_bonus"))
     players[key] = stats
     state["players"] = players
     state["catchup_awarded_for"] = str(game_question.id)
@@ -690,7 +713,7 @@ def _store_answer(member, session, game_question, message):
             max(0, int((now - game_question.started_at).total_seconds() * 1000)),
             session.time_limit_seconds,
         ) if is_correct else 0
-        main = MP_CORRECT_POINTS if is_correct else 0
+        main = int(site_get("mp_correct_points")) if is_correct else 0
         streak_bonus = 0
     elapsed = max(0, int((now - game_question.started_at).total_seconds() * 1000))
     state = dict(session.state or {})
@@ -701,9 +724,9 @@ def _store_answer(member, session, game_question, message):
     if is_correct:
         streak += 1
         if streak >= 3:
-            streak_bonus = MP_STREAK_BONUS_3
+            streak_bonus = int(site_get("mp_streak_bonus_3"))
         elif streak >= 2:
-            streak_bonus = MP_STREAK_BONUS_2
+            streak_bonus = int(site_get("mp_streak_bonus_2"))
         stats["streak"] = streak
         if streak_bonus:
             answer_data["streak_bonus"] = streak_bonus
@@ -743,7 +766,7 @@ def _bot_answer_message(game_question, accuracy=None):
         game_question.save(update_fields=["presentation"])
         presentation = ensure_presentation(game_question)
     qid = str(game_question.id)
-    chance = MP_BOT_ACCURACY if accuracy is None else float(accuracy)
+    chance = float(site_get("bot_accuracy")) if accuracy is None else float(accuracy)
     want_correct = random.random() < chance
     options = list(question.options.all())
 

@@ -7,7 +7,14 @@ from accounts.models import User
 from rooms.models import RoomMember
 
 
-def cleanup_stale_guests(days=7):
+def cleanup_stale_guests(days=None):
+    if days is None:
+        try:
+            from game.site_settings import get as site_get
+
+            days = int(site_get("guest_cleanup_days"))
+        except Exception:
+            days = 7
     cutoff = timezone.now() - timedelta(days=days)
     active = RoomMember.objects.filter(
         user=OuterRef("pk"),

@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 
 from accounts.staff import StaffOnly
 from rooms.models import Room
-from rooms.services import close_room, close_stale_rooms, lobby_payload
+from game.engine import GameError
+from rooms.services import admin_kick_member, close_room, close_stale_rooms, lobby_payload
 
 
 def admin_room_payload(room):
@@ -52,3 +53,23 @@ class AdminRoomCloseView(APIView):
             return Response({"detail": "Soba je že zaprta.", "room": admin_room_payload(room)}, status=400)
         close_room(room, reason="admin")
         return Response({"detail": "Soba je zaprta.", "room": admin_room_payload(room)})
+
+
+class AdminRoomKickView(APIView):
+    permission_classes = [StaffOnly]
+
+    def post(self, request, code):
+        room = get_object_or_404(Room.objects.prefetch_related("members"), code=code.upper())
+        member_id = request.data.get("member_id")
+        if not member_id:
+            return Response({"detail": "Manjka member_id."}, status=400)
+        try:
+            member = admin_kick_member(room, member_id)
+        except GameError as exc:
+            return Response({"detail": str(exc)}, status=400)
+        return Response(
+            {
+                "detail": f"Igralec {member.nickname_in_room} je odstranjen.",
+                "room": admin_room_payload(room),
+            }
+        )

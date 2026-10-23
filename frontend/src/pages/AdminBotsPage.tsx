@@ -1,6 +1,7 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { Modal } from "../components/Modal";
 import { NicknameField } from "../components/NicknameField";
 import { ApiError, api } from "../api";
@@ -15,6 +16,7 @@ type FormState = {
   key: string;
   name: string;
   color: string;
+  avatar: string;
   accuracy: number;
   delay_min: number;
   delay_max: number;
@@ -28,6 +30,7 @@ const empty: FormState = {
   key: "",
   name: "",
   color: "#7dcea0",
+  avatar: "ris",
   accuracy: 0.72,
   delay_min: 1.2,
   delay_max: 7.5,
@@ -50,6 +53,7 @@ function toForm(bot: AiBot): FormState {
     key: bot.key,
     name: bot.name,
     color: bot.color,
+    avatar: bot.avatar || "ris",
     accuracy: bot.accuracy ?? 0.72,
     delay_min: bot.delay_min ?? 1.2,
     delay_max: bot.delay_max ?? 7.5,
@@ -68,10 +72,14 @@ export function AdminBotsPage() {
   const [sort, setSort] = useState("order");
   const [direction, setDirection] = useState<"asc" | "desc">("asc");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editing, setEditing] = useState<AiBot | null>(null);
   const [form, setForm] = useState(empty);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<AiBot | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
+  const deleteTargetRef = useRef<AiBot | null>(null);
 
   function load() {
     api<{ bots: AiBot[] }>("/api/admin/bots/")
@@ -85,13 +93,15 @@ export function AdminBotsPage() {
 
   const rows = useMemo(() => {
     const q = submitted.trim().toLowerCase();
-    let list = bots.filter(
-      (item) =>
+    let list = bots.filter((item) => {
+      if (!showInactive && item.is_active === false) return false;
+      return (
         !q ||
         item.name.toLowerCase().includes(q) ||
         item.key.toLowerCase().includes(q) ||
-        modeLabel(item.modes).toLowerCase().includes(q),
-    );
+        modeLabel(item.modes).toLowerCase().includes(q)
+      );
+    });
     list = [...list].sort((a, b) => {
       const av = sort === "modes" ? modeLabel(a.modes) : a[sort as keyof AiBot];
       const bv = sort === "modes" ? modeLabel(b.modes) : b[sort as keyof AiBot];
@@ -100,7 +110,7 @@ export function AdminBotsPage() {
     });
     if (limit !== "all") list = list.slice(0, Number(limit));
     return list;
-  }, [bots, submitted, sort, direction, limit]);
+  }, [bots, submitted, sort, direction, limit, showInactive]);
 
   function toggleSort(column: string) {
     if (sort === column) setDirection((current) => (current === "asc" ? "desc" : "asc"));
@@ -111,15 +121,18 @@ export function AdminBotsPage() {
   }
 
   function openCreate() {
-    setEditingId(null);
+    setEditing(null);
     setForm(empty);
     setError("");
     setModalOpen(true);
   }
 
   function openEdit(bot: AiBot) {
-    if (bot.id == null) return;
-    setEditingId(bot.id);
+    if (bot.id == null) {
+      setError("Bot nima ID — osveži stran.");
+      return;
+    }
+    setEditing(bot);
     setForm(toForm(bot));
     setError("");
     setModalOpen(true);
@@ -127,7 +140,7 @@ export function AdminBotsPage() {
 
   function closeModal() {
     setModalOpen(false);
-    setEditingId(null);
+    setEditing(null);
     setForm(empty);
   }
 
@@ -146,18 +159,55 @@ export function AdminBotsPage() {
       setError("Izberi vsaj en način.");
       return;
     }
+    const editingBot = editing;
+    const editingId = editingBot?.id;
     try {
-      if (editingId == null) {
+      if (editingId == null || !editingBot) {
         await api("/api/admin/bots/", { method: "POST", body: JSON.stringify(form) });
         setNotice("Bot je dodan.");
       } else {
-        await api(`/api/admin/bots/${editingId}/`, { method: "POST", body: JSON.stringify(form) });
+        await api(`/api/admin/bots/${editingId}/`, {
+          method: "POST",
+          body: JSON.stringify({ ...form, key: editingBot.key }),
+        });
         setNotice("Shranjeno.");
       }
       closeModal();
       load();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Shranjevanje ni uspelo.");
+    }
+  }
+
+  function requestDelete() {
+    if (!editing?.id) return;
+    deleteTargetRef.current = editing;
+    setDeleteTarget(editing);
+    setModalOpen(false);
+    setConfirmDelete(true);
+  }
+
+  async function onDelete() {
+    const target = deleteTargetRef.current ?? deleteTarget;
+    setConfirmDelete(false);
+    setDeleteTarget(null);
+    deleteTargetRef.current = null;
+    if (target?.id == null) {
+      setError("Brisanje ni uspelo (manjka ID).");
+      return;
+    }
+    setError("");
+    try {
+      const result = await api<{ detail: string }>(`/api/admin/bots/${target.id}/`, { method: "DELETE" });
+      setNotice(result.detail || "Bot je izbrisan.");
+      setEditing(null);
+      setForm(empty);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Brisanje ni uspelo.");
+      setEditing(target);
+      setForm(toForm(target));
+      setModalOpen(true);
     }
   }
 
@@ -175,6 +225,10 @@ export function AdminBotsPage() {
         onLimitChange={setLimit}
         onAdd={openCreate}
       />
+      <label className="check" style={{ margin: "8px 0" }}>
+        <input type="checkbox" checked={showInactive} onChange={(event) => setShowInactive(event.target.checked)} />
+        Prikaži umaknjene
+      </label>
       <p className="fine">
         {rows.length} od {bots.length}
       </p>
@@ -192,7 +246,7 @@ export function AdminBotsPage() {
           </thead>
           <tbody>
             {rows.map((bot) => (
-              <tr key={bot.key} className="is-link" onClick={() => openEdit(bot)}>
+              <tr key={bot.id ?? bot.key} className="is-link" onClick={() => openEdit(bot)}>
                 <td>
                   <span style={{ color: bot.color }}>●</span> {bot.name}
                 </td>
@@ -208,12 +262,18 @@ export function AdminBotsPage() {
           </tbody>
         </table>
       </div>
-      <Modal title={editingId == null ? "Nov bot" : "Uredi bota"} open={modalOpen} onClose={closeModal}>
+      <Modal title={editing ? "Uredi bota" : "Nov bot"} open={modalOpen} onClose={closeModal}>
         {error && modalOpen ? <p className="error">{error}</p> : null}
         <form className="stack" onSubmit={onSubmit}>
           <label>
             Ključ
-            <input value={form.key} onChange={(event) => setForm({ ...form, key: event.target.value })} required />
+            <input
+              value={form.key}
+              onChange={(event) => setForm({ ...form, key: event.target.value })}
+              required
+              disabled={Boolean(editing)}
+              title={editing ? "Ključa med urejanjem ne spreminjaj" : undefined}
+            />
           </label>
           <NicknameField
             label="Vzdevek v sobi"
@@ -237,6 +297,12 @@ export function AdminBotsPage() {
           <label>
             Barva
             <input value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} />
+            Avatar (ključ)
+            <input
+              value={form.avatar}
+              onChange={(event) => setForm({ ...form, avatar: event.target.value })}
+              placeholder="npr. ris"
+            />
           </label>
           <label>
             Natančnost (0–1)
@@ -287,14 +353,42 @@ export function AdminBotsPage() {
           </label>
           <div className="actions">
             <button className="primary" type="submit">
-              {editingId == null ? "Ustvari" : "Shrani"}
+              {editing ? "Shrani" : "Ustvari"}
             </button>
             <button type="button" onClick={closeModal}>
               Prekliči
             </button>
+            {editing ? (
+              <button type="button" className="danger" onClick={requestDelete}>
+                Izbriši
+              </button>
+            ) : null}
           </div>
         </form>
       </Modal>
+      <ConfirmModal
+        open={confirmDelete}
+        title="Izbriši bota"
+        message={
+          deleteTarget
+            ? `Odstranim bota „${deleteTarget.name}“ (${deleteTarget.key})? Privzeti boti se umaknejo, lastni se zbrišejo.`
+            : "Odstranim bota?"
+        }
+        confirmLabel="Izbriši"
+        danger
+        onConfirm={() => void onDelete()}
+        onCancel={() => {
+          const target = deleteTargetRef.current ?? deleteTarget;
+          setConfirmDelete(false);
+          setDeleteTarget(null);
+          deleteTargetRef.current = null;
+          if (target) {
+            setEditing(target);
+            setForm(toForm(target));
+            setModalOpen(true);
+          }
+        }}
+      />
     </section>
   );
 }

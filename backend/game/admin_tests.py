@@ -68,6 +68,13 @@ TEST_SUITES = [
         "group": "Igre",
         "description": "Zgodnji timeout, lobby mid-game, host offline, stale sobe.",
     },
+    {
+        "id": "smoke",
+        "label": "Smoke (lobby → finish → lestvica)",
+        "module": "game.tests_smoke",
+        "group": "Igre",
+        "description": "Hitra tekma, leave, gost avatar, admin simulacija.",
+    },
 ]
 
 
@@ -115,10 +122,12 @@ class AdminTestRunView(APIView):
             return Response({"detail": "Neznan paket testov."}, status=400)
 
         manage = Path(settings.BASE_DIR) / "manage.py"
+        # WhiteNoise sicer v testih kliče UserWarning: No directory at STATIC_ROOT.
+        Path(settings.STATIC_ROOT).mkdir(parents=True, exist_ok=True)
         started = time.time()
         try:
             proc = subprocess.run(
-                [sys.executable, str(manage), "test", suite["module"], "--verbosity=1"],
+                [sys.executable, str(manage), "test", suite["module"], "--verbosity=2"],
                 cwd=str(settings.BASE_DIR),
                 capture_output=True,
                 text=True,

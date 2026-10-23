@@ -1,11 +1,28 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import * as Sentry from "@sentry/react";
 
 import { App } from "./App";
 import "./styles.css";
 
-createRoot(document.getElementById("root")!).render(
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: import.meta.env.MODE,
+    tracesSampleRate: 0.1,
+  });
+}
+
+const root = createRoot(document.getElementById("root")!);
+root.render(
   <StrictMode>
-    <App />
+    {sentryDsn ? (
+      <Sentry.ErrorBoundary fallback={<p className="error">Prišlo je do napake. Osveži stran.</p>}>
+        <App />
+      </Sentry.ErrorBoundary>
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 );
