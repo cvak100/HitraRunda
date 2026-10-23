@@ -6,13 +6,40 @@ import { useAuth } from "../auth";
 export function Layout() {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const [navOpen, setNavOpen] = useState(false);
+
+  useEffect(() => {
+    setNavOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!navOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setNavOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navOpen]);
+
   return (
     <div className="shell">
       <header id="top" className="top">
         <Link to="/" className="brand">
           Hitra runda
         </Link>
-        <nav className="top-nav">
+        <button
+          type="button"
+          className={`nav-toggle ${navOpen ? "is-open" : ""}`}
+          aria-expanded={navOpen}
+          aria-controls="site-nav"
+          aria-label={navOpen ? "Zapri meni" : "Odpri meni"}
+          onClick={() => setNavOpen((value) => !value)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+        <nav id="site-nav" className={`top-nav ${navOpen ? "is-open" : ""}`}>
           {user?.is_staff ? (
             <Menu label="Admin" active={location.pathname.startsWith("/nadzor")} buttonClass="nav-btn nav-btn-admin">
               <NavLink to="/nadzor" end>
