@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { NumberStepper } from "../components/NumberStepper";
 import type { Category } from "../types";
 
 type LobbyRoom = {
@@ -11,10 +12,23 @@ type LobbyRoom = {
   member_count: number;
   max_players: number;
   has_password: boolean;
-  settings: { question_count?: number; time_limit_seconds?: number };
+  host_nickname?: string;
+  link?: string;
+  settings: {
+    question_count?: number;
+    time_limit_seconds?: number;
+    sudden_death?: boolean;
+    bot_count?: number;
+  };
 };
 
-const TIMES = [10, 15, 20, 30, 45, 60];
+const TIMES = [30, 60, 90, 120, 300];
+const COUNTS = [5, 10, 20, 40, 50, 100];
+
+function formatTime(seconds: number) {
+  if (seconds < 120) return `${seconds} s`;
+  return `${seconds / 60} min`;
+}
 
 export function MultiplayerHubPage() {
   const { user } = useAuth();
@@ -27,7 +41,7 @@ export function MultiplayerHubPage() {
   const [password, setPassword] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [count, setCount] = useState(10);
-  const [seconds, setSeconds] = useState(20);
+  const [seconds, setSeconds] = useState(60);
   const [suddenDeath, setSuddenDeath] = useState(false);
   const [botCount, setBotCount] = useState(0);
   const [joinCode, setJoinCode] = useState("");
@@ -99,7 +113,7 @@ export function MultiplayerHubPage() {
 
   return (
     <section className="panel">
-      <p className="eyebrow">Več igralcev</p>
+      <p className="eyebrow">Hitra tekma</p>
       <h1>Skupna soba</h1>
       <p className="fine">
         <Link to="/igra">← Druge igre</Link>
@@ -144,10 +158,16 @@ export function MultiplayerHubPage() {
               <input value={password} onChange={(event) => setPassword(event.target.value)} required />
             </label>
           ) : null}
-          <label>
-            Največ igralcev: {maxPlayers}
-            <input type="range" min={2} max={6} value={maxPlayers} onChange={(event) => setMaxPlayers(Number(event.target.value))} />
-          </label>
+          <NumberStepper
+            label="Največ igralcev"
+            value={maxPlayers}
+            min={2}
+            max={6}
+            onChange={(value) => {
+              setMaxPlayers(value);
+              setBotCount((current) => Math.min(current, Math.max(0, value - 1)));
+            }}
+          />
           <fieldset>
             <legend>Kategorije</legend>
             {categories.map((category) => (
@@ -165,21 +185,25 @@ export function MultiplayerHubPage() {
               </label>
             ))}
           </fieldset>
-          <label>
-            Število vprašanj: {count}
-            <input type="range" min={5} max={15} value={count} onChange={(event) => setCount(Number(event.target.value))} />
-          </label>
-          <div className="choices" role="group" aria-label="Čas">
-            {TIMES.map((time) => (
-              <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
-                {time} s
-              </button>
-            ))}
+          <NumberStepper label="Število vprašanj" value={count} options={COUNTS} onChange={setCount} />
+          <div className="stack-gap">
+            <span className="stepper-label">Čas na vprašanje</span>
+            <div className="choices" role="group" aria-label="Čas na vprašanje">
+              {TIMES.map((time) => (
+                <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
+                  {formatTime(time)}
+                </button>
+              ))}
+            </div>
           </div>
-          <label>
-            AI nasprotniki: {botCount}
-            <input type="range" min={0} max={3} value={botCount} onChange={(event) => setBotCount(Number(event.target.value))} />
-          </label>
+          <NumberStepper
+            label="AI nasprotniki"
+            value={botCount}
+            min={0}
+            max={Math.max(0, maxPlayers - 1)}
+            onChange={setBotCount}
+          />
+          <p className="fine">AI + ti ne sme preseči največ igralcev ({maxPlayers}).</p>
           <label className="check">
             <input type="checkbox" checked={suddenDeath} onChange={(event) => setSuddenDeath(event.target.checked)} />
             Sudden death (napačen odgovor te izloči)
@@ -215,7 +239,10 @@ export function MultiplayerHubPage() {
                   <article key={room.code} className="admin-card">
                     <h2>{room.name || room.code}</h2>
                     <p className="fine">
-                      {room.member_count}/{room.max_players} · {room.code}
+                      Host: {room.host_nickname || "—"} · {room.member_count}/{room.max_players}
+                    </p>
+                    <p className="fine">
+                      <code>/igra/{room.code}</code>
                     </p>
                     <button type="button" className="primary" onClick={(event) => void onJoin(event, room.code, "")}>
                       Sprejmi
@@ -238,10 +265,17 @@ export function MultiplayerHubPage() {
           <div className="admin-list">
             {publicRooms.map((room) => (
               <article key={room.code} className="admin-card">
-                <h2>{room.name || room.code}</h2>
+                <h2>{room.name || "Hitra tekma"}</h2>
                 <p className="fine">
-                  {room.member_count}/{room.max_players} · {room.settings.question_count ?? "?"} vprašanj ·{" "}
-                  {room.settings.time_limit_seconds ?? "?"} s
+                  Host: <strong>{room.host_nickname || "—"}</strong> · {room.member_count}/{room.max_players} igralcev
+                </p>
+                <p className="fine">
+                  Koda: <code>{room.code}</code> · <code>/igra/{room.code}</code>
+                </p>
+                <p className="fine">
+                  {room.settings.question_count ?? "?"} vprašanj · {formatTime(room.settings.time_limit_seconds ?? 60)}
+                  {room.settings.bot_count ? ` · ${room.settings.bot_count} AI` : ""}
+                  {room.settings.sudden_death ? " · sudden death" : ""}
                   {room.has_password ? " · geslo" : ""}
                 </p>
                 <button

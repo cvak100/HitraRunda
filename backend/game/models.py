@@ -97,6 +97,7 @@ class GameResult(models.Model):
     total_questions = models.PositiveSmallIntegerField()
     duration_ms = models.PositiveIntegerField(null=True, blank=True)
     is_guest = models.BooleanField(default=False)
+    counts_for_leaderboard = models.BooleanField(default=True, db_index=True)
     reason = models.CharField(max_length=20, blank=True)
     room_code = models.CharField(max_length=8, blank=True)
     played_at = models.DateTimeField(auto_now_add=True)
@@ -111,5 +112,5 @@ class GameResult(models.Model):
         return f"{self.nickname}: {self.score}"
 
 
-from game.bonus_models import BonusDefinition, PhoneFriend  # noqa: E402,F401
+from game.bonus_models import AiBot, BonusDefinition, PhoneFriend  # noqa: E402,F401
 

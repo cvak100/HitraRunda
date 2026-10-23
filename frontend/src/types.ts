@@ -60,6 +60,19 @@ export type BonusDefinition = {
   order: number;
 };
 
+export type AiBot = {
+  id?: number;
+  key: string;
+  name: string;
+  color: string;
+  accuracy?: number;
+  delay_min?: number;
+  delay_max?: number;
+  is_active?: boolean;
+  count_for_leaderboard?: boolean;
+  order?: number;
+};
+
 export type LifelineState = {
   available?: boolean;
   used?: boolean;

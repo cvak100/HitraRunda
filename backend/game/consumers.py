@@ -20,7 +20,15 @@ from game.engine import (
 )
 from game.modes import MODE_MULTIPLAYER
 from game.multiplayer import claim_auto_advance, claim_bot_schedule
-from rooms.services import invite_user, lobby_payload, refresh_can_start, set_ready, update_room_settings
+from rooms.services import (
+    close_stale_rooms,
+    invite_user,
+    lobby_payload,
+    refresh_can_start,
+    set_ready,
+    touch_room,
+    update_room_settings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -141,11 +149,15 @@ class GameConsumer(AsyncWebsocketConsumer):
     def _lobby_payload(self):
         from rooms.models import Room
 
+        close_stale_rooms()
         room = Room.objects.filter(code=self.code).first()
         if room is None:
             return {"type": "error", "message": "Soba ne obstaja.", "phase": "error"}
+        if room.status in {"closed", "finished"}:
+            return {"type": "error", "message": "Soba je zaprta.", "phase": "error"}
         if (room.settings or {}).get("mode") != MODE_MULTIPLAYER:
             return {"type": "game_state", "phase": "waiting"}
+        touch_room(room)
         payload = refresh_can_start(lobby_payload(room, viewer=None))
         payload["type"] = "lobby"
         payload["phase"] = "lobby"

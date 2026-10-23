@@ -5,7 +5,7 @@ MODE_MULTIPLAYER = "multiplayer"
 MODE_CHOICES = [
     (MODE_HITRARUNDA, "Hitra runda"),
     (MODE_ALA_MILIJONAR, "Ala milijonar"),
-    (MODE_MULTIPLAYER, "Več igralcev"),
+    (MODE_MULTIPLAYER, "Hitra tekma"),
 ]
 
 PLAYABLE_MODES = {MODE_HITRARUNDA, MODE_ALA_MILIJONAR, MODE_MULTIPLAYER}
@@ -19,14 +19,18 @@ MP_STREAK_BONUS_3 = 50
 MP_CATCHUP_BONUS = 40
 MP_MIN_PLAYERS = 2
 MP_MAX_PLAYERS = 6
-MP_MAX_BOTS = 3
-# AI: verjetnost pravilnega odgovora in zakasnitev v sekundah.
+MP_MAX_BOTS = 5
+# AI: privzete vrednosti, če bot nima profila.
 MP_BOT_ACCURACY = 0.72
 MP_BOT_DELAY_MIN = 1.2
 MP_BOT_DELAY_MAX = 7.5
 # Po rundi: samodejni prehod na naslednje vprašanje.
 MP_ROUND_ADVANCE_SECONDS = 5
-BOT_NICKNAMES = ("Bot Marko", "Bot Lea", "Bot Niko")
+# Čas na vprašanje / število vprašanj v večigralski sobi.
+MP_ALLOWED_TIMES = {30, 60, 90, 120, 300}
+MP_QUESTION_COUNTS = {5, 10, 20, 40, 50, 100}
+# Soba se zapre, če ni aktivnosti.
+ROOM_IDLE_SECONDS = 60 * 60
 
 MODE_LABELS = dict(MODE_CHOICES)
 

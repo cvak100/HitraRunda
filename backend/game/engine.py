@@ -25,7 +25,9 @@ from game.modes import (
     MODE_HITRARUNDA,
     MODE_LABELS,
     MODE_MULTIPLAYER,
+    MP_ALLOWED_TIMES,
     MP_MAX_BOTS,
+    MP_QUESTION_COUNTS,
     PLAYABLE_MODES,
 )
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
@@ -93,9 +95,14 @@ def validate_settings(raw):
             count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
-    if mode in {MODE_HITRARUNDA, MODE_MULTIPLAYER} and not 5 <= count <= 15:
+    if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
         raise GameError("Število vprašanj mora biti med 5 in 15.")
-    if mode != MODE_ALA_MILIJONAR and seconds not in ALLOWED_TIMES:
+    if mode == MODE_MULTIPLAYER and count not in MP_QUESTION_COUNTS:
+        raise GameError("Število vprašanj je 5, 10, 20, 40, 50 ali 100.")
+    if mode == MODE_MULTIPLAYER:
+        if seconds not in MP_ALLOWED_TIMES:
+            raise GameError("Čas na vprašanje je 30 s, 60 s, 90 s, 2 min ali 5 min.")
+    elif mode != MODE_ALA_MILIJONAR and seconds not in ALLOWED_TIMES:
         raise GameError("Čas na vprašanje je 10, 15, 20, 30, 45 ali 60 sekund.")
     slugs = raw.get("categories")
     if not isinstance(slugs, list) or not slugs:

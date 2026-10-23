@@ -49,11 +49,16 @@ export function AdminHomePage() {
         <Link className="dash-card" to="/nadzor/sifranti">
           <span>Šifranti</span>
           <strong>⋯</strong>
-          <span className="fine">kategorije · bonusi · prijatelji</span>
+          <span className="fine">kategorije · bonusi · prijatelji · boti</span>
         </Link>
         <Link className="dash-card" to="/nadzor/igre">
           <span>Igre</span>
           <strong>⋯</strong>
+        </Link>
+        <Link className="dash-card" to="/nadzor/sobe">
+          <span>Sobe</span>
+          <strong>⋯</strong>
+          <span className="fine">zapri · nedejavnost</span>
         </Link>
         <Link className="dash-card" to="/nadzor/uporabniki">
           <span>Uporabniki</span>

@@ -13,6 +13,9 @@ export function AdminCatalogLayout() {
         <NavLink to="/nadzor/sifranti/prijatelji" role="tab">
           Prijatelji
         </NavLink>
+        <NavLink to="/nadzor/sifranti/boti" role="tab">
+          AI boti
+        </NavLink>
       </div>
       <Outlet />
     </div>

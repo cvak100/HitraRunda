@@ -1,6 +1,7 @@
 import { FormEvent, Fragment, useEffect, useState } from "react";
 
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { DeleteIcon, EditIcon, IconAction, ViewIcon } from "../components/IconActions";
 import { ApiError, api } from "../api";
 import { QuestionBody, TYPE_LABELS } from "../components/QuestionBody";
@@ -49,6 +50,7 @@ export function AdminQuestionsPage() {
   const [openId, setOpenId] = useState<number | null>(null);
   const [editId, setEditId] = useState<number | null>(null);
   const [form, setForm] = useState<EditForm | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<StaffQuestion | null>(null);
 
   function load() {
     const params = new URLSearchParams();
@@ -71,13 +73,13 @@ export function AdminQuestionsPage() {
   }, [submitted, status, sort, direction, limit]);
 
   async function removeQuestion(question: StaffQuestion) {
-    if (!window.confirm("Izbrišem to vprašanje?")) return;
     setError("");
     try {
       const result = await api<{ detail: string; deactivated: boolean }>(`/api/admin/questions/${question.id}/`, {
         method: "DELETE",
       });
       setNotice(result.detail);
+      setPendingDelete(null);
       if (result.deactivated && status !== "active") {
         setQuestions((current) =>
           current.map((item) => (item.id === question.id ? { ...item, is_active: false, open_reports: 0 } : item)),
@@ -213,7 +215,7 @@ export function AdminQuestionsPage() {
                     <IconAction label="Uredi" onClick={() => startEdit(question)}>
                       <EditIcon />
                     </IconAction>
-                    <IconAction label="Izbriši" danger onClick={() => void removeQuestion(question)}>
+                    <IconAction label="Izbriši" danger onClick={() => setPendingDelete(question)}>
                       <DeleteIcon />
                     </IconAction>
                   </td>
@@ -341,6 +343,17 @@ export function AdminQuestionsPage() {
           </tbody>
         </table>
       </div>
+      <ConfirmModal
+        open={pendingDelete != null}
+        title="Izbriši vprašanje"
+        message="Izbrišem to vprašanje?"
+        confirmLabel="Izbriši"
+        danger
+        onConfirm={() => {
+          if (pendingDelete) void removeQuestion(pendingDelete);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </section>
   );
 }

@@ -6,6 +6,7 @@ from accounts.nicknames import NicknameError
 from game.engine import GameError
 from rooms.models import Room
 from rooms.services import (
+    close_stale_rooms,
     create_multiplayer_room,
     create_solo_room,
     invite_user,
@@ -14,6 +15,7 @@ from rooms.services import (
     list_public_rooms,
     room_payload,
     set_ready,
+    touch_room,
     update_room_settings,
 )
 
@@ -48,15 +50,20 @@ class RoomDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, code):
+        close_stale_rooms()
         room = Room.objects.filter(code=code.upper()).first()
         if room is None:
             return Response({"detail": "Soba ne obstaja."}, status=404)
+        if room.status in {"closed", "finished"}:
+            return Response({"detail": "Soba je zaprta."}, status=400)
         member = room.members.filter(user=request.user, left_at__isnull=True).first()
         if member is None and room.visibility == "private":
             return Response({"detail": "Soba ne obstaja."}, status=404)
         if member is None and room.visibility != "public":
             # unlisted: allow detail only if member; public can preview
             return Response({"detail": "Nisi v sobi."}, status=403)
+        if member is not None:
+            touch_room(room)
         return Response(room_payload(room, viewer=request.user if member else None))
 
     def patch(self, request, code):

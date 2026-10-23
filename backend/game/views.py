@@ -53,7 +53,7 @@ class LeaderboardView(APIView):
         limit, error = _bounded_limit(request.query_params.get("limit"), {"10", "100"}, 10)
         if error:
             return error
-        results = GameResult.objects.filter(score__gt=0)
+        results = GameResult.objects.filter(score__gt=0, counts_for_leaderboard=True)
         mode = str(request.query_params.get("mode") or "").strip()
         if mode == "millionaire":
             mode = "hitrarunda"

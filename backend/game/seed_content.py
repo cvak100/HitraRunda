@@ -1,5 +1,5 @@
-from game.bonus_models import BonusDefinition, PhoneFriend
-from game.modes import MODE_ALA_MILIJONAR
+from game.bonus_models import AiBot, BonusDefinition, PhoneFriend
+from game.modes import MODE_ALA_MILIJONAR, MP_BOT_ACCURACY, MP_BOT_DELAY_MAX, MP_BOT_DELAY_MIN
 
 DEFAULT_BONUSES = (
     {
@@ -104,6 +104,71 @@ DEFAULT_FRIENDS = (
 )
 
 
+DEFAULT_BOTS = (
+    {
+        "key": "marko",
+        "name": "Bot Marko",
+        "color": "#7dcea0",
+        "accuracy": 0.7,
+        "delay_min": 1.5,
+        "delay_max": 6.0,
+        "order": 1,
+    },
+    {
+        "key": "lea",
+        "name": "Bot Lea",
+        "color": "#85c1e9",
+        "accuracy": 0.78,
+        "delay_min": 1.0,
+        "delay_max": 5.5,
+        "order": 2,
+    },
+    {
+        "key": "niko",
+        "name": "Bot Niko",
+        "color": "#f5b041",
+        "accuracy": 0.65,
+        "delay_min": 2.0,
+        "delay_max": 8.0,
+        "order": 3,
+    },
+    {
+        "key": "ina",
+        "name": "Bot Ina",
+        "color": "#bb8fce",
+        "accuracy": 0.82,
+        "delay_min": 1.2,
+        "delay_max": 4.5,
+        "order": 4,
+    },
+    {
+        "key": "tito",
+        "name": "Bot Tito",
+        "color": "#e59866",
+        "accuracy": 0.55,
+        "delay_min": 2.5,
+        "delay_max": 9.0,
+        "order": 5,
+    },
+)
+
+
+def ensure_bots():
+    for item in DEFAULT_BOTS:
+        AiBot.objects.update_or_create(
+            key=item["key"],
+            defaults={
+                "name": item["name"],
+                "color": item["color"],
+                "accuracy": item.get("accuracy", MP_BOT_ACCURACY),
+                "delay_min": item.get("delay_min", MP_BOT_DELAY_MIN),
+                "delay_max": item.get("delay_max", MP_BOT_DELAY_MAX),
+                "is_active": True,
+                "order": item["order"],
+            },
+        )
+
+
 def ensure_bonuses_and_friends():
     for item in DEFAULT_BONUSES:
         BonusDefinition.objects.update_or_create(
@@ -134,3 +199,4 @@ def ensure_bonuses_and_friends():
                 "order": item["order"],
             },
         )
+    ensure_bots()

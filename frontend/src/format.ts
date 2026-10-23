@@ -25,7 +25,7 @@ export const MODE_LABELS: Record<string, string> = {
   hitrarunda: "Hitra runda",
   millionaire: "Hitra runda",
   ala_milijonar: "Ala milijonar",
-  multiplayer: "Več igralcev",
+  multiplayer: "Hitra tekma",
 };
 
 export function formatMode(mode: string) {

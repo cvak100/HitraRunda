@@ -71,7 +71,7 @@ export function LeaderboardPage() {
           Ala milijonar
         </NavLink>
         <NavLink to="/lestvica/vec-igralcev" role="tab">
-          Več igralcev
+          Hitra tekma
         </NavLink>
       </div>
 
