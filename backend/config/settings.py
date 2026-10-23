@@ -1,6 +1,7 @@
 import os
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,10 +24,29 @@ if not SECRET_KEY:
     else:
         raise RuntimeError("Nastavi DJANGO_SECRET_KEY.")
 
-ALLOWED_HOSTS = split_csv(env("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,backend"))
-CSRF_TRUSTED_ORIGINS = split_csv(
-    env("DJANGO_CSRF_TRUSTED_ORIGINS", "http://localhost:5008,http://127.0.0.1:5008")
+# Ena javna URL (http://… ali https://…) nastavi hoste, CSRF in piškotke.
+APP_URL = env("APP_URL", "").rstrip("/")
+_app = urlparse(APP_URL) if APP_URL else None
+
+_hosts_raw = env("DJANGO_ALLOWED_HOSTS", "").strip()
+ALLOWED_HOSTS = (
+    split_csv(_hosts_raw) if _hosts_raw else ["localhost", "127.0.0.1", "backend"]
 )
+_csrf_raw = env("DJANGO_CSRF_TRUSTED_ORIGINS", "").strip()
+CSRF_TRUSTED_ORIGINS = (
+    split_csv(_csrf_raw)
+    if _csrf_raw
+    else ["http://localhost:5008", "http://127.0.0.1:5008"]
+)
+
+if _app and _app.hostname:
+    for host in (_app.hostname, f"{_app.hostname}:{_app.port}" if _app.port else None):
+        if host and host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(host)
+    if "backend" not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append("backend")
+    if APP_URL not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(APP_URL)
 
 INSTALLED_APPS = [
     "daphne",
@@ -111,12 +131,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 
-COOKIE_SECURE = env("DJANGO_COOKIE_SECURE", "0") == "1"
+_cookie_secure_raw = env("DJANGO_COOKIE_SECURE", "").strip()
+if _cookie_secure_raw in ("0", "1"):
+    COOKIE_SECURE = _cookie_secure_raw == "1"
+else:
+    COOKIE_SECURE = bool(_app and _app.scheme == "https")
 SESSION_COOKIE_SECURE = COOKIE_SECURE
 CSRF_COOKIE_SECURE = COOKIE_SECURE
 CSRF_COOKIE_HTTPONLY = False
 SESSION_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SAMESITE = "Lax"
+
+# Za reverse proxy (nginx / Caddy): spoštuj X-Forwarded-Proto in Host.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
