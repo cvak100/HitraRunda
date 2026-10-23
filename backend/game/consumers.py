@@ -15,10 +15,11 @@ from game.engine import (
     snapshot,
     start_game,
     submit_answer,
+    use_bonus,
     use_lifeline,
     walk_away,
 )
-from game.modes import MODE_MULTIPLAYER
+from game.modes import LOBBY_MODES, MODE_DIRKA, MODE_MULTIPLAYER
 from game.multiplayer import claim_auto_advance, claim_bot_schedule
 from rooms.services import (
     close_stale_rooms,
@@ -51,9 +52,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.timer_task = None
         self.bot_tasks = []
         self.advance_task = None
+        self.connection_epoch = None
         await self.channel_layer.group_add(self.group, self.channel_name)
         await self.accept()
-        await database_sync_to_async(set_member_connected)(self.member_id, True)
+        self.connection_epoch = await database_sync_to_async(set_member_connected)(
+            self.member_id, True
+        )
         payload = await database_sync_to_async(snapshot)(self.member_id)
         await self.send_json(payload)
         if payload.get("phase") == "lobby":
@@ -67,9 +71,15 @@ class GameConsumer(AsyncWebsocketConsumer):
         if getattr(self, "group", None):
             await self.channel_layer.group_discard(self.group, self.channel_name)
         if getattr(self, "member_id", None):
-            await database_sync_to_async(set_member_connected)(self.member_id, False)
-            if getattr(self, "code", None):
-                await self._broadcast_lobby()
+            cleared = await database_sync_to_async(set_member_connected)(
+                self.member_id, False, getattr(self, "connection_epoch", None)
+            )
+            # Only refresh lobby presence if this socket still owned the seat and room is waiting.
+            # A stale disconnect after refresh must not flip the new connection offline or force lobby mid-game.
+            if cleared and getattr(self, "code", None):
+                status = await database_sync_to_async(self._room_status)()
+                if status == "waiting":
+                    await self._broadcast_lobby()
 
     async def receive(self, text_data=None, bytes_data=None):
         try:
@@ -83,7 +93,15 @@ class GameConsumer(AsyncWebsocketConsumer):
         kind = message.get("type")
         try:
             if kind == "lobby_sync":
-                await self._broadcast_lobby()
+                status = await database_sync_to_async(self._room_status)()
+                if status == "waiting":
+                    await self._broadcast_lobby()
+                else:
+                    # Reconnect mid-game: resend personal snapshot instead of lobby takeover.
+                    payload = await database_sync_to_async(snapshot)(self.member_id)
+                    await self.send_json(payload)
+                    if payload.get("phase") == "question":
+                        await self._arm(payload)
                 return
             if kind == "set_ready":
                 await database_sync_to_async(set_ready)(self.user, self.code, bool(message.get("ready", True)))
@@ -106,6 +124,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 payloads = await database_sync_to_async(next_question)(self.member_id)
             elif kind == "use_lifeline":
                 payloads = await database_sync_to_async(use_lifeline)(self.member_id, message)
+            elif kind == "use_bonus":
+                payloads = await database_sync_to_async(use_bonus)(self.member_id, message)
             elif kind == "walk_away":
                 payloads = await database_sync_to_async(walk_away)(self.member_id)
             else:
@@ -155,13 +175,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             return {"type": "error", "message": "Soba ne obstaja.", "phase": "error"}
         if room.status in {"closed", "finished"}:
             return {"type": "error", "message": "Soba je zaprta.", "phase": "error"}
-        if (room.settings or {}).get("mode") != MODE_MULTIPLAYER:
+        mode = (room.settings or {}).get("mode")
+        if mode not in LOBBY_MODES:
             return {"type": "game_state", "phase": "waiting"}
         touch_room(room)
         payload = refresh_can_start(lobby_payload(room, viewer=None))
         payload["type"] = "lobby"
         payload["phase"] = "lobby"
-        payload["mode"] = MODE_MULTIPLAYER
+        payload["mode"] = mode
         return payload
 
     async def _broadcast_all(self, payloads):
@@ -199,9 +220,15 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def _arm_bots(self, payload):
         if not payload or payload.get("phase") != "question":
             return
-        if payload.get("mode") != MODE_MULTIPLAYER:
+        mode = payload.get("mode")
+        if mode not in LOBBY_MODES:
             return
-        plans = await database_sync_to_async(claim_bot_schedule)(self.member_id)
+        if mode == MODE_DIRKA:
+            from game.dirka import claim_bot_schedule_dirka
+
+            plans = await database_sync_to_async(claim_bot_schedule_dirka)(self.member_id)
+        else:
+            plans = await database_sync_to_async(claim_bot_schedule)(self.member_id)
         for plan in plans:
             task = asyncio.create_task(self._bot_answer_later(plan))
             self.bot_tasks.append(task)
@@ -209,6 +236,12 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def _bot_answer_later(self, plan):
         try:
             await asyncio.sleep(float(plan.get("delay") or 1))
+            bonus = plan.get("bonus")
+            if bonus:
+                try:
+                    await database_sync_to_async(use_bonus)(plan["member_id"], bonus)
+                except Exception:
+                    logger.exception("Bot bonus ni uspel")
             payloads = await database_sync_to_async(submit_answer)(plan["member_id"], plan["message"])
             await self._broadcast_all(payloads or [])
             if payloads:
@@ -223,13 +256,30 @@ class GameConsumer(AsyncWebsocketConsumer):
             logger.exception("Bot odgovor ni uspel")
 
     async def _arm_auto_advance(self):
-        plan = await database_sync_to_async(claim_auto_advance)(self.member_id)
+        mode = await database_sync_to_async(self._room_mode)()
+        if mode == MODE_DIRKA:
+            from game.dirka import claim_auto_advance_dirka
+
+            plan = await database_sync_to_async(claim_auto_advance_dirka)(self.member_id)
+        else:
+            plan = await database_sync_to_async(claim_auto_advance)(self.member_id)
         if not plan:
             return
         task = getattr(self, "advance_task", None)
         if task and not task.done():
             task.cancel()
         self.advance_task = asyncio.create_task(self._auto_advance_later(plan))
+
+    def _room_mode(self):
+        from rooms.models import Room
+
+        room = Room.objects.filter(code=self.code).first()
+        return (room.settings or {}).get("mode") if room else None
+
+    def _room_status(self):
+        from rooms.models import Room
+
+        return Room.objects.filter(code=self.code).values_list("status", flat=True).first()
 
     async def _auto_advance_later(self, plan):
         try:

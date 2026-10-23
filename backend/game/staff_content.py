@@ -198,6 +198,9 @@ class AdminFriendDetailView(APIView):
         return Response({"detail": "Prijatelj je umaknjen.", "friend": friend_payload(friend)})
 
 
+BOT_MODE_CHOICES = ("multiplayer", "dirka")
+
+
 def bot_payload(bot):
     return {
         "id": bot.id,
@@ -207,6 +210,7 @@ def bot_payload(bot):
         "accuracy": bot.accuracy,
         "delay_min": bot.delay_min,
         "delay_max": bot.delay_max,
+        "modes": list(bot.modes or []),
         "is_active": bot.is_active,
         "count_for_leaderboard": bot.count_for_leaderboard,
         "order": bot.order,
@@ -249,12 +253,23 @@ class AdminBotListView(APIView):
         )
         if not isinstance(count_for_leaderboard, bool):
             return Response({"detail": "count_for_leaderboard mora biti true/false."}, status=400)
+        raw_modes = data.get("modes", bot.modes if bot else ["multiplayer"])
+        if not isinstance(raw_modes, list):
+            return Response({"detail": "modes mora biti seznam."}, status=400)
+        modes = []
+        for item in raw_modes:
+            key_mode = str(item or "").strip()
+            if key_mode in BOT_MODE_CHOICES and key_mode not in modes:
+                modes.append(key_mode)
+        if not modes:
+            return Response({"detail": "Izberi vsaj en način (Hitra tekma ali Dirka)."}, status=400)
         defaults = {
             "name": name[:30],
             "color": str(data.get("color") or "#7dcea0").strip()[:20],
             "accuracy": accuracy,
             "delay_min": delay_min,
             "delay_max": delay_max,
+            "modes": modes,
             "is_active": is_active,
             "count_for_leaderboard": count_for_leaderboard,
             "order": order,

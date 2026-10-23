@@ -1,5 +1,12 @@
 from game.bonus_models import AiBot, BonusDefinition, PhoneFriend
-from game.modes import MODE_ALA_MILIJONAR, MP_BOT_ACCURACY, MP_BOT_DELAY_MAX, MP_BOT_DELAY_MIN
+from game.modes import (
+    DIRKA_BOT_KEY,
+    MODE_ALA_MILIJONAR,
+    MODE_DIRKA,
+    MP_BOT_ACCURACY,
+    MP_BOT_DELAY_MAX,
+    MP_BOT_DELAY_MIN,
+)
 
 DEFAULT_BONUSES = (
     {
@@ -31,6 +38,157 @@ DEFAULT_BONUSES = (
         "modes": [MODE_ALA_MILIJONAR],
         "config": {"max_uses": 1, "applies_to_types": ["multiple_choice"], "friends_pick": 3},
         "order": 3,
+    },
+    # Dirka — fiksni aktivni bonusi (×1 na start).
+    {
+        "key": "dirka_fifty_fifty",
+        "name": "50/50",
+        "description": "MC: odstrani 2 napačni. Matching: poveže 2. Slider: močno zoži območje.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "fifty_fifty",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 10,
+    },
+    {
+        "key": "dirka_hint",
+        "name": "Hint",
+        "description": "MC: odstrani 1 napačno. Matching: poveže 1. Slider: rahlo zoži območje.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "hint",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 11,
+    },
+    {
+        "key": "dirka_extra_time",
+        "name": "Extra Time",
+        "description": "+30 s na tvoj osebni timer.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "extra_time",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1, "extra_seconds": 30},
+        "order": 12,
+    },
+    {
+        "key": "dirka_second_chance",
+        "name": "Second Chance",
+        "description": "En dodaten poskus, če zgrešiš.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "second_chance",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 13,
+    },
+    {
+        "key": "dirka_skip",
+        "name": "Preskoči",
+        "description": "0 točk, brez kazni, brez napredka.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "skip",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 14,
+    },
+    {
+        "key": "dirka_shield",
+        "name": "Shield",
+        "description": "Naslednji napačen/timeout te ne kaznuje.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "shield",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 15,
+    },
+    {
+        "key": "dirka_steal",
+        "name": "Steal",
+        "description": "Ob pravilnem ukradeš 20–40 točk igralcu tik pred tabo.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "steal",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 16,
+    },
+    {
+        "key": "dirka_rush",
+        "name": "Rush",
+        "description": "Nasprotniku (tik pred tabo) se timer pohitri.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "rush",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 17,
+    },
+    {
+        "key": "dirka_double",
+        "name": "Double",
+        "description": "Dvojne točke za naslednje pravilno vprašanje.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "double",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 18,
+    },
+    {
+        "key": "dirka_block",
+        "name": "Block",
+        "description": "Nasprotnik ne more uporabiti bonusa na naslednjem vprašanju.",
+        "bonus_kind": BonusDefinition.Kind.MAIN,
+        "effect_key": "block",
+        "modes": [MODE_DIRKA],
+        "config": {"max_uses": 1},
+        "order": 19,
+    },
+    {
+        "key": "dirka_streak",
+        "name": "Streak",
+        "description": "3 pravilne zapored → +50 točk.",
+        "bonus_kind": BonusDefinition.Kind.ROUND,
+        "effect_key": "streak",
+        "modes": [MODE_DIRKA],
+        "config": {"passive": True},
+        "order": 30,
+    },
+    {
+        "key": "dirka_hot_streak",
+        "name": "Hot Streak",
+        "description": "5 pravilnih zapored → +100 in naključni šibki bonus.",
+        "bonus_kind": BonusDefinition.Kind.ROUND,
+        "effect_key": "hot_streak",
+        "modes": [MODE_DIRKA],
+        "config": {"passive": True},
+        "order": 31,
+    },
+    {
+        "key": "dirka_comeback",
+        "name": "Comeback",
+        "description": "Zaostanek ≥150 → naslednji pravilen +30 %.",
+        "bonus_kind": BonusDefinition.Kind.ROUND,
+        "effect_key": "comeback",
+        "modes": [MODE_DIRKA],
+        "config": {"passive": True},
+        "order": 32,
+    },
+    {
+        "key": "dirka_safe_reward",
+        "name": "Safe Reward",
+        "description": "Ob safe zone majhen točkovni bonus.",
+        "bonus_kind": BonusDefinition.Kind.ROUND,
+        "effect_key": "safe_reward",
+        "modes": [MODE_DIRKA],
+        "config": {"passive": True},
+        "order": 33,
+    },
+    {
+        "key": "dirka_clean_sheet",
+        "name": "Clean Sheet",
+        "description": "Safe zone brez napake v segmentu → ekstra točke.",
+        "bonus_kind": BonusDefinition.Kind.ROUND,
+        "effect_key": "clean_sheet",
+        "modes": [MODE_DIRKA],
+        "config": {"passive": True},
+        "order": 34,
     },
 )
 
@@ -113,6 +271,7 @@ DEFAULT_BOTS = (
         "delay_min": 1.5,
         "delay_max": 6.0,
         "order": 1,
+        "modes": ["multiplayer"],
     },
     {
         "key": "lea",
@@ -122,6 +281,7 @@ DEFAULT_BOTS = (
         "delay_min": 1.0,
         "delay_max": 5.5,
         "order": 2,
+        "modes": ["multiplayer"],
     },
     {
         "key": "niko",
@@ -131,6 +291,7 @@ DEFAULT_BOTS = (
         "delay_min": 2.0,
         "delay_max": 8.0,
         "order": 3,
+        "modes": ["multiplayer"],
     },
     {
         "key": "ina",
@@ -140,6 +301,7 @@ DEFAULT_BOTS = (
         "delay_min": 1.2,
         "delay_max": 4.5,
         "order": 4,
+        "modes": ["multiplayer"],
     },
     {
         "key": "tito",
@@ -149,24 +311,42 @@ DEFAULT_BOTS = (
         "delay_min": 2.5,
         "delay_max": 9.0,
         "order": 5,
+        "modes": ["multiplayer"],
+    },
+    {
+        "key": DIRKA_BOT_KEY,
+        "name": "Dirka AI",
+        "color": "#e74c3c",
+        "accuracy": 0.74,
+        "delay_min": 1.4,
+        "delay_max": 7.0,
+        "order": 100,
+        "count_for_leaderboard": False,
+        "modes": ["dirka"],
     },
 )
 
 
 def ensure_bots():
     for item in DEFAULT_BOTS:
-        AiBot.objects.update_or_create(
-            key=item["key"],
-            defaults={
-                "name": item["name"],
-                "color": item["color"],
-                "accuracy": item.get("accuracy", MP_BOT_ACCURACY),
-                "delay_min": item.get("delay_min", MP_BOT_DELAY_MIN),
-                "delay_max": item.get("delay_max", MP_BOT_DELAY_MAX),
-                "is_active": True,
-                "order": item["order"],
-            },
-        )
+        defaults = {
+            "name": item["name"],
+            "color": item["color"],
+            "accuracy": item.get("accuracy", MP_BOT_ACCURACY),
+            "delay_min": item.get("delay_min", MP_BOT_DELAY_MIN),
+            "delay_max": item.get("delay_max", MP_BOT_DELAY_MAX),
+            "is_active": True,
+            "count_for_leaderboard": bool(item.get("count_for_leaderboard", False)),
+            "order": item["order"],
+            "modes": list(item.get("modes") or ["multiplayer"]),
+        }
+        bot, created = AiBot.objects.get_or_create(key=item["key"], defaults=defaults)
+        if created:
+            continue
+        # Ne prepisuj admin urejanj; dopolni samo manjkajoče modes.
+        if not bot.modes:
+            bot.modes = list(item.get("modes") or ["multiplayer"])
+            bot.save(update_fields=["modes"])
 
 
 def ensure_bonuses_and_friends():

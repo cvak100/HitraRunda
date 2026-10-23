@@ -8,12 +8,31 @@ from django.utils import timezone
 from accounts.nicknames import NicknameError, clean_nickname
 from game.bonus_models import AiBot
 from game.engine import GameError, room_name_for, validate_settings
-from game.modes import MODE_MULTIPLAYER, MP_MAX_PLAYERS, MP_MIN_PLAYERS, ROOM_IDLE_SECONDS
+from game.modes import (
+    DIRKA_BOT_KEY,
+    LOBBY_MODES,
+    MODE_DIRKA,
+    MODE_MULTIPLAYER,
+    MP_MAX_PLAYERS,
+    MP_MIN_PLAYERS,
+    ROOM_IDLE_SECONDS,
+)
 from game.seed_content import ensure_bots
 from rooms.models import Room, RoomMember
 
 User = get_user_model()
 ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+
+def _bots_for_mode(mode):
+    active = list(AiBot.objects.filter(is_active=True).order_by("order", "name"))
+    matched = [bot for bot in active if mode in (bot.modes or [])]
+    if matched:
+        return matched
+    # Stari boti brez modes: dirka po ključu, ostali za Hitra tekma.
+    if mode == MODE_DIRKA:
+        return [bot for bot in active if bot.key == DIRKA_BOT_KEY]
+    return [bot for bot in active if bot.key != DIRKA_BOT_KEY]
 
 
 def _new_code():
@@ -23,7 +42,7 @@ def _new_code():
 def create_solo_room(user, raw):
     nickname = clean_nickname(raw.get("nickname") or user.nickname)
     settings = validate_settings(raw if isinstance(raw, dict) else {})
-    if settings.get("mode") == MODE_MULTIPLAYER:
+    if settings.get("mode") in LOBBY_MODES:
         raise GameError("Za več igralcev uporabi ustvari večigralsko sobo.")
     for _ in range(20):
         code = _new_code()
@@ -58,7 +77,10 @@ def create_multiplayer_room(user, raw):
     raw = raw if isinstance(raw, dict) else {}
     nickname = clean_nickname(raw.get("nickname") or user.nickname)
     payload = dict(raw)
-    payload["mode"] = MODE_MULTIPLAYER
+    mode = str(raw.get("mode") or MODE_MULTIPLAYER).strip()
+    if mode not in LOBBY_MODES:
+        mode = MODE_MULTIPLAYER
+    payload["mode"] = mode
     settings = validate_settings(payload)
     visibility = str(raw.get("visibility") or "public").strip()
     if visibility not in {"public", "private", "unlisted"}:
@@ -89,7 +111,7 @@ def create_multiplayer_room(user, raw):
                     status="waiting",
                     settings={**settings, "invites": []},
                     max_players=max_players,
-                    name=str(raw.get("name") or "").strip() or room_name_for(MODE_MULTIPLAYER),
+                    name=str(raw.get("name") or "").strip() or room_name_for(mode),
                 )
                 if password:
                     room.set_password(password)
@@ -118,7 +140,7 @@ def join_room(user, code, raw):
         raise GameError("Soba ne obstaja.")
     if room.status != "waiting":
         raise GameError("Igra je že v teku ali končana.")
-    if (room.settings or {}).get("mode") != MODE_MULTIPLAYER:
+    if (room.settings or {}).get("mode") not in LOBBY_MODES:
         raise GameError("To ni večigralska soba.")
     if not room.check_password(str(raw.get("password") or "")):
         raise GameError("Napačno geslo.")
@@ -151,7 +173,7 @@ def update_room_settings(user, code, raw):
     room = _host_waiting_room(user, code)
     raw = raw if isinstance(raw, dict) else {}
     payload = dict(raw)
-    payload["mode"] = MODE_MULTIPLAYER
+    payload["mode"] = (room.settings or {}).get("mode") or MODE_MULTIPLAYER
     settings = validate_settings(payload)
     visibility = str(raw.get("visibility") or room.visibility).strip()
     if visibility not in {"public", "private", "unlisted"}:
@@ -181,7 +203,7 @@ def update_room_settings(user, code, raw):
     room.visibility = visibility
     room.max_players = max_players
     if raw.get("name") is not None:
-        room.name = str(raw.get("name") or "").strip() or room_name_for(MODE_MULTIPLAYER)
+        room.name = str(raw.get("name") or "").strip() or room_name_for(settings.get("mode"))
     room.settings = {**settings, "invites": invites}
     room.last_activity = timezone.now()
     room.save(update_fields=["visibility", "password", "max_players", "name", "settings", "last_activity"])
@@ -249,11 +271,16 @@ def sync_room_bots(room):
         bot.left_at = timezone.now()
         bot.is_connected = False
         bot.save(update_fields=["left_at", "is_connected"])
-    profiles = list(AiBot.objects.filter(is_active=True).order_by("order", "name"))
+    mode = (room.settings or {}).get("mode") or MODE_MULTIPLAYER
+    profiles = _bots_for_mode(mode)
     used_profiles = {item.bot_profile_id for item in bots if item.bot_profile_id}
     used_nicks = {item.nickname_in_room for item in room.members.filter(left_at__isnull=True)}
     while len(bots) < want:
         profile = next((item for item in profiles if item.id not in used_profiles), None)
+        reused = False
+        if profile is None and profiles:
+            profile = profiles[len(bots) % len(profiles)]
+            reused = True
         if profile is None:
             nick = f"Bot {len(bots) + 1}"
             while nick in used_nicks:
@@ -261,12 +288,13 @@ def sync_room_bots(room):
             color = "#7dcea0"
             bot_profile = None
         else:
-            nick = profile.name
-            if nick in used_nicks:
-                nick = f"{profile.name} {len(bots) + 1}"
+            nick = profile.name if not reused else f"{profile.name} {len(bots) + 1}"
+            while nick in used_nicks:
+                nick = f"{profile.name} {len(used_nicks) + 1}"
             color = profile.color or "#7dcea0"
             bot_profile = profile
-            used_profiles.add(profile.id)
+            if not reused:
+                used_profiles.add(profile.id)
         used_nicks.add(nick)
         bot = RoomMember.objects.create(
             room=room,
@@ -333,19 +361,24 @@ def invite_user(user, code, raw):
     return room
 
 
-def list_public_rooms():
+def list_public_rooms(mode=None):
     close_stale_rooms()
-    rooms = (
-        Room.objects.filter(status="waiting", visibility="public", settings__mode=MODE_MULTIPLAYER)
-        .select_related("host")
-        .order_by("-created_at")[:30]
-    )
-    return [lobby_payload(room, viewer=None) for room in rooms]
+    rooms = Room.objects.filter(status="waiting", visibility="public").select_related("host").order_by("-created_at")
+    if mode in LOBBY_MODES:
+        rooms = rooms.filter(settings__mode=mode)
+    else:
+        rooms = rooms.filter(settings__mode__in=list(LOBBY_MODES))
+    return [lobby_payload(room, viewer=None) for room in rooms[:30]]
 
 
-def list_invites(user):
+def list_invites(user, mode=None):
     close_stale_rooms()
-    rooms = Room.objects.filter(status="waiting", settings__mode=MODE_MULTIPLAYER).order_by("-created_at")[:80]
+    rooms = Room.objects.filter(status="waiting").order_by("-created_at")
+    if mode in LOBBY_MODES:
+        rooms = rooms.filter(settings__mode=mode)
+    else:
+        rooms = rooms.filter(settings__mode__in=list(LOBBY_MODES))
+    rooms = rooms[:80]
     rows = []
     for room in rooms:
         invites = (room.settings or {}).get("invites") or []
@@ -374,6 +407,8 @@ def lobby_payload(room, viewer=None):
             "categories": (room.settings or {}).get("categories") or [],
             "sudden_death": bool((room.settings or {}).get("sudden_death")),
             "bot_count": int((room.settings or {}).get("bot_count") or 0),
+            "target_score": (room.settings or {}).get("target_score"),
+            "safe_every": (room.settings or {}).get("safe_every"),
         },
         "members": [
             {
@@ -421,7 +456,7 @@ def refresh_can_start(payload):
 
 def room_payload(room, viewer=None):
     mode = (room.settings or {}).get("mode")
-    if mode == MODE_MULTIPLAYER:
+    if mode in LOBBY_MODES:
         return refresh_can_start(lobby_payload(room, viewer=viewer))
     return {
         "code": room.code,
@@ -441,7 +476,7 @@ def _host_waiting_room(user, code):
         raise GameError("Nastavitev ni mogoče spremeniti.")
     if room.host_id != user.id:
         raise GameError("Samo gostitelj lahko to stori.")
-    if (room.settings or {}).get("mode") != MODE_MULTIPLAYER:
+    if (room.settings or {}).get("mode") not in LOBBY_MODES:
         raise GameError("To ni večigralska soba.")
     return room
 

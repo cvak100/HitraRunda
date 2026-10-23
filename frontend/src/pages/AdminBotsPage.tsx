@@ -2,8 +2,14 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
 import { Modal } from "../components/Modal";
+import { NicknameField } from "../components/NicknameField";
 import { ApiError, api } from "../api";
 import type { AiBot } from "../types";
+
+const MODE_OPTIONS = [
+  { key: "multiplayer", label: "Hitra tekma" },
+  { key: "dirka", label: "Dirka" },
+] as const;
 
 type FormState = {
   key: string;
@@ -12,6 +18,7 @@ type FormState = {
   accuracy: number;
   delay_min: number;
   delay_max: number;
+  modes: string[];
   order: number;
   is_active: boolean;
   count_for_leaderboard: boolean;
@@ -24,10 +31,19 @@ const empty: FormState = {
   accuracy: 0.72,
   delay_min: 1.2,
   delay_max: 7.5,
+  modes: ["multiplayer"],
   order: 0,
   is_active: true,
   count_for_leaderboard: false,
 };
+
+function modeLabel(modes: string[] | undefined) {
+  const keys = modes || [];
+  if (!keys.length) return "—";
+  return keys
+    .map((key) => MODE_OPTIONS.find((item) => item.key === key)?.label || key)
+    .join(", ");
+}
 
 function toForm(bot: AiBot): FormState {
   return {
@@ -37,6 +53,7 @@ function toForm(bot: AiBot): FormState {
     accuracy: bot.accuracy ?? 0.72,
     delay_min: bot.delay_min ?? 1.2,
     delay_max: bot.delay_max ?? 7.5,
+    modes: bot.modes?.length ? [...bot.modes] : ["multiplayer"],
     order: bot.order ?? 0,
     is_active: bot.is_active ?? true,
     count_for_leaderboard: bot.count_for_leaderboard ?? false,
@@ -68,10 +85,16 @@ export function AdminBotsPage() {
 
   const rows = useMemo(() => {
     const q = submitted.trim().toLowerCase();
-    let list = bots.filter((item) => !q || item.name.toLowerCase().includes(q) || item.key.toLowerCase().includes(q));
+    let list = bots.filter(
+      (item) =>
+        !q ||
+        item.name.toLowerCase().includes(q) ||
+        item.key.toLowerCase().includes(q) ||
+        modeLabel(item.modes).toLowerCase().includes(q),
+    );
     list = [...list].sort((a, b) => {
-      const av = a[sort as keyof AiBot];
-      const bv = b[sort as keyof AiBot];
+      const av = sort === "modes" ? modeLabel(a.modes) : a[sort as keyof AiBot];
+      const bv = sort === "modes" ? modeLabel(b.modes) : b[sort as keyof AiBot];
       const cmp = String(av ?? "").localeCompare(String(bv ?? ""), "sl", { numeric: true });
       return direction === "asc" ? cmp : -cmp;
     });
@@ -108,9 +131,21 @@ export function AdminBotsPage() {
     setForm(empty);
   }
 
+  function toggleMode(mode: string) {
+    setForm((current) => {
+      const on = current.modes.includes(mode);
+      const modes = on ? current.modes.filter((item) => item !== mode) : [...current.modes, mode];
+      return { ...current, modes };
+    });
+  }
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
+    if (form.modes.length === 0) {
+      setError("Izberi vsaj en način.");
+      return;
+    }
     try {
       if (editingId == null) {
         await api("/api/admin/bots/", { method: "POST", body: JSON.stringify(form) });
@@ -147,8 +182,9 @@ export function AdminBotsPage() {
         <table className="data-table">
           <thead>
             <tr>
-              <SortableTh label="Ime" column="name" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Vzdevek" column="name" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Ključ" column="key" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh label="Načini" column="modes" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Natančnost" column="accuracy" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Zakasnitev" column="delay_min" sort={sort} direction={direction} onSort={toggleSort} />
               <SortableTh label="Stanje" column="is_active" sort={sort} direction={direction} onSort={toggleSort} />
@@ -161,6 +197,7 @@ export function AdminBotsPage() {
                   <span style={{ color: bot.color }}>●</span> {bot.name}
                 </td>
                 <td>{bot.key}</td>
+                <td>{modeLabel(bot.modes)}</td>
                 <td>{Math.round((bot.accuracy || 0) * 100)}%</td>
                 <td>
                   {bot.delay_min}–{bot.delay_max} s
@@ -178,10 +215,25 @@ export function AdminBotsPage() {
             Ključ
             <input value={form.key} onChange={(event) => setForm({ ...form, key: event.target.value })} required />
           </label>
-          <label>
-            Ime v sobi
-            <input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} maxLength={30} required />
-          </label>
+          <NicknameField
+            label="Vzdevek v sobi"
+            value={form.name}
+            onChange={(name) => setForm({ ...form, name })}
+            required
+          />
+          <fieldset>
+            <legend>Načini</legend>
+            {MODE_OPTIONS.map((option) => (
+              <label key={option.key} className="check">
+                <input
+                  type="checkbox"
+                  checked={form.modes.includes(option.key)}
+                  onChange={() => toggleMode(option.key)}
+                />
+                {option.label}
+              </label>
+            ))}
+          </fieldset>
           <label>
             Barva
             <input value={form.color} onChange={(event) => setForm({ ...form, color: event.target.value })} />
