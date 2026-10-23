@@ -1,5 +1,14 @@
 name: hitrarunda
 
+x-frontend: &frontend
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile.prod
+  image: hitrarunda-frontend:prod
+  depends_on:
+    - backend
+  restart: unless-stopped
+
 services:
   db:
     image: postgres:16-alpine
@@ -27,6 +36,7 @@ services:
 
   backend:
     build: ./backend
+    image: hitrarunda-backend:prod
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-hitrarunda}
       POSTGRES_USER: ${POSTGRES_USER:-hitrarunda}
@@ -34,11 +44,12 @@ services:
       POSTGRES_HOST: db
       POSTGRES_PORT: "5432"
       REDIS_URL: redis://redis:6379/0
+      APP_URL: ${APP_URL:?nastavi APP_URL (http://… ali https://…)}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?nastavi DJANGO_SECRET_KEY}
       DJANGO_DEBUG: "0"
-      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
-      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:5008}
-      DJANGO_COOKIE_SECURE: ${DJANGO_COOKIE_SECURE:-0}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-}
+      DJANGO_COOKIE_SECURE: ${DJANGO_COOKIE_SECURE:-}
       DJANGO_COLLECTSTATIC: "1"
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-}
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-}
@@ -50,15 +61,37 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # HTTP: aplikacija neposredno na APP_PORT (privzeto 5008).
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
+    <<: *frontend
+    profiles: ["http"]
     ports:
       - "${APP_PORT:-5008}:80"
+
+  # HTTPS: isti image, brez host porta — Caddy na 80/443.
+  frontend_tls:
+    <<: *frontend
+    profiles: ["https"]
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-}
+      TLS_EMAIL: ${TLS_EMAIL:-}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
-      - backend
+      - frontend_tls
     restart: unless-stopped
 
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
