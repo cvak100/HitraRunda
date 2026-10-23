@@ -18,6 +18,8 @@ type ModeStat = {
   best_prize: number;
   avg_score: number;
   games: number;
+  total_points?: number;
+  wins?: number;
   rank: number | null;
   board_total: number;
   best_duration_ms: number | null;
@@ -34,15 +36,6 @@ type Profile = {
 };
 
 type SortKey = "mode" | "score" | "correct_count" | "played_at";
-
-const BOARD_PATH: Record<string, string> = {
-  hitrarunda: "/lestvica/hitrarunda",
-  millionaire: "/lestvica/hitrarunda",
-  ala_milijonar: "/lestvica/ala-milijonar",
-  multiplayer: "/lestvica/vec-igralcev",
-  dirka: "/lestvica/dirka",
-  "60_sekund": "/lestvica/60-sekund",
-};
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -118,9 +111,19 @@ export function ProfilePage() {
                 </p>
                 <ul className="profile-mode-stats">
                   <li>
+                    <span>Skupaj točk</span>
+                    <strong>{formatPoints(mode.total_points ?? 0)}</strong>
+                  </li>
+                  <li>
                     <span>Iger</span>
                     <strong>{formatPoints(mode.games)}</strong>
                   </li>
+                  {mode.mode === "multiplayer" || mode.mode === "dirka" ? (
+                    <li>
+                      <span>Zmage</span>
+                      <strong>{formatPoints(mode.wins ?? 0)}</strong>
+                    </li>
+                  ) : null}
                   <li>
                     <span>Povprečje</span>
                     <strong>{formatPoints(mode.avg_score)}</strong>
@@ -150,7 +153,7 @@ export function ProfilePage() {
                     </li>
                   ) : null}
                 </ul>
-                <BoardLink to={BOARD_PATH[mode.mode] ?? "/lestvica/hitrarunda"} />
+                <BoardLink mode={mode.mode} variant="icon" />
               </article>
             ))}
           </div>

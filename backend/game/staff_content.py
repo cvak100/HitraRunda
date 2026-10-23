@@ -45,6 +45,11 @@ def friend_payload(friend):
         "reliability": friend.reliability,
         "out_of_specialty_reliability": friend.out_of_specialty_reliability,
         "avatar_color": friend.avatar_color,
+        "avatar": resolve_avatar_key(
+            avatar=friend.avatar or "",
+            nickname=friend.name,
+            seed=friend.key,
+        ),
         "is_active": friend.is_active,
         "order": friend.order,
     }
@@ -57,6 +62,40 @@ class PublicFriendsView(APIView):
         ensure_bonuses_and_friends()
         friends = PhoneFriend.objects.filter(is_active=True).order_by("order", "name")
         return Response({"friends": [friend_payload(friend) for friend in friends], "pick": 3})
+
+
+class PublicBonusesView(APIView):
+    """Javni seznam aktivnih bonusov (npr. Dirka help modal)."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        ensure_bonuses_and_friends()
+        mode = str(request.query_params.get("mode") or "").strip()
+        qs = BonusDefinition.objects.filter(is_active=True).order_by("order", "name")
+        if mode:
+            # JSONField contains mode string in modes list.
+            matched = [b for b in qs if mode in (b.modes or [])]
+        else:
+            matched = list(qs)
+        kind_labels = dict(BonusDefinition.Kind.choices)
+        return Response(
+            {
+                "mode": mode or None,
+                "bonuses": [
+                    {
+                        "key": b.key,
+                        "name": b.name,
+                        "description": b.description,
+                        "bonus_kind": b.bonus_kind,
+                        "bonus_kind_label": kind_labels.get(b.bonus_kind, b.bonus_kind),
+                        "effect_key": b.effect_key,
+                        "passive": bool((b.config or {}).get("passive")),
+                    }
+                    for b in matched
+                ],
+            }
+        )
 
 
 class AdminBonusListView(APIView):
@@ -177,6 +216,15 @@ class AdminFriendListView(APIView):
             "reliability": reliability,
             "out_of_specialty_reliability": out_rel,
             "avatar_color": str(data.get("avatar_color") or "#e6b325").strip()[:20],
+            "avatar": (
+                raw_avatar
+                if (raw_avatar := str(data.get("avatar") or "").strip().lower()) in AVATAR_KEYS
+                else resolve_avatar_key(
+                    avatar=str((friend.avatar if friend else "") or "").strip(),
+                    nickname=name,
+                    seed=key,
+                )
+            ),
             "is_active": is_active,
             "order": order,
         }

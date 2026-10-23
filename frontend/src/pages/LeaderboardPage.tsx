@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { SortableTh } from "../components/AdminToolbar";
 import { Avatar } from "../components/Avatar";
@@ -26,12 +26,15 @@ function modeFromPath(pathname: string): GameMode {
 
 export function LeaderboardPage() {
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const mode = modeFromPath(location.pathname);
   const showWins = mode === "multiplayer" || mode === "dirka";
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [boardView, setBoardView] = useState<BoardView>("best");
-  const [mine, setMine] = useState(false);
+  const [boardView, setBoardView] = useState<BoardView>(() =>
+    searchParams.get("view") === "totals" ? "totals" : "best",
+  );
+  const [mine, setMine] = useState(() => searchParams.get("mine") === "1");
   const [limit, setLimit] = useState<BoardLimit>("10");
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
@@ -43,6 +46,13 @@ export function LeaderboardPage() {
 
   const isTotals = boardView === "totals" && !mine;
   const hasSearch = Boolean(submitted.trim());
+
+  useEffect(() => {
+    const next = new URLSearchParams();
+    if (mine) next.set("mine", "1");
+    else if (boardView === "totals") next.set("view", "totals");
+    setSearchParams(next, { replace: true });
+  }, [boardView, mine, setSearchParams]);
 
   useEffect(() => {
     setQuery("");

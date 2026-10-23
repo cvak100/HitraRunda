@@ -20,10 +20,30 @@ from game.engine import (
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import public_question
 from game.routing import websocket_urlpatterns
+from game.bonus_models import PhoneFriend
 from game.seed_content import ensure_bonuses_and_friends
 from questions.models import Category, Question, QuestionOption
 from rooms.models import Room, RoomMember
 from rooms.services import create_solo_room
+
+
+def make_ala_friends(count=3):
+    for index in range(count):
+        PhoneFriend.objects.get_or_create(
+            key=f"test-friend-{index}",
+            defaults={
+                "name": f"Test {index}",
+                "title": "Test",
+                "bio": "",
+                "specialty_categories": [],
+                "reliability": 0.7,
+                "out_of_specialty_reliability": 0.35,
+                "avatar_color": "#7dcea0",
+                "avatar": "ris",
+                "is_active": True,
+                "order": index,
+            },
+        )
 
 
 def choice_question(category, key, difficulty, correct="Prav", wrong="Narobe"):
@@ -256,23 +276,13 @@ class ApiFlowTests(TestCase):
 
     def test_ala_milijonar_requires_friends_and_supports_fifty_fifty(self):
         ensure_bonuses_and_friends()
+        make_ala_friends(3)
         category = Category.objects.get(slug="sport")
         for index in range(15):
             four_choice_question(category, f"ala{index}", min(5, 1 + index // 3))
         client = APIClient()
         guest = client.post("/api/auth/guest/", {"nickname": "Zlata lisica"}, format="json")
         self.assertEqual(guest.status_code, 200)
-        bad = client.post(
-            "/api/rooms/",
-            {
-                "nickname": "Zlata lisica",
-                "mode": "ala_milijonar",
-                "categories": ["sport"],
-                "time_limit_seconds": 20,
-            },
-            format="json",
-        )
-        self.assertEqual(bad.status_code, 400)
         room = client.post(
             "/api/rooms/",
             {
@@ -280,7 +290,6 @@ class ApiFlowTests(TestCase):
                 "mode": "ala_milijonar",
                 "categories": ["sport"],
                 "time_limit_seconds": 20,
-                "friend_keys": ["mira", "rok", "urban"],
             },
             format="json",
         )
@@ -288,6 +297,7 @@ class ApiFlowTests(TestCase):
         self.assertEqual(room.data["settings"]["mode"], "ala_milijonar")
         self.assertEqual(room.data["settings"]["question_count"], 15)
         self.assertEqual(room.data["settings"]["time_limit_seconds"], 90)
+        self.assertEqual(len(room.data["settings"].get("friend_keys") or []), 3)
         member = RoomMember.objects.get(room__code=room.data["code"])
         started = start_game(member.id)[0]
         self.assertEqual(started["mode"], "ala_milijonar")

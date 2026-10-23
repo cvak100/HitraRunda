@@ -48,6 +48,7 @@ export type PhoneFriend = {
   reliability?: number;
   out_of_specialty_reliability?: number;
   avatar_color: string;
+  avatar?: string;
   is_active?: boolean;
   order?: number;
   used?: boolean;

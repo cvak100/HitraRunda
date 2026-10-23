@@ -609,6 +609,47 @@ def _host_waiting_room(user, code):
     return room
 
 
+def rematch_room(user, code):
+    """Host: po končani MP/Dirki tekmi ponovno odpri lobby v isti sobi.
+
+    Stara GameSession se zbriše (GameResult ostane — FK SET_NULL),
+    člani ostanejo, status sobe gre nazaj na waiting.
+    """
+    from game.models import GameSession
+
+    room = Room.objects.filter(code=str(code or "").upper()).select_related("host").first()
+    if room is None:
+        raise GameError("Soba ne obstaja.")
+    if room.status != "finished":
+        raise GameError("Ponovitev je mogoča samo po končani tekmi.")
+    if (room.settings or {}).get("mode") not in LOBBY_MODES:
+        raise GameError("Ponovitev je na voljo samo za Hitra tekma / Dirka.")
+    if room.host_id != user.id:
+        raise GameError("Samo gostitelj lahko začne novo rundo v isti sobi.")
+    host_member = room.members.filter(user=user, left_at__isnull=True, is_bot=False).first()
+    if host_member is None:
+        raise GameError("Nisi več v sobi.")
+
+    # Rezultati ostanejo (SET_NULL na session); vprašanja/odgovori seje gredo stran.
+    GameSession.objects.filter(room=room).delete()
+
+    room.status = "waiting"
+    room.finished_at = None
+    room.last_activity = timezone.now()
+    room.save(update_fields=["status", "finished_at", "last_activity"])
+
+    room.members.filter(left_at__isnull=True, is_bot=False).update(is_ready=False, is_host=False)
+    host_member.is_host = True
+    host_member.is_ready = True
+    host_member.is_connected = True
+    host_member.save(update_fields=["is_host", "is_ready", "is_connected", "last_activity"])
+
+    sync_room_bots(room)
+    refresh_can_start(room)
+    touch_room(room)
+    return room
+
+
 def leave_room(user, code):
     """Igralec zapusti sobo (lobby ali med igro). Ostali ne smejo ostati zataknjeni."""
     room = Room.objects.filter(code=str(code or "").upper()).first()

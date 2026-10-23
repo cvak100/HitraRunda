@@ -4,23 +4,18 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError, api } from "../api";
 import { Avatar } from "../components/Avatar";
 import { ConfirmModal } from "../components/ConfirmModal";
-import { DirkaBonusBar, DirkaRaceTrack } from "../components/DirkaRaceTrack";
-import { NumberStepper } from "../components/NumberStepper";
-import { QuestionPlay } from "../components/QuestionPlay";
-import { TimerBar } from "../components/TimerBar";
-import { BoardIcon } from "../gameModes";
-import { REASONS, formatDuration, formatMode, formatPoints } from "../format";
-import type { Category, GameMessage, StandingRow } from "../types";
+import { DirkaRaceTrack } from "../components/DirkaRaceTrack";
+import { GameLobby } from "../components/game/GameLobby";
+import { GamePlayBody } from "../components/game/GamePlayBody";
+import { PodiumFinish } from "../components/game/PodiumFinish";
+import { formatMode, formatPoints } from "../format";
+import { boardPath as modeBoardPath } from "../gameModes";
+import type { Category, GameMessage } from "../types";
 
 const DEFAULT_LOBBY_TIMES = [30, 60, 90, 120, 300];
 const DEFAULT_LOBBY_COUNTS = [5, 10, 20, 40, 50, 100];
 const DEFAULT_TARGETS = [100, 200, 500, 1000];
 const DEFAULT_SAFE = [5, 10];
-
-function formatLobbyTime(seconds: number) {
-  if (seconds < 120) return `${seconds} s`;
-  return `${seconds / 60} min`;
-}
 
 export function GamePage() {
   const { code = "" } = useParams();
@@ -30,6 +25,7 @@ export function GamePage() {
   const [error, setError] = useState("");
   const [reconnectNote, setReconnectNote] = useState("");
   const [leaving, setLeaving] = useState(false);
+  const [rematchBusy, setRematchBusy] = useState(false);
   const [pickFriend, setPickFriend] = useState(false);
   const [myId, setMyId] = useState("");
   const [inviteName, setInviteName] = useState("");
@@ -138,6 +134,7 @@ export function GamePage() {
         setMessage(incoming);
         syncLobbyEditors(incoming);
         setPhase("lobby");
+        setRematchBusy(false);
         return;
       }
       if (incoming.phase === "waiting") {
@@ -290,6 +287,14 @@ export function GamePage() {
     socket.send(JSON.stringify({ type: "next_question" }));
   }
 
+  function requestRematch() {
+    const socket = wsRef.current;
+    if (!socket || socket.readyState !== WebSocket.OPEN || rematchBusy) return;
+    setRematchBusy(true);
+    socket.send(JSON.stringify({ type: "rematch" }));
+    window.setTimeout(() => setRematchBusy(false), 2500);
+  }
+
   function useHelp(effect: string, friendKey?: string) {
     const socket = wsRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN || !message?.question || phase !== "question") return;
@@ -352,39 +357,9 @@ export function GamePage() {
     phase === "waiting_answers" ||
     phase === "round_review" ||
     phase === "finished";
-  const lifelines = message?.lifelines || {};
-  const helps = message?.active_helps || {};
-  const isAla = message?.mode === "ala_milijonar";
-  const showLifelines = isAla && (phase === "question" || phase === "submitting");
-  const canUseLifeline = phase === "question";
   const dirkaMe = isDirka && myId ? message?.players?.[myId] : undefined;
-  const dirkaBonuses = dirkaMe?.bonuses || {};
-  const dirkaArmed = dirkaMe?.armed || {};
-  const dirkaHelps = dirkaMe?.active_helps || helps;
-  const dirkaDeadline = isDirka
-    ? dirkaMe?.deadline_at || (myId && message?.deadlines?.[myId]) || message?.deadline_at
-    : undefined;
   const showDirkaChrome = isDirka && playing;
-  const eliminatedIds = [
-    ...((dirkaHelps.fifty_fifty?.eliminated_option_ids as number[] | undefined) || []),
-    ...(((dirkaHelps as { hint?: { eliminated_option_ids?: number[] } }).hint?.eliminated_option_ids) || []),
-  ];
-  const boardPath =
-    message?.mode === "ala_milijonar"
-      ? "/lestvica/ala-milijonar"
-      : message?.mode === "multiplayer"
-        ? "/lestvica/vec-igralcev"
-        : message?.mode === "dirka"
-          ? "/lestvica/dirka"
-          : message?.mode === "60_sekund"
-            ? "/lestvica/60-sekund"
-            : "/lestvica/hitrarunda";
-  const sixtyDeadline = message?.clock_ends_at || message?.deadline_at;
-  const skipDisabled =
-    phase !== "question" || (message?.skips_left != null && (message.skips_left ?? 0) <= 0);
-  const flashTone =
-    sixtyFlash?.skipped ? "is-skip" : sixtyFlash?.is_correct ? "is-good" : sixtyFlash ? "is-bad" : "";
-  const friends = message?.friends || [];
+  const boardPath = modeBoardPath(message?.mode);
   const standings = message?.standings || [];
   const iAmHost = Boolean(
     (myId && message?.host_member_id && message.host_member_id === myId) ||
@@ -550,461 +525,85 @@ export function GamePage() {
           </div>
         ) : null}
         {phase === "lobby" && message ? (
-          <div className="stack">
-            <h1>{message.name || "Lobby"}</h1>
-            <div className="invite-link">
-              <div className="invite-link-url">
-                <span className="fine">Povabilo</span>
-                <code>{lobbyInviteUrl()}</code>
-              </div>
-              <button type="button" className="primary" onClick={() => void copyInviteLink()}>
-                Kopiraj link
-              </button>
-            </div>
-            {copyNotice ? <p className="fine">{copyNotice}</p> : null}
-            <p className="fine">
-              {message.visibility ? `${message.visibility}` : ""}
-              {message.has_password ? " · geslo" : ""}
-              {message.settings?.sudden_death ? " · sudden death" : ""}
-              {message.settings?.target_score ? ` · cilj ${message.settings.target_score}` : ""}
-              {message.settings?.safe_every ? ` · varna zona ${message.settings.safe_every}` : ""}
-              {message.settings?.bot_count ? ` · ${message.settings.bot_count} AI` : ""}
-            </p>
-            <h2>
-              Igralci ({message.members?.length || 0}/{message.max_players || "?"})
-            </h2>
-            <ul className="lobby-list">
-              {(message.members || []).map((member) => {
-                const ready = Boolean(member.is_bot || member.is_ready);
-                const isYou = member.id === myId;
-                return (
-                  <li key={member.id} className={ready ? "is-ready" : "is-waiting"}>
-                    <div className="lobby-member-main">
-                      <Avatar avatar={member.avatar} color={member.color || "#7dcea0"} size={36} title={member.nickname} />
-                      <div className="lobby-member-text">
-                        <strong>{member.nickname}</strong>
-                        <span className="fine">
-                          {member.is_host ? "host" : ""}
-                          {member.is_bot ? `${member.is_host ? " · " : ""}AI` : ""}
-                          {isYou ? `${member.is_host || member.is_bot ? " · " : ""}ti` : ""}
-                          {member.is_connected === false && !member.is_bot ? " · offline" : ""}
-                        </span>
-                        <span className={`lobby-ready-tag ${ready ? "is-on" : ""}`}>
-                          {ready ? "pripravljen" : "ni pripravljen"}
-                        </span>
-                      </div>
-                    </div>
-                    {isYou && !member.is_bot ? (
-                      <button
-                        type="button"
-                        className={`lobby-ready-btn ${iAmReady ? "is-on" : ""}`}
-                        onClick={() => sendReady(!iAmReady)}
-                      >
-                        {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
-                      </button>
-                    ) : null}
-                  </li>
-                );
-              })}
-            </ul>
-            {iAmHost ? (
-              <div className="actions">
-                <button
-                  type="button"
-                  className="primary"
-                  disabled={!((message.members || []).length >= 2 && (message.members || []).every((item) => item.is_ready || item.is_bot))}
-                  onClick={startMulti}
-                >
-                  Začni igro
-                </button>
-                <button type="button" disabled={leaving} onClick={() => void leaveRoom()}>
-                  {leaving ? "Zapuščam…" : "Zapusti sobo"}
-                </button>
-              </div>
-            ) : (
-              <div className="actions">
-                <p className="fine">Čakaj, da host začne, ko so vsi pripravljeni.</p>
-                <button type="button" disabled={leaving} onClick={() => void leaveRoom()}>
-                  {leaving ? "Zapuščam…" : "Zapusti sobo"}
-                </button>
-              </div>
-            )}
-            {iAmHost ? (
-              <>
-                <div className="actions">
-                  <input
-                    value={inviteName}
-                    onChange={(event) => setInviteName(event.target.value)}
-                    placeholder="Povabi po vzdevku"
-                  />
-                  <button type="button" onClick={sendInvite}>
-                    Povabi
-                  </button>
-                </div>
-                <h2>Nastavitve (v živo)</h2>
-                {(message.settings?.mode || message.mode) === "dirka" ? (
-                  <>
-                    <div className="stack-gap">
-                      <span className="stepper-label">Cilj točk</span>
-                      <div className="choices" role="group">
-                        {lobbyTargets.map((value) => (
-                          <button
-                            key={value}
-                            type="button"
-                            className={value === editTarget ? "is-on" : ""}
-                            onClick={() => setEditTarget(value)}
-                          >
-                            {value}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <fieldset>
-                      <legend>Varna zona</legend>
-                      {lobbySafe.map((value) => (
-                        <label key={value} className="check">
-                          <input
-                            type="radio"
-                            checked={editSafe === value}
-                            onChange={() => setEditSafe(value)}
-                          />
-                          Vsakih {value} pravilnih
-                        </label>
-                      ))}
-                    </fieldset>
-                  </>
-                ) : (
-                  <>
-                    <NumberStepper label="Število vprašanj" value={editCount} options={lobbyCounts} onChange={setEditCount} />
-                    <div className="stack-gap">
-                      <span className="stepper-label">Čas na vprašanje</span>
-                      <div className="choices" role="group" aria-label="Čas na vprašanje">
-                        {lobbyTimes.map((time) => (
-                          <button key={time} type="button" className={time === editSeconds ? "is-on" : ""} onClick={() => setEditSeconds(time)}>
-                            {formatLobbyTime(time)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <label className="check">
-                      <input type="checkbox" checked={editSudden} onChange={(event) => setEditSudden(event.target.checked)} />
-                      Sudden death
-                    </label>
-                  </>
-                )}
-                <NumberStepper label="Največ igralcev" value={editMax} min={2} max={maxPlayersCap} onChange={changeMaxPlayers} />
-                <NumberStepper
-                  label={(message.settings?.mode || message.mode) === "dirka" ? "Dirka AI" : "AI nasprotniki"}
-                  value={editBots}
-                  min={0}
-                  max={maxBotsFor()}
-                  onChange={changeBots}
-                />
-                <p className="fine">
-                  AI se takoj doda na seznam. Največ {maxBotsFor()} (prosta mesta: {Math.max(0, editMax - humanCount())}).
-                </p>
-                <fieldset>
-                  <legend>Vidnost</legend>
-                  <label className="check">
-                    <input type="radio" checked={editVisibility === "public"} onChange={() => setEditVisibility("public")} />
-                    Javna
-                  </label>
-                  <label className="check">
-                    <input type="radio" checked={editVisibility === "unlisted"} onChange={() => setEditVisibility("unlisted")} />
-                    Skrita
-                  </label>
-                  <label className="check">
-                    <input type="radio" checked={editVisibility === "private"} onChange={() => setEditVisibility("private")} />
-                    Zasebna
-                  </label>
-                </fieldset>
-                {editVisibility === "private" ? (
-                  <label>
-                    Geslo
-                    <input value={editPassword} onChange={(event) => setEditPassword(event.target.value)} placeholder="pusti prazno = obstoječe" />
-                  </label>
-                ) : null}
-                {categories.length > 0 ? (
-                  <fieldset>
-                    <legend>Kategorije</legend>
-                    {categories.map((category) => (
-                      <label key={category.slug} className="check">
-                        <input
-                          type="checkbox"
-                          checked={editCats.includes(category.slug)}
-                          onChange={() =>
-                            setEditCats((current) =>
-                              current.includes(category.slug)
-                                ? current.filter((item) => item !== category.slug)
-                                : [...current, category.slug],
-                            )
-                          }
-                        />
-                        {category.name}
-                      </label>
-                    ))}
-                  </fieldset>
-                ) : null}
-                <button type="button" className="primary" onClick={() => saveLobbySettings()}>
-                  Shrani nastavitve
-                </button>
-                <p className="fine">Sprememba ponastavi pripravljenost ostalih igralcev.</p>
-              </>
-            ) : null}
-          </div>
+          <GameLobby
+            message={message}
+            myId={myId}
+            iAmHost={iAmHost}
+            iAmReady={iAmReady}
+            leaving={leaving}
+            inviteName={inviteName}
+            setInviteName={setInviteName}
+            copyNotice={copyNotice}
+            categories={categories}
+            lobbyTimes={lobbyTimes}
+            lobbyCounts={lobbyCounts}
+            lobbyTargets={lobbyTargets}
+            lobbySafe={lobbySafe}
+            maxPlayersCap={maxPlayersCap}
+            editCount={editCount}
+            setEditCount={setEditCount}
+            editSeconds={editSeconds}
+            setEditSeconds={setEditSeconds}
+            editMax={editMax}
+            editVisibility={editVisibility}
+            setEditVisibility={setEditVisibility}
+            editPassword={editPassword}
+            setEditPassword={setEditPassword}
+            editSudden={editSudden}
+            setEditSudden={setEditSudden}
+            editBots={editBots}
+            editTarget={editTarget}
+            setEditTarget={setEditTarget}
+            editSafe={editSafe}
+            setEditSafe={setEditSafe}
+            editCats={editCats}
+            setEditCats={setEditCats}
+            lobbyInviteUrl={lobbyInviteUrl}
+            copyInviteLink={() => void copyInviteLink()}
+            sendReady={sendReady}
+            startMulti={startMulti}
+            leaveRoom={() => void leaveRoom()}
+            sendInvite={sendInvite}
+            saveLobbySettings={() => saveLobbySettings()}
+            changeBots={changeBots}
+            changeMaxPlayers={changeMaxPlayers}
+            maxBotsFor={maxBotsFor}
+          />
         ) : null}
         {phase === "finished" && message && (message.mode === "multiplayer" || message.mode === "dirka") ? (
-          <PodiumFinish message={message} myId={myId} boardPath={boardPath} />
+          <PodiumFinish
+            message={message}
+            myId={myId}
+            boardPath={boardPath}
+            canRematch={iAmHost}
+            onRematch={requestRematch}
+            rematchBusy={rematchBusy}
+          />
         ) : null}
         {question &&
         message &&
         playing &&
         !(phase === "finished" && (message.mode === "multiplayer" || message.mode === "dirka")) ? (
-          <div className={isDirka ? "dirka-play-body" : undefined}>
-            <div
-              className={[
-                isDirka ? "dirka-question-slot" : undefined,
-                isSixty ? "sixty-play" : undefined,
-                isSixty && sixtyFlash ? `sixty-flash ${flashTone}` : undefined,
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              <div className="q-meta">
-                <span>
-                  {(message.index ?? 0) + 1}
-                  {isDirka || isSixty ? "" : ` / ${message.total}`}
-                </span>
-                <span>{question.category_name}</span>
-                <span>Težavnost {question.difficulty}</span>
-                {isSixty ? (
-                  <span>
-                    Pravilni {message.correct_count ?? 0}
-                    {message.answered_count != null ? ` / ${message.answered_count}` : ""}
-                  </span>
-                ) : null}
-                {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
-                {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
-                  <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
-                ) : null}
-                {isDirka && message.target_score ? <span>Cilj {formatPoints(message.target_score)}</span> : null}
-                {isDirka ? (
-                  <span title="Varna zona po N pravilnih (napačen odgovor ne resetira števca, samo clean sheet).">
-                    Varna zona {dirkaMe?.correct_in_segment ?? 0}/{dirkaMe?.safe_every ?? message.safe_every ?? 5}
-                    {` · še ${dirkaMe?.until_safe ?? message.safe_every ?? 5}`}
-                    {dirkaMe?.safe_locked ? ` · zaklenjeno ${formatPoints(dirkaMe.safe_locked)}` : ""}
-                  </span>
-                ) : null}
-              </div>
-              {isSixty ? (
-                <>
-                  <p
-                    className={`sixty-feedback ${sixtyFlash ? flashTone : "sixty-feedback-empty"}`}
-                    aria-live="polite"
-                  >
-                    {sixtyFlash?.label || "\u00a0"}
-                  </p>
-                  <div
-                    className={[
-                      "sixty-chrome",
-                      sixtyFlash
-                        ? (sixtyFlash.time_delta ?? 0) > 0
-                          ? "is-tick-up"
-                          : (sixtyFlash.time_delta ?? 0) < 0
-                            ? "is-tick-down"
-                            : ""
-                        : "",
-                    ]
-                      .filter(Boolean)
-                      .join(" ")}
-                  >
-                    {sixtyFlash && (sixtyFlash.time_delta ?? 0) !== 0 ? (
-                      <span
-                        key={`pulse-${sixtyTickKey}`}
-                        className={`sixty-chrome-pulse ${
-                          (sixtyFlash.time_delta ?? 0) > 0 ? "is-up" : "is-down"
-                        }`}
-                        aria-hidden
-                      />
-                    ) : null}
-                    <div className="sixty-timer">
-                      {sixtyDeadline && message.server_now ? (
-                        <TimerBar
-                          deadlineAt={sixtyDeadline}
-                          serverNow={message.server_now}
-                          onExpire={expire}
-                        />
-                      ) : (
-                        <div className="timer sixty-timer-placeholder" aria-hidden>
-                          <div className="timer-track" />
-                          <span>—s</span>
-                        </div>
-                      )}
-                      {sixtyFlash && (sixtyFlash.time_delta ?? 0) !== 0 ? (
-                        <span
-                          key={`delta-${sixtyTickKey}`}
-                          className={`sixty-delta ${
-                            (sixtyFlash.time_delta ?? 0) > 0 ? "is-up" : "is-down"
-                          }`}
-                        >
-                          {(sixtyFlash.time_delta ?? 0) > 0
-                            ? `+${sixtyFlash.time_delta} s`
-                            : `${sixtyFlash.time_delta} s`}
-                        </span>
-                      ) : null}
-                    </div>
-                    <button
-                      type="button"
-                      className="sixty-skip"
-                      disabled={skipDisabled}
-                      onClick={skipSixty}
-                    >
-                      Preskoči
-                      <strong>
-                        {message.skips_left == null ? "∞" : message.skips_left}
-                      </strong>
-                    </button>
-                  </div>
-                </>
-              ) : null}
-              {showLifelines ? (
-                <div className="lifelines" aria-label="Jokerji">
-                  <button
-                    type="button"
-                    className={lifelines.fifty_fifty?.used ? "is-used" : ""}
-                    disabled={!canUseLifeline || !lifelines.fifty_fifty?.available}
-                    onClick={() => useHelp("fifty_fifty")}
-                  >
-                    Polovička{lifelines.fifty_fifty?.used ? " · porabljena" : ""}
-                  </button>
-                  <button
-                    type="button"
-                    className={lifelines.audience?.used ? "is-used" : ""}
-                    disabled={!canUseLifeline || !lifelines.audience?.available}
-                    onClick={() => useHelp("audience")}
-                  >
-                    Glas ljudstva{lifelines.audience?.used ? " · porabljen" : ""}
-                  </button>
-                  <button
-                    type="button"
-                    className={lifelines.phone_friend?.used ? "is-used" : ""}
-                    disabled={!canUseLifeline || !lifelines.phone_friend?.available}
-                    onClick={() => setPickFriend((current) => !current)}
-                  >
-                    Klic v sili{lifelines.phone_friend?.used ? " · porabljen" : ""}
-                  </button>
-                  {message.can_walk_away && phase === "question" ? (
-                    <button type="button" className="walk-away" onClick={walkAway}>
-                      Odnehaj ({formatPoints(message.prize_reached ?? 0)})
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
-              {isAla && friends.length > 0 && (showLifelines || pickFriend) ? (
-                <div className={`friend-pick ${pickFriend ? "is-open" : ""}`}>
-                  <p className="fine">{pickFriend ? "Koga kličeš?" : "Tvoji prijatelji za klic"}</p>
-                  {friends.map((friend) => (
-                    <button
-                      key={friend.key}
-                      type="button"
-                      disabled={!pickFriend || !canUseLifeline || friend.used || !lifelines.phone_friend?.available}
-                      style={{ ["--friend-color" as string]: friend.avatar_color }}
-                      onClick={() => useHelp("phone_friend", friend.key)}
-                    >
-                      <strong>{friend.name}</strong>
-                      <span className="fine">{friend.title}{friend.used ? " · poklican" : ""}</span>
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-              {phase === "question" && isDirka && dirkaDeadline && message.server_now ? (
-                <TimerBar deadlineAt={dirkaDeadline} serverNow={message.server_now} onExpire={expire} />
-              ) : phase === "question" && !isDirka && !isSixty && message.deadline_at && message.server_now ? (
-                <TimerBar deadlineAt={message.deadline_at} serverNow={message.server_now} onExpire={expire} />
-              ) : null}
-              <div className={isSixty ? "sixty-question-slot" : undefined}>
-              <h1>{question.text}</h1>
-              {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
-              {helps.phone_friend ? (
-                <p className="help-banner">
-                  {helps.phone_friend.friend_name}: {helps.phone_friend.message}
-                </p>
-              ) : null}
-              {!isDirka && !isSixty && phase === "question" && (message.answered_count ?? 0) > 0 ? (
-                <p className="fine">
-                  Oddano {message.answered_count}/{message.player_count}
-                  {(message.waiting_for || []).length > 0 ? ` · čaka: ${(message.waiting_for || []).join(", ")}` : ""}
-                </p>
-              ) : null}
-              {!isDirka && !isSixty && phase === "waiting_answers" ? (
-                <p className="status">
-                  Oddano. Čakam še: {(message.waiting_for || []).join(", ") || "nikogar"} (
-                  {message.answered_count}/{message.player_count})
-                </p>
-              ) : null}
-              {phase === "question" || phase === "submitting" ? (
-                <QuestionPlay
-                  question={question}
-                  locked={phase !== "question"}
-                  result={null}
-                  eliminatedOptionIds={
-                    eliminatedIds.length
-                      ? eliminatedIds
-                      : isDirka
-                        ? undefined
-                        : helps.fifty_fifty?.eliminated_option_ids
-                  }
-                  audienceVotes={isDirka ? undefined : helps.audience?.votes}
-                  onSubmit={sendAnswer}
-                />
-              ) : null}
-              {phase === "round_review" ? (
-                <RoundReview message={message} myId={myId} isHost={iAmHost} onNext={next} boardPath={boardPath} />
-              ) : null}
-              {phase === "review" ||
-              (phase === "finished" &&
-                message.mode !== "multiplayer" &&
-                message.mode !== "dirka" &&
-                message.mode !== "60_sekund") ? (
-                <Review message={message} onNext={next} boardPath={boardPath} />
-              ) : null}
-              {phase === "finished" && message.mode === "60_sekund" ? (
-                <SixtyFinish message={message} boardPath={boardPath} />
-              ) : null}
-              </div>
-            </div>
-            {dirkaPlaying ? (
-              <div className="dirka-side">
-                <DirkaBonusBar
-                  bonuses={dirkaBonuses}
-                  armed={dirkaArmed}
-                  canUse={phase === "question"}
-                  onUse={useDirkaBonus}
-                  maxTypes={message.max_bonus_types || 5}
-                />
-                <p
-                  className={`dirka-wait-status ${
-                    phase === "waiting_answers"
-                      ? "status"
-                      : phase === "question" && (message.answered_count ?? 0) > 0
-                        ? "fine"
-                        : "dirka-wait-status-empty"
-                  }`}
-                  aria-live="polite"
-                >
-                  {phase === "waiting_answers"
-                    ? `Oddano. Čakam še: ${(message.waiting_for || []).join(", ") || "nikogar"} (${message.answered_count}/${message.player_count})`
-                    : phase === "question" && (message.answered_count ?? 0) > 0
-                      ? `Oddano ${message.answered_count}/${message.player_count}${
-                          (message.waiting_for || []).length > 0
-                            ? ` · čaka: ${(message.waiting_for || []).join(", ")}`
-                            : ""
-                        }`
-                      : "\u00a0"}
-                </p>
-              </div>
-            ) : null}
-          </div>
+          <GamePlayBody
+            message={message}
+            phase={phase}
+            myId={myId}
+            iAmHost={iAmHost}
+            isDirka={isDirka}
+            isSixty={isSixty}
+            boardPath={boardPath}
+            sixtyFlash={sixtyFlash}
+            sixtyTickKey={sixtyTickKey}
+            expire={expire}
+            sendAnswer={sendAnswer}
+            skipSixty={skipSixty}
+            useHelp={useHelp}
+            useDirkaBonus={useDirkaBonus}
+            walkAway={walkAway}
+            next={next}
+            pickFriend={pickFriend}
+            setPickFriend={setPickFriend}
+          />
         ) : null}
         {phase === "error" ? (
           <Link className="primary" to="/igra">
@@ -1121,307 +720,3 @@ function mergeDirkaMessage(current: GameMessage | null, incoming: GameMessage, m
   };
 }
 
-function PodiumFinish({
-  message,
-  myId,
-  boardPath,
-}: {
-  message: GameMessage;
-  myId: string;
-  boardPath: string;
-}) {
-  const rows = (message.standings || []) as StandingRow[];
-  const first = rows[0];
-  const second = rows[1];
-  const third = rows[2];
-  const rest = rows.slice(3);
-
-  function slot(row: StandingRow | undefined, place: 1 | 2 | 3) {
-    const placeClass = place === 1 ? "first" : place === 2 ? "second" : "third";
-    if (!row) {
-      return (
-        <div className={`podium-slot is-${placeClass} is-empty`} aria-hidden>
-          <div className="podium-block">
-            <span className="podium-place">{place}</span>
-          </div>
-        </div>
-      );
-    }
-    return (
-      <div className={`podium-slot is-${placeClass}`}>
-        <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={place === 1 ? 58 : 44} title={row.nickname} />
-        <div className="podium-name">
-          {row.nickname}
-          {row.is_bot ? " (AI)" : ""}
-          {row.member_id === myId ? " · ti" : ""}
-        </div>
-        <div className="podium-score">{formatPoints(row.score)}</div>
-        <div className="fine">{row.correct_count} pravilnih</div>
-        <div className="podium-block" aria-label={`${place}. mesto`}>
-          <span className="podium-place">{place}</span>
-        </div>
-      </div>
-    );
-  }
-
-  const iWon = first?.member_id === myId;
-
-  return (
-    <div className="review good finish-screen">
-      <p className="eyebrow">Konec igre</p>
-      <h1>{iWon ? "Čestitamo!" : "Konec igre"}</h1>
-      <h2>Končna lestvica</h2>
-      <div className="podium" aria-label="Stopničke">
-        {slot(second, 2)}
-        {slot(first, 1)}
-        {slot(third, 3)}
-      </div>
-      {rest.length > 0 ? (
-        <ol className="podium-rest">
-          {rest.map((row) => (
-            <li key={row.member_id}>
-              <span className="podium-rest-player">
-                <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
-                <span>
-                  #{row.rank} {row.nickname}
-                  {row.is_bot ? " (AI)" : ""}
-                  {row.member_id === myId ? " · ti" : ""}
-                </span>
-              </span>
-              <strong>
-                {formatPoints(row.score)} · {row.correct_count} pravilnih
-              </strong>
-            </li>
-          ))}
-        </ol>
-      ) : null}
-      <div className="actions finish-actions">
-        <Link
-          className="primary"
-          to={message.mode === "dirka" ? "/igra/dirka" : "/igra/vec-igralcev"}
-        >
-          Nova igra
-        </Link>
-        <Link className="btn-with-icon board-icon-btn" to={boardPath} aria-label="Lestvica" title="Lestvica">
-          <BoardIcon />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function RoundReview({
-  message,
-  myId,
-  isHost,
-  onNext,
-}: {
-  message: GameMessage;
-  myId: string;
-  isHost: boolean;
-  onNext: () => void;
-  boardPath: string;
-}) {
-  const advanceSeconds = message.advance_seconds ?? 5;
-  const [secondsLeft, setSecondsLeft] = useState(advanceSeconds);
-  const onNextRef = useRef(onNext);
-  onNextRef.current = onNext;
-
-  useEffect(() => {
-    setSecondsLeft(advanceSeconds);
-    const started = Date.now();
-    let fired = false;
-    const tick = window.setInterval(() => {
-      const left = Math.max(0, advanceSeconds - Math.floor((Date.now() - started) / 1000));
-      setSecondsLeft(left);
-      // Rezerva, če strežnikov timer odpade — kateri koli klient potisne next ob 0.
-      if (left <= 0 && !fired) {
-        fired = true;
-        onNextRef.current();
-      }
-    }, 200);
-    return () => window.clearInterval(tick);
-  }, [advanceSeconds, message.index]);
-
-  return (
-    <div className="review good">
-      <h2>Rezultat runde</h2>
-      {message.explanation ? <p>{message.explanation}</p> : null}
-      {message.sudden_death ? (
-        <p className="fine">Sudden death · še v igri: {message.alive_count ?? "?"}</p>
-      ) : null}
-      <ul>
-        {(message.answers || []).map((row) => (
-          <li key={`${row.member_id}-${row.nickname}`} className={row.is_correct ? "answered-correct" : "answered-wrong"}>
-            <span className="answer-player">
-              <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
-              <span>
-                {row.nickname}
-                {row.member_id === myId ? " (ti)" : ""}
-              </span>
-            </span>
-            <span>
-              {row.timed_out ? "čas" : row.is_correct ? "prav" : "narobe"} · {formatPoints(row.points)}
-              {row.round_bonus ? " · rundni bonus" : ""}
-              {row.streak_bonus ? ` · streak +${row.streak_bonus}` : ""}
-              {row.catchup_bonus ? ` · catch-up +${row.catchup_bonus}` : ""}
-              {row.eliminated ? " · izločen" : ""}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="stack">
-        <p className="fine">
-          {message.is_last ? "Zaključek" : "Naslednje vprašanje"} čez {secondsLeft} s…
-        </p>
-        {isHost ? (
-          <button type="button" className="primary" onClick={onNext}>
-            {message.is_last ? "Zaključi zdaj" : "Naprej zdaj"}
-          </button>
-        ) : null}
-      </div>
-    </div>
-  );
-}
-
-function SixtyFinish({ message, boardPath }: { message: GameMessage; boardPath: string }) {
-  return (
-    <div className="review good">
-      <h2>Čas je potekel</h2>
-      <p className="sixty-score-line">
-        <strong>{formatPoints(message.score ?? message.correct_count ?? 0)}</strong> pravilnih
-      </p>
-      <p className="fine">
-        Vprašanj: {message.answered_count ?? message.total_questions ?? 0}
-        {" · "}
-        Preživel: {formatDuration(message.duration_ms ?? null)}
-      </p>
-      <div className="actions">
-        <Link className="primary" to={boardPath}>
-          Lestvica
-        </Link>
-        <Link to="/igra/60-sekund">Igraj znova</Link>
-      </div>
-    </div>
-  );
-}
-
-function Review({
-  message,
-  onNext,
-  boardPath,
-}: {
-  message: GameMessage;
-  onNext: () => void;
-  boardPath: string;
-}) {
-  const question = message.question;
-  const replayPath =
-    message.mode === "ala_milijonar"
-      ? "/igra/ala-milijonar"
-      : message.mode === "60_sekund"
-        ? "/igra/60-sekund"
-        : "/igra/hitrarunda";
-  const title = message.walked_away
-    ? "Odnehal si"
-    : message.timed_out
-      ? "Čas je potekel"
-      : message.is_correct
-        ? "Pravilno"
-        : "Napačno";
-  const tone = message.walked_away || message.is_correct ? "good" : "bad";
-  return (
-    <div className={`review ${tone}`}>
-      <h2>{title}</h2>
-      {message.explanation ? <p>{message.explanation}</p> : null}
-      {question && message.correct_option_ids && question.question_type === "ordering" ? (
-        <p>Pravilen vrstni red: {message.correct_option_ids.map((id) => question.options?.find((option) => option.id === id)?.text).join(" → ")}</p>
-      ) : null}
-      {message.correct_pairs ? (
-        <ul>
-          {message.correct_pairs.map((pair) => (
-            <li key={pair.left_id}>
-              {pair.left} → {pair.right}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {message.correct_value !== undefined ? (
-        <p>
-          Pravilno: {formatPoints(message.correct_value)}
-          {message.tolerance ? ` (± ${formatPoints(message.tolerance)})` : ""}. Tvoja ocena:{" "}
-          {message.selected_value !== undefined ? formatPoints(message.selected_value) : "—"}.
-        </p>
-      ) : null}
-      <p>
-        Nagrada {formatPoints(message.prize_reached ?? 0)} + bonus {formatPoints(message.speed_bonus_total ?? 0)} ={" "}
-        <strong>{formatPoints(message.score ?? 0)}</strong>
-      </p>
-      {question && !message.walked_away ? <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} /> : null}
-      {message.phase === "finished" || message.finished ? (
-        <>
-          <p>{REASONS[message.reason || ""] || "Igra je končana."}</p>
-          <div className="actions">
-            <Link className="primary" to={boardPath}>
-              Lestvica
-            </Link>
-            <Link to={replayPath}>Igraj znova</Link>
-          </div>
-        </>
-      ) : (
-        <button type="button" className="primary" onClick={onNext}>
-          Naprej{message.next_stake ? ` za ${formatPoints(message.next_stake)}` : ""}
-        </button>
-      )}
-    </div>
-  );
-}
-
-function Complaint({ gameQuestionId }: { gameQuestionId: string }) {
-  const [open, setOpen] = useState(false);
-  const [note, setNote] = useState("");
-  const [sent, setSent] = useState("");
-  const [error, setError] = useState("");
-
-  async function send() {
-    setError("");
-    try {
-      const result = await api<{ detail: string }>("/api/reports/", {
-        method: "POST",
-        body: JSON.stringify({ game_question_id: gameQuestionId, note }),
-      });
-      setSent(result.detail);
-      setOpen(false);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Pritožbe ni bilo mogoče oddati.");
-    }
-  }
-
-  if (sent) return <p className="fine">{sent}</p>;
-
-  return (
-    <div className="stack">
-      {open ? (
-        <>
-          <label>
-            Kaj ni v redu?
-            <textarea value={note} maxLength={1000} onChange={(event) => setNote(event.target.value)} />
-          </label>
-          {error ? <p className="error">{error}</p> : null}
-          <div className="actions">
-            <button type="button" className="primary" onClick={() => void send()}>
-              Pošlji pritožbo
-            </button>
-            <button type="button" onClick={() => setOpen(false)}>
-              Prekliči
-            </button>
-          </div>
-        </>
-      ) : (
-        <button type="button" onClick={() => setOpen(true)}>
-          Pritožba
-        </button>
-      )}
-    </div>
-  );
-}

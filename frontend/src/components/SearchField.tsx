@@ -1,5 +1,9 @@
 import { FormEvent, useEffect, useRef } from "react";
 
+import { SearchIcon } from "../icons";
+
+export { SearchIcon };
+
 export function SearchField({
   value,
   onChange,
@@ -36,14 +40,5 @@ export function SearchField({
         <SearchIcon />
       </button>
     </form>
-  );
-}
-
-export function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path d="M16 16l5 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
   );
 }

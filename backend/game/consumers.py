@@ -26,6 +26,7 @@ from rooms.services import (
     invite_user,
     lobby_payload,
     refresh_can_start,
+    rematch_room,
     set_ready,
     touch_room,
     update_room_settings,
@@ -117,6 +118,10 @@ class GameConsumer(AsyncWebsocketConsumer):
                 return
             if kind == "invite":
                 await database_sync_to_async(invite_user)(self.user, self.code, message)
+                await self._broadcast_lobby()
+                return
+            if kind == "rematch":
+                await database_sync_to_async(rematch_room)(self.user, self.code)
                 await self._broadcast_lobby()
                 return
             if kind == "start_game":

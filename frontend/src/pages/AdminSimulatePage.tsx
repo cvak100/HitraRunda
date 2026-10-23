@@ -3,8 +3,10 @@ import { Link, Navigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { Avatar } from "../components/Avatar";
+import { CategoryPicker } from "../components/CategoryPicker";
 import { NumberStepper } from "../components/NumberStepper";
 import { formatMode, formatPoints } from "../format";
+import { boardPath as modeBoardPath } from "../gameModes";
 
 type CategoryOpt = { slug: string; name: string };
 type BotOpt = {
@@ -86,6 +88,7 @@ export function SimulatePanel() {
   const [safeEvery, setSafeEvery] = useState(5);
   const [suddenDeath, setSuddenDeath] = useState(false);
   const [onBoard, setOnBoard] = useState(true);
+  const [playToEnd, setPlayToEnd] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [botKeys, setBotKeys] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -140,12 +143,6 @@ export function SimulatePanel() {
     });
   }, [mode, botsForMode, meta, isSolo]);
 
-  function toggleCategory(slug: string) {
-    setCategories((current) =>
-      current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug],
-    );
-  }
-
   function toggleBot(key: string) {
     if (isSolo) {
       setBotKeys([key]);
@@ -194,6 +191,7 @@ export function SimulatePanel() {
           safe_every: safeEvery,
           sudden_death: suddenDeath,
           count_for_leaderboard: onBoard,
+          play_to_end: isSolo ? playToEnd : undefined,
           categories,
         }),
       });
@@ -208,16 +206,7 @@ export function SimulatePanel() {
     }
   }
 
-  const boardPath =
-    mode === "dirka"
-      ? "/lestvica/dirka"
-      : mode === "multiplayer"
-        ? "/lestvica/vec-igralcev"
-        : mode === "ala_milijonar"
-          ? "/lestvica/ala-milijonar"
-          : mode === "60_sekund"
-            ? "/lestvica/60-sekund"
-            : "/lestvica/hitrarunda";
+  const boardPath = modeBoardPath(mode);
 
   const questionOpts = isHitra
     ? options.hr_question_counts || FALLBACK_OPTIONS.hr_question_counts
@@ -245,9 +234,15 @@ export function SimulatePanel() {
       {open ? (
         <>
       <p>
-        Zažene pravo tekmo z boti (brez živih igralcev), da napolni lestvico in preveri potek. Pri solo načinih
+        Zaženi pravo tekmo z boti (brez živih igralcev), da napolni lestvico in preveri potek. Pri solo načinih
         igra en bot-profil; pri Hitri tekmi/Dirki več botov.
       </p>
+      {isSixty ? (
+        <p className="fine">
+          60 sekund: simulacija ne čaka realnega časa — ob koncu zanke umetno poteka časovni bazen (samo za
+          admin seed).
+        </p>
+      ) : null}
       {error ? <p className="error">{error}</p> : null}
       {statusLine ? <p className="fine sim-status">{statusLine}</p> : null}
 
@@ -342,6 +337,18 @@ export function SimulatePanel() {
           {isSolo ? "Rezultat gre na javno lestvico" : "Boti grejo na javno lestvico"}
         </label>
 
+        {isSolo && !isSixty ? (
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={playToEnd}
+              disabled={busy}
+              onChange={(e) => setPlayToEnd(e.target.checked)}
+            />
+            Igraj do konca (100 % natančnost — seed lestvice)
+          </label>
+        ) : null}
+
         <fieldset>
           <legend>
             {isSolo
@@ -390,34 +397,13 @@ export function SimulatePanel() {
           ) : null}
         </fieldset>
 
-        <fieldset>
-          <legend>Kategorije ({categories.length})</legend>
-          <div className="choices" style={{ flexWrap: "wrap" }}>
-            {(meta?.categories || []).map((cat) => (
-              <button
-                key={cat.slug}
-                type="button"
-                className={categories.includes(cat.slug) ? "is-on" : ""}
-                disabled={busy}
-                onClick={() => toggleCategory(cat.slug)}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-          <div className="actions" style={{ marginTop: 8 }}>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setCategories((meta?.categories || []).map((c) => c.slug))}
-            >
-              Vse
-            </button>
-            <button type="button" disabled={busy} onClick={() => setCategories([])}>
-              Nobena
-            </button>
-          </div>
-        </fieldset>
+        <CategoryPicker
+          categories={meta?.categories || []}
+          value={categories}
+          onChange={setCategories}
+          disabled={busy}
+          showSelectAll
+        />
 
         <div className="actions">
           <button type="submit" className="primary" disabled={busy}>

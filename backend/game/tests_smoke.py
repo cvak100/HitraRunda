@@ -27,6 +27,25 @@ def make_questions(category, count=20):
         QuestionOption.objects.create(question=question, text="B", is_correct=False, order=1)
 
 
+def make_ala_pool(category, per_level=4):
+    """Dovolj vprašanj (4 možnosti) po težavnosti za Ala milijonar."""
+    for level in range(1, 6):
+        for index in range(per_level):
+            question = Question.objects.create(
+                external_key=f"smoke-ala-{category.slug}-{level}-{index}",
+                category=category,
+                question_type=Question.Type.MULTIPLE_CHOICE,
+                difficulty=level,
+                text=f"Smoke ala {level}-{index}",
+                is_active=True,
+            )
+            QuestionOption.objects.create(question=question, text="A", is_correct=True, order=0)
+            for order, label in enumerate(("B", "C", "D"), start=1):
+                QuestionOption.objects.create(
+                    question=question, text=label, is_correct=False, order=order
+                )
+
+
 class SmokeFlowTests(TestCase):
     def setUp(self):
         ensure_bots()
@@ -120,10 +139,17 @@ class SmokeFlowTests(TestCase):
         self.assertEqual(detail.status_code, 200)
         self.assertEqual(detail.data["member_count"], 1)
 
-    def test_simulate_multiplayer_and_dirka(self):
+    def test_simulate_all_modes(self):
         staff = APIClient()
         from accounts.models import User
+        from game.modes import MODE_60_SEKUND, MODE_ALA_MILIJONAR, MODE_HITRARUNDA
+        from game.seed_content import ensure_bonuses_and_friends
 
+        ensure_bonuses_and_friends()
+        from game.tests import make_ala_friends
+
+        make_ala_friends(3)
+        make_ala_pool(self.category, per_level=5)
         admin = User.objects.create_user(
             username="admin@smoke.local",
             email="admin@smoke.local",
@@ -160,6 +186,44 @@ class SmokeFlowTests(TestCase):
         )
         self.assertEqual(dirka["status"], "finished")
         self.assertGreaterEqual(len(dirka["results"]), 2)
+
+        hr = simulate_match(
+            admin,
+            {
+                "mode": MODE_HITRARUNDA,
+                "question_count": 5,
+                "categories": ["smoke"],
+                "count_for_leaderboard": True,
+                "play_to_end": True,
+            },
+        )
+        self.assertEqual(hr["status"], "finished")
+        self.assertGreaterEqual(hr["rounds_played"], 5)
+        self.assertEqual(len(hr["results"]), 1)
+
+        sixty = simulate_match(
+            admin,
+            {
+                "mode": MODE_60_SEKUND,
+                "categories": ["smoke"],
+                "count_for_leaderboard": True,
+                "max_rounds": 20,
+            },
+        )
+        self.assertEqual(sixty["status"], "finished")
+        self.assertEqual(len(sixty["results"]), 1)
+
+        ala = simulate_match(
+            admin,
+            {
+                "mode": MODE_ALA_MILIJONAR,
+                "categories": ["smoke"],
+                "count_for_leaderboard": True,
+                "play_to_end": True,
+            },
+        )
+        self.assertEqual(ala["status"], "finished")
+        self.assertEqual(len(ala["results"]), 1)
 
         api_sim = staff.post(
             "/api/admin/simulate/",

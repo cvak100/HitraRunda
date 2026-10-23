@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Count, F, Max, Q, Sum
+from django.db.models import Avg, F, Max, Q, Sum
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -7,13 +7,11 @@ from rest_framework.views import APIView
 
 from accounts.nicknames import resolve_avatar_key
 from accounts.staff import StaffOnly
+from game.leaderboard_stats import totals_for_users, user_mode_totals
 from game.models import GameResult, GameSession
 from game.replay import session_detail
 
 User = get_user_model()
-
-# Zmage štejemo samo v tekmah z več igralci (1. mesto po točkah v seji).
-_WIN_MODES = ("multiplayer", "dirka")
 
 
 def result_payload(result):
@@ -78,77 +76,22 @@ def _mode_filter_q(mode: str) -> Q | None:
 
 
 def _totals_leaderboard(limit, query: str, mode: str):
-    """Skupna lestvica po uporabniku znotraj enega načina: vsota točk, igre, zmage (MP/Dirka)."""
+    """Skupna lestvica po uporabniku znotraj enega načina: vsota točk, igre, zmage (MP/Dirka).
+
+    Zmage: en zmagovalec na sejo (score → pravilni → čas → played_at).
+    Gosti po cleanup (user SET_NULL) izpadejo iz agregatov — glej leaderboard_stats.
+    """
     mode = _normalize_board_mode(mode)
-    base = GameResult.objects.filter(
-        score__gt=0,
-        counts_for_leaderboard=True,
-        user_id__isnull=False,
-    )
-    mode_q = _mode_filter_q(mode)
-    if mode_q is not None:
-        base = base.filter(mode_q)
-    if query:
-        matching_ids = User.objects.filter(nickname__icontains=query).values_list("id", flat=True)
-        base = base.filter(Q(user_id__in=matching_ids) | Q(nickname__icontains=query))
-
-    aggregates = list(
-        base.values("user_id")
-        .annotate(total_points=Sum("score"), games=Count("id"))
-        .order_by("-total_points", "-games", "user_id")
-    )
-    total = len(aggregates)
-    if limit is not None:
-        aggregates = aggregates[:limit]
-
-    user_ids = [row["user_id"] for row in aggregates]
+    rows, total = totals_for_users(mode, query=query, limit=limit)
+    user_ids = [row["user_id"] for row in rows]
     users = {
         user.id: user
         for user in User.objects.filter(id__in=user_ids).only(
             "id", "nickname", "avatar", "preferred_color", "email"
         )
     }
-
-    # Zmage samo v Hitri tekmi / Dirki (1. mesto v seji znotraj tega načina).
-    win_modes = [mode] if mode in _WIN_MODES else []
-    wins_by_user = {uid: 0 for uid in user_ids}
-    if user_ids and win_modes:
-        session_tops = (
-            GameResult.objects.filter(
-                counts_for_leaderboard=True,
-                mode__in=win_modes,
-                game_session_id__isnull=False,
-                score__gt=0,
-            )
-            .values("game_session_id")
-            .annotate(top=Max("score"))
-        )
-        top_map = {row["game_session_id"]: row["top"] for row in session_tops}
-        if top_map:
-            winners = (
-                GameResult.objects.filter(
-                    user_id__in=user_ids,
-                    counts_for_leaderboard=True,
-                    mode__in=win_modes,
-                    game_session_id__in=top_map.keys(),
-                    score__gt=0,
-                )
-                .values("user_id", "game_session_id", "score")
-                .distinct()
-            )
-            seen = set()
-            for row in winners:
-                sid = row["game_session_id"]
-                if row["score"] != top_map.get(sid):
-                    continue
-                key = (row["user_id"], sid)
-                if key in seen:
-                    continue
-                seen.add(key)
-                wins_by_user[row["user_id"]] = wins_by_user.get(row["user_id"], 0) + 1
-
     results = []
-    for row in aggregates:
+    for row in rows:
         user = users.get(row["user_id"])
         nickname = (user.nickname if user and user.nickname else "") or ""
         if not nickname:
@@ -169,9 +112,9 @@ def _totals_leaderboard(limit, query: str, mode: str):
                     seed=str(row["user_id"]),
                 ),
                 "preferred_color": (getattr(user, "preferred_color", "") if user else "") or "",
-                "total_points": int(row["total_points"] or 0),
-                "wins": int(wins_by_user.get(row["user_id"], 0)),
-                "games": int(row["games"] or 0),
+                "total_points": row["total_points"],
+                "wins": row["wins"],
+                "games": row["games"],
                 "is_guest": bool(user.is_guest) if user is not None else False,
             }
         )
@@ -233,8 +176,6 @@ class ProfileStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from django.db.models import Avg, F, Max, Q
-
         from game.modes import (
             MODE_60_SEKUND,
             MODE_ALA_MILIJONAR,
@@ -284,6 +225,7 @@ class ProfileStatsView(APIView):
                 best_prize=Max("prize_reached"),
                 avg_score=Avg("score"),
             )
+            totals = user_mode_totals(request.user.id, mode_values)
             modes.append(
                 {
                     "mode": mode_key,
@@ -293,6 +235,8 @@ class ProfileStatsView(APIView):
                     "best_prize": aggregates["best_prize"] or 0,
                     "avg_score": int(round(aggregates["avg_score"] or 0)),
                     "games": qs.count(),
+                    "total_points": totals["total_points"],
+                    "wins": totals["wins"],
                     "rank": rank,
                     "board_total": board_qs.count(),
                     "best_duration_ms": best.duration_ms if best is not None else None,

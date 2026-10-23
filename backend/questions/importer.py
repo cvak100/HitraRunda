@@ -10,6 +10,18 @@ from questions.models import Category, Question, QuestionOption
 CATEGORIES = (
     ("sport", "Šport", 1),
     ("zemljepis", "Zemljepis", 2),
+    ("zgodovina", "Zgodovina", 3),
+    ("narava", "Narava", 4),
+    ("znanost", "Znanost", 5),
+    ("kultura", "Kultura", 6),
+    ("literatura", "Literatura", 7),
+    ("glasba", "Glasba", 8),
+    ("film", "Film in TV", 9),
+    ("politika", "Politika", 10),
+    ("kulinarika", "Kulinarika", 11),
+    ("slovenija", "Slovenija", 12),
+    ("zivali", "Živali", 13),
+    ("astronomija", "Astronomija", 14),
 )
 CHOICE_TYPES = {"multiple_choice", "true_false", "multi_select"}
 QUESTION_TYPES = CHOICE_TYPES | {"ordering", "matching", "slider"}
@@ -22,8 +34,9 @@ class ImportProblem(Exception):
 
 
 def ensure_categories():
+    """Doda manjkajoče privzete kategorije; obstoječih ne prepisuje."""
     for slug, name, order in CATEGORIES:
-        Category.objects.update_or_create(
+        Category.objects.get_or_create(
             slug=slug,
             defaults={"name": name, "order": order, "is_active": True},
         )

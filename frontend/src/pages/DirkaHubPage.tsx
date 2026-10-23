@@ -3,9 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { AiOpponentsField, maxAiSlots } from "../components/AiOpponentsField";
+import { CategoryPicker } from "../components/CategoryPicker";
+import { ChoiceGroup } from "../components/ChoiceGroup";
+import { DirkaBonusesHelp } from "../components/DirkaBonusesHelp";
 import { NicknameField } from "../components/NicknameField";
 import { NumberStepper } from "../components/NumberStepper";
-import { ModePageNav } from "../gameModes";
+import { VisibilityField } from "../components/VisibilityField";
+import { ModePageNav, ModeRules } from "../gameModes";
 import type { Category } from "../types";
 
 type LobbyRoom = {
@@ -50,7 +55,6 @@ export function DirkaHubPage() {
   const [safeOptions, setSafeOptions] = useState(DEFAULT_SAFE);
   const [maxPlayersCap, setMaxPlayersCap] = useState(6);
   const [maxBots, setMaxBots] = useState(5);
-  const [dirkaSeconds, setDirkaSeconds] = useState(30);
 
   useEffect(() => {
     api<{ categories: Category[] }>("/api/categories/")
@@ -63,7 +67,6 @@ export function DirkaHubPage() {
       dirka?: {
         targets?: number[];
         safe_every?: number[];
-        time_limit_seconds?: number;
         max_bots?: number;
       };
       multiplayer?: { max_players?: number };
@@ -78,7 +81,6 @@ export function DirkaHubPage() {
           setSafeOptions(d.safe_every);
           setSafeEvery((current) => (d.safe_every!.includes(current) ? current : d.safe_every![0]));
         }
-        if (d?.time_limit_seconds) setDirkaSeconds(d.time_limit_seconds);
         if (typeof d?.max_bots === "number") {
           setMaxBots(d.max_bots);
           setBotCount((current) => Math.min(current, d.max_bots!));
@@ -145,8 +147,11 @@ export function DirkaHubPage() {
     <section className="panel">
       <p className="eyebrow">Dirka</p>
       <h1>Prvi do cilja</h1>
-      <ModePageNav boardTo="/lestvica/dirka" />
-      <p className="lead">Ista vprašanja za vse. Fiksni bonusi. Zmaga, kdor prvi doseže ciljne točke.</p>
+      <ModePageNav mode="dirka" />
+      <ModeRules mode="dirka" />
+      <div className="mode-extra-actions">
+        <DirkaBonusesHelp />
+      </div>
       <div className="tabs content-tabs" role="tablist">
         <button type="button" className={tab === "create" ? "is-on" : ""} onClick={() => setTab("create")}>
           Ustvari
@@ -163,27 +168,12 @@ export function DirkaHubPage() {
       {tab === "create" ? (
         <form className="stack" onSubmit={onCreate}>
           <NicknameField value={nickname} onChange={setNickname} required />
-          <fieldset>
-            <legend>Vidnost</legend>
-            <label className="check">
-              <input type="radio" checked={visibility === "public"} onChange={() => setVisibility("public")} />
-              Javna
-            </label>
-            <label className="check">
-              <input type="radio" checked={visibility === "unlisted"} onChange={() => setVisibility("unlisted")} />
-              Skrita (samo link)
-            </label>
-            <label className="check">
-              <input type="radio" checked={visibility === "private"} onChange={() => setVisibility("private")} />
-              Zasebna (geslo)
-            </label>
-          </fieldset>
-          {visibility === "private" ? (
-            <label>
-              Geslo
-              <input value={password} onChange={(event) => setPassword(event.target.value)} required />
-            </label>
-          ) : null}
+          <VisibilityField
+            value={visibility}
+            onChange={setVisibility}
+            password={password}
+            onPasswordChange={setPassword}
+          />
           <NumberStepper
             label="Največ igralcev"
             value={maxPlayers}
@@ -191,64 +181,26 @@ export function DirkaHubPage() {
             max={maxPlayersCap}
             onChange={(value) => {
               setMaxPlayers(value);
-              setBotCount((current) => Math.min(current, Math.max(0, Math.min(maxBots, value - 1))));
+              setBotCount((current) => Math.min(current, maxAiSlots(value, 1, maxBots)));
             }}
           />
-          <fieldset>
-            <legend>Cilj točk</legend>
-            <div className="chip-row">
-              {targets.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={targetScore === value ? "chip is-on" : "chip"}
-                  onClick={() => setTargetScore(value)}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>Varna zona</legend>
-            {safeOptions.map((value) => (
-              <label key={value} className="check">
-                <input type="radio" checked={safeEvery === value} onChange={() => setSafeEvery(value)} />
-                Vsakih {value} pravilnih
-              </label>
-            ))}
-          </fieldset>
-          <NumberStepper
-            label="Dirka AI (zapolni mesta)"
+          <AiOpponentsField
+            mode="dirka"
             value={botCount}
-            min={0}
-            max={Math.max(0, Math.min(maxBots, maxPlayers - 1))}
             onChange={setBotCount}
+            max={maxAiSlots(maxPlayers, 1, maxBots)}
           />
-          <fieldset>
-            <legend>Kategorije</legend>
-            {categories.map((category) => (
-              <label key={category.slug} className="check">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(category.slug)}
-                  onChange={() =>
-                    setSelected((current) =>
-                      current.includes(category.slug)
-                        ? current.filter((item) => item !== category.slug)
-                        : [...current, category.slug],
-                    )
-                  }
-                />
-                {category.name}
-              </label>
-            ))}
-          </fieldset>
-          <p className="fine">
-            Čas na vprašanje: {dirkaSeconds} s. Bonusov na startu ni — pridejo s streakom in varno zono.
-          </p>
+          <ChoiceGroup label="Cilj točk" options={targets} value={targetScore} onChange={setTargetScore} />
+          <ChoiceGroup
+            label="Varna zona (pravilnih)"
+            options={safeOptions}
+            value={safeEvery}
+            onChange={setSafeEvery}
+            format={(value) => `Vsakih ${value}`}
+          />
+          <CategoryPicker categories={categories} value={selected} onChange={setSelected} showCounts="all" showSelectAll />
           <button className="primary" type="submit" disabled={pending || selected.length === 0}>
-            Ustvari Dirko
+            Ustvari sobo
           </button>
         </form>
       ) : null}
@@ -276,7 +228,7 @@ export function DirkaHubPage() {
                     <h2>{room.name || "Dirka"}</h2>
                     <p className="fine">
                       {room.host_nickname ? `Host: ${room.host_nickname} · ` : ""}
-                      /igra/{room.code} · cilj {room.settings.target_score ?? "—"}
+                      {room.code} · cilj {room.settings.target_score ?? "—"}
                     </p>
                   </div>
                   <button type="button" className="primary" onClick={(event) => void onJoin(event, room.code)}>
@@ -298,7 +250,7 @@ export function DirkaHubPage() {
                 <h2>{room.name || "Dirka"}</h2>
                 <p className="fine">
                   {room.host_nickname ? `Host: ${room.host_nickname} · ` : ""}
-                  /igra/{room.code} · {room.member_count}/{room.max_players}
+                  {room.code} · {room.member_count}/{room.max_players}
                   {room.settings.target_score != null ? ` · cilj ${room.settings.target_score}` : ""}
                   {room.settings.safe_every != null ? ` · varna zona ${room.settings.safe_every}` : ""}
                   {room.settings.bot_count ? ` · AI ${room.settings.bot_count}` : ""}
