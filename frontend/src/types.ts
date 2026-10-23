@@ -6,7 +6,31 @@ export type User = {
   is_staff: boolean;
 };
 
-export type GameMode = "hitrarunda" | "ala_milijonar";
+export type GameMode = "hitrarunda" | "ala_milijonar" | "multiplayer";
+
+export type StandingRow = {
+  member_id: string;
+  nickname: string;
+  color?: string;
+  score: number;
+  correct_count: number;
+  round_bonuses?: number;
+  streak?: number;
+  alive?: boolean;
+  is_bot?: boolean;
+  rank?: number;
+};
+
+export type LobbyMember = {
+  id: string;
+  nickname: string;
+  color?: string;
+  is_host: boolean;
+  is_ready: boolean;
+  is_connected?: boolean;
+  is_bot?: boolean;
+  is_you?: boolean;
+};
 
 export type PhoneFriend = {
   id?: number;
@@ -136,6 +160,48 @@ export type GameMessage = {
   guaranteed_prize?: number;
   can_walk_away?: boolean;
   walked_away?: boolean;
+  standings?: StandingRow[];
+  answers?: {
+    nickname: string;
+    member_id?: string;
+    is_correct: boolean;
+    timed_out?: boolean;
+    points: number;
+    time_taken_ms?: number;
+    round_bonus?: boolean;
+    streak_bonus?: number;
+    catchup_bonus?: number;
+    eliminated?: boolean;
+  }[];
+  answered_count?: number;
+  player_count?: number;
+  waiting_for?: string[];
+  waiting_for_ids?: string[];
+  answered_ids?: string[];
+  is_last?: boolean;
+  is_host?: boolean;
+  sudden_death?: boolean;
+  alive_count?: number;
+  host_member_id?: string;
+  advance_seconds?: number;
+  members?: LobbyMember[];
+  all_ready?: boolean;
+  can_start?: boolean;
+  you?: { id?: string; member_id?: string; nickname?: string; is_host?: boolean; is_ready?: boolean; score?: number };
+  visibility?: string;
+  max_players?: number;
+  settings?: {
+    mode?: string;
+    question_count?: number;
+    time_limit_seconds?: number;
+    categories?: string[];
+    sudden_death?: boolean;
+    bot_count?: number;
+  };
+  link?: string;
+  has_password?: boolean;
+  member_count?: number;
+  name?: string;
 };
 
 export type StaffCategory = {

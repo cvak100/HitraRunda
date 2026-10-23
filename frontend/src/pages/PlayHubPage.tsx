@@ -22,6 +22,14 @@ export function PlayHubPage() {
             Nastavi Ala milijonar
           </Link>
         </div>
+        <div className="game-block">
+          <p className="eyebrow">Več igralcev</p>
+          <h2>Skupna soba v živo</h2>
+          <p>Ustvari ali se pridruži. Ready check, ista vprašanja, rundni bonusi in lestvica v sobi.</p>
+          <Link className="primary" to="/igra/vec-igralcev">
+            Odpri lobby
+          </Link>
+        </div>
       </div>
     </section>
   );

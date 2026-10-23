@@ -66,12 +66,15 @@ class RoomMember(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="room_memberships",
+        null=True,
+        blank=True,
     )
     nickname_in_room = models.CharField(max_length=30)
     color = models.CharField(max_length=20, blank=True)
     is_host = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
     is_connected = models.BooleanField(default=False)
+    is_bot = models.BooleanField(default=False)
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
     last_activity = models.DateTimeField(auto_now=True)

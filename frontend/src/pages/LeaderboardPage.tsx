@@ -14,6 +14,7 @@ type BoardLimit = "10" | "100" | "all";
 
 function modeFromPath(pathname: string): GameMode {
   if (pathname.includes("/ala-milijonar")) return "ala_milijonar";
+  if (pathname.includes("/vec-igralcev")) return "multiplayer";
   return "hitrarunda";
 }
 
@@ -68,6 +69,9 @@ export function LeaderboardPage() {
         </NavLink>
         <NavLink to="/lestvica/ala-milijonar" role="tab">
           Ala milijonar
+        </NavLink>
+        <NavLink to="/lestvica/vec-igralcev" role="tab">
+          Več igralcev
         </NavLink>
       </div>
 

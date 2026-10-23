@@ -460,6 +460,13 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 
 .q-image { max-width: 100%; border-radius: 16px; }
 
+.lobby-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lobby-list li {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #121815;
+}
 .ladder { list-style: none; margin: 0; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
 .ladder li { border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; text-align: right; color: var(--muted); }
 .ladder .reached { color: var(--gold-ink); background: var(--gold); border-color: var(--gold); }
