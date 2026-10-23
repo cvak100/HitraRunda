@@ -53,7 +53,7 @@ class LeaderboardView(APIView):
         limit, error = _bounded_limit(request.query_params.get("limit"), {"10", "100"}, 10)
         if error:
             return error
-        results = GameResult.objects.filter(score__gt=0)
+        results = GameResult.objects.filter(score__gt=0, counts_for_leaderboard=True)
         mode = str(request.query_params.get("mode") or "").strip()
         if mode == "millionaire":
             mode = "hitrarunda"
@@ -101,26 +101,73 @@ class ProfileStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        from django.db.models import Max
+        from django.db.models import Avg, F, Max, Q
 
-        from game.modes import MODE_ALA_MILIJONAR, MODE_HITRARUNDA, MODE_LABELS
+        from game.modes import (
+            MODE_60_SEKUND,
+            MODE_ALA_MILIJONAR,
+            MODE_DIRKA,
+            MODE_HITRARUNDA,
+            MODE_LABELS,
+            MODE_MULTIPLAYER,
+        )
 
         base = request.user.game_results.all()
-        modes = [
-            {
-                "mode": MODE_HITRARUNDA,
-                "label": MODE_LABELS[MODE_HITRARUNDA],
-                "best_score": base.filter(mode__in=[MODE_HITRARUNDA, "millionaire"]).aggregate(v=Max("score"))["v"]
-                or 0,
-                "games": base.filter(mode__in=[MODE_HITRARUNDA, "millionaire"]).count(),
-            },
-            {
-                "mode": MODE_ALA_MILIJONAR,
-                "label": MODE_LABELS[MODE_ALA_MILIJONAR],
-                "best_score": base.filter(mode=MODE_ALA_MILIJONAR).aggregate(v=Max("score"))["v"] or 0,
-                "games": base.filter(mode=MODE_ALA_MILIJONAR).count(),
-            },
+        mode_filters = [
+            (MODE_HITRARUNDA, [MODE_HITRARUNDA, "millionaire"]),
+            (MODE_ALA_MILIJONAR, [MODE_ALA_MILIJONAR]),
+            (MODE_MULTIPLAYER, [MODE_MULTIPLAYER]),
+            (MODE_DIRKA, [MODE_DIRKA]),
+            (MODE_60_SEKUND, [MODE_60_SEKUND]),
         ]
+        modes = []
+        for mode_key, mode_values in mode_filters:
+            qs = base.filter(mode__in=mode_values)
+            board_qs = GameResult.objects.filter(
+                score__gt=0,
+                counts_for_leaderboard=True,
+                mode__in=mode_values,
+            )
+            best = (
+                qs.filter(score__gt=0, counts_for_leaderboard=True)
+                .order_by("-score", "-correct_count", F("duration_ms").asc(nulls_last=True), "played_at")
+                .first()
+            )
+            rank = None
+            if best is not None:
+                ahead = Q(score__gt=best.score) | Q(score=best.score, correct_count__gt=best.correct_count)
+                if best.duration_ms is None:
+                    ahead = ahead | Q(score=best.score, correct_count=best.correct_count, duration_ms__isnull=False)
+                else:
+                    ahead = ahead | Q(
+                        score=best.score,
+                        correct_count=best.correct_count,
+                        duration_ms__isnull=False,
+                        duration_ms__lt=best.duration_ms,
+                    )
+                rank = board_qs.filter(ahead).count() + 1
+            aggregates = qs.aggregate(
+                best_score=Max("score"),
+                best_correct=Max("correct_count"),
+                best_prize=Max("prize_reached"),
+                avg_score=Avg("score"),
+            )
+            modes.append(
+                {
+                    "mode": mode_key,
+                    "label": MODE_LABELS[mode_key],
+                    "best_score": aggregates["best_score"] or 0,
+                    "best_correct": aggregates["best_correct"] or 0,
+                    "best_prize": aggregates["best_prize"] or 0,
+                    "avg_score": int(round(aggregates["avg_score"] or 0)),
+                    "games": qs.count(),
+                    "rank": rank,
+                    "board_total": board_qs.count(),
+                    "best_duration_ms": best.duration_ms if best is not None else None,
+                    "best_correct_in_run": best.correct_count if best is not None else 0,
+                    "best_total_in_run": best.total_questions if best is not None else 0,
+                }
+            )
         recent = [result_payload(row) for row in base.order_by("-played_at")[:20]]
         return Response(
             {
@@ -197,7 +244,4 @@ class AdminSessionDetailView(APIView):
 
 
 def _result(session):
-    try:
-        return session.result
-    except GameResult.DoesNotExist:
-        return None
+    return session.results.order_by("-score", "duration_ms", "played_at").first()

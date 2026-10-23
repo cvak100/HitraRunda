@@ -20,11 +20,25 @@ from game.modes import (
     ALA_QUESTION_COUNT,
     ALA_QUESTION_TYPES,
     ALA_SAFE_ORDERS,
+    DIRKA_SAFE_EVERY,
+    DIRKA_TARGET_SCORES,
+    DIRKA_TIME_SECONDS,
     FRIENDS_PICK,
+    LOBBY_MODES,
+    MODE_60_SEKUND,
     MODE_ALA_MILIJONAR,
+    MODE_DIRKA,
     MODE_HITRARUNDA,
     MODE_LABELS,
+    MODE_MULTIPLAYER,
+    MP_ALLOWED_TIMES,
+    MP_MAX_BOTS,
+    MP_QUESTION_COUNTS,
     PLAYABLE_MODES,
+    SIXTY_DIFFICULTY_PROFILES,
+    SIXTY_QUESTION_TYPES,
+    SIXTY_SKIP_LIMITS,
+    SIXTY_START_SECONDS,
 )
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
@@ -93,7 +107,18 @@ def validate_settings(raw):
         raise GameError("Število vprašanj in čas morata biti števili.")
     if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
         raise GameError("Število vprašanj mora biti med 5 in 15.")
-    if mode != MODE_ALA_MILIJONAR and seconds not in ALLOWED_TIMES:
+    if mode == MODE_MULTIPLAYER and count not in MP_QUESTION_COUNTS:
+        raise GameError("Število vprašanj je 5, 10, 20, 40, 50 ali 100.")
+    if mode == MODE_DIRKA:
+        count = 0
+        seconds = DIRKA_TIME_SECONDS
+    if mode == MODE_60_SEKUND:
+        count = 0
+        seconds = SIXTY_START_SECONDS
+    if mode == MODE_MULTIPLAYER:
+        if seconds not in MP_ALLOWED_TIMES:
+            raise GameError("Čas na vprašanje je 30 s, 60 s, 90 s, 2 min ali 5 min.")
+    elif mode not in {MODE_ALA_MILIJONAR, MODE_DIRKA, MODE_60_SEKUND} and seconds not in ALLOWED_TIMES:
         raise GameError("Čas na vprašanje je 10, 15, 20, 30, 45 ali 60 sekund.")
     slugs = raw.get("categories")
     if not isinstance(slugs, list) or not slugs:
@@ -115,8 +140,13 @@ def validate_settings(raw):
             .annotate(option_count=Count("options"))
             .filter(option_count=ALA_OPTION_COUNT)
         )
+    elif mode == MODE_60_SEKUND:
+        pool = pool.filter(question_type__in=SIXTY_QUESTION_TYPES)
     available = pool.count()
-    if available < count:
+    if mode in {MODE_DIRKA, MODE_60_SEKUND}:
+        if available < 5:
+            raise GameError(f"Na voljo je {available} vprašanj, potrebuješ vsaj 5.")
+    elif available < count:
         raise GameError(f"Na voljo je {available} vprašanj, izbral si jih {count}.")
 
     friend_keys = []
@@ -147,6 +177,51 @@ def validate_settings(raw):
     }
     if friend_keys:
         settings["friend_keys"] = friend_keys
+    if mode in LOBBY_MODES:
+        try:
+            bot_count = int(raw.get("bot_count") or 0)
+        except (TypeError, ValueError):
+            raise GameError("Število botov ni veljavno.")
+        if not 0 <= bot_count <= MP_MAX_BOTS:
+            raise GameError(f"Število botov mora biti med 0 in {MP_MAX_BOTS}.")
+        settings["bot_count"] = bot_count
+    if mode == MODE_MULTIPLAYER:
+        settings["sudden_death"] = bool(raw.get("sudden_death"))
+    if mode == MODE_DIRKA:
+        try:
+            target = int(raw.get("target_score") or 200)
+        except (TypeError, ValueError):
+            raise GameError("Cilj točk ni veljaven.")
+        if target not in DIRKA_TARGET_SCORES:
+            raise GameError("Cilj točk je 100, 200, 500 ali 1000.")
+        try:
+            safe_every = int(raw.get("safe_every") or 5)
+        except (TypeError, ValueError):
+            raise GameError("Safe zone ni veljavna.")
+        if safe_every not in DIRKA_SAFE_EVERY:
+            raise GameError("Safe zone je vsakih 5 ali 10 pravilnih.")
+        settings["target_score"] = target
+        settings["safe_every"] = safe_every
+        settings["time_limit_seconds"] = DIRKA_TIME_SECONDS
+        settings["question_count"] = 0
+    if mode == MODE_60_SEKUND:
+        raw_skip = raw.get("skip_limit", None)
+        if raw_skip in ("", "unlimited", "neomejeno") or raw_skip is None:
+            skip_limit = None
+        else:
+            try:
+                skip_limit = int(raw_skip)
+            except (TypeError, ValueError):
+                raise GameError("Število preskokov ni veljavno.")
+        if skip_limit not in SIXTY_SKIP_LIMITS:
+            raise GameError("Preskoki: neomejeno, 3, 5 ali 10.")
+        profile = str(raw.get("difficulty_profile") or "normal").strip()
+        if profile not in SIXTY_DIFFICULTY_PROFILES:
+            raise GameError("Težavnostni profil je blago, normalno ali ostro.")
+        settings["skip_limit"] = skip_limit
+        settings["difficulty_profile"] = profile
+        settings["time_limit_seconds"] = SIXTY_START_SECONDS
+        settings["question_count"] = 0
     return settings
 
 
@@ -272,11 +347,46 @@ def member_id_for(user_id, code):
     return member.id if member else None
 
 
-def set_member_connected(member_id, connected):
-    RoomMember.objects.filter(pk=member_id).update(is_connected=connected)
+def set_member_connected(member_id, connected, connection_epoch=None):
+    """Mark presence. On connect bumps epoch and returns it; on disconnect only clears if epoch still matches."""
+    from django.db.models import F
+
+    if connected:
+        RoomMember.objects.filter(pk=member_id).update(
+            is_connected=True,
+            connection_epoch=F("connection_epoch") + 1,
+        )
+        return RoomMember.objects.filter(pk=member_id).values_list("connection_epoch", flat=True).first()
+    qs = RoomMember.objects.filter(pk=member_id)
+    if connection_epoch is not None:
+        qs = qs.filter(connection_epoch=connection_epoch)
+    return qs.update(is_connected=False) > 0
+
+
+def _room_mode(member_id):
+    member = RoomMember.objects.select_related("room").filter(pk=member_id).first()
+    if member is None:
+        return None
+    session = GameSession.objects.filter(room_id=member.room_id).first()
+    if session is not None:
+        return session.mode
+    return (member.room.settings or {}).get("mode")
 
 
 def snapshot(member_id):
+    mode = _room_mode(member_id)
+    if mode == MODE_MULTIPLAYER:
+        from game.multiplayer import snapshot_multiplayer
+
+        return snapshot_multiplayer(member_id)
+    if mode == MODE_DIRKA:
+        from game.dirka import snapshot_dirka
+
+        return snapshot_dirka(member_id)
+    if mode == MODE_60_SEKUND:
+        from game.sixty import snapshot_sixty
+
+        return snapshot_sixty(member_id)
     with transaction.atomic():
         member, _room, session = _lock(member_id)
         if session is None:
@@ -294,6 +404,19 @@ def snapshot(member_id):
 
 
 def start_game(member_id):
+    mode = _room_mode(member_id)
+    if mode == MODE_MULTIPLAYER:
+        from game.multiplayer import start_multiplayer
+
+        return start_multiplayer(member_id)
+    if mode == MODE_DIRKA:
+        from game.dirka import start_dirka
+
+        return start_dirka(member_id)
+    if mode == MODE_60_SEKUND:
+        from game.sixty import start_sixty
+
+        return start_sixty(member_id)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if not member.is_host:
@@ -364,6 +487,19 @@ def start_game(member_id):
 def submit_answer(member_id, message):
     if not isinstance(message, dict):
         raise GameError("Neveljavno sporočilo.")
+    mode = _room_mode(member_id)
+    if mode == MODE_MULTIPLAYER:
+        from game.multiplayer import submit_multiplayer
+
+        return submit_multiplayer(member_id, message)
+    if mode == MODE_DIRKA:
+        from game.dirka import submit_dirka
+
+        return submit_dirka(member_id, message)
+    if mode == MODE_60_SEKUND:
+        from game.sixty import submit_sixty
+
+        return submit_sixty(member_id, message)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active":
@@ -381,6 +517,19 @@ def submit_answer(member_id, message):
 
 
 def apply_timeout(member_id, game_question_id):
+    mode = _room_mode(member_id)
+    if mode == MODE_MULTIPLAYER:
+        from game.multiplayer import apply_multiplayer_timeout
+
+        return apply_multiplayer_timeout(member_id, game_question_id)
+    if mode == MODE_DIRKA:
+        from game.dirka import apply_dirka_timeout
+
+        return apply_dirka_timeout(member_id, game_question_id)
+    if mode == MODE_60_SEKUND:
+        from game.sixty import apply_sixty_timeout
+
+        return apply_sixty_timeout(member_id, game_question_id)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active":
@@ -403,19 +552,44 @@ def apply_timeout(member_id, game_question_id):
 
 def seconds_until_hard_end(game_question_id):
     try:
-        game_question = GameQuestion.objects.select_related("game_session").get(pk=game_question_id)
+        game_question = GameQuestion.objects.select_related("game_session", "game_session__room").get(
+            pk=game_question_id
+        )
     except GameQuestion.DoesNotExist:
         return None
     session = game_question.game_session
     if session.status != "active" or game_question.order != session.current_question_index:
         return None
-    if game_question.started_at is None or game_question.answers.exists():
+    if game_question.started_at is None:
+        return None
+    if session.mode == MODE_DIRKA:
+        from game.dirka import seconds_until_dirka_deadline
+
+        return seconds_until_dirka_deadline(game_question_id)
+    if session.mode == MODE_60_SEKUND:
+        from game.sixty import seconds_until_sixty_deadline
+
+        return seconds_until_sixty_deadline(game_question_id)
+    if session.mode == MODE_MULTIPLAYER:
+        active = session.room.members.filter(left_at__isnull=True).count()
+        if active > 0 and game_question.answers.count() >= active:
+            return None
+    elif game_question.answers.exists():
         return None
     remaining = (hard_end(game_question, session) - timezone.now()).total_seconds()
     return max(0.0, remaining)
 
 
 def next_question(member_id):
+    mode = _room_mode(member_id)
+    if mode == MODE_MULTIPLAYER:
+        from game.multiplayer import next_multiplayer
+
+        return next_multiplayer(member_id)
+    if mode == MODE_DIRKA:
+        from game.dirka import next_dirka
+
+        return next_dirka(member_id)
     with transaction.atomic():
         member, _room, session = _lock(member_id)
         if session is None:
@@ -449,6 +623,14 @@ def next_question(member_id):
             update_fields.append("current_question_index")
         session.save(update_fields=update_fields)
         return [question_message(session, nxt, "question")]
+
+
+def use_bonus(member_id, message):
+    if _room_mode(member_id) == MODE_DIRKA:
+        from game.dirka import use_dirka_bonus
+
+        return use_dirka_bonus(member_id, message)
+    return use_lifeline(member_id, message)
 
 
 def use_lifeline(member_id, message):

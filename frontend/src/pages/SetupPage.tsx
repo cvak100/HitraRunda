@@ -1,17 +1,37 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { NicknameField } from "../components/NicknameField";
 import { formatMode } from "../format";
+import { BackNav, ModePageNav } from "../gameModes";
 import type { Category, GameMode, PhoneFriend } from "../types";
 
 const TIMES = [10, 15, 20, 30, 45, 60];
+const SKIP_OPTIONS: { value: number | null; label: string }[] = [
+  { value: null, label: "Neomejeno" },
+  { value: 3, label: "3" },
+  { value: 5, label: "5" },
+  { value: 10, label: "10" },
+];
+const PROFILE_OPTIONS = [
+  { value: "mild", label: "Blago" },
+  { value: "normal", label: "Normalno" },
+  { value: "sharp", label: "Ostro" },
+] as const;
 
 function modeFromPath(pathname: string): GameMode | null {
   if (pathname.includes("/ala-milijonar")) return "ala_milijonar";
   if (pathname.includes("/hitrarunda")) return "hitrarunda";
+  if (pathname.includes("/60-sekund")) return "60_sekund";
   return null;
+}
+
+function boardPath(mode: GameMode) {
+  if (mode === "ala_milijonar") return "/lestvica/ala-milijonar";
+  if (mode === "60_sekund") return "/lestvica/60-sekund";
+  return "/lestvica/hitrarunda";
 }
 
 export function SetupPage() {
@@ -25,9 +45,13 @@ export function SetupPage() {
   const [friendKeys, setFriendKeys] = useState<string[]>([]);
   const [count, setCount] = useState(10);
   const [seconds, setSeconds] = useState(20);
+  const [skipLimit, setSkipLimit] = useState<number | null>(null);
+  const [difficultyProfile, setDifficultyProfile] = useState<"mild" | "normal" | "sharp">("normal");
   const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  const isSixty = mode === "60_sekund";
 
   useEffect(() => {
     api<{ categories: Category[] }>("/api/categories/")
@@ -59,14 +83,17 @@ export function SetupPage() {
 
   useEffect(() => {
     if (mode === "ala_milijonar") setCount(15);
-    else if (available >= 5) setCount((current) => Math.min(Math.max(current, 5), Math.min(15, available)));
+    else if (mode === "hitrarunda" && available >= 5) {
+      setCount((current) => Math.min(Math.max(current, 5), Math.min(15, available)));
+    }
   }, [available, mode]);
 
   if (!mode) {
     return (
       <section className="panel">
-        <p className="error">Neznana igra.</p>
-        <Link to="/igra">Nazaj</Link>
+        <h1>Neznana igra</h1>
+        <BackNav to="/igra" />
+        <p className="error">Te poti ni med znanimi načini.</p>
       </section>
     );
   }
@@ -83,11 +110,6 @@ export function SetupPage() {
     });
   }
 
-  async function generate() {
-    const data = await api<{ nickname: string }>("/api/auth/nickname/");
-    setNickname(data.nickname);
-  }
-
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setPending(true);
@@ -96,11 +118,19 @@ export function SetupPage() {
       const body: Record<string, unknown> = {
         nickname,
         mode,
-        question_count: mode === "ala_milijonar" ? 15 : count,
         categories: selected,
-        time_limit_seconds: mode === "ala_milijonar" ? 90 : seconds,
       };
-      if (mode === "ala_milijonar") body.friend_keys = friendKeys;
+      if (mode === "ala_milijonar") {
+        body.question_count = 15;
+        body.time_limit_seconds = 90;
+        body.friend_keys = friendKeys;
+      } else if (isSixty) {
+        body.skip_limit = skipLimit;
+        body.difficulty_profile = difficultyProfile;
+      } else {
+        body.question_count = count;
+        body.time_limit_seconds = seconds;
+      }
       const room = await api<{ code: string }>("/api/rooms/", {
         method: "POST",
         body: JSON.stringify(body),
@@ -117,19 +147,9 @@ export function SetupPage() {
     <section className="panel">
       <p className="eyebrow">{formatMode(mode)}</p>
       <h1>Nastavi rundo</h1>
-      <p className="fine">
-        <Link to="/igra">← Druge igre</Link>
-        {" · "}
-        <Link to={mode === "ala_milijonar" ? "/lestvica/ala-milijonar" : "/lestvica/hitrarunda"}>Lestvica</Link>
-      </p>
+      <ModePageNav boardTo={boardPath(mode)} />
       <form onSubmit={onSubmit} className="stack">
-        <label>
-          Vzdevek v tej igri
-          <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={30} required />
-        </label>
-        <button type="button" onClick={() => void generate()}>
-          Naključni vzdevek
-        </button>
+        <NicknameField label="Vzdevek v tej igri" value={nickname} onChange={setNickname} required />
         <fieldset>
           <legend>Kategorije</legend>
           {categories.map((category) => (
@@ -154,12 +174,53 @@ export function SetupPage() {
               onChange={(event) => setCount(Number(event.target.value))}
             />
           </label>
-        ) : (
+        ) : null}
+        {mode === "ala_milijonar" ? (
           <p className="fine">
             Vedno 15 vprašanj s 4 odgovori, 90 s na vprašanje, težavnost 1→5 (po 3 na stopnjo). Varne točke na 5. in
             10. vprašanju, odnehaj in 3 jokerji (na voljo {available}).
           </p>
-        )}
+        ) : null}
+        {isSixty ? (
+          <>
+            <p className="fine">
+              60 s skupni čas. Pravilno +2 s, napačno −5 s, preskok −2 s.
+            </p>
+            <fieldset>
+              <legend>Preskoki</legend>
+              <div className="choices" role="group" aria-label="Preskoki">
+                {SKIP_OPTIONS.map((option) => (
+                  <button
+                    key={String(option.value)}
+                    type="button"
+                    className={skipLimit === option.value ? "is-on" : ""}
+                    onClick={() => setSkipLimit(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Težavnost skozi čas</legend>
+              <div className="choices" role="group" aria-label="Težavnostni profil">
+                {PROFILE_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={difficultyProfile === option.value ? "is-on" : ""}
+                    onClick={() => setDifficultyProfile(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <p className="fine">
+                Normalno: po 1 min tež. 4–5, po 2 min samo 5. Blago počasneje, ostro hitreje.
+              </p>
+            </fieldset>
+          </>
+        ) : null}
         {mode === "ala_milijonar" ? (
           <fieldset>
             <legend>Prijatelji za klic v sili ({friendKeys.length}/3)</legend>
@@ -182,7 +243,8 @@ export function SetupPage() {
               })}
             </div>
           </fieldset>
-        ) : (
+        ) : null}
+        {mode === "hitrarunda" ? (
           <div className="choices" role="group" aria-label="Čas na vprašanje">
             {TIMES.map((time) => (
               <button key={time} type="button" className={time === seconds ? "is-on" : ""} onClick={() => setSeconds(time)}>
@@ -190,13 +252,21 @@ export function SetupPage() {
               </button>
             ))}
           </div>
-        )}
-        <p className="fine">Prvi napačen ali prepozen odgovor konča igro.</p>
+        ) : null}
+        {mode === "hitrarunda" || mode === "ala_milijonar" ? (
+          <p className="fine">Prvi napačen ali prepozen odgovor konča igro.</p>
+        ) : null}
         {error ? <p className="error">{error}</p> : null}
         <button
           className="primary"
           type="submit"
-          disabled={pending || selected.length === 0 || !alaReady || (mode === "hitrarunda" && available < 5)}
+          disabled={
+            pending ||
+            selected.length === 0 ||
+            !alaReady ||
+            (mode === "hitrarunda" && available < 5) ||
+            (isSixty && available < 5)
+          }
         >
           Začni
         </button>

@@ -15,7 +15,7 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
   const [items, setItems] = useState(question.options ?? []);
   const [picked, setPicked] = useState<number[]>([]);
   const [pairs, setPairs] = useState<{ left_id: string; right_id: string }[]>([]);
-  const [activeLeft, setActiveLeft] = useState<string | null>(null);
+  const [activePick, setActivePick] = useState<{ side: "left" | "right"; id: string } | null>(null);
   const [value, setValue] = useState(question.slider?.min ?? 0);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
 
@@ -23,7 +23,7 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
     setItems(question.options ?? []);
     setPicked([]);
     setPairs([]);
-    setActiveLeft(null);
+    setActivePick(null);
     if (question.slider) {
       const { min, max, step } = question.slider;
       const middle = min + Math.round((max - min) / 2 / step) * step;
@@ -141,59 +141,93 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
   if (question.question_type === "matching") {
     const left = question.left ?? [];
     const right = question.right ?? [];
+    const partnerOf = (side: "left" | "right", id: string) => {
+      const pair = pairs.find((item) => (side === "left" ? item.left_id === id : item.right_id === id));
+      if (!pair) return null;
+      const otherId = side === "left" ? pair.right_id : pair.left_id;
+      const pool = side === "left" ? right : left;
+      return pool.find((item) => item.id === otherId)?.text || null;
+    };
+
+    function pick(side: "left" | "right", id: string) {
+      if (locked) return;
+      if (!activePick) {
+        setActivePick({ side, id });
+        return;
+      }
+      if (activePick.side === side) {
+        setActivePick(activePick.id === id ? null : { side, id });
+        return;
+      }
+      const leftId = side === "left" ? id : activePick.id;
+      const rightId = side === "right" ? id : activePick.id;
+      setPairs((current) => [
+        ...current.filter((pair) => pair.left_id !== leftId && pair.right_id !== rightId),
+        { left_id: leftId, right_id: rightId },
+      ]);
+      setActivePick(null);
+    }
+
     return (
       <div className="match">
-        <div className="match-col">
-          {left.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`slab ${activeLeft === item.id ? "is-on" : ""} ${pairClass(item.id, result, "left")}`}
-              disabled={locked}
-              onClick={() => setActiveLeft(item.id)}
-            >
-              {item.text}
-            </button>
-          ))}
+        <div className="match-board">
+          <div className="match-col" aria-label="Levi stolpec">
+            {left.map((item) => {
+              const partner = partnerOf("left", item.id);
+              const selected = activePick?.side === "left" && activePick.id === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`slab match-item ${selected ? "is-on" : ""} ${partner ? "is-paired" : ""} ${pairClass(item.id, result, "left")}`}
+                  disabled={locked}
+                  onClick={() => pick("left", item.id)}
+                >
+                  <span>{item.text}</span>
+                  {partner ? <span className="fine match-partner">→ {partner}</span> : null}
+                </button>
+              );
+            })}
+          </div>
+          <div className="match-col" aria-label="Desni stolpec">
+            {right.map((item) => {
+              const partner = partnerOf("right", item.id);
+              const selected = activePick?.side === "right" && activePick.id === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`slab match-item ${selected ? "is-on" : ""} ${partner ? "is-paired" : ""} ${pairClass(item.id, result, "right")}`}
+                  disabled={locked}
+                  onClick={() => pick("right", item.id)}
+                >
+                  <span>{item.text}</span>
+                  {partner ? <span className="fine match-partner">← {partner}</span> : null}
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="match-col">
-          {right.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`slab ${pairs.some((pair) => pair.right_id === item.id) ? "is-on" : ""} ${pairClass(item.id, result, "right")}`}
-              disabled={locked || !activeLeft}
-              onClick={() => {
-                if (!activeLeft) return;
-                setPairs((current) => [
-                  ...current.filter((pair) => pair.left_id !== activeLeft && pair.right_id !== item.id),
-                  { left_id: activeLeft, right_id: item.id },
-                ]);
-                setActiveLeft(null);
-              }}
-            >
-              {item.text}
-            </button>
-          ))}
+        <div className="match-actions">
+          <button
+            type="button"
+            disabled={locked || pairs.length === 0}
+            onClick={() => {
+              setPairs([]);
+              setActivePick(null);
+            }}
+          >
+            Ponastavi
+          </button>
+          <button
+            type="button"
+            className="primary"
+            disabled={locked || pairs.length !== left.length}
+            onClick={() => onSubmit({ pairs })}
+          >
+            Potrdi pare
+          </button>
         </div>
-        <ul className="pair-list">
-          {pairs.map((pair) => (
-            <li key={pair.left_id}>
-              {left.find((item) => item.id === pair.left_id)?.text} → {right.find((item) => item.id === pair.right_id)?.text}
-              <button type="button" disabled={locked} onClick={() => setPairs((current) => current.filter((item) => item.left_id !== pair.left_id))}>
-                Odstrani
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button
-          type="button"
-          className="primary"
-          disabled={locked || pairs.length !== left.length}
-          onClick={() => onSubmit({ pairs })}
-        >
-          Potrdi pare
-        </button>
       </div>
     );
   }

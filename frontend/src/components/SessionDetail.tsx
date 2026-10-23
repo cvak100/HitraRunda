@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { api } from "../api";
 import { REASONS, formatDuration, formatPoints, formatWhen } from "../format";
+import { BackNav } from "../gameModes";
 import type { SessionDetail as SessionDetailData } from "../types";
 
 const STATUS: Record<string, string> = {
@@ -34,21 +35,21 @@ export function SessionDetail({ url, backTo }: { url: string; backTo: string }) 
 
   return (
     <section className="panel">
-      <Link to={backTo}>Nazaj</Link>
+      {session ? <p className="eyebrow">Soba {session.code}</p> : null}
+      <h1>{session?.nickname || "Igra"}</h1>
+      <BackNav to={backTo} />
       {error ? <p className="error">{error}</p> : null}
       {!session && !error ? <p className="status">Nalagam…</p> : null}
       {session ? (
         <>
-          <p className="eyebrow">Soba {session.code}</p>
-          <h1>{session.nickname || "Igra"}</h1>
           <p className="fine">
             {STATUS[session.status] || session.status}
             {session.played_at ? ` · ${formatWhen(session.played_at)}` : ""}
             {session.duration_ms != null ? ` · ${formatDuration(session.duration_ms)}` : ""}
           </p>
           <p>
-            {formatPoints(session.score)} točk · nagrada {formatPoints(session.prize_reached)} · bonus {formatPoints(session.speed_bonus)} ·{" "}
-            {session.correct_count}/{session.total_questions}
+            {formatPoints(session.score)} točk · nagrada {formatPoints(session.prize_reached)} · bonus{" "}
+            {formatPoints(session.speed_bonus)} · {session.correct_count}/{session.total_questions}
           </p>
           {session.reason ? <p>{REASONS[session.reason] || session.reason}</p> : null}
           {session.missing_session ? <p className="fine">Stopnje te igre niso več shranjene.</p> : null}
@@ -61,7 +62,15 @@ export function SessionDetail({ url, backTo }: { url: string; backTo: string }) 
                   {stage.speed_bonus ? ` · bonus ${formatPoints(stage.speed_bonus)}` : ""}
                 </p>
                 <h2>{stage.text}</h2>
-                <p>{stage.timed_out ? "Čas je potekel" : stage.is_correct ? "Pravilno" : stage.is_correct === false ? "Napačno" : "Brez odgovora"}</p>
+                <p>
+                  {stage.timed_out
+                    ? "Čas je potekel"
+                    : stage.is_correct
+                      ? "Pravilno"
+                      : stage.is_correct === false
+                        ? "Napačno"
+                        : "Brez odgovora"}
+                </p>
                 <p>Odgovor: {stage.given}</p>
                 <p>Pravilno: {stage.correct}</p>
                 {stage.explanation ? <p>{stage.explanation}</p> : null}

@@ -6,6 +6,7 @@ import { AdminSessionDetailPage, ResultPage } from "./components/SessionDetail";
 import { AccountLayout } from "./pages/AccountLayout";
 import { AdminActionsPage } from "./pages/AdminActionsPage";
 import { AdminBonusesPage } from "./pages/AdminBonusesPage";
+import { AdminBotsPage } from "./pages/AdminBotsPage";
 import { AdminCategoriesPage } from "./pages/AdminCategoriesPage";
 import { AdminCatalogLayout } from "./pages/AdminCatalogLayout";
 import { AdminContentLayout } from "./pages/AdminContentLayout";
@@ -15,6 +16,7 @@ import { AdminHomePage } from "./pages/AdminHomePage";
 import { AdminLayout } from "./pages/AdminLayout";
 import { AdminQuestionsPage } from "./pages/AdminQuestionsPage";
 import { AdminReportsPage } from "./pages/AdminReportsPage";
+import { AdminRoomsPage } from "./pages/AdminRoomsPage";
 import { AdminSessionsPage } from "./pages/AdminSessionsPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
@@ -22,6 +24,8 @@ import { LogoutPage } from "./pages/LogoutPage";
 import { HomePage } from "./pages/HomePage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { LoginPage } from "./pages/LoginPage";
+import { DirkaHubPage } from "./pages/DirkaHubPage";
+import { MultiplayerHubPage } from "./pages/MultiplayerHubPage";
 import { PlayHubPage } from "./pages/PlayHubPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -40,12 +44,18 @@ export function App() {
             <Route path="lestvica" element={<Navigate to="/lestvica/hitrarunda" replace />} />
             <Route path="lestvica/hitrarunda" element={<LeaderboardPage />} />
             <Route path="lestvica/ala-milijonar" element={<LeaderboardPage />} />
+            <Route path="lestvica/vec-igralcev" element={<LeaderboardPage />} />
+            <Route path="lestvica/dirka" element={<LeaderboardPage />} />
+            <Route path="lestvica/60-sekund" element={<LeaderboardPage />} />
             <Route path="lestvica/rezultat/:resultId" element={<ResultPage />} />
             <Route path="lestvica/:resultId" element={<ResultPage />} />
             <Route element={<RequireUser />}>
               <Route path="igra" element={<PlayHubPage />} />
               <Route path="igra/hitrarunda" element={<SetupPage />} />
               <Route path="igra/ala-milijonar" element={<SetupPage />} />
+              <Route path="igra/60-sekund" element={<SetupPage />} />
+              <Route path="igra/vec-igralcev" element={<MultiplayerHubPage />} />
+              <Route path="igra/dirka" element={<DirkaHubPage />} />
               <Route path="igra/:code" element={<GamePage />} />
               <Route path="racun" element={<AccountLayout />}>
                 <Route index element={<Navigate to="profil" replace />} />
@@ -72,6 +82,8 @@ export function App() {
                   <Route path="bonusi/:id" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
                   <Route path="prijatelji" element={<AdminFriendsPage />} />
                   <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
+                  <Route path="boti" element={<AdminBotsPage />} />
+                  <Route path="boti/:id" element={<Navigate to="/nadzor/sifranti/boti" replace />} />
                 </Route>
                 <Route path="kategorije" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
                 <Route path="kategorije/:id" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
@@ -79,8 +91,10 @@ export function App() {
                 <Route path="bonusi/:id" element={<Navigate to="/nadzor/sifranti/bonusi" replace />} />
                 <Route path="prijatelji" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
                 <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
+                <Route path="boti" element={<Navigate to="/nadzor/sifranti/boti" replace />} />
                 <Route path="igre" element={<AdminSessionsPage />} />
                 <Route path="igre/:sessionId" element={<AdminSessionDetailPage />} />
+                <Route path="sobe" element={<AdminRoomsPage />} />
                 <Route path="uporabniki" element={<AdminUsersPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
               </Route>

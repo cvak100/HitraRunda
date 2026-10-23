@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
 import { useAuth } from "../auth";
+import { NicknameField } from "../components/NicknameField";
 import type { User } from "../types";
 
 export function RegisterPage() {
@@ -40,10 +41,7 @@ export function RegisterPage() {
           Geslo
           <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={4} required />
         </label>
-        <label>
-          Vzdevek
-          <input value={nickname} onChange={(event) => setNickname(event.target.value)} maxLength={30} required />
-        </label>
+        <NicknameField value={nickname} onChange={setNickname} required />
         {error ? <p className="error">{error}</p> : null}
         <button className="primary" type="submit">
           Ustvari račun

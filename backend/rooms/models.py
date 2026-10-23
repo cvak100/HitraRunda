@@ -29,12 +29,14 @@ class Room(models.Model):
             ("waiting", "Čakanje"),
             ("playing", "V teku"),
             ("finished", "Končana"),
+            ("closed", "Zaprta"),
         ],
         default="waiting",
     )
     settings = models.JSONField(default=dict)
     max_players = models.PositiveSmallIntegerField(default=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
 
@@ -66,12 +68,24 @@ class RoomMember(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="room_memberships",
+        null=True,
+        blank=True,
     )
     nickname_in_room = models.CharField(max_length=30)
     color = models.CharField(max_length=20, blank=True)
     is_host = models.BooleanField(default=False)
     is_ready = models.BooleanField(default=False)
     is_connected = models.BooleanField(default=False)
+    # Monotone counter so a stale WS disconnect cannot overwrite a newer reconnect.
+    connection_epoch = models.PositiveIntegerField(default=0)
+    is_bot = models.BooleanField(default=False)
+    bot_profile = models.ForeignKey(
+        "game.AiBot",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="room_members",
+    )
     joined_at = models.DateTimeField(auto_now_add=True)
     left_at = models.DateTimeField(null=True, blank=True)
     last_activity = models.DateTimeField(auto_now=True)

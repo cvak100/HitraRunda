@@ -6,7 +6,33 @@ export type User = {
   is_staff: boolean;
 };
 
-export type GameMode = "hitrarunda" | "ala_milijonar";
+export type GameMode = "hitrarunda" | "ala_milijonar" | "multiplayer" | "dirka" | "60_sekund";
+
+export type StandingRow = {
+  member_id: string;
+  nickname: string;
+  color?: string;
+  score: number;
+  correct_count: number;
+  round_bonuses?: number;
+  streak?: number;
+  alive?: boolean;
+  is_bot?: boolean;
+  rank?: number;
+  safe_locked?: number;
+  target_score?: number;
+};
+
+export type LobbyMember = {
+  id: string;
+  nickname: string;
+  color?: string;
+  is_host: boolean;
+  is_ready: boolean;
+  is_connected?: boolean;
+  is_bot?: boolean;
+  is_you?: boolean;
+};
 
 export type PhoneFriend = {
   id?: number;
@@ -34,6 +60,20 @@ export type BonusDefinition = {
   config: Record<string, unknown>;
   is_active: boolean;
   order: number;
+};
+
+export type AiBot = {
+  id?: number;
+  key: string;
+  name: string;
+  color: string;
+  accuracy?: number;
+  delay_min?: number;
+  delay_max?: number;
+  modes?: string[];
+  is_active?: boolean;
+  count_for_leaderboard?: boolean;
+  order?: number;
 };
 
 export type LifelineState = {
@@ -111,6 +151,17 @@ export type GameMessage = {
   speed_bonus_total?: number;
   speed_bonus?: number;
   correct_count?: number;
+  skips_left?: number | null;
+  skip_limit?: number | null;
+  clock_ends_at?: string;
+  clock_remaining_ms?: number;
+  feedback?: {
+    is_correct?: boolean | null;
+    skipped?: boolean;
+    time_delta?: number;
+    label?: string;
+  };
+  duration_ms?: number;
   deadline_at?: string;
   server_now?: string;
   time_limit_seconds?: number;
@@ -129,13 +180,99 @@ export type GameMessage = {
   tolerance?: number;
   selected_value?: number;
   lifelines?: Record<string, LifelineState>;
+  bonuses?: Record<string, number>;
+  armed?: Record<string, boolean>;
+  players?: Record<
+    string,
+    {
+      member_id?: string;
+      nickname?: string;
+      score?: number;
+      safe_locked?: number;
+      correct_count?: number;
+      correct_in_segment?: number;
+      segment_misses?: number;
+      until_safe?: number;
+      streak?: number;
+      bonuses?: Record<string, number>;
+      armed?: Record<string, boolean>;
+      active_helps?: ActiveHelps;
+      shield?: boolean;
+      second_chance?: boolean;
+      blocked?: boolean;
+      deadline_at?: string;
+      target_score?: number;
+      safe_every?: number;
+    }
+  >;
+  bonus_member_id?: string;
   active_helps?: ActiveHelps;
   friends?: PhoneFriend[];
   lifeline?: Record<string, unknown>;
+  bonus?: Record<string, unknown>;
   safe_orders?: number[];
   guaranteed_prize?: number;
   can_walk_away?: boolean;
   walked_away?: boolean;
+  standings?: StandingRow[];
+  target_score?: number;
+  safe_every?: number;
+  max_bonus_types?: number;
+  deadlines?: Record<string, string>;
+  answers?: {
+    nickname: string;
+    member_id?: string;
+    is_correct: boolean;
+    timed_out?: boolean;
+    skipped?: boolean;
+    points: number;
+    time_taken_ms?: number;
+    round_bonus?: boolean;
+    streak_bonus?: number;
+    catchup_bonus?: number;
+    steal?: number;
+    eliminated?: boolean;
+  }[];
+  answered_count?: number;
+  player_count?: number;
+  waiting_for?: string[];
+  waiting_for_ids?: string[];
+  answered_ids?: string[];
+  is_last?: boolean;
+  is_host?: boolean;
+  sudden_death?: boolean;
+  alive_count?: number;
+  host_member_id?: string;
+  advance_seconds?: number;
+  members?: LobbyMember[];
+  all_ready?: boolean;
+  can_start?: boolean;
+  you?: {
+    id?: string;
+    member_id?: string;
+    nickname?: string;
+    is_host?: boolean;
+    is_ready?: boolean;
+    score?: number;
+    safe_locked?: number;
+    bonuses?: Record<string, number>;
+  };
+  visibility?: string;
+  max_players?: number;
+  settings?: {
+    mode?: string;
+    question_count?: number;
+    time_limit_seconds?: number;
+    categories?: string[];
+    sudden_death?: boolean;
+    bot_count?: number;
+    target_score?: number;
+    safe_every?: number;
+  };
+  link?: string;
+  has_password?: boolean;
+  member_count?: number;
+  name?: string;
 };
 
 export type StaffCategory = {
