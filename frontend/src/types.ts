@@ -146,6 +146,8 @@ export type GameMessage = {
   phase?: string;
   message?: string;
   mode?: string;
+  result_id?: number | null;
+  result_ids?: Record<string, number>;
   question?: PublicQuestion;
   index?: number;
   total?: number;

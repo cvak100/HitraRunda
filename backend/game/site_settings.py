@@ -32,6 +32,7 @@ DEFAULTS: dict = {
     "sixty_skip_limits": [None, 3, 5, 10],
     # Dirka
     "dirka_time_seconds": 30,
+    "dirka_allowed_times": [10, 15, 20, 30, 60],
     "dirka_base_points": 5,
     "dirka_penalty": 4,
     "dirka_target_scores": [100, 200, 500, 1000],
@@ -61,7 +62,7 @@ DEFAULTS: dict = {
     "hr_max_speed_bonus": 100,
     # Ala milijonar
     "ala_time_seconds": 90,
-    "ala_safe_orders": [4, 9],
+    "ala_safe_orders": [4, 9, 14],
     "ala_friends_pick": 3,
     "ala_difficulty_targets": [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5],
     "ala_prize_ladder": [
@@ -321,10 +322,18 @@ FIELDS = [
     {
         "key": "dirka_time_seconds",
         "group": "dirka",
-        "label": "Čas na vprašanje (s)",
+        "label": "Privzeti čas na vprašanje (s)",
         "type": "int",
         "min": 5,
         "max": 300,
+        "help": "Uporabi se, če soba ne izbere drugače. Mora biti med dovoljenimi.",
+    },
+    {
+        "key": "dirka_allowed_times",
+        "group": "dirka",
+        "label": "Dovoljeni časi na vprašanje (s)",
+        "type": "int_list",
+        "help": "Izbire v hubu / lobbyju, npr. 10,15,20,30,60",
     },
     {
         "key": "dirka_base_points",
@@ -537,7 +546,7 @@ FIELDS = [
         "group": "ala",
         "label": "Varne točke (0-based indeks)",
         "type": "int_list",
-        "help": "4 = 5. vprašanje, 9 = 10. vprašanje",
+        "help": "4 = 1.000, 9 = 32.000, 14 = 1.000.000",
     },
     {
         "key": "ala_friends_pick",
@@ -703,6 +712,7 @@ def public_game_config() -> dict:
         },
         "dirka": {
             "time_limit_seconds": int(data["dirka_time_seconds"]),
+            "times": list(data["dirka_allowed_times"]),
             "targets": list(data["dirka_target_scores"]),
             "safe_every": list(data["dirka_safe_every"]),
             "max_bots": int(data["mp_max_bots"]),
@@ -846,6 +856,11 @@ def save_values(incoming: dict) -> dict:
         raise ValueError({"dirka_steal_max": "Steal max mora biti ≥ min."})
     if int(merged["dirka_hot_streak_at"]) < int(merged["dirka_streak_at"]):
         raise ValueError({"dirka_hot_streak_at": "Hot streak mora biti ≥ navadni streak."})
+    allowed_dirka_times = {int(x) for x in (merged.get("dirka_allowed_times") or [])}
+    if not allowed_dirka_times:
+        raise ValueError({"dirka_allowed_times": "Vsaj ena dovoljena vrednost."})
+    if int(merged["dirka_time_seconds"]) not in allowed_dirka_times:
+        raise ValueError({"dirka_time_seconds": "Privzeti čas mora biti med dovoljenimi."})
     row.values = stored
     row.save(update_fields=["values", "updated_at"])
     invalidate_cache()

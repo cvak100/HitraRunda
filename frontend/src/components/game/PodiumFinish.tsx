@@ -86,6 +86,7 @@ export function PodiumFinish({
       <FinishActions
         replayTo={message.mode === "dirka" ? "/igra/dirka" : "/igra/vec-igralcev"}
         boardPath={boardPath}
+        resultId={(myId && message.result_ids?.[myId]) || message.result_id}
         onRematch={canRematch && onRematch ? onRematch : undefined}
         rematchBusy={rematchBusy}
       />

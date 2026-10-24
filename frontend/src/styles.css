@@ -695,6 +695,38 @@ a.dash-card:hover {
   border-radius: 999px;
   padding: 8px 14px;
   cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.12s ease,
+    opacity 0.15s ease;
+}
+button:hover:not(:disabled):not(.btn-tertiary):not(.ghost-leave):not(.walk-away),
+a.linkish:hover,
+.subnav a:hover,
+.mode-nav-btn:hover,
+.btn-with-icon:hover:not(.board-icon-btn) {
+  border-color: color-mix(in srgb, var(--gold) 45%, var(--line));
+  background: #1a211c;
+}
+button:active:not(:disabled),
+a.primary:active,
+a.linkish:active,
+.mode-nav-btn:active,
+.btn-with-icon:active {
+  transform: translateY(1px);
+}
+.primary:hover:not(:disabled),
+a.primary:hover {
+  background: color-mix(in srgb, var(--gold) 86%, #fff);
+  border-color: color-mix(in srgb, var(--gold) 86%, #fff);
+  color: var(--gold-ink);
+}
+.choices button:hover:not(:disabled):not(.is-on),
+.slab:hover:not(:disabled):not(.is-on):not(.is-correct):not(.is-wrong) {
+  border-color: color-mix(in srgb, var(--gold) 40%, var(--line));
+  background: #1a211c;
 }
 
 .site-footer .back-to-top {
@@ -889,9 +921,148 @@ input[type="checkbox"]:focus-visible {
 
 .timer { display: flex; align-items: center; gap: 12px; margin: 12px 0 18px; }
 .timer-track { flex: 1; height: 10px; background: #0e1310; border-radius: 999px; overflow: hidden; }
-.timer-bar { height: 100%; width: 100%; background: var(--gold); transform-origin: left center; }
+.timer-bar {
+  height: 100%;
+  width: 100%;
+  background: var(--gold);
+  transform-origin: left center;
+  transition: transform 0.1s linear;
+}
+.timer-seconds {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 2.6rem;
+  text-align: right;
+  font-size: 1.05rem;
+}
+.timer.timer-emphasis .timer-seconds {
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 720;
+  min-width: 3.6rem;
+}
 .timer.urgent .timer-bar { background: var(--bad); }
-.timer.urgent span { color: var(--bad); background: transparent; }
+.timer.urgent .timer-seconds { color: var(--bad); background: transparent; }
+
+.play-q-enter {
+  animation: play-q-in 0.45s ease;
+}
+.play-q-slot .play-slot-question h1 {
+  margin-top: 0.35rem;
+}
+.play-slot-question.is-dimmed h1 {
+  font-size: clamp(1.05rem, 2.2vw, 1.35rem);
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+.play-slot-question.is-dimmed .q-image {
+  max-height: 140px;
+  opacity: 0.85;
+}
+.review.is-leaving {
+  opacity: 0.45;
+  transform: translateY(-6px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+@keyframes play-q-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-cta {
+  font-size: 1.05rem;
+  padding: 12px 22px;
+  font-weight: 700;
+}
+.btn-secondary {
+  font-weight: 600;
+}
+.btn-tertiary,
+.btn-tool {
+  font-size: 0.9rem;
+  padding: 7px 12px;
+}
+button.btn-tertiary {
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 550;
+  width: auto;
+  align-self: auto;
+}
+button.btn-tertiary:hover {
+  color: var(--cream);
+  border-color: var(--line);
+  background: #141a16;
+}
+.btn-tool.is-used {
+  opacity: 0.55;
+}
+
+/* Slot F/G: terciarni levo, primary CTA desno */
+.play-slot-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  width: 100%;
+}
+.play-slot-cta > .fine {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.play-slot-cta .btn-cta,
+.play-slot-cta > .primary {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+.complaint {
+  flex: 0 0 auto;
+  max-width: 100%;
+}
+.complaint.is-open {
+  flex: 1 1 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+.complaint-sent {
+  margin: 0;
+}
+.answer-review-modal {
+  max-height: min(60vh, 520px);
+  overflow: auto;
+  padding-right: 4px;
+}
+.finish-actions {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.finish-actions .btn-cta,
+.finish-actions .primary {
+  order: -1;
+}
+
+/* Nav tertiary — Prijava manjša od Igraj */
+.top-nav a.nav-btn[href="/prijava"] {
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  font-weight: 550;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+.top-nav a.nav-btn[href="/prijava"]:hover {
+  color: var(--cream);
+  border-color: var(--line);
+  background: #141a16;
+}
 
 .sixty-play {
   border: 2px solid transparent;
@@ -976,7 +1147,7 @@ input[type="checkbox"]:focus-visible {
 .sixty-timer .timer-track {
   height: 14px;
 }
-.sixty-timer .timer span {
+.sixty-timer .timer-seconds {
   font-family: "Bricolage Grotesque", Georgia, serif;
   font-size: 2rem;
   font-weight: 720;
@@ -984,11 +1155,11 @@ input[type="checkbox"]:focus-visible {
   min-width: 3.6rem;
   text-align: right;
 }
-.sixty-chrome.is-tick-up .timer span {
+.sixty-chrome.is-tick-up .timer-seconds {
   color: var(--good);
   animation: sixty-seconds-pop 0.55s ease;
 }
-.sixty-chrome.is-tick-down .timer span {
+.sixty-chrome.is-tick-down .timer-seconds {
   color: var(--bad);
   animation: sixty-seconds-shake 0.55s ease;
 }
@@ -1153,8 +1324,96 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 }
 
 .review { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
-.review.good h2 { color: var(--good); }
-.review.bad h2 { color: var(--bad); }
+.review.good h2,
+.review.good .review-verdict { color: var(--good); }
+.review.bad h2,
+.review.bad .review-verdict { color: var(--bad); }
+.review-verdict {
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.85rem, 4vw, 2.6rem);
+  font-weight: 720;
+  line-height: 1.05;
+  margin: 0 0 0.55rem;
+}
+.review-explain {
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--cream);
+  margin: 0 0 0.85rem;
+}
+.review-answer-block {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.review-answer {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: var(--cream);
+  font-weight: 600;
+}
+.review-answer-label {
+  color: var(--muted);
+  font-weight: 550;
+}
+.play-slot-question .review-explain.under-question,
+.play-slot-question .fine.under-question {
+  margin: 0;
+  color: var(--cream);
+  font-weight: 500;
+}
+.mp-ladder-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.mp-ladder-wrap .ladder {
+  margin: 0;
+  padding-bottom: 6px;
+}
+/* Isti horizontalni rob kot vsebina v .ladder li (12px wrap + 10px cell) */
+.mp-ladder-wrap .wait-banner {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+.wait-banner {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.wait-banner-count {
+  color: var(--muted);
+  font-weight: 500;
+}
+.wait-banner-soft {
+  font-size: 0.88rem;
+  opacity: 0.9;
+}
+.review-score {
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0.35rem 0 0.75rem;
+  color: var(--cream);
+}
+.review-score strong {
+  color: var(--gold);
+  font-weight: 720;
+}
+.round-review-list {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
 .finish-screen {
   border-top: 0;
   padding-top: 0;
@@ -1517,8 +1776,20 @@ button.danger {
   color: var(--muted);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 6px;
+}
+.ladder-mark {
+  flex: 0 0 1.15em;
+  width: 1.15em;
+  text-align: center;
+  line-height: 1;
+}
+.ladder-amount {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
 }
 .ladder-player,
 .dirka-race-player,
@@ -1531,8 +1802,18 @@ button.danger {
   min-width: 0;
   text-align: left;
 }
-.ladder .reached { color: var(--gold-ink); background: var(--gold); border-color: var(--gold); }
+.ladder .reached {
+  color: var(--gold-ink);
+  background: var(--gold);
+  border-color: var(--gold);
+}
 .ladder .current { color: var(--gold); border-color: var(--gold); }
+/* reached + safe: ne prepiši črnila z gold (text bi izginil na rumeni podlagi) */
+.ladder .reached.safe {
+  color: var(--gold-ink);
+  border-style: dashed;
+  border-color: var(--gold-ink);
+}
 
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); }
@@ -1561,7 +1842,20 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
 .game-block h2 { margin: 0; font-size: 1.45rem; }
 .game-block .primary { align-self: flex-start; margin-top: auto; }
 
-.game-rows { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
+.game-rows { display: flex; flex-direction: column; gap: 28px; margin-top: 22px; }
+.game-mode-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.game-mode-group-title {
+  margin: 0;
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: 0.01em;
+}
 .profile-modes { margin-bottom: 28px; }
 .profile-mode-card h2 {
   font-family: "Bricolage Grotesque", Georgia, serif;
@@ -1605,6 +1899,11 @@ button:disabled { opacity: 0.55; cursor: not-allowed; }
   border-radius: 18px;
   padding: 18px 16px;
   background: #121815;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.game-row:hover {
+  border-color: color-mix(in srgb, var(--gold) 35%, var(--line));
+  background: #151c18;
 }
 .game-row h2 { margin: 0 0 6px; font-size: 1.45rem; }
 .game-row p { margin: 0; color: var(--muted); }
@@ -2051,7 +2350,10 @@ button.friend-pick-card {
 .friend-pick.is-open .friend-pick-card.is-callable:hover {
   background: #222a24;
 }
-.ladder .safe { border-style: dashed; color: var(--gold); }
+.ladder .safe:not(.reached) {
+  border-style: dashed;
+  color: var(--gold);
+}
 .help-banner {
   margin: 0 0 12px;
   padding: 10px 12px;
@@ -2234,7 +2536,8 @@ button.friend-pick-card {
     justify-content: space-between;
     padding: 10px 16px;
   }
-  .sixty-timer .timer span {
+  .sixty-timer .timer-seconds,
+  .timer.timer-emphasis .timer-seconds {
     font-size: 1.55rem;
     min-width: 3rem;
   }
@@ -2250,6 +2553,20 @@ button.friend-pick-card {
   .choices button {
     flex: 1 1 auto;
     justify-content: center;
+  }
+
+  .play-slot-cta {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .play-slot-cta .btn-cta,
+  .play-slot-cta > .primary {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+  .play-slot-cta .complaint {
+    align-self: flex-start;
   }
 
   .ladder {

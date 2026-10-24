@@ -19,7 +19,14 @@ export function AiOpponentsField({
 }) {
   return (
     <div data-ai-mode={mode}>
-      <NumberStepper label="AI bots" value={value} min={0} max={Math.max(0, max)} onChange={onChange} />
+      <NumberStepper
+        label="AI bots"
+        value={value}
+        min={0}
+        max={Math.max(0, max)}
+        onChange={onChange}
+        format={(n) => (n === 0 ? "brez" : String(n))}
+      />
     </div>
   );
 }

@@ -63,7 +63,7 @@ export const GAME_MODES = [
     boardTo: "/lestvica/dirka",
     rules: [
       "Več igralcev dirka do ciljnih točk (npr. 100 / 200 / 500 / 1000). Ista vprašanja za vse.",
-      "Čas na vprašanje je fiksen (privzeto 30 s). Naprej gre, ko vsi odgovorijo ali poteče čas.",
+      "Čas na vprašanje izbereš ob ustvarjanju sobe (npr. 10–60 s). Naprej gre, ko vsi odgovorijo ali poteče čas.",
       "Pravilni odgovor daje osnovne točke; napačen lahko odšteje. Streak in hot streak prineseta dodatne bonuse.",
       "Varna zona: po N zaporednih pravilnih (npr. 5 ali 10) se del točk zaklene — kasnejša napaka jih ne pobere.",
       "Med igro lahko porabiš bonuse (polovička, namig, kraja točk, comeback …), ki jih dobiš med tekom.",
@@ -174,6 +174,35 @@ export function PlayLink({
   );
 }
 
+const SOLO_MODE_IDS: GameModeId[] = ["hitrarunda", "ala_milijonar", "60_sekund"];
+const MULTI_MODE_IDS: GameModeId[] = ["multiplayer", "dirka"];
+
+function ModeRow({
+  game,
+  lockedHint,
+}: {
+  game: (typeof GAME_MODES)[number];
+  lockedHint?: string;
+}) {
+  return (
+    <article className="game-row">
+      <div>
+        <p className="eyebrow">{game.eyebrow}</p>
+        <h2>{game.title}</h2>
+        <p>{game.blurb}</p>
+      </div>
+      {lockedHint ? (
+        <p className="fine">{lockedHint}</p>
+      ) : (
+        <div className="game-row-actions">
+          <PlayLink to={game.playTo} />
+          <BoardLink to={game.boardTo} variant="icon" />
+        </div>
+      )}
+    </article>
+  );
+}
+
 export function GameModeRows({ lockedHint }: { lockedHint?: string }) {
   const [enabled, setEnabled] = useState<string[] | null>(null);
 
@@ -184,26 +213,34 @@ export function GameModeRows({ lockedHint }: { lockedHint?: string }) {
   }, []);
 
   const modes = enabled ? GAME_MODES.filter((game) => enabled.includes(game.id)) : GAME_MODES;
+  const byId = Object.fromEntries(modes.map((m) => [m.id, m])) as Partial<
+    Record<GameModeId, (typeof GAME_MODES)[number]>
+  >;
+  const solo = SOLO_MODE_IDS.map((id) => byId[id]).filter(Boolean) as (typeof GAME_MODES)[number][];
+  const multi = MULTI_MODE_IDS.map((id) => byId[id]).filter(Boolean) as (typeof GAME_MODES)[number][];
 
   return (
     <div className="game-rows">
-      {modes.map((game) => (
-        <article key={game.playTo} className="game-row">
-          <div>
-            <p className="eyebrow">{game.eyebrow}</p>
-            <h2>{game.title}</h2>
-            <p>{game.blurb}</p>
-          </div>
-          {lockedHint ? (
-            <p className="fine">{lockedHint}</p>
-          ) : (
-            <div className="game-row-actions">
-              <PlayLink to={game.playTo} />
-              <BoardLink to={game.boardTo} variant="icon" />
-            </div>
-          )}
-        </article>
-      ))}
+      {solo.length ? (
+        <section className="game-mode-group" aria-labelledby="modes-solo">
+          <h2 id="modes-solo" className="game-mode-group-title">
+            Igranje sam
+          </h2>
+          {solo.map((game) => (
+            <ModeRow key={game.playTo} game={game} lockedHint={lockedHint} />
+          ))}
+        </section>
+      ) : null}
+      {multi.length ? (
+        <section className="game-mode-group" aria-labelledby="modes-multi">
+          <h2 id="modes-multi" className="game-mode-group-title">
+            Igranje z drugimi / proti AI
+          </h2>
+          {multi.map((game) => (
+            <ModeRow key={game.playTo} game={game} lockedHint={lockedHint} />
+          ))}
+        </section>
+      ) : null}
     </div>
   );
 }

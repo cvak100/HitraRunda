@@ -10,9 +10,11 @@ import { GamePlayBody } from "../components/game/GamePlayBody";
 import { PodiumFinish } from "../components/game/PodiumFinish";
 import { formatMode, formatPoints } from "../format";
 import { boardPath as modeBoardPath } from "../gameModes";
+import { playSfx, unlockSfx } from "../sound";
 import type { Category, GameMessage } from "../types";
 
 const DEFAULT_LOBBY_TIMES = [30, 60, 90, 120, 300];
+const DEFAULT_DIRKA_TIMES = [10, 15, 20, 30, 60];
 const DEFAULT_LOBBY_COUNTS = [5, 10, 20, 40, 50, 100];
 const DEFAULT_TARGETS = [100, 200, 500, 1000];
 const DEFAULT_SAFE = [5, 10];
@@ -31,6 +33,7 @@ export function GamePage() {
   const [inviteName, setInviteName] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [lobbyTimes, setLobbyTimes] = useState(DEFAULT_LOBBY_TIMES);
+  const [dirkaTimes, setDirkaTimes] = useState(DEFAULT_DIRKA_TIMES);
   const [lobbyCounts, setLobbyCounts] = useState(DEFAULT_LOBBY_COUNTS);
   const [lobbyTargets, setLobbyTargets] = useState(DEFAULT_TARGETS);
   const [lobbySafe, setLobbySafe] = useState(DEFAULT_SAFE);
@@ -64,6 +67,8 @@ export function GamePage() {
     const socket = wsRef.current;
     const current = message;
     if (!socket || socket.readyState !== WebSocket.OPEN || !current?.question || phaseRef.current !== "question") return;
+    unlockSfx();
+    if (!body.timeout) playSfx("click");
     setPhase("submitting");
     socket.send(
       JSON.stringify({
@@ -90,7 +95,13 @@ export function GamePage() {
         max_players?: number;
         max_bots?: number;
       };
-      dirka?: { targets?: number[]; safe_every?: number[]; max_bots?: number };
+      dirka?: {
+        targets?: number[];
+        safe_every?: number[];
+        times?: number[];
+        time_limit_seconds?: number;
+        max_bots?: number;
+      };
     }>("/api/game-config/")
       .then((cfg) => {
         const mp = cfg.multiplayer;
@@ -100,6 +111,7 @@ export function GamePage() {
         if (typeof mp?.max_bots === "number") setMaxBots(mp.max_bots);
         if (cfg.dirka?.targets?.length) setLobbyTargets(cfg.dirka.targets);
         if (cfg.dirka?.safe_every?.length) setLobbySafe(cfg.dirka.safe_every);
+        if (cfg.dirka?.times?.length) setDirkaTimes(cfg.dirka.times);
         if (typeof cfg.dirka?.max_bots === "number") setMaxBots(cfg.dirka.max_bots);
       })
       .catch(() => undefined);
@@ -146,6 +158,11 @@ export function GamePage() {
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
           setSixtyTickKey((n) => n + 1);
+          if (incoming.feedback.skipped) playSfx("click");
+          else if (incoming.feedback.is_correct) playSfx("correct");
+          else playSfx("wrong");
+        } else if (phaseRef.current === "review" || phaseRef.current === "round_review") {
+          playSfx("next");
         }
         setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
         setPhase("question");
@@ -171,11 +188,18 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "round_review") {
-        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
+        const me = myIdRef.current;
+        const mine = (incoming.answers || []).find((row) => row.member_id === me);
+        if (mine?.timed_out || mine?.skipped) playSfx("click");
+        else if (mine?.is_correct) playSfx("correct");
+        else if (mine) playSfx("wrong");
+        setMessage((current) => mergeDirkaMessage(current, incoming, me));
         setPhase("round_review");
         return;
       }
       if (incoming.phase === "review") {
+        if (incoming.is_correct) playSfx("correct");
+        else if (!incoming.walked_away) playSfx("wrong");
         setMessage(incoming);
         setPhase("review");
         setPickFriend(false);
@@ -185,8 +209,24 @@ export function GamePage() {
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
           setSixtyTickKey((n) => n + 1);
+          if (incoming.feedback.is_correct) playSfx("correct");
+          else if (!incoming.feedback.skipped) playSfx("wrong");
         }
-        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
+        playSfx("finish");
+        setMessage((current) => {
+          const merged = mergeDirkaMessage(current, incoming, myIdRef.current);
+          // 60s: ne obdrži starega clock_ends_at, sicer timer še teče ob finish zaslonu.
+          if (merged.mode === "60_sekund") {
+            const end = incoming.clock_ends_at || incoming.deadline_at || incoming.server_now;
+            return {
+              ...merged,
+              clock_ends_at: end,
+              deadline_at: end,
+              clock_remaining_ms: 0,
+            };
+          }
+          return merged;
+        });
         setPhase("finished");
         setPickFriend(false);
       }
@@ -284,6 +324,8 @@ export function GamePage() {
   function next() {
     const socket = wsRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    unlockSfx();
+    playSfx("next");
     socket.send(JSON.stringify({ type: "next_question" }));
   }
 
@@ -378,8 +420,9 @@ export function GamePage() {
       setEditCount(lobbyCounts.includes(settings.question_count) ? settings.question_count : lobbyCounts[0] ?? 10);
     }
     if (settings.time_limit_seconds) {
+      const times = settings.mode === "dirka" ? dirkaTimes : lobbyTimes;
       setEditSeconds(
-        lobbyTimes.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : lobbyTimes[0] ?? 60,
+        times.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : times[0] ?? 30,
       );
     }
     if (typeof settings.sudden_death === "boolean") setEditSudden(settings.sudden_death);
@@ -452,6 +495,7 @@ export function GamePage() {
           ? {
               target_score: overrides.target_score ?? editTarget,
               safe_every: overrides.safe_every ?? editSafe,
+              time_limit_seconds: overrides.time_limit_seconds ?? editSeconds,
             }
           : {
               question_count: overrides.question_count ?? editCount,
@@ -535,7 +579,7 @@ export function GamePage() {
             setInviteName={setInviteName}
             copyNotice={copyNotice}
             categories={categories}
-            lobbyTimes={lobbyTimes}
+            lobbyTimes={(message.settings?.mode || message.mode) === "dirka" ? dirkaTimes : lobbyTimes}
             lobbyCounts={lobbyCounts}
             lobbyTargets={lobbyTargets}
             lobbySafe={lobbySafe}
@@ -635,42 +679,60 @@ export function GamePage() {
         onCancel={() => setConfirmWalkAway(false)}
       />
       {message?.mode === "multiplayer" || (isMulti && !isDirka) ? (
-        <ol className="ladder">
-          {standings.map((row) => {
-            const answeredIds = new Set(message?.answered_ids || []);
-            const answerById = new Map((message?.answers || []).map((item) => [item.member_id || "", item]));
-            const answer = answerById.get(row.member_id);
-            const classes = [
-              row.member_id === myId ? "current" : "",
-              (phase === "question" || phase === "submitting" || phase === "waiting_answers") && answeredIds.has(row.member_id)
-                ? "has-answered"
-                : "",
-              phase === "round_review" && answer
-                ? answer.is_correct
-                  ? "answered-correct"
-                  : "answered-wrong"
-                : "",
-            ]
-              .filter(Boolean)
-              .join(" ");
-            return (
-              <li key={row.member_id} className={classes}>
-                <span className="ladder-player">
-                  <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
-                  <span>
-                    #{row.rank || "?"} {row.nickname}
-                    {row.is_bot ? " (AI)" : ""}
-                    {row.alive === false ? " · izločen" : ""}
+        <div className="mp-ladder-wrap">
+          <ol className="ladder">
+            {standings.map((row) => {
+              const answeredIds = new Set(message?.answered_ids || []);
+              const answerById = new Map((message?.answers || []).map((item) => [item.member_id || "", item]));
+              const answer = answerById.get(row.member_id);
+              const classes = [
+                row.member_id === myId ? "current" : "",
+                (phase === "question" || phase === "submitting" || phase === "waiting_answers") &&
+                answeredIds.has(row.member_id)
+                  ? "has-answered"
+                  : "",
+                phase === "round_review" && answer
+                  ? answer.is_correct
+                    ? "answered-correct"
+                    : "answered-wrong"
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return (
+                <li key={row.member_id} className={classes}>
+                  <span className="ladder-player">
+                    <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
+                    <span>
+                      #{row.rank || "?"} {row.nickname}
+                      {row.is_bot ? " (AI)" : ""}
+                      {row.alive === false ? " · izločen" : ""}
+                    </span>
                   </span>
-                </span>
-                <span>
-                  {formatPoints(row.score)}
-                  {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
+                  <span>
+                    {formatPoints(row.score)}
+                    {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+          {phase === "waiting_answers" ||
+          (phase === "question" && (message?.answered_count ?? 0) > 0) ? (
+            <p
+              className={["wait-banner", phase === "question" ? "wait-banner-soft" : ""]
+                .filter(Boolean)
+                .join(" ")}
+              aria-live="polite"
+            >
+              Čakam še: {(message?.waiting_for || []).join(", ") || "nikogar"}
+              <span className="wait-banner-count">
+                {" "}
+                ({message?.answered_count}/{message?.player_count})
+              </span>
+            </p>
+          ) : null}
+        </div>
       ) : !isDirka ? (
         <ol className="ladder">
           {[...ladder].reverse().map((prize, reversed) => {
@@ -681,8 +743,10 @@ export function GamePage() {
             const className = [reached ? "reached" : "", current ? "current" : "", safe ? "safe" : ""].filter(Boolean).join(" ");
             return (
               <li key={index} className={className}>
-                {safe ? "★ " : ""}
-                {formatPoints(prize)}
+                <span className="ladder-mark" aria-hidden>
+                  {safe ? "★" : ""}
+                </span>
+                <span className="ladder-amount">{formatPoints(prize)}</span>
               </li>
             );
           })}

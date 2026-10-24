@@ -1,3 +1,4 @@
+import random
 import secrets
 from datetime import timedelta
 
@@ -328,31 +329,42 @@ def sync_room_bots(room):
         settings["bot_count"] = want
         room.settings = settings
         room.save(update_fields=["settings"])
+    # V lobbyju bote odstranimo (ne soft-leave) — sicer unique (room, nick) blokira ponovni add.
     while len(bots) > want:
         bot = bots.pop()
-        bot.left_at = timezone.now()
-        bot.is_connected = False
-        bot.save(update_fields=["left_at", "is_connected"])
+        bot.delete()
     mode = (room.settings or {}).get("mode") or MODE_MULTIPLAYER
     profiles = _bots_for_mode(mode)
     used_profiles = {item.bot_profile_id for item in bots if item.bot_profile_id}
-    used_nicks = {item.nickname_in_room for item in room.members.filter(left_at__isnull=True)}
+    # Vključno z morebitnimi starimi left boti (če še obstajajo).
+    used_nicks = {item.nickname_in_room for item in room.members.all()}
+    # Po kicku: počisti leftover soft-left bote — novi se izberejo random.
+    room.members.filter(left_at__isnull=False, is_bot=True).delete()
     while len(bots) < want:
-        profile = next((item for item in profiles if item.id not in used_profiles), None)
+        free = [item for item in profiles if item.id not in used_profiles]
         reused = False
-        if profile is None and profiles:
-            profile = profiles[len(bots) % len(profiles)]
+        if free:
+            profile = random.choice(free)
+        elif profiles:
+            profile = random.choice(profiles)
             reused = True
+        else:
+            profile = None
         if profile is None:
             nick = f"Bot {len(bots) + 1}"
+            n = 1
             while nick in used_nicks:
-                nick = f"Bot {len(used_nicks) + 1}"
+                n += 1
+                nick = f"Bot {n}"
             color = "#7dcea0"
             bot_profile = None
         else:
             nick = profile.name if not reused else f"{profile.name} {len(bots) + 1}"
+            n = 1
+            base = profile.name
             while nick in used_nicks:
-                nick = f"{profile.name} {len(used_nicks) + 1}"
+                n += 1
+                nick = f"{base} {n}"
             color = profile.color or "#7dcea0"
             bot_profile = profile
             if not reused:
@@ -479,8 +491,14 @@ def quick_join(user, raw):
     if mode == MODE_DIRKA:
         targets = list(site_get("dirka_target_scores") or [200])
         safes = list(site_get("dirka_safe_every") or [5])
+        dirka_times = list(site_get("dirka_allowed_times") or [30])
+        default_time = int(site_get("dirka_time_seconds") or 30)
         create_raw["target_score"] = raw.get("target_score", 200 if 200 in targets else targets[0])
         create_raw["safe_every"] = raw.get("safe_every", 5 if 5 in safes else safes[0])
+        create_raw["time_limit_seconds"] = raw.get(
+            "time_limit_seconds",
+            default_time if default_time in dirka_times else dirka_times[0],
+        )
         create_raw["bot_count"] = raw.get("bot_count", 1)
     else:
         mp_counts = list(site_get("mp_question_counts") or [10])
@@ -684,7 +702,19 @@ def leave_room(user, code):
         room.host = new_host.user
         room.save(update_fields=["host", "last_activity"])
     elif not humans:
-        # Nihče živih ljudi — zapri sobo (boti sami ne igrajo naprej).
+        bots = [item for item in remaining if item.is_bot]
+        if room.status == "playing" and bots:
+            # Med igro: boti odigrajo preostanek (bot host + ozadje).
+            new_host = bots[0]
+            new_host.is_host = True
+            new_host.save(update_fields=["is_host", "last_activity"])
+            _reconcile_session_after_leave(room, member)
+            touch_room(room)
+            from game.bot_only import schedule_bot_only_continue
+
+            schedule_bot_only_continue(room.id)
+            return room
+        # Lobby (ali igra brez botov): zapri — boti sami v čakalni sobi ne držijo sobe.
         room.status = "closed"
         room.finished_at = now
         room.save(update_fields=["status", "finished_at", "last_activity"])

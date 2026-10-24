@@ -40,13 +40,10 @@ _ADJECTIVES_FEMININE = [
     "Spretna",
     "Mirna",
     "Jasna",
-    "Topla",
     "Hladna",
     "Zvesta",
-    "Lahka",
     "Ostra",
     "Krasna",
-    "Prava",
 ]
 
 # Moški samostalniki (= tudi ključi risanih avatarjev).

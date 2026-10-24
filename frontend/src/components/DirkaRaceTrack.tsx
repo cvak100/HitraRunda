@@ -34,7 +34,7 @@ export function DirkaBonusBar({
       <div className="dirka-bonus-bar-head">
         <strong>Bonusi</strong>
         <span className="fine">
-          {held.length}/{maxTypes} tipov · stack OK
+          {held.length}/{maxTypes} tipov
         </span>
       </div>
       {held.length === 0 ? (

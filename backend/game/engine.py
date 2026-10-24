@@ -75,11 +75,18 @@ def validate_settings(raw):
     difficulty_targets = list(site_get("ala_difficulty_targets"))
     ala_question_count = len(difficulty_targets)
     try:
-        seconds = int(raw.get("time_limit_seconds", 20))
         if mode == MODE_ALA_MILIJONAR:
             count = ala_question_count
             seconds = int(site_get("ala_time_seconds"))
+        elif mode == MODE_DIRKA:
+            count = 0
+            default_dirka = int(site_get("dirka_time_seconds"))
+            seconds = int(raw.get("time_limit_seconds") or default_dirka)
+        elif mode == MODE_60_SEKUND:
+            count = 0
+            seconds = int(site_get("sixty_start_seconds"))
         else:
+            seconds = int(raw.get("time_limit_seconds", 20))
             count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
@@ -88,18 +95,13 @@ def validate_settings(raw):
     mp_counts = get_int_set("mp_question_counts")
     if mode == MODE_MULTIPLAYER and count not in mp_counts:
         raise GameError("Število vprašanj ni med dovoljenimi.")
-    if mode == MODE_DIRKA:
-        count = 0
-        seconds = int(site_get("dirka_time_seconds"))
-    if mode == MODE_60_SEKUND:
-        count = 0
-        seconds = int(site_get("sixty_start_seconds"))
     if mode == MODE_MULTIPLAYER:
         if seconds not in get_int_set("mp_allowed_times"):
             raise GameError("Čas na vprašanje ni med dovoljenimi.")
-    elif mode not in {MODE_ALA_MILIJONAR, MODE_DIRKA, MODE_60_SEKUND} and seconds not in get_int_set(
-        "hr_allowed_times"
-    ):
+    elif mode == MODE_DIRKA:
+        if seconds not in get_int_set("dirka_allowed_times"):
+            raise GameError("Čas na vprašanje ni med dovoljenimi.")
+    elif mode not in {MODE_ALA_MILIJONAR, MODE_60_SEKUND} and seconds not in get_int_set("hr_allowed_times"):
         raise GameError("Čas na vprašanje ni med dovoljenimi.")
     slugs = raw.get("categories")
     if not isinstance(slugs, list) or not slugs:
@@ -186,7 +188,6 @@ def validate_settings(raw):
             raise GameError("Safe zone ni med dovoljenimi.")
         settings["target_score"] = target
         settings["safe_every"] = safe_every
-        settings["time_limit_seconds"] = int(site_get("dirka_time_seconds"))
         settings["question_count"] = 0
     if mode == MODE_60_SEKUND:
         raw_skip = raw.get("skip_limit", None)
@@ -336,15 +337,18 @@ def member_id_for(user_id, code):
 
 
 def require_can_advance(member, room, session=None):
-    """Host lahko vedno nadaljuje; če je host offline, lahko vsak povezan človek.
+    """Host lahko vedno nadaljuje (tudi bot-host, ko so ljudje odšli);
+    če je host offline, lahko vsak povezan človek.
 
     Ko je načrtovan samodejni prehod že zapadel (`auto_advance_at`), sme nadaljevati
     kateri koli povezan človek — da se igra ne zatakne, če hostov WS odpade.
     """
-    if member.is_bot or member.left_at is not None:
+    if member.left_at is not None:
         raise GameError("Samo gostitelj lahko nadaljuje.")
     if member.is_host:
         return
+    if member.is_bot:
+        raise GameError("Samo gostitelj lahko nadaljuje.")
     if session is not None:
         state = session.state or {}
         marker = str(state.get("auto_advance_for") or "")
@@ -546,7 +550,11 @@ def submit_answer(member_id, message):
         existing = _answer_for(game_question, member)
         if existing is not None:
             result = result_message(session, game_question, existing, member)
-            return [result, _finished_copy(result)] if session.status == "finished" else [result]
+            return (
+                [result, _finished_copy(result, session, member)]
+                if session.status == "finished"
+                else [result]
+            )
         return _grade_locked(member, room, session, game_question, message)
 
 
@@ -746,7 +754,7 @@ def walk_away(member_id):
         session.state = state
         _finalize(session, room, member, "walk_away", now)
         result = result_message(session, game_question, answer, member)
-        return [result, _finished_copy(result)]
+        return [result, _finished_copy(result, session, member)]
 
 
 def guaranteed_prize(correct_count, ladder):
@@ -897,7 +905,7 @@ def _grade_locked(member, room, session, game_question, message):
         session.save(update_fields=["state"])
     result = result_message(session, game_question, answer, member)
     if should_finish:
-        return [result, _finished_copy(result)]
+        return [result, _finished_copy(result, session, member)]
     return [result]
 
 
@@ -960,7 +968,7 @@ def _finished_snapshot(member, session):
     )
     if answer is None:
         state = _state(session)
-        return {
+        payload = {
             "type": "game_finished",
             "phase": "finished",
             "finished": True,
@@ -974,15 +982,27 @@ def _finished_snapshot(member, session):
             "nickname": member.nickname_in_room,
             "prize_ladder": state["prize_ladder"],
         }
-    return _finished_copy(result_message(session, answer.game_question, answer, member))
+        return _attach_result_id(payload, session, member)
+    return _finished_copy(result_message(session, answer.game_question, answer, member), session, member)
 
 
-def _finished_copy(result):
+def _finished_copy(result, session=None, member=None):
     payload = dict(result)
     payload["type"] = "game_finished"
     payload["phase"] = "finished"
     payload["finished"] = True
     payload["total_questions"] = result.get("total")
+    if session is not None:
+        _attach_result_id(payload, session, member)
+    return payload
+
+
+def _attach_result_id(payload, session, member=None):
+    from game.replay import result_id_for
+
+    rid = result_id_for(session, member=member)
+    if rid:
+        payload["result_id"] = rid
     return payload
 
 

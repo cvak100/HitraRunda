@@ -50,6 +50,14 @@ from rooms.services import lobby_payload, refresh_can_start
 SINGLE_TYPES = {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE}
 
 
+def _time_limit(session) -> int:
+    """Sekunde na vprašanje — iz sobe/seje, sicer site default."""
+    value = int(getattr(session, "time_limit_seconds", 0) or 0)
+    if value > 0:
+        return value
+    return int(site_get("dirka_time_seconds"))
+
+
 def snapshot_dirka(member_id):
     with transaction.atomic():
         member, room, session = _lock(member_id)
@@ -128,6 +136,7 @@ def start_dirka(member_id):
         settings = room.settings or {}
         target = int(settings.get("target_score") or 200)
         safe_every = int(settings.get("safe_every") or 5)
+        time_limit = int(settings.get("time_limit_seconds") or site_get("dirka_time_seconds"))
         pool_size = min(DIRKA_QUESTION_POOL, _available_count(settings))
         if pool_size < 5:
             raise GameError("Premalo vprašanj v izbranih kategorijah.")
@@ -166,7 +175,7 @@ def start_dirka(member_id):
             status="active",
             total_questions=len(questions),
             current_question_index=0,
-            time_limit_seconds=int(site_get("dirka_time_seconds")),
+            time_limit_seconds=time_limit,
             state={
                 "players": players,
                 "reason": "",
@@ -205,7 +214,7 @@ def _reset_round_state(session, game_question, now=None):
     state = dict(session.state or {})
     players = dict(state.get("players") or {})
     deadlines = {}
-    deadline = now + timedelta(seconds=int(site_get("dirka_time_seconds")))
+    deadline = now + timedelta(seconds=_time_limit(session))
     for key, stats in players.items():
         stats = dict(stats)
         stats["active_helps"] = {}
@@ -488,7 +497,7 @@ def use_dirka_bonus(member_id, message):
         elif effect == "extra_time":
             deadlines = dict(state.get("deadlines") or {})
             current = _parse_dt(deadlines.get(key)) or (
-                game_question.started_at + timedelta(seconds=int(site_get("dirka_time_seconds")))
+                game_question.started_at + timedelta(seconds=_time_limit(session))
                 if game_question.started_at
                 else timezone.now()
             )
@@ -525,7 +534,7 @@ def use_dirka_bonus(member_id, message):
                 raise GameError("Ni nasprotnika za Rush.")
             deadlines = dict(state.get("deadlines") or {})
             now = timezone.now()
-            current = _parse_dt(deadlines.get(target)) or now + timedelta(seconds=int(site_get("dirka_time_seconds")))
+            current = _parse_dt(deadlines.get(target)) or now + timedelta(seconds=_time_limit(session))
             remaining = max(0.0, (current - now).total_seconds())
             rushed = now + timedelta(seconds=min(DIRKA_RUSH_CAP, remaining * 0.5))
             deadlines[target] = rushed.isoformat()
@@ -655,6 +664,8 @@ def broadcast_round_review(session, game_question):
 
 
 def finished_dirka(session, member):
+    from game.replay import result_id_for
+
     payload = {
         "type": "game_finished",
         "phase": "finished",
@@ -669,6 +680,9 @@ def finished_dirka(session, member):
     _attach_shared_player_state(payload, session)
     mine = (payload.get("players") or {}).get(str(member.id)) or {}
     payload["score"] = mine.get("score", 0)
+    rid = result_id_for(session, member=member)
+    if rid:
+        payload["result_id"] = rid
     return payload
 
 
@@ -688,12 +702,13 @@ def finalize_dirka(session, room, reason="completed"):
         duration = max(0, int((now - session.started_at).total_seconds() * 1000))
     members = list(room.members.filter(left_at__isnull=True).select_related("user", "bot_profile"))
     players = state.get("players") or {}
+    result_ids = {}
     for member in members:
         stats = players.get(str(member.id)) or {}
         on_board = True
         if member.is_bot:
             on_board = bool(member.bot_profile and member.bot_profile.count_for_leaderboard)
-        GameResult.objects.create(
+        row = GameResult.objects.create(
             game_session=session,
             user=member.user,
             nickname=member.nickname_in_room,
@@ -709,8 +724,15 @@ def finalize_dirka(session, room, reason="completed"):
             reason=reason,
             room_code=room.code,
         )
+        result_ids[str(member.id)] = row.id
     host = next((item for item in members if item.is_host), members[0] if members else None)
-    return [finished_dirka(session, host)] if host else []
+    if not host:
+        return []
+    payload = finished_dirka(session, host)
+    payload["result_ids"] = result_ids
+    if str(host.id) in result_ids:
+        payload["result_id"] = result_ids[str(host.id)]
+    return [payload]
 
 
 def standings(session):
@@ -993,7 +1015,7 @@ def _store_answer(member, session, game_question, message):
 
     if is_correct:
         base = int(site_get("dirka_base_points"))
-        limit_ms = int(site_get("dirka_time_seconds")) * 1000
+        limit_ms = _time_limit(session) * 1000
         speed = round(((limit_ms - min(elapsed, limit_ms)) / limit_ms) * DIRKA_MAX_SPEED_BONUS)
         if armed.pop("double", None):
             base *= 2

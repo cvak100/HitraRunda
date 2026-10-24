@@ -14,7 +14,7 @@ export function SixtyFinish({ message, boardPath }: { message: GameMessage; boar
         {" · "}
         Preživel: {formatDuration(message.duration_ms ?? null)}
       </p>
-      <FinishActions replayTo="/igra/60-sekund" boardPath={boardPath} />
+      <FinishActions replayTo="/igra/60-sekund" boardPath={boardPath} resultId={message.result_id} />
     </div>
   );
 }
@@ -32,7 +32,7 @@ export function ReviewFinish({
   return (
     <>
       <p>{REASONS[message.reason || ""] || "Igra je končana."}</p>
-      <FinishActions replayTo={replayTo} boardPath={boardPath} />
+      <FinishActions replayTo={replayTo} boardPath={boardPath} resultId={message.result_id} />
     </>
   );
 }

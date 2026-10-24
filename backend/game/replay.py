@@ -4,15 +4,23 @@ from questions.models import Question
 SINGLE = {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE}
 
 
-def session_detail(session):
-    result = _result(session)
+def session_detail(session, result=None, for_user=None):
+    result = result or _result(session, for_user=for_user)
     state = session.state or {}
+    user_id = None
+    if result is not None and result.user_id:
+        user_id = result.user_id
+    elif for_user is not None:
+        user_id = getattr(for_user, "id", None)
     stages = []
-    questions = session.game_questions.select_related("question__category").prefetch_related("question__options", "answers")
+    questions = session.game_questions.select_related("question__category").prefetch_related(
+        "question__options", "answers__room_member"
+    )
     for game_question in questions:
-        if game_question.started_at is None and not game_question.answers.all():
+        answers = list(game_question.answers.all())
+        if game_question.started_at is None and not answers:
             continue
-        stages.append(_stage(game_question))
+        stages.append(_stage(game_question, user_id=user_id))
     played_at = result.played_at if result else session.finished_at or session.started_at or session.created_at
     return {
         "session_id": session.id,
@@ -33,8 +41,30 @@ def session_detail(session):
     }
 
 
-def _result(session):
-    return session.results.order_by("-score", "duration_ms", "played_at").first()
+def result_id_for(session, member=None):
+    """ID GameResult za člana (ali najboljši rezultat, če član ni znan)."""
+    qs = GameResult.objects.filter(game_session=session)
+    if member is not None and getattr(member, "user_id", None):
+        row = qs.filter(user_id=member.user_id).order_by("-id").first()
+        if row:
+            return row.id
+        # Gost/bot: ujemanje po vzdevku v sobi.
+        nick = getattr(member, "nickname_in_room", None) or ""
+        if nick:
+            row = qs.filter(nickname=nick).order_by("-id").first()
+            if row:
+                return row.id
+    row = qs.order_by("-score", "duration_ms", "played_at").first()
+    return row.id if row else None
+
+
+def _result(session, for_user=None):
+    qs = session.results.all()
+    if for_user is not None and getattr(for_user, "id", None):
+        row = qs.filter(user_id=for_user.id).order_by("-id").first()
+        if row:
+            return row
+    return qs.order_by("-score", "duration_ms", "played_at").first()
 
 
 def _nickname(session, result):
@@ -44,9 +74,21 @@ def _nickname(session, result):
     return host.nickname_in_room if host else ""
 
 
-def _stage(game_question):
+def _stage(game_question, user_id=None):
     question = game_question.question
-    answer = next(iter(game_question.answers.all()), None)
+    answers = list(game_question.answers.all())
+    answer = None
+    if user_id is not None:
+        answer = next(
+            (
+                row
+                for row in answers
+                if row.room_member_id and getattr(row.room_member, "user_id", None) == user_id
+            ),
+            None,
+        )
+    if answer is None and answers:
+        answer = answers[0]
     data = (answer.answer_data if answer else None) or {}
     timed_out = bool(data.get("timeout"))
     return {

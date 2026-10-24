@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ApiError, api } from "../../api";
 import { formatPoints } from "../../format";
+import { playSfx } from "../../sound";
 import type { GameMessage } from "../../types";
 import { ReviewFinish } from "./GameFinish";
+
+const NEXT_BEAT_MS = 700;
 
 export function ReviewPanel({
   message,
@@ -15,6 +18,11 @@ export function ReviewPanel({
   boardPath: string;
 }) {
   const question = message.question;
+  const [leaving, setLeaving] = useState(false);
+
+  useEffect(() => {
+    setLeaving(false);
+  }, [question?.game_question_id, message.phase]);
   const replayPath =
     message.mode === "ala_milijonar"
       ? "/igra/ala-milijonar"
@@ -29,47 +37,44 @@ export function ReviewPanel({
         ? "Pravilno"
         : "Napačno";
   const tone = message.walked_away || message.is_correct ? "good" : "bad";
+
+  function goNext() {
+    if (leaving || !message.is_correct) return;
+    setLeaving(true);
+    playSfx("next");
+    window.setTimeout(() => onNext(), NEXT_BEAT_MS);
+  }
+
   return (
-    <div className={`review ${tone}`}>
-      <h2>{title}</h2>
-      {message.explanation ? <p>{message.explanation}</p> : null}
-      {question && message.correct_option_ids && question.question_type === "ordering" ? (
-        <p>
-          Pravilen vrstni red:{" "}
-          {message.correct_option_ids
-            .map((id) => question.options?.find((option) => option.id === id)?.text)
-            .join(" → ")}
-        </p>
-      ) : null}
-      {message.correct_pairs ? (
-        <ul>
-          {message.correct_pairs.map((pair) => (
-            <li key={pair.left_id}>
-              {pair.left} → {pair.right}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {message.correct_value !== undefined ? (
-        <p>
-          Pravilno: {formatPoints(message.correct_value)}
-          {message.tolerance ? ` (± ${formatPoints(message.tolerance)})` : ""}. Tvoja ocena:{" "}
-          {message.selected_value !== undefined ? formatPoints(message.selected_value) : "—"}.
-        </p>
-      ) : null}
-      <p>
-        Nagrada {formatPoints(message.prize_reached ?? 0)} + bonus {formatPoints(message.speed_bonus_total ?? 0)} ={" "}
+    <div className={`review ${tone}${leaving ? " is-leaving" : ""}`}>
+      <p className="review-verdict">{title}</p>
+      <p className="review-score">
+        Nagrada {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
+        {formatPoints(message.speed_bonus_total ?? 0)} ={" "}
         <strong>{formatPoints(message.score ?? 0)}</strong>
       </p>
-      {question && !message.walked_away ? (
-        <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
-      ) : null}
       {message.phase === "finished" || message.finished ? (
-        <ReviewFinish message={message} replayTo={replayPath} boardPath={boardPath} />
+        <>
+          {question && !message.walked_away ? (
+            <div className="play-slot-cta">
+              <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
+            </div>
+          ) : null}
+          <ReviewFinish message={message} replayTo={replayPath} boardPath={boardPath} />
+        </>
       ) : (
-        <button type="button" className="primary" onClick={onNext}>
-          Naprej{message.next_stake ? ` za ${formatPoints(message.next_stake)}` : ""}
-        </button>
+        <div className="play-slot-cta">
+          {question && !message.walked_away ? (
+            <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
+          ) : (
+            <span />
+          )}
+          {message.is_correct ? (
+            <button type="button" className="primary btn-cta" disabled={leaving} onClick={goNext}>
+              {leaving ? "…" : `Naprej${message.next_stake ? ` za ${formatPoints(message.next_stake)}` : ""}`}
+            </button>
+          ) : null}
+        </div>
       )}
     </div>
   );
@@ -95,10 +100,10 @@ function Complaint({ gameQuestionId }: { gameQuestionId: string }) {
     }
   }
 
-  if (sent) return <p className="fine">{sent}</p>;
+  if (sent) return <p className="fine complaint-sent">{sent}</p>;
 
   return (
-    <div className="stack">
+    <div className={`complaint${open ? " is-open" : ""}`}>
       {open ? (
         <>
           <label>
@@ -110,13 +115,13 @@ function Complaint({ gameQuestionId }: { gameQuestionId: string }) {
             <button type="button" className="primary" onClick={() => void send()}>
               Pošlji pritožbo
             </button>
-            <button type="button" onClick={() => setOpen(false)}>
+            <button type="button" className="btn-tertiary" onClick={() => setOpen(false)}>
               Prekliči
             </button>
           </div>
         </>
       ) : (
-        <button type="button" onClick={() => setOpen(true)}>
+        <button type="button" className="btn-tertiary" onClick={() => setOpen(true)}>
           Pritožba
         </button>
       )}

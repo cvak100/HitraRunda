@@ -124,6 +124,7 @@ export function GameLobby(props: GameLobbyProps) {
             {message.settings?.sudden_death ? " · sudden death" : ""}
             {message.settings?.target_score ? ` · cilj ${message.settings.target_score}` : ""}
             {message.settings?.safe_every ? ` · varna zona ${message.settings.safe_every}` : ""}
+            {message.settings?.time_limit_seconds ? ` · ${message.settings.time_limit_seconds} s` : ""}
             {message.settings?.bot_count ? ` · ${message.settings.bot_count} AI` : ""}
           </p>
           <h2>
@@ -217,6 +218,13 @@ export function GameLobby(props: GameLobbyProps) {
                     value={editSafe}
                     onChange={setEditSafe}
                     format={(value) => `Vsakih ${value}`}
+                  />
+                  <ChoiceGroup
+                    label="Čas na vprašanje"
+                    options={lobbyTimes}
+                    value={editSeconds}
+                    onChange={setEditSeconds}
+                    format={formatLobbyTime}
                   />
                 </>
               ) : (

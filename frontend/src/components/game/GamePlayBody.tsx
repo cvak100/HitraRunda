@@ -87,7 +87,7 @@ export function GamePlayBody({
               .filter(Boolean)
               .join(" ")}
           >
-            <div className="q-meta">
+            <div className="q-meta play-slot-status">
               <span>
                 {(message.index ?? 0) + 1}
                 {isDirka || isSixty ? "" : ` / ${message.total}`}
@@ -113,7 +113,7 @@ export function GamePlayBody({
                 </span>
               ) : null}
             </div>
-            {isSixty ? (
+            {isSixty && phase !== "finished" ? (
               <>
                 <p
                   className={`sixty-feedback ${sixtyFlash ? flashTone : "sixty-feedback-empty"}`}
@@ -150,11 +150,12 @@ export function GamePlayBody({
                         deadlineAt={sixtyDeadline}
                         serverNow={message.server_now}
                         onExpire={expire}
+                        emphasizeNumber
                       />
                     ) : (
-                      <div className="timer sixty-timer-placeholder" aria-hidden>
+                      <div className="timer timer-emphasis sixty-timer-placeholder" aria-hidden>
                         <div className="timer-track" />
-                        <span>—s</span>
+                        <span className="timer-seconds">—s</span>
                       </div>
                     )}
                     {sixtyFlash && (sixtyFlash.time_delta ?? 0) !== 0 ? (
@@ -185,10 +186,10 @@ export function GamePlayBody({
               </>
             ) : null}
             {showLifelines ? (
-              <div className="lifelines" aria-label="Jokerji">
+              <div className="lifelines play-slot-tools" aria-label="Jokerji">
                 <button
                   type="button"
-                  className={lifelines.fifty_fifty?.used ? "is-used" : ""}
+                  className={`btn-tool${lifelines.fifty_fifty?.used ? " is-used" : ""}`}
                   disabled={!canUseLifeline || !lifelines.fifty_fifty?.available}
                   onClick={() => useHelp("fifty_fifty")}
                 >
@@ -196,7 +197,7 @@ export function GamePlayBody({
                 </button>
                 <button
                   type="button"
-                  className={lifelines.audience?.used ? "is-used" : ""}
+                  className={`btn-tool${lifelines.audience?.used ? " is-used" : ""}`}
                   disabled={!canUseLifeline || !lifelines.audience?.available}
                   onClick={() => useHelp("audience")}
                 >
@@ -204,24 +205,22 @@ export function GamePlayBody({
                 </button>
                 <button
                   type="button"
-                  className={lifelines.phone_friend?.used ? "is-used" : ""}
+                  className={`btn-tool${lifelines.phone_friend?.used ? " is-used" : ""}`}
                   disabled={!canUseLifeline || !lifelines.phone_friend?.available}
                   onClick={() => setPickFriend((current) => !current)}
                 >
                   Klic v sili{lifelines.phone_friend?.used ? " · porabljen" : ""}
                 </button>
                 {message.can_walk_away && phase === "question" ? (
-                  <button type="button" className="walk-away" onClick={walkAway}>
+                  <button type="button" className="walk-away btn-tertiary" onClick={walkAway}>
                     Odnehaj ({formatPoints(message.prize_reached ?? 0)})
                   </button>
                 ) : null}
               </div>
             ) : null}
-            {isAla && friends.length > 0 && (showLifelines || pickFriend) ? (
-              <div className={`friend-pick ${pickFriend ? "is-open" : ""}`}>
-                <p className="friend-pick-label">
-                  {pickFriend ? "Koga kličeš?" : "Tvoji prijatelji za klic"}
-                </p>
+            {isAla && friends.length > 0 && pickFriend ? (
+              <div className="friend-pick is-open">
+                <p className="friend-pick-label">Koga kličeš?</p>
                 <div className="friend-pick-grid">
                   {friends.map((friend) => {
                     const canCall =
@@ -277,41 +276,57 @@ export function GamePlayBody({
             ) : phase === "question" && !isDirka && !isSixty && message.deadline_at && message.server_now ? (
               <TimerBar deadlineAt={message.deadline_at} serverNow={message.server_now} onExpire={expire} />
             ) : null}
-            <div className={isSixty ? "sixty-question-slot" : undefined}>
-            <h1>{question.text}</h1>
-            {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+            <div
+              key={question.game_question_id}
+              className={["play-q-slot", "play-q-enter", isSixty ? "sixty-question-slot" : undefined]
+                .filter(Boolean)
+                .join(" ")}
+            >
+            <div
+              className={[
+                "play-slot-question",
+                phase === "review" || phase === "round_review" || phase === "finished"
+                  ? "is-dimmed"
+                  : undefined,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              <h1>{question.text}</h1>
+              {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+              {(phase === "review" || phase === "round_review" || phase === "finished") &&
+              !message.walked_away ? (
+                <ReviewAnswerReveal message={message} />
+              ) : null}
+            </div>
             {helps.phone_friend ? (
               <p className="help-banner">
                 {helps.phone_friend.friend_name}: {helps.phone_friend.message}
               </p>
             ) : null}
-            {!isDirka && !isSixty && phase === "question" && (message.answered_count ?? 0) > 0 ? (
-              <p className="fine">
-                Oddano {message.answered_count}/{message.player_count}
-                {(message.waiting_for || []).length > 0 ? ` · čaka: ${(message.waiting_for || []).join(", ")}` : ""}
-              </p>
-            ) : null}
-            {!isDirka && !isSixty && phase === "waiting_answers" ? (
-              <p className="status">
-                Oddano. Čakam še: {(message.waiting_for || []).join(", ") || "nikogar"} (
-                {message.answered_count}/{message.player_count})
-              </p>
-            ) : null}
-            {phase === "question" || phase === "submitting" ? (
-              <QuestionPlay
-                question={question}
-                locked={phase !== "question"}
-                result={null}
-                eliminatedOptionIds={
-                  eliminatedIds.length
-                    ? eliminatedIds
-                    : isDirka
-                      ? undefined
-                      : helps.fifty_fifty?.eliminated_option_ids
-                }
-                audienceVotes={isDirka ? undefined : helps.audience?.votes}
-                onSubmit={sendAnswer}
-              />
+            {phase === "question" || phase === "submitting" || phase === "waiting_answers" ? (
+              <div className="play-slot-answers">
+                <QuestionPlay
+                  question={question}
+                  locked={phase !== "question"}
+                  result={
+                    phase === "waiting_answers" || phase === "submitting"
+                      ? {
+                          selected_option_ids: message.selected_option_ids,
+                        }
+                      : null
+                  }
+                  eliminatedOptionIds={
+                    eliminatedIds.length
+                      ? eliminatedIds
+                      : isDirka
+                        ? undefined
+                        : helps.fifty_fifty?.eliminated_option_ids
+                  }
+                  audienceVotes={isDirka ? undefined : helps.audience?.votes}
+                  onSubmit={sendAnswer}
+                />
+              </div>
             ) : null}
             {phase === "round_review" ? (
               <RoundReview message={message} myId={myId} isHost={iAmHost} onNext={next} boardPath={boardPath} />
@@ -361,4 +376,49 @@ export function GamePlayBody({
           ) : null}
         </div>
   );
+}
+
+function ReviewAnswerReveal({ message }: { message: GameMessage }) {
+  const correct = formatCorrectAnswer(message);
+  const explanation = (message.explanation || "").trim();
+  if (!correct && !explanation) return null;
+
+  return (
+    <div className="review-answer-block">
+      {correct ? (
+        <p className="review-answer">
+          <span className="review-answer-label">Odgovor:</span> {correct}
+        </p>
+      ) : null}
+      {explanation ? <p className="review-explain under-question">{explanation}</p> : null}
+      {message.correct_value !== undefined && message.selected_value !== undefined ? (
+        <p className="fine under-question">Tvoja ocena: {formatPoints(message.selected_value)}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function formatCorrectAnswer(message: GameMessage): string | null {
+  const question = message.question;
+  if (!question) return null;
+
+  if (message.correct_option_ids?.length && question.options?.length) {
+    const texts = message.correct_option_ids
+      .map((id) => question.options?.find((option) => option.id === id)?.text)
+      .filter((text): text is string => Boolean(text));
+    if (!texts.length) return null;
+    if (question.question_type === "ordering") return texts.join(" → ");
+    return texts.join(", ");
+  }
+
+  if (message.correct_pairs?.length) {
+    return message.correct_pairs.map((pair) => `${pair.left} → ${pair.right}`).join("; ");
+  }
+
+  if (message.correct_value !== undefined) {
+    const tol = message.tolerance != null ? ` (± ${formatPoints(message.tolerance)})` : "";
+    return `${formatPoints(message.correct_value)}${tol}`;
+  }
+
+  return null;
 }

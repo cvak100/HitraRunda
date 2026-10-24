@@ -287,7 +287,7 @@ class ResultDetailView(APIView):
         session = result.game_session
         if session.status != "finished" and not is_staff:
             return Response({"detail": "Igra še ni zaključena."}, status=404)
-        return Response(session_detail(session))
+        return Response(session_detail(session, result=result, for_user=result.user))
 
 
 class AdminSessionListView(APIView):
