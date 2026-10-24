@@ -4,6 +4,7 @@ from questions.staff_content import (
     AdminCategoryDetailView,
     AdminCategoryListView,
     AdminContentQualityView,
+    AdminQuestionDeactivateActiveView,
     AdminQuestionExportView,
     AdminQuestionImportView,
 )
@@ -24,6 +25,7 @@ urlpatterns = [
     path("admin/questions/", AdminQuestionListView.as_view()),
     path("admin/questions/import/", AdminQuestionImportView.as_view()),
     path("admin/questions/export/", AdminQuestionExportView.as_view()),
+    path("admin/questions/deactivate-active/", AdminQuestionDeactivateActiveView.as_view()),
     path("admin/questions/<int:pk>/", AdminQuestionDetailView.as_view()),
     path("admin/categories/", AdminCategoryListView.as_view()),
     path("admin/categories/<int:pk>/", AdminCategoryDetailView.as_view()),

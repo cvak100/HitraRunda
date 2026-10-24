@@ -22,7 +22,13 @@ CATEGORIES = (
     ("slovenija", "Slovenija", 12),
     ("zivali", "Živali", 13),
     ("astronomija", "Astronomija", 14),
+    ("zemljepis-slovenije", "Zemljepis Slovenije", 15),
 )
+
+# V JSON lahko pride »živali« (s šumnikom); v bazi je kanonični slug »zivali«.
+CATEGORY_ALIASES = {
+    "živali": "zivali",
+}
 CHOICE_TYPES = {"multiple_choice", "true_false", "multi_select"}
 QUESTION_TYPES = CHOICE_TYPES | {"ordering", "matching", "slider"}
 
@@ -109,9 +115,10 @@ def _clean_item(item, seen):
     seen.add(key)
 
     category = str(item.get("category") or "").strip()
+    category = CATEGORY_ALIASES.get(category, category)
     known_categories = set(Category.objects.values_list("slug", flat=True))
     if category not in known_categories:
-        raise ImportProblem("Neznana kategorija.")
+        raise ImportProblem(f"Neznana kategorija ({item.get('category')}).")
 
     question_type = item.get("question_type")
     if question_type not in QUESTION_TYPES:

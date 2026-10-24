@@ -120,6 +120,23 @@ class AdminQuestionExportView(APIView):
         return Response(export_payload())
 
 
+class AdminQuestionDeactivateActiveView(APIView):
+    """Umakne vsa trenutno aktivna vprašanja (is_active=False). Zgodovina sej ostane."""
+
+    permission_classes = [StaffOnly]
+
+    def post(self, request):
+        deactivated = Question.objects.filter(is_active=True).update(is_active=False)
+        remaining_active = Question.objects.filter(is_active=True).count()
+        return Response(
+            {
+                "deactivated": deactivated,
+                "active": remaining_active,
+                "detail": f"Umaknjenih {deactivated} aktivnih vprašanj.",
+            }
+        )
+
+
 class AdminContentQualityView(APIView):
     permission_classes = [StaffOnly]
 

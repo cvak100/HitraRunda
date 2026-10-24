@@ -2,6 +2,7 @@ import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { SortableTh } from "../components/AdminToolbar";
+import { ConfirmModal } from "../components/ConfirmModal";
 import { ApiError, api } from "../api";
 
 type CategorySort = "name" | "active" | "inactive" | "reports";
@@ -26,6 +27,7 @@ export function AdminContentPage() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [sort, setSort] = useState<CategorySort>("name");
   const [direction, setDirection] = useState<"asc" | "desc">("asc");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -117,6 +119,25 @@ export function AdminContentPage() {
     }
   }
 
+  async function deactivateAllActive() {
+    setConfirmDeactivate(false);
+    setPending(true);
+    setError("");
+    setNotice("");
+    try {
+      const result = await api<{ deactivated: number; detail: string }>("/api/admin/questions/deactivate-active/", {
+        method: "POST",
+        body: "{}",
+      });
+      setNotice(result.detail || `Umaknjenih ${result.deactivated} aktivnih vprašanj.`);
+      load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Umaknitev ni uspela.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
     <section className="panel">
       <p className="eyebrow">Admin · Vsebina</p>
@@ -169,7 +190,8 @@ export function AdminContentPage() {
       <h2>Uvoz JSON</h2>
       <p className="fine">
         Naloži celotno datoteko (npr. questions.json). Vprašanja z istim <code>key</code> se ne podvajajo — posodobijo
-        se. V isti datoteki ne sme biti dveh enakih ključev.
+        se. V isti datoteki ne sme biti dveh enakih ključev. Pred uvozom novega paketa lahko najprej umakneš vsa
+        trenutno aktivna — ostanejo v bazi, a se ne izžrebajo več.
       </p>
       <div className="actions">
         <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={onFile} />
@@ -179,8 +201,26 @@ export function AdminContentPage() {
         <button type="button" onClick={() => void exportJson()}>
           Izvozi trenutna
         </button>
+        <button
+          type="button"
+          className="danger"
+          disabled={pending || !quality?.totals.active}
+          onClick={() => setConfirmDeactivate(true)}
+        >
+          Umakni vsa aktivna
+          {quality?.totals.active ? ` (${quality.totals.active})` : ""}
+        </button>
         {fileName ? <span className="fine">{fileName}</span> : null}
       </div>
+      <ConfirmModal
+        open={confirmDeactivate}
+        title="Umakni vsa aktivna?"
+        message={`Vsa trenutno aktivna vprašanja (${quality?.totals.active ?? 0}) bodo umaknjena. Zgodovina iger ostane; nova uvoziš nato kot aktivna.`}
+        confirmLabel="Umakni vsa"
+        danger
+        onConfirm={() => void deactivateAllActive()}
+        onCancel={() => setConfirmDeactivate(false)}
+      />
       <details className="import-paste">
         <summary>Ali prilepi JSON ročno</summary>
         <textarea className="code-area" rows={8} value={payload} onChange={(event) => setPayload(event.target.value)} />

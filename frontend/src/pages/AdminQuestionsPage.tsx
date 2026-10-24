@@ -3,9 +3,12 @@ import { FormEvent, Fragment, useEffect, useState } from "react";
 import { AdminToolbar, SortableTh, type AdminLimit } from "../components/AdminToolbar";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { DeleteIcon, EditIcon, IconAction, ViewIcon } from "../components/IconActions";
+import { Modal } from "../components/Modal";
 import { ApiError, api } from "../api";
 import { QuestionBody, TYPE_LABELS } from "../components/QuestionBody";
 import type { StaffOption, StaffPair, StaffQuestion } from "../types";
+
+type CategoryOption = { slug: string; name: string };
 
 type QuestionStatus = "all" | "active" | "withdrawn";
 type SortKey = "text" | "category" | "type" | "difficulty" | "status" | "reports";
@@ -38,6 +41,10 @@ function toForm(question: StaffQuestion): EditForm {
 
 export function AdminQuestionsPage() {
   const [questions, setQuestions] = useState<StaffQuestion[]>([]);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [draftCategories, setDraftCategories] = useState<string[]>([]);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [status, setStatus] = useState<QuestionStatus>("all");
@@ -59,6 +66,7 @@ export function AdminQuestionsPage() {
     params.set("sort", sort);
     params.set("dir", direction);
     params.set("limit", limit);
+    if (selectedCategories.length) params.set("categories", selectedCategories.join(","));
     api<{ questions: StaffQuestion[]; total: number }>(`/api/admin/questions/?${params}`)
       .then((data) => {
         setQuestions(data.questions);
@@ -69,8 +77,30 @@ export function AdminQuestionsPage() {
   }
 
   useEffect(() => {
+    api<{ categories: { slug: string; name: string }[] }>("/api/admin/categories/")
+      .then((data) => setCategories(data.categories.map((c) => ({ slug: c.slug, name: c.name }))))
+      .catch(() => setCategories([]));
+  }, []);
+
+  useEffect(() => {
     load();
-  }, [submitted, status, sort, direction, limit]);
+  }, [submitted, status, sort, direction, limit, selectedCategories]);
+
+  function openCategoryModal() {
+    setDraftCategories(selectedCategories);
+    setCategoryModalOpen(true);
+  }
+
+  function toggleDraftCategory(slug: string) {
+    setDraftCategories((current) =>
+      current.includes(slug) ? current.filter((item) => item !== slug) : [...current, slug],
+    );
+  }
+
+  function applyCategoryFilter() {
+    setSelectedCategories(draftCategories);
+    setCategoryModalOpen(false);
+  }
 
   async function removeQuestion(question: StaffQuestion) {
     setError("");
@@ -165,6 +195,19 @@ export function AdminQuestionsPage() {
           <button type="button" className={status === "withdrawn" ? "is-on" : ""} onClick={() => setStatus("withdrawn")}>
             Umaknjena
           </button>
+          <button
+            type="button"
+            className={selectedCategories.length ? "is-on" : ""}
+            onClick={openCategoryModal}
+          >
+            Kategorije
+            {selectedCategories.length ? ` (${selectedCategories.length})` : ""}
+          </button>
+          {selectedCategories.length ? (
+            <button type="button" onClick={() => setSelectedCategories([])}>
+              Počisti
+            </button>
+          ) : null}
         </div>
       </AdminToolbar>
       <p className="fine">
@@ -354,6 +397,35 @@ export function AdminQuestionsPage() {
         }}
         onCancel={() => setPendingDelete(null)}
       />
+      <Modal title="Filtriraj kategorije" open={categoryModalOpen} onClose={() => setCategoryModalOpen(false)}>
+        <p className="fine">Izberi eno ali več kategorij. Prazna izbira = vse kategorije.</p>
+        <div className="category-picker-grid admin-category-filter">
+          {categories.map((category) => (
+            <label key={category.slug} className="check category-picker-item">
+              <input
+                type="checkbox"
+                checked={draftCategories.includes(category.slug)}
+                onChange={() => toggleDraftCategory(category.slug)}
+              />
+              <span className="category-picker-name">{category.name}</span>
+            </label>
+          ))}
+        </div>
+        <div className="actions" style={{ marginTop: 14 }}>
+          <button type="button" onClick={() => setDraftCategories(categories.map((c) => c.slug))}>
+            Vse
+          </button>
+          <button type="button" onClick={() => setDraftCategories([])}>
+            Nobena
+          </button>
+          <button type="button" className="primary" onClick={applyCategoryFilter}>
+            Uporabi
+          </button>
+          <button type="button" onClick={() => setCategoryModalOpen(false)}>
+            Prekliči
+          </button>
+        </div>
+      </Modal>
     </section>
   );
 }
