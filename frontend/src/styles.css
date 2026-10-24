@@ -39,30 +39,84 @@ h1 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 0.95; margin: 0 0 0.6rem;
 
 .site-footer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 8px 4px 2px;
+  border: none;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.site-footer-nav,
+.site-footer-meta {
+  display: flex;
   flex-wrap: wrap;
-  gap: 12px 20px;
-  margin-top: 36px;
-  padding: 18px 4px 8px;
-  border-top: 1px solid var(--line);
+  justify-content: center;
+  align-items: center;
+  gap: 0 0.45em;
+  margin: 0;
+  line-height: 1.4;
+}
+.site-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+.site-footer a:hover {
+  color: var(--gold);
+}
+.site-footer span[aria-hidden] {
+  opacity: 0.65;
 }
 .app-version {
-  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--muted);
+  letter-spacing: 0.03em;
   font-variant-numeric: tabular-nums;
 }
+.how-to-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin-top: 20px;
+}
+.how-to-mode {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+.how-to-mode:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.how-to-mode .mode-rules {
+  margin-top: 8px;
+}
+.how-to-mode .actions {
+  margin-top: 12px;
+}
 .back-to-top {
-  background: #121815;
-  border-color: var(--line);
-  color: var(--cream);
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--gold);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.back-to-top svg {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 .back-to-top:hover {
-  border-color: color-mix(in srgb, var(--gold) 45%, var(--line));
-  background: #1a221c;
+  color: var(--cream);
+  background: transparent;
+  border: none;
 }
 
 .top {
@@ -636,6 +690,36 @@ a.dash-card:hover {
   border-radius: 999px;
   padding: 8px 14px;
   cursor: pointer;
+}
+
+.site-footer .back-to-top {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--gold);
+  box-shadow: none;
+}
+.site-footer .back-to-top:hover {
+  border: none;
+  background: transparent;
+  color: var(--cream);
+}
+.site-footer nav a {
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: inherit;
+}
+.site-footer nav a:hover {
+  color: var(--gold);
+  background: transparent;
+  border: none;
 }
 
 .primary, a.primary {
@@ -2236,8 +2320,8 @@ button.friend-pick-card {
   }
 
   .site-footer {
-    margin-top: 24px;
-    padding: 14px 0 4px;
+    margin-top: 12px;
+    padding: 6px 0 2px;
   }
 }
 

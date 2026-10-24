@@ -682,6 +682,7 @@ def public_game_config() -> dict:
         skip.append(None if item is None else int(item))
     return {
         "version": getattr(settings, "APP_VERSION", ""),
+        "contact_email": getattr(settings, "CONTACT_EMAIL", "") or "",
         "enabled_modes": list(data["enabled_modes"]),
         "hitrarunda": {
             "times": list(data["hr_allowed_times"]),

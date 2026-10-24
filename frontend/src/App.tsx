@@ -26,6 +26,7 @@ import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
 import { LogoutPage } from "./pages/LogoutPage";
 import { HomePage } from "./pages/HomePage";
+import { HowToPlayPage } from "./pages/HowToPlayPage";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { LoginPage } from "./pages/LoginPage";
@@ -45,6 +46,7 @@ export function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<HomePage />} />
+            <Route path="kako-igrati" element={<HowToPlayPage />} />
             <Route path="prijava" element={<LoginPage />} />
             <Route path="registracija" element={<RegisterPage />} />
             <Route path="pozabljeno-geslo" element={<ForgotPasswordPage />} />

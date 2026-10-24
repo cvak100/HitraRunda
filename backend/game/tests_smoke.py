@@ -75,6 +75,7 @@ class SmokeFlowTests(TestCase):
         self.assertEqual(cfg.status_code, 200)
         self.assertEqual(cfg.data.get("version"), settings.APP_VERSION)
         self.assertIn("enabled_modes", cfg.data)
+        self.assertTrue(cfg.data.get("contact_email"))
 
     def test_multiplayer_lobby_to_leaderboard(self):
         created = self.host.post(

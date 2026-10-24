@@ -10,15 +10,23 @@ export function Layout() {
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
   const [appVersion, setAppVersion] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const year = new Date().getFullYear();
 
   useEffect(() => {
     setNavOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
-    api<{ version?: string }>("/api/health/")
-      .then((data) => setAppVersion(data.version || ""))
-      .catch(() => setAppVersion(""));
+    api<{ version?: string; contact_email?: string }>("/api/game-config/")
+      .then((data) => {
+        setAppVersion(data.version || "");
+        setContactEmail(data.contact_email || "");
+      })
+      .catch(() => {
+        setAppVersion("");
+        setContactEmail("");
+      });
   }, []);
 
   useEffect(() => {
@@ -94,19 +102,51 @@ export function Layout() {
         {loading ? <p className="status">Nalagam…</p> : <Outlet />}
       </main>
       <footer className="site-footer">
-        {appVersion ? (
-          <span className="app-version" title="Verzija aplikacije">
-            v{appVersion}
-          </span>
-        ) : null}
         <button
           type="button"
-          className="btn-with-icon back-to-top"
+          className="back-to-top"
+          aria-label="Nazaj na vrh"
+          title="Nazaj na vrh"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <UpIcon />
-          Nazaj na vrh
         </button>
+        <nav className="site-footer-nav" aria-label="Noga">
+          <Link to="/lestvica">Lestvica</Link>
+          <span aria-hidden="true">·</span>
+          <Link to={user ? "/igra" : "/"}>Igraj</Link>
+          {!user ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <Link to="/prijava">Prijava</Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/registracija">Registracija</Link>
+            </>
+          ) : null}
+          <span aria-hidden="true">·</span>
+          <Link to="/kako-igrati">Kako igrati</Link>
+          {contactEmail ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <a
+                href={`mailto:${contactEmail}?subject=${encodeURIComponent("Hitra runda — poročilo o napaki")}`}
+              >
+                Poročilo o napaki
+              </a>
+            </>
+          ) : null}
+        </nav>
+        <p className="site-footer-meta">
+          <span>© {year} Hitra runda</span>
+          {appVersion ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="app-version" title="Verzija aplikacije">
+                v{appVersion}
+              </span>
+            </>
+          ) : null}
+        </p>
       </footer>
     </div>
   );

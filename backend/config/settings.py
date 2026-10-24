@@ -209,6 +209,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", "1") == "1"
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "noreply@hitrarunda.local")
+CONTACT_EMAIL = env("CONTACT_EMAIL", "feedback@hitrarunda.local")
 
 LOGGING = {
     "version": 1,
