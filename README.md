@@ -4,17 +4,47 @@ Spletna kviz igra v slovenščini. Igraš solo ali z drugimi, izbiraš kategorij
 
 Začetek je možen kot gost z vzdevkom; z računom rezultati ostanejo na profilu in javni lestvici.
 
+**Alpha 0.2**
+
+![Domov — gost in načini igre](docs/screenshots/home.png)
+
+## Izberi igro
+
+Po prijavi (ali kot gost) odpreš seznam načinov. Vsak način ima lastno nastavitev, pravila in lestvico.
+
+![Izberi igro](docs/screenshots/play-hub.png)
+
 ## Načini igre
 
-| Način | Opis |
-| --- | --- |
-| **Hitra runda** | Kratke solo runde (5–15 vprašanj). Brez jokerjev — šteje hitrost. |
-| **Ala milijonar** | 15 stopenj z jokerji (polovička, glas ljudstva, klic v sili), 90 s na vprašanje, težavnost 1→5. |
-| **Hitra tekma** | Več igralcev v sobi. Ista vprašanja za vse, zmaga najhitrejši. |
-| **Dirka** | Dirka do ciljnih točk. Bonusi, varna zona, AI boti. Naprej, ko vsi odgovorijo. |
-| **60 sekund** | Solo način s skupnim časom. Pravilno +2 s, napačno −5 s, preskok −2 s. |
+### Hitra runda
 
-Vsak način ima svojo lestvico. V profilu vidiš najboljše rezultate, povprečja in uvrstitev na skupni lestvici.
+Kratke solo runde. Izbereš kategorije, število vprašanj (5–15) in čas na vprašanje. Brez jokerjev — šteje hitrost. Prvi napačen ali prepozen odgovor konča igro; točke do tja ostanejo na rezultatu.
+
+![Hitra runda — nastavitev](docs/screenshots/mode-hitrarunda.png)
+
+### Ala milijonar
+
+15 stopenj z naraščajočo težavnostjo, jokerji (polovička, glas ljudstva, klic v sili) in varnimi zonami. Napačen odgovor konča igro (razen varne stopnje). Pred začetkom izbereš 3 prijatelje za klic.
+
+![Ala milijonar — nastavitev](docs/screenshots/mode-ala-milijonar.png)
+
+### Hitra tekma
+
+Več igralcev v sobi (po želji z AI boti). Odpreš sobo ali se pridružiš s kodo. Ista vprašanja za vse; točke iz pravilnosti, hitrosti in streakov. Opcijsko sudden death. Zmaga igralec z največ točkami.
+
+![Hitra tekma — skupna soba](docs/screenshots/mode-hitra-tekma.png)
+
+### Dirka
+
+Dirka do ciljnih točk (npr. 100 / 200 / 500 / 1000). Bonusi, varna zona in AI boti. Naprej gre, ko vsi odgovorijo (ali poteče čas). Zmaga, kdor prvi doseže cilj.
+
+![Dirka — prvi do cilja](docs/screenshots/mode-dirka.png)
+
+### 60 sekund
+
+Solo način z enim skupnim časovnim bazenom. Pravilno +čas, napačno −čas, preskok −čas. Cilj: čim več pravilnih, preden ura pride na 0. Nastaviš preskoke in težavnost skozi čas.
+
+![60 sekund — nastavitev](docs/screenshots/mode-60-sekund.png)
 
 ## Tehnologije
 
@@ -74,6 +104,7 @@ Na Windowsu: `.\deploy\install.ps1 http` ali `.\deploy\install.ps1 https`.
 backend/     Django API, igralni motorji, WebSocket
 frontend/    React odjemalec
 deploy/      Produkcijski install (HTTP/HTTPS)
+docs/        Dokumentacija in posnetki zaslona
 questions.json   Vsebina vprašanj (uvoz prek admina)
 ```
 
