@@ -320,9 +320,20 @@ class AdminQuestionListView(APIView):
         query = str(request.query_params.get("q") or "").strip()
         if query:
             questions = questions.filter(Q(text__icontains=query) | Q(external_key__icontains=query))
-        category = str(request.query_params.get("category") or "").strip()
-        if category:
-            questions = questions.filter(category__slug=category)
+        category_slugs = []
+        raw_categories = request.query_params.getlist("category") or []
+        for raw in raw_categories:
+            for part in str(raw or "").split(","):
+                slug = part.strip()
+                if slug and slug not in category_slugs:
+                    category_slugs.append(slug)
+        # alias: categories=a,b
+        for part in str(request.query_params.get("categories") or "").split(","):
+            slug = part.strip()
+            if slug and slug not in category_slugs:
+                category_slugs.append(slug)
+        if category_slugs:
+            questions = questions.filter(category__slug__in=category_slugs)
         status = str(request.query_params.get("status") or "all")
         if status == "active":
             questions = questions.filter(is_active=True)

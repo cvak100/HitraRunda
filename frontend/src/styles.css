@@ -94,6 +94,11 @@ h1 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 0.95; margin: 0 0 0.6rem;
 .how-to-mode .actions {
   margin-top: 12px;
 }
+.admin-category-filter {
+  margin-top: 10px;
+  max-height: min(50vh, 360px);
+  overflow: auto;
+}
 .back-to-top {
   display: inline-flex;
   align-items: center;

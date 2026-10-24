@@ -65,6 +65,34 @@ class ImportTests(TestCase):
         self.assertEqual(Question.objects.count(), 0)
         self.assertEqual(report["created"], 0)
 
+    def test_import_accepts_zivali_with_sumik_and_stores_zivali(self):
+        report = import_payload(
+            json.dumps(
+                [
+                    {
+                        "key": "živali-d1-test",
+                        "category": "živali",
+                        "question_type": "multiple_choice",
+                        "difficulty": 1,
+                        "text": "Katera žival mija?",
+                        "explanation": "Mačka.",
+                        "options": [
+                            {"text": "Mačka", "correct": True},
+                            {"text": "Pes", "correct": False},
+                            {"text": "Krava", "correct": False},
+                            {"text": "Kura", "correct": False},
+                        ],
+                    }
+                ],
+                ensure_ascii=False,
+            )
+        )
+        self.assertEqual(report["errors"], [])
+        self.assertEqual(report["created"], 1)
+        question = Question.objects.get(external_key="živali-d1-test")
+        self.assertEqual(question.category.slug, "zivali")
+        self.assertEqual(question.category.name, "Živali")
+
 
 class ReportTests(TestCase):
     def setUp(self):
@@ -177,3 +205,26 @@ class ReportTests(TestCase):
         self.assertEqual([item["id"] for item in withdrawn.data["questions"]], [self.question.id])
         active = staff.get("/api/admin/questions/?status=active")
         self.assertNotIn(self.question.id, [item["id"] for item in active.data["questions"]])
+
+    def test_staff_deactivates_all_active_questions(self):
+        spare = Question.objects.create(
+            category=self.question.category,
+            external_key="rpt-bulk",
+            text="Še eno aktivno",
+            difficulty=1,
+            question_type=Question.Type.TRUE_FALSE,
+            is_active=True,
+        )
+        staff = APIClient()
+        staff.force_login(self.staff)
+        guest = APIClient()
+        self.assertEqual(guest.post("/api/admin/questions/deactivate-active/", {}, format="json").status_code, 403)
+
+        result = staff.post("/api/admin/questions/deactivate-active/", {}, format="json")
+        self.assertEqual(result.status_code, 200, result.data)
+        self.assertGreaterEqual(result.data["deactivated"], 2)
+        self.assertEqual(result.data["active"], 0)
+        self.question.refresh_from_db()
+        spare.refresh_from_db()
+        self.assertFalse(self.question.is_active)
+        self.assertFalse(spare.is_active)
