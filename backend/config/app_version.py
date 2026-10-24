@@ -1,4 +1,4 @@
-"""Ena globalna verzija aplikacije: 0.3.<število komitov>."""
+"""Ena globalna verzija aplikacije: 0.4.<število komitov>."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-# Ob releaseu: VERSION = 0.3.<git rev-list --count HEAD> (po komitu).
-VERSION_MAJOR_MINOR = "0.3"
+# Ob releaseu: VERSION = 0.4.<git rev-list --count HEAD> (po komitu).
+VERSION_MAJOR_MINOR = "0.4"
 
 
 @lru_cache(maxsize=1)

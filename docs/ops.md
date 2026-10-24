@@ -2,7 +2,7 @@
 
 ## Verzija
 
-Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.3.<število komitov>`**.
+Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.4.<število komitov>`**.
 
 ```bash
 # po komitu na HEAD
@@ -10,7 +10,7 @@ Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.3.<število komitov
 .\scripts\write-version.ps1         # Windows
 ```
 
-Preveri v teku: `GET /api/health/` → `{ "ok": true, "version": "0.3.…" }`. V UI je badge v nogi (`v0.3.…`).
+Preveri v teku: `GET /api/health/` → `{ "ok": true, "version": "0.4.…" }`. V UI je badge v nogi (`v0.4.…`).
 
 ## Zagon (dev)
 
