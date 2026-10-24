@@ -47,8 +47,16 @@ if ($Mode -eq "https") {
   if (-not $email) { throw "Za Let's Encrypt v .env nastavi TLS_EMAIL." }
 }
 
+$appVersion = [Environment]::GetEnvironmentVariable("APP_VERSION", "Process")
+if (-not $appVersion -and (Test-Path "VERSION")) {
+  $appVersion = (Get-Content "VERSION" -TotalCount 1).Trim()
+  [Environment]::SetEnvironmentVariable("APP_VERSION", $appVersion, "Process")
+  $env:APP_VERSION = $appVersion
+}
+
 $env:COMPOSE_PROFILES = $Mode
-Write-Host "Zagon (profil=$Mode)…"
+$verNote = if ($appVersion) { ", verzija=$appVersion" } else { "" }
+Write-Host "Zagon (profil=$Mode$verNote)…"
 docker compose -f docker-compose.prod.yml --env-file .env up -d --build
 
 Write-Host ""
@@ -59,3 +67,4 @@ if ($Mode -eq "http") {
   Write-Host "Odpri: $appUrl"
   Write-Host "DNS za $([Environment]::GetEnvironmentVariable('APP_DOMAIN','Process')) mora kazati sem; porta 80/443 odprta."
 }
+Write-Host "Smoke: .\deploy\smoke.ps1 `"$appUrl`""

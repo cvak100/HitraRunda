@@ -17,6 +17,10 @@ def split_csv(value):
 DEBUG = env("DJANGO_DEBUG", "0") == "1"
 TESTING = "test" in sys.argv
 
+from config.app_version import get_app_version  # noqa: E402
+
+APP_VERSION = get_app_version()
+
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG or TESTING:

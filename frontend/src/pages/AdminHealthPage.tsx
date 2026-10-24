@@ -17,6 +17,7 @@ type RedisSnapshot = {
 
 type HealthPayload = {
   generated_at: string;
+  version?: string;
   ok: boolean;
   db: {
     ok: boolean;
@@ -116,6 +117,7 @@ export function AdminHealthPage() {
         <>
           <p className="fine">
             Skupaj: <strong className={data.ok ? undefined : "is-warn"}>{data.ok ? "OK" : "Težava"}</strong>
+            {data.version ? ` · v${data.version}` : ""}
             {data.generated_at ? ` · ${formatWhen(data.generated_at)}` : ""}
           </p>
 

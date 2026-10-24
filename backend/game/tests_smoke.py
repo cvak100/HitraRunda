@@ -62,6 +62,20 @@ class SmokeFlowTests(TestCase):
         self.assertTrue(me.data["user"]["avatar"])
         self.assertTrue(me.data["user"]["preferred_color"])
 
+    def test_health_and_config_expose_version(self):
+        from django.conf import settings
+
+        health = self.host.get("/api/health/")
+        self.assertEqual(health.status_code, 200)
+        self.assertTrue(health.data.get("ok"))
+        self.assertEqual(health.data.get("version"), settings.APP_VERSION)
+        self.assertTrue(str(settings.APP_VERSION).startswith("0.3."))
+
+        cfg = self.host.get("/api/game-config/")
+        self.assertEqual(cfg.status_code, 200)
+        self.assertEqual(cfg.data.get("version"), settings.APP_VERSION)
+        self.assertIn("enabled_modes", cfg.data)
+
     def test_multiplayer_lobby_to_leaderboard(self):
         created = self.host.post(
             "/api/rooms/",

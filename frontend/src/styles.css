@@ -41,9 +41,18 @@ h1 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 0.95; margin: 0 0 0.6rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
   margin-top: 36px;
   padding: 18px 4px 8px;
   border-top: 1px solid var(--line);
+}
+.app-version {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 .back-to-top {
   background: #121815;
@@ -2296,6 +2305,12 @@ button.friend-pick-card {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px 16px;
+}
+.category-picker-item.is-empty .category-picker-name {
+  color: var(--muted);
+}
+.category-picker-warn {
+  margin: 8px 0 0;
 }
 .category-picker-item {
   display: flex;

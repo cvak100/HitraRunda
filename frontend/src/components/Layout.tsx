@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
 
+import { api } from "../api";
 import { useAuth } from "../auth";
 import { GearIcon, UpIcon } from "../icons";
 
@@ -8,10 +9,17 @@ export function Layout() {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
+  const [appVersion, setAppVersion] = useState("");
 
   useEffect(() => {
     setNavOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    api<{ version?: string }>("/api/health/")
+      .then((data) => setAppVersion(data.version || ""))
+      .catch(() => setAppVersion(""));
+  }, []);
 
   useEffect(() => {
     if (!navOpen) return;
@@ -86,6 +94,11 @@ export function Layout() {
         {loading ? <p className="status">Nalagam…</p> : <Outlet />}
       </main>
       <footer className="site-footer">
+        {appVersion ? (
+          <span className="app-version" title="Verzija aplikacije">
+            v{appVersion}
+          </span>
+        ) : null}
         <button
           type="button"
           className="btn-with-icon back-to-top"
