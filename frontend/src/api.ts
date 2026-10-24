@@ -29,7 +29,11 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
     try {
       data = JSON.parse(text) as { detail?: string };
     } catch {
-      throw new ApiError(response.status, "Strežnik je vrnil neberljiv odgovor.");
+      const hint =
+        response.status === 400 || /DisallowedHost|CSRF|<!DOCTYPE|<html/i.test(text)
+          ? " (pogosto LAN/telefon: strežnik je vrnil HTML namesto JSON — preveri, da uporabljaš IP računalnika in da teče DEBUG)"
+          : "";
+      throw new ApiError(response.status, `Strežnik je vrnil neberljiv odgovor.${hint}`);
     }
   }
   if (!response.ok) {
