@@ -491,31 +491,44 @@ tr.is-link:hover td { color: var(--gold); }
   margin-inline: auto;
 }
 .data-table .row-actions {
-  width: 8.5rem;
-  display: flex;
+  width: 9.75rem;
+  min-width: 9.75rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.data-table .row-actions-inner {
+  display: inline-flex;
   align-items: center;
   justify-content: flex-end;
   gap: 4px;
   flex-wrap: nowrap;
-  white-space: nowrap;
+  width: 100%;
 }
 .data-table .col-category { width: 11%; }
 .data-table .col-type { width: 10%; }
 .data-table .col-difficulty { width: 7.5rem; min-width: 7.5rem; }
 .data-table .col-status { width: 7rem; min-width: 7rem; }
 .data-table .col-reports { width: 7rem; min-width: 7rem; }
-.data-table .col-actions { width: 8.5rem; }
-button.table-action {
+.data-table .col-actions { width: 9.75rem; min-width: 9.75rem; }
+button.table-action,
+button.icon-button.table-action {
   width: 36px;
   height: 36px;
+  min-width: 36px;
   padding: 0;
   flex-shrink: 0;
 }
-button.table-action.is-danger {
+button.table-action.is-danger,
+button.icon-button.table-action.is-danger {
   border-color: var(--bad);
   color: var(--bad);
 }
-button.table-action svg { width: 18px; height: 18px; display: block; }
+button.table-action svg,
+button.icon-button.table-action svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
 
 .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .dash-card {
@@ -702,7 +715,7 @@ a.dash-card:hover {
     transform 0.12s ease,
     opacity 0.15s ease;
 }
-button:hover:not(:disabled):not(.btn-tertiary):not(.ghost-leave):not(.walk-away),
+button:hover:not(:disabled):not(.primary):not(.btn-tertiary):not(.ghost-leave):not(.walk-away),
 a.linkish:hover,
 .subnav a:hover,
 .mode-nav-btn:hover,
@@ -717,6 +730,7 @@ a.linkish:active,
 .btn-with-icon:active {
   transform: translateY(1px);
 }
+button.primary:hover:not(:disabled),
 .primary:hover:not(:disabled),
 a.primary:hover {
   background: color-mix(in srgb, var(--gold) 86%, #fff);
@@ -876,6 +890,14 @@ input[type="checkbox"]:focus-visible {
 }
 .stage-dirka .dirka-race-top { grid-area: race; }
 .stage-dirka .play { grid-area: play; }
+@media (max-width: 720px) {
+  .stage-dirka {
+    grid-template-areas:
+      "race"
+      "play";
+    gap: 12px;
+  }
+}
 .dirka-play-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
@@ -1590,9 +1612,24 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
   color: var(--muted);
 }
 .lobby-ready-tag.is-on { color: var(--good); font-weight: 600; }
+.lobby-member-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
 .lobby-ready-btn {
   border-color: var(--line);
   color: var(--muted);
+}
+.lobby-kick-btn {
+  border-color: #c07070;
+  color: #e8b0b0;
+}
+.lobby-kick-btn:hover:not(:disabled) {
+  border-color: #e08080;
+  color: #ffd0d0;
 }
 .lobby-ready-btn.is-on {
   border-color: var(--good);
@@ -1801,6 +1838,79 @@ button.danger {
   gap: 8px;
   min-width: 0;
   text-align: left;
+  white-space: nowrap;
+}
+.board-player-name {
+  white-space: nowrap;
+}
+.board-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+.board-table {
+  table-layout: auto;
+  width: max-content;
+  min-width: 100%;
+}
+.board-table th,
+.board-table td {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  vertical-align: middle;
+}
+.board-col-medal {
+  width: 3.2rem;
+  min-width: 3.2rem;
+  text-align: center;
+  padding-inline: 4px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+.board-medal-sort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: auto;
+  min-width: 0;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+}
+.board-medal-sort:hover {
+  background: transparent;
+  border: 0;
+}
+.board-medal {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  border: 2px solid transparent;
+}
+.board-medal.is-1 {
+  background: var(--gold);
+  color: var(--gold-ink);
+  border-color: color-mix(in srgb, var(--gold) 70%, #fff);
+}
+.board-medal.is-2 {
+  background: #c5cdd4;
+  color: #1a211c;
+  border-color: #e8eef2;
+}
+.board-medal.is-3 {
+  background: #c48a5a;
+  color: #1a140e;
+  border-color: #e0b089;
 }
 .ladder .reached {
   color: var(--gold-ink);
@@ -2011,6 +2121,11 @@ a.board-icon-btn:hover {
   flex-direction: column;
   gap: 10px;
 }
+.dirka-bonus-help-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 .dirka-bonus-help-list li {
   padding: 10px 12px;
   border: 1px solid var(--line);
@@ -2206,7 +2321,35 @@ button.friend-card {
 .lifelines .is-used { text-decoration: line-through; opacity: 0.55; }
 .lifelines .walk-away { border-color: var(--good); color: var(--good); }
 .lifelines .is-on { border-color: var(--gold); color: var(--gold); }
-.dirka-bonuses button { font-size: 0.85rem; }
+.dirka-bonuses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dirka-bonuses button,
+.dirka-bonus-btn {
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+.dirka-bonus-icon {
+  flex: 0 0 auto;
+  opacity: 0.92;
+}
+.dirka-bonus-btn-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.dirka-bonus-btn-label { font-weight: 650; }
+.dirka-bonus-btn-count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 .dirka-bonus-bar {
   margin: 0 0 14px;
   padding: 10px 12px;
@@ -2230,6 +2373,7 @@ button.friend-card {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 10px;
 }
 .dirka-race-list {
@@ -2245,9 +2389,24 @@ button.friend-card {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  align-items: center;
   margin-bottom: 4px;
 }
 .dirka-race-row-foot { margin: 4px 0 0; }
+.dirka-race-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dirka-race-rank {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.dirka-race-score {
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
 .dirka-race-track {
   position: relative;
   height: 12px;
@@ -2261,7 +2420,7 @@ button.friend-card {
   inset: 0 auto 0 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--gold) 55%, #2a3b2f);
-  transition: width 0.35s ease;
+  transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .dirka-race-marker {
   position: absolute;
@@ -2272,7 +2431,7 @@ button.friend-card {
   background: var(--gold);
   border: 2px solid #0f1411;
   transform: translate(-50%, -50%);
-  transition: left 0.35s ease;
+  transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .dirka-race-safe {
   position: absolute;
@@ -2281,10 +2440,22 @@ button.friend-card {
   width: 2px;
   background: var(--good);
   transform: translateX(-50%);
+  transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--good) 35%, transparent);
 }
 .dirka-race-list li.is-me .dirka-race-track {
   border-color: var(--gold);
+}
+.dirka-race-list li.is-pulse .dirka-race-track {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 45%, transparent);
+}
+.dirka-race-list li.is-pulse .dirka-race-marker {
+  animation: dirka-marker-pop 0.7s ease;
+}
+@keyframes dirka-marker-pop {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  35% { transform: translate(-50%, -50%) scale(1.45); }
+  100% { transform: translate(-50%, -50%) scale(1); }
 }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
@@ -2426,8 +2597,38 @@ button.friend-pick-card {
     border-radius: 20px;
   }
   .dirka-race-top {
-    padding: 12px 14px;
-    border-radius: 20px;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+  .dirka-race-meta {
+    margin-bottom: 8px;
+    font-size: 0.92rem;
+  }
+  .dirka-race-safe-meta {
+    width: 100%;
+  }
+  .dirka-race-list {
+    gap: 8px;
+  }
+  .dirka-race-row-foot {
+    display: none;
+  }
+  .dirka-race-track {
+    height: 10px;
+  }
+  .dirka-race-player .avatar-icon,
+  .dirka-race-player .avatar {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .dirka-bonuses {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .dirka-bonus-btn {
+    flex: 0 0 auto;
   }
 
   .game-row {
@@ -2502,10 +2703,21 @@ button.friend-pick-card {
     margin-right: -4px;
     padding-bottom: 4px;
   }
+  .table-wrap.board-scroll {
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
   .data-table th,
   .data-table td {
     padding: 10px 6px;
     font-size: 0.92rem;
+  }
+  .board-table th,
+  .board-table td {
+    padding: 10px 10px;
+    font-size: 0.95rem;
   }
 
   .stage { grid-template-columns: 1fr; }
@@ -2693,6 +2905,61 @@ button.friend-pick-card {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 8px;
+}
+.sfx-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sfx-swatch {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #0e1310;
+  color: var(--text, #e8efe6);
+  cursor: pointer;
+  font: inherit;
+}
+.sfx-swatch:hover {
+  border-color: var(--gold, #d4a84b);
+  color: var(--gold, #d4a84b);
+}
+.sfx-playground {
+  margin-top: 28px;
+  padding: 16px 18px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.sfx-playground-head h2 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+}
+.sfx-playground-head .fine {
+  margin: 0 0 16px;
+}
+.sfx-playground-group {
+  margin-top: 16px;
+}
+.sfx-playground-group h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--muted, #9aab9e);
+  font-weight: 600;
+}
+.sfx-countdown-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.sfx-countdown-n {
+  font-size: 1.6rem;
+  font-weight: 700;
+  min-width: 2ch;
+  color: var(--gold, #d4a84b);
 }
 .color-swatch {
   width: 28px;

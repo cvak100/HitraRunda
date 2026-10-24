@@ -9,11 +9,13 @@ from rooms.services import (
     close_stale_rooms,
     create_multiplayer_room,
     create_solo_room,
+    host_kick_member,
     invite_user,
     join_room,
     leave_room,
     list_invites,
     list_public_rooms,
+    notify_room_lobby,
     quick_join,
     refresh_can_start,
     room_payload,
@@ -127,6 +129,7 @@ class RoomLeaveView(APIView):
                     payload["type"] = "lobby"
                     payload["phase"] = "lobby"
                     payload["mode"] = mode
+                    payload["lobby_event"] = "left"
                 elif room.status == "closed":
                     payload = {
                         "type": "error",
@@ -147,6 +150,31 @@ class RoomLeaveView(APIView):
         except Exception:
             pass
         return Response({"detail": "Zapustil si sobo.", "status": room.status})
+
+
+class RoomKickView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, code):
+        member_id = request.data.get("member_id") if isinstance(request.data, dict) else None
+        if not member_id:
+            return Response({"detail": "Manjka member_id."}, status=400)
+        try:
+            room, member = host_kick_member(request.user, code, member_id)
+        except GameError as exc:
+            return Response({"detail": exc.message}, status=400)
+        notify_room_lobby(
+            room,
+            lobby_event="kicked",
+            lobby_event_member_id=member.id,
+            kicked_message=f"Host je vrgel {member.nickname_in_room}.",
+        )
+        return Response(
+            {
+                "detail": f"Igralec {member.nickname_in_room} je odstranjen.",
+                "room": room_payload(room, viewer=request.user),
+            }
+        )
 
 
 class RoomInviteView(APIView):

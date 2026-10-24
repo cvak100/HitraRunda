@@ -160,8 +160,8 @@ export function ProfilePage() {
           <h2>Zadnjih iger</h2>
           {profile.recent.length === 0 ? <p className="fine">Še ni iger.</p> : null}
           {profile.recent.length > 0 ? (
-            <div className="table-wrap">
-              <table className="data-table">
+            <div className="table-wrap board-scroll">
+              <table className="data-table board-table">
                 <thead>
                   <tr>
                     <SortableTh label="Igra" column="mode" sort={sort} direction={direction} onSort={toggleSort} />

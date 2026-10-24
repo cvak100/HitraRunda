@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg, F, Max, Q, Sum
+from django.db.models import Avg, F, Max, Q, Sum, Window
+from django.db.models.functions import Rank
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -115,8 +116,15 @@ def _totals_leaderboard(limit, query: str, mode: str):
                 ),
                 "preferred_color": (getattr(user, "preferred_color", "") if user else "") or "",
                 "total_points": row["total_points"],
+                "best_score": row.get("best_score", row["total_points"]),
                 "wins": row["wins"],
+                "place_1": row.get("place_1", row["wins"]),
+                "place_2": row.get("place_2", 0),
+                "place_3": row.get("place_3", 0),
                 "games": row["games"],
+                "correct_count": row.get("correct_count", 0),
+                "total_questions": row.get("total_questions", 0),
+                "last_played_at": row.get("last_played_at"),
                 "is_guest": bool(user.is_guest) if user is not None else False,
             }
         )
@@ -142,16 +150,48 @@ class LeaderboardView(APIView):
             results = results.filter(mode_q)
         if query:
             results = results.filter(nickname__icontains=query)
-        results = results.order_by(
-            "-score",
-            "-correct_count",
-            F("duration_ms").asc(nulls_last=True),
-            "played_at",
-        )
+        if mode == "dirka":
+            results = (
+                results.filter(game_session_id__isnull=False)
+                .annotate(
+                    place=Window(
+                        expression=Rank(),
+                        partition_by=[F("game_session_id")],
+                        order_by=[
+                            F("score").desc(),
+                            F("correct_count").desc(),
+                            F("duration_ms").asc(nulls_last=True),
+                            F("played_at").asc(),
+                            F("user_id").asc(nulls_last=True),
+                            F("id").asc(),
+                        ],
+                    )
+                )
+                .order_by(
+                    "place",
+                    "-score",
+                    "-correct_count",
+                    F("duration_ms").asc(nulls_last=True),
+                    "played_at",
+                )
+            )
+        else:
+            results = results.order_by(
+                "-score",
+                "-correct_count",
+                F("duration_ms").asc(nulls_last=True),
+                "played_at",
+            )
         total = results.count()
         if limit is not None:
             results = results[:limit]
-        return Response({"results": [result_payload(result) for result in results], "total": total})
+        result_list = list(results)
+        payloads = [result_payload(result) for result in result_list]
+        if mode == "dirka":
+            for payload, result in zip(payloads, result_list):
+                place = getattr(result, "place", None)
+                payload["place"] = int(place) if place is not None else None
+        return Response({"results": payloads, "total": total})
 
 
 class MyResultsView(APIView):

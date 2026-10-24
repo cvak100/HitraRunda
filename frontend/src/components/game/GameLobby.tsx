@@ -49,6 +49,8 @@ export type GameLobbyProps = {
   sendReady: (ready: boolean) => void;
   startMulti: () => void;
   leaveRoom: () => void;
+  kickMember: (memberId: string) => void;
+  kickingId: string;
   sendInvite: () => void;
   saveLobbySettings: () => void;
   changeBots: (value: number) => void;
@@ -95,6 +97,8 @@ export function GameLobby(props: GameLobbyProps) {
     sendReady,
     startMulti,
     leaveRoom,
+    kickMember,
+    kickingId,
     sendInvite,
     saveLobbySettings,
     changeBots,
@@ -151,15 +155,27 @@ export function GameLobby(props: GameLobbyProps) {
                       </span>
                     </div>
                   </div>
-                  {isYou && !member.is_bot ? (
-                    <button
-                      type="button"
-                      className={`lobby-ready-btn ${iAmReady ? "is-on" : ""}`}
-                      onClick={() => sendReady(!iAmReady)}
-                    >
-                      {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
-                    </button>
-                  ) : null}
+                  <div className="lobby-member-actions">
+                    {isYou && !member.is_bot ? (
+                      <button
+                        type="button"
+                        className={`lobby-ready-btn ${iAmReady ? "is-on" : ""}`}
+                        onClick={() => sendReady(!iAmReady)}
+                      >
+                        {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
+                      </button>
+                    ) : null}
+                    {iAmHost && !isYou && !member.is_host ? (
+                      <button
+                        type="button"
+                        className="lobby-kick-btn"
+                        disabled={Boolean(kickingId)}
+                        onClick={() => kickMember(member.id)}
+                      >
+                        {kickingId === member.id ? "…" : "Kick"}
+                      </button>
+                    ) : null}
+                  </div>
                 </li>
               );
             })}

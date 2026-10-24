@@ -6,10 +6,15 @@ import { GenerateBotsPanel, SimulatePanel } from "./AdminSimulatePage";
 
 export function AdminActionsPage() {
   const [openCleanup, setOpenCleanup] = useState(false);
+  const [openCloseRooms, setOpenCloseRooms] = useState(false);
   const [pending, setPending] = useState(false);
+  const [closePending, setClosePending] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [closeNotice, setCloseNotice] = useState("");
+  const [closeError, setCloseError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmCloseRooms, setConfirmCloseRooms] = useState(false);
   const [days, setDays] = useState(7);
 
   useEffect(() => {
@@ -38,6 +43,24 @@ export function AdminActionsPage() {
       setError(err instanceof ApiError ? err.message : "Čiščenje ni uspelo.");
     } finally {
       setPending(false);
+    }
+  }
+
+  async function closeLiveRooms() {
+    setClosePending(true);
+    setCloseError("");
+    setCloseNotice("");
+    setConfirmCloseRooms(false);
+    try {
+      const result = await api<{ detail: string; closed: number }>(
+        "/api/admin/actions/close-live-rooms/",
+        { method: "POST" },
+      );
+      setCloseNotice(result.detail);
+    } catch (err) {
+      setCloseError(err instanceof ApiError ? err.message : "Zapiranje sob ni uspelo.");
+    } finally {
+      setClosePending(false);
     }
   }
 
@@ -88,6 +111,49 @@ export function AdminActionsPage() {
           ) : null}
         </article>
 
+        <article className="admin-card admin-card-collapse">
+          <button
+            type="button"
+            className="admin-collapse-toggle"
+            aria-expanded={openCloseRooms}
+            onClick={() => setOpenCloseRooms((v) => !v)}
+          >
+            <span>
+              <h2>Zapri žive sobe</h2>
+              {!openCloseRooms ? (
+                <p className="fine">Zapre vse sobe v čakanju in teku — klikni za ukaz.</p>
+              ) : null}
+            </span>
+            <span className="admin-collapse-chevron" aria-hidden>
+              {openCloseRooms ? "▾" : "▸"}
+            </span>
+          </button>
+          {openCloseRooms ? (
+            <>
+              <p>
+                Takoj zapre vse sobe s statusom <strong>čakanje</strong> ali <strong>v teku</strong>, vključno z
+                aktivnimi igrami. Končane in že zaprte sobe ostanejo. Igralci v sobi dobijo obvestilo, da je soba
+                zaprta.
+              </p>
+              <p className="fine">
+                Isti ukaz v konzoli: docker compose exec backend python manage.py close_live_rooms
+              </p>
+              {closeNotice ? <p className="fine">{closeNotice}</p> : null}
+              {closeError ? <p className="error">{closeError}</p> : null}
+              <div className="actions">
+                <button
+                  type="button"
+                  className="primary"
+                  disabled={closePending}
+                  onClick={() => setConfirmCloseRooms(true)}
+                >
+                  Zapri vse žive sobe
+                </button>
+              </div>
+            </>
+          ) : null}
+        </article>
+
         <GenerateBotsPanel />
         <SimulatePanel />
       </div>
@@ -99,6 +165,15 @@ export function AdminActionsPage() {
         danger
         onConfirm={() => void cleanupGuests()}
         onCancel={() => setConfirmOpen(false)}
+      />
+      <ConfirmModal
+        open={confirmCloseRooms}
+        title="Zapri žive sobe"
+        message="Zaprem vse sobe v čakanju in teku (tudi aktivne igre)?"
+        confirmLabel="Zapri vse"
+        danger
+        onConfirm={() => void closeLiveRooms()}
+        onCancel={() => setConfirmCloseRooms(false)}
       />
     </section>
   );

@@ -9,14 +9,14 @@ from rest_framework.test import APIClient
 from game.consumers import GameConsumer
 from game.dirka import apply_dirka_timeout, next_dirka, start_dirka, submit_dirka
 from game.engine import GameError, require_can_advance, set_member_connected, submit_answer
-from game.modes import MODE_60_SEKUND
+from game.modes import MODE_60_SEKUND, MODE_MULTIPLAYER
 from game.models import GameSession, PlayerAnswer
 from game.multiplayer import start_multiplayer
 from game.seed_content import ensure_bonuses_and_friends
 from game.sixty import apply_sixty_timeout, start_sixty
 from questions.models import Category, Question, QuestionOption
 from rooms.models import Room, RoomMember
-from rooms.services import close_stale_rooms
+from rooms.services import close_live_rooms, close_stale_rooms
 
 
 def make_mc(category, key, difficulty=1):
@@ -252,6 +252,50 @@ class StaleRoomCloseTests(TestCase):
         self.assertNotEqual(room.status, "closed")
         # waiting empty rooms can still close
         self.assertGreaterEqual(closed, 0)
+
+    def test_close_live_rooms_closes_waiting_and_playing(self):
+        waiting = self.client.post(
+            "/api/rooms/",
+            {
+                "mode": MODE_MULTIPLAYER,
+                "nickname": "IdleHost",
+                "visibility": "unlisted",
+                "max_players": 4,
+                "bot_count": 1,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "categories": ["stab-idle"],
+            },
+            format="json",
+        )
+        self.assertEqual(waiting.status_code, 200, waiting.data)
+        wait_code = waiting.data["code"]
+
+        playing = self.client.post(
+            "/api/rooms/",
+            {
+                "mode": MODE_60_SEKUND,
+                "nickname": "IdleHost",
+                "categories": ["stab-idle"],
+            },
+            format="json",
+        )
+        self.assertEqual(playing.status_code, 200, playing.data)
+        play_member = RoomMember.objects.get(room__code=playing.data["code"], is_host=True)
+        start_sixty(play_member.id)
+        play_room = play_member.room
+        play_room.refresh_from_db()
+        self.assertEqual(play_room.status, "playing")
+
+        closed = close_live_rooms()
+        self.assertGreaterEqual(closed, 2)
+        from rooms.models import Room
+
+        self.assertEqual(Room.objects.get(code=wait_code).status, "closed")
+        play_room.refresh_from_db()
+        self.assertEqual(play_room.status, "closed")
+        session = GameSession.objects.get(room=play_room)
+        self.assertEqual(session.status, "aborted")
 
 
 class RequireAdvanceTests(TestCase):

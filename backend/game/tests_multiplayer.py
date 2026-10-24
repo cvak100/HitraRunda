@@ -435,3 +435,50 @@ class MultiplayerLobbyTests(TestCase):
         self.assertEqual(left.status_code, 200, left.data)
         room = Room.objects.get(code=code)
         self.assertEqual(room.status, "closed")
+
+    def test_rematch_reopens_lobby_after_finished(self):
+        from rooms.models import Room
+        from rooms.services import rematch_room
+
+        created = self.host.post(
+            "/api/rooms/",
+            {
+                "mode": "multiplayer",
+                "nickname": "Hostek",
+                "visibility": "unlisted",
+                "max_players": 4,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "categories": ["sport"],
+                "bot_count": 1,
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, 200, created.data)
+        code = created.data["code"]
+        self.host.post(f"/api/rooms/{code}/ready/", {"ready": True}, format="json")
+        host_member = RoomMember.objects.get(room__code=code, is_host=True)
+        host_user = host_member.user
+        start_multiplayer(host_member.id)
+        session = GameSession.objects.get(room__code=code)
+        members = list(RoomMember.objects.filter(room__code=code, left_at__isnull=True))
+        for order in range(session.total_questions):
+            gq = session.game_questions.get(order=order)
+            correct = gq.question.options.get(is_correct=True)
+            for member in members:
+                submit_answer(
+                    str(member.id),
+                    {"game_question_id": str(gq.id), "option_id": correct.id},
+                )
+            next_multiplayer(str(host_member.id))
+        session.refresh_from_db()
+        self.assertEqual(session.status, "finished")
+        room = Room.objects.get(code=code)
+        self.assertEqual(room.status, "finished")
+
+        rematched = rematch_room(host_user, code)
+        self.assertEqual(rematched.status, "waiting")
+        self.assertFalse(GameSession.objects.filter(room=room).exists())
+        host_member.refresh_from_db()
+        self.assertTrue(host_member.is_host)
+        self.assertTrue(host_member.is_ready)

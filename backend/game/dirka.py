@@ -291,7 +291,8 @@ def next_dirka(member_id):
             return [finished_dirka(session, member)]
         game_question = _current(session)
         state = dict(session.state or {})
-        # Sočasni / ponovni next po že opravljenem prehodu — samo ponovno pošlji vprašanje.
+        # Prehod je že narejen — vrni trenutno vprašanje za resync (klient je morda
+        # zgrešil prvi broadcast). Frontend dedupe-a SFX "next" po question id.
         if str(state.get("auto_advance_for") or "").startswith("done:") and not _round_complete(
             session, game_question
         ):
@@ -636,6 +637,14 @@ def round_review_message(session, game_question, member, message_type="round_rev
             "streak_bonus": int(data.get("streak_bonus") or 0),
             "member_id": mid,
         }
+        gained = data.get("bonuses_gained") or ([] if not data.get("bonus_gained") else [data.get("bonus_gained")])
+        if gained:
+            row["bonuses_gained"] = list(gained)
+            row["bonus_gained"] = gained[-1]
+        if data.get("safe_reward"):
+            row["safe_reward"] = int(data.get("safe_reward") or 0)
+        if data.get("clean_sheet"):
+            row["clean_sheet"] = True
         row.update(_selected(answer))
         rows.append(row)
     body = {
@@ -1033,17 +1042,18 @@ def _store_answer(member, session, game_question, message):
         streak = int(stats.get("streak") or 0) + 1
         stats["streak"] = streak
         streak_bonus = 0
+        bonuses_gained: list[str] = []
         if streak == int(site_get("dirka_streak_at")):
             streak_bonus = int(site_get("dirka_streak_bonus"))
             granted = _grant_random_bonus(stats, DIRKA_WEAK_BONUSES)
             if granted:
-                answer_data["bonus_gained"] = granted
+                bonuses_gained.append(granted)
         elif streak == int(site_get("dirka_hot_streak_at")):
             streak_bonus = int(site_get("dirka_hot_streak_bonus"))
             granted = _grant_random_bonus(stats, DIRKA_STRONG_BONUSES)
             if granted:
                 answer_data["hot_streak_bonus"] = granted
-                answer_data["bonus_gained"] = granted
+                bonuses_gained.append(granted)
         if streak_bonus:
             points += streak_bonus
             answer_data["streak_bonus"] = streak_bonus
@@ -1066,7 +1076,10 @@ def _store_answer(member, session, game_question, message):
             pool = DIRKA_STRONG_BONUSES if clean else DIRKA_WEAK_BONUSES
             granted = _grant_random_bonus(stats, pool)
             if granted:
-                answer_data["bonus_gained"] = granted
+                bonuses_gained.append(granted)
+        if bonuses_gained:
+            answer_data["bonuses_gained"] = bonuses_gained
+            answer_data["bonus_gained"] = bonuses_gained[-1]
         # Steal
         if armed.pop("steal", None):
             target_id = _target_ahead(session, key)

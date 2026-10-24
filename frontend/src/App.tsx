@@ -21,6 +21,8 @@ import { AdminRoomsPage } from "./pages/AdminRoomsPage";
 import { AdminSessionsPage } from "./pages/AdminSessionsPage";
 import { AdminSettingsPage } from "./pages/AdminSettingsPage";
 import { AdminTestsPage } from "./pages/AdminTestsPage";
+import { AdminPaletteLayout } from "./pages/AdminPaletteLayout";
+import { AdminSfxPalettePage } from "./pages/AdminSfxPalettePage";
 import { AdminUiPalettePage } from "./pages/AdminUiPalettePage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
@@ -111,7 +113,10 @@ export function App() {
                 <Route path="nastavitve" element={<AdminSettingsPage />} />
                 <Route path="ukazi" element={<AdminActionsPage />} />
                 <Route path="simulacija" element={<Navigate to="/nadzor/ukazi" replace />} />
-                <Route path="paleta" element={<AdminUiPalettePage />} />
+                <Route path="paleta" element={<AdminPaletteLayout />}>
+                  <Route index element={<AdminUiPalettePage />} />
+                  <Route path="zvok" element={<AdminSfxPalettePage />} />
+                </Route>
                 <Route path="testi" element={<AdminTestsPage />} />
               </Route>
               <Route path="vprasanja" element={<Navigate to="/nadzor/vsebina/vprasanja" replace />} />

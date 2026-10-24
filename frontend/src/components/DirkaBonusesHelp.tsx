@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api";
+import { DirkaBonusIcon, dirkaBonusMeta } from "../dirkaBonuses";
 import { Modal } from "./Modal";
 
 type PublicBonus = {
@@ -67,13 +68,22 @@ export function DirkaBonusesHelp() {
               <div key={group.kind} className="dirka-bonus-help-group">
                 <h3>{kindTitle(group.kind, group.label)}</h3>
                 <ul className="dirka-bonus-help-list">
-                  {group.items.map((bonus) => (
-                    <li key={bonus.key}>
-                      <strong>{bonus.name}</strong>
-                      {bonus.passive ? <span className="fine"> · samodejno</span> : null}
-                      <p>{bonus.description || "—"}</p>
-                    </li>
-                  ))}
+                  {group.items.map((bonus) => {
+                    const effect = bonus.effect_key || bonus.key;
+                    const meta = dirkaBonusMeta(effect);
+                    const name = bonus.name || meta.label;
+                    const description = bonus.description || meta.description;
+                    return (
+                      <li key={bonus.key}>
+                        <strong className="dirka-bonus-help-title">
+                          {!bonus.passive ? <DirkaBonusIcon effect={effect} /> : null}
+                          {name}
+                        </strong>
+                        {bonus.passive ? <span className="fine"> · samodejno</span> : null}
+                        <p>{description || "—"}</p>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))

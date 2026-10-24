@@ -192,6 +192,7 @@ def next_multiplayer(member_id):
             return [finished_multiplayer(session, member)]
         game_question = _current(session)
         state = dict(session.state or {})
+        # Prehod že narejen — resync trenutnega vprašanja (SFX dedupe na klientu).
         if str(state.get("auto_advance_for") or "").startswith("done:") and not _round_complete(
             session, game_question
         ):

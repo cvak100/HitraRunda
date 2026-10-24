@@ -151,6 +151,7 @@ export function GamePlayBody({
                         serverNow={message.server_now}
                         onExpire={expire}
                         emphasizeNumber
+                        tensionClock
                       />
                     ) : (
                       <div className="timer timer-emphasis sixty-timer-placeholder" aria-hidden>
@@ -282,23 +283,25 @@ export function GamePlayBody({
                 .filter(Boolean)
                 .join(" ")}
             >
-            <div
-              className={[
-                "play-slot-question",
-                phase === "review" || phase === "round_review" || phase === "finished"
-                  ? "is-dimmed"
-                  : undefined,
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              <h1>{question.text}</h1>
-              {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
-              {(phase === "review" || phase === "round_review" || phase === "finished") &&
-              !message.walked_away ? (
-                <ReviewAnswerReveal message={message} />
-              ) : null}
-            </div>
+            {!(isSixty && phase === "finished") ? (
+              <div
+                className={[
+                  "play-slot-question",
+                  phase === "review" || phase === "round_review" || phase === "finished"
+                    ? "is-dimmed"
+                    : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <h1>{question.text}</h1>
+                {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+                {(phase === "review" || phase === "round_review" || phase === "finished") &&
+                !message.walked_away ? (
+                  <ReviewAnswerReveal message={message} />
+                ) : null}
+              </div>
+            ) : null}
             {helps.phone_friend ? (
               <p className="help-banner">
                 {helps.phone_friend.friend_name}: {helps.phone_friend.message}

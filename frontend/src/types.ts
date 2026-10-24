@@ -242,6 +242,10 @@ export type GameMessage = {
     catchup_bonus?: number;
     steal?: number;
     eliminated?: boolean;
+    bonus_gained?: string;
+    bonuses_gained?: string[];
+    safe_reward?: number;
+    clean_sheet?: boolean;
   }[];
   answered_count?: number;
   player_count?: number;
@@ -255,6 +259,9 @@ export type GameMessage = {
   host_member_id?: string;
   advance_seconds?: number;
   members?: LobbyMember[];
+  lobby_event?: "joined" | "left" | "kicked";
+  lobby_event_member_id?: string;
+  kicked_message?: string;
   all_ready?: boolean;
   can_start?: boolean;
   you?: {
@@ -342,6 +349,8 @@ export type ScoreRow = {
   reason: string;
   played_at: string;
   is_guest: boolean;
+  /** Dirka: mesto v tisti seji (1–n). */
+  place?: number | null;
 };
 
 /** Skupna lestvica po uporabniku (vse igre). */
@@ -351,8 +360,16 @@ export type OverallRow = {
   avatar?: string;
   preferred_color?: string;
   total_points: number;
+  best_score?: number;
   wins: number;
+  /** Dirka / MP: število 1./2./3. mest v sejaj. */
+  place_1?: number;
+  place_2?: number;
+  place_3?: number;
   games: number;
+  correct_count?: number;
+  total_questions?: number;
+  last_played_at?: string | null;
   is_guest: boolean;
 };
 

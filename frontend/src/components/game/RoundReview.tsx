@@ -41,14 +41,18 @@ export function RoundReview({
   useEffect(() => {
     setSecondsLeft(advanceSeconds);
     const started = Date.now();
-    let fired = false;
+    let lastNudge = 0;
     const tick = window.setInterval(() => {
       const left = Math.max(0, advanceSeconds - Math.floor((Date.now() - started) / 1000));
       setSecondsLeft(left);
-      // Rezerva, če strežnikov timer odpade — kateri koli klient potisne next ob 0.
-      if (left <= 0 && !fired) {
-        fired = true;
-        onNextRef.current();
+      // Ob 0: potisni next, in ponavljaj vsake ~1.5 s dokler strežnik ne pošlje novega vprašanja
+      // (sicer en neuspešen [] / race pusti UI na »čez 0 s« za vedno).
+      if (left <= 0) {
+        const now = Date.now();
+        if (now - lastNudge >= 1500) {
+          lastNudge = now;
+          onNextRef.current();
+        }
       }
     }, 200);
     return () => window.clearInterval(tick);

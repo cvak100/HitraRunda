@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { ApiError, api } from "../../api";
 import { formatPoints } from "../../format";
-import { playSfx } from "../../sound";
 import type { GameMessage } from "../../types";
 import { ReviewFinish } from "./GameFinish";
 
@@ -41,7 +40,7 @@ export function ReviewPanel({
   function goNext() {
     if (leaving || !message.is_correct) return;
     setLeaving(true);
-    playSfx("next");
+    // Zvok "next" predvaja GamePage ob novem question dogodku — ne tukaj (sicer 2×).
     window.setTimeout(() => onNext(), NEXT_BEAT_MS);
   }
 

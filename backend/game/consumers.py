@@ -152,8 +152,8 @@ class GameConsumer(AsyncWebsocketConsumer):
             first = payloads[0]
             if first.get("phase") == "question":
                 await self._arm_bots(first)
-            elif first.get("phase") == "round_review":
-                await self._arm_auto_advance()
+            # round_review: auto-advance samo v game_event (group), sicer dvojni arm
+            # prekliče sleep in lahko zgreši broadcast.
 
     async def game_event(self, event):
         payload = event["payload"]

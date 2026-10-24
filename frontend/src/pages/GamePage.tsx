@@ -10,8 +10,8 @@ import { GamePlayBody } from "../components/game/GamePlayBody";
 import { PodiumFinish } from "../components/game/PodiumFinish";
 import { formatMode, formatPoints } from "../format";
 import { boardPath as modeBoardPath } from "../gameModes";
-import { playSfx, unlockSfx } from "../sound";
-import type { Category, GameMessage } from "../types";
+import { cancelSfxSequence, playSfx, playSfxSequence, unlockSfx, type SfxName } from "../sound";
+import type { Category, GameMessage, StandingRow } from "../types";
 
 const DEFAULT_LOBBY_TIMES = [30, 60, 90, 120, 300];
 const DEFAULT_DIRKA_TIMES = [10, 15, 20, 30, 60];
@@ -53,11 +53,21 @@ export function GamePage() {
   const [confirmWalkAway, setConfirmWalkAway] = useState(false);
   const [sixtyFlash, setSixtyFlash] = useState<GameMessage["feedback"] | null>(null);
   const [sixtyTickKey, setSixtyTickKey] = useState(0);
+  /** Dirka proga: standings šele ob koncu runde, ne med answer_progress. */
+  const [dirkaRaceStandings, setDirkaRaceStandings] = useState<StandingRow[]>([]);
+  const [dirkaRaceSafe, setDirkaRaceSafe] = useState<{
+    current: number;
+    every: number;
+    until: number;
+  } | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const myIdRef = useRef(myId);
   myIdRef.current = myId;
+  const lobbyMemberIdsRef = useRef<string[] | null>(null);
+  const lastNextQuestionIdRef = useRef<string>("");
+  const [kickingId, setKickingId] = useState("");
   const isLobbyMode = message?.mode === "multiplayer" || message?.mode === "dirka" || phase === "lobby";
   const isMulti = isLobbyMode;
   const isDirka = message?.mode === "dirka";
@@ -143,6 +153,27 @@ export function GamePage() {
       setReconnectNote("");
       if (incoming.you?.id) setMyId(incoming.you.id);
       if (incoming.phase === "lobby") {
+        const me = incoming.you?.id || myIdRef.current;
+        const ids = (incoming.members || []).map((m) => m.id);
+        const prev = lobbyMemberIdsRef.current;
+        if (me && prev?.includes(me) && !ids.includes(me)) {
+          playSfx("room_kick");
+          lobbyMemberIdsRef.current = null;
+          setPhase("closed");
+          setError(incoming.kicked_message || "Host te je vrgel iz sobe.");
+          setMessage(incoming);
+          return;
+        }
+        if (prev) {
+          if (incoming.lobby_event === "kicked") playSfx("room_kick");
+          else {
+            const added = ids.some((id) => !prev.includes(id));
+            const removed = prev.some((id) => !ids.includes(id));
+            if (added) playSfx("room_join");
+            else if (removed || incoming.lobby_event === "left") playSfx("room_leave");
+          }
+        }
+        lobbyMemberIdsRef.current = ids;
         setMessage(incoming);
         syncLobbyEditors(incoming);
         setPhase("lobby");
@@ -155,6 +186,10 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "question") {
+        const qid = String(incoming.question?.game_question_id || "");
+        if (incoming.bonus && incoming.bonus_member_id === myIdRef.current) {
+          playSfx("bonus_use");
+        }
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
           setSixtyTickKey((n) => n + 1);
@@ -162,9 +197,16 @@ export function GamePage() {
           else if (incoming.feedback.is_correct) playSfx("correct");
           else playSfx("wrong");
         } else if (phaseRef.current === "review" || phaseRef.current === "round_review") {
-          playSfx("next");
+          // Prekini bonus/safe zaporedje in predvajaj next samo 1× na vprašanje
+          // (več WS auto-advance je lahko poslalo isti event večkrat).
+          cancelSfxSequence();
+          if (qid && lastNextQuestionIdRef.current !== qid) {
+            lastNextQuestionIdRef.current = qid;
+            playSfx("next");
+          }
         }
         setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
+        commitDirkaRace(incoming, myIdRef.current, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("question");
         return;
       }
@@ -175,6 +217,8 @@ export function GamePage() {
           const merged = mergeDirkaMessage(current, incoming, me);
           return {
             ...merged,
+            // Proga ostane na prejšnjem stanju — točke šele ob round_review.
+            standings: current?.standings ?? merged.standings,
             phase: iAnswered
               ? "waiting_answers"
               : current?.phase === "question" || current?.phase === "submitting"
@@ -190,10 +234,21 @@ export function GamePage() {
       if (incoming.phase === "round_review") {
         const me = myIdRef.current;
         const mine = (incoming.answers || []).find((row) => row.member_id === me);
-        if (mine?.timed_out || mine?.skipped) playSfx("click");
-        else if (mine?.is_correct) playSfx("correct");
-        else if (mine) playSfx("wrong");
+        const seq: SfxName[] = [];
+        if (mine?.timed_out || mine?.skipped) seq.push("click");
+        else if (mine?.is_correct) seq.push("correct");
+        else if (mine) seq.push("wrong");
+        const gained =
+          mine?.bonuses_gained?.length
+            ? mine.bonuses_gained
+            : mine?.bonus_gained
+              ? [mine.bonus_gained]
+              : [];
+        for (let i = 0; i < gained.length; i++) seq.push("bonus_gain");
+        if (mine?.safe_reward) seq.push("safe_zone");
+        if (seq.length) playSfxSequence(seq);
         setMessage((current) => mergeDirkaMessage(current, incoming, me));
+        commitDirkaRace(incoming, me, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("round_review");
         return;
       }
@@ -227,6 +282,7 @@ export function GamePage() {
           }
           return merged;
         });
+        commitDirkaRace(incoming, myIdRef.current, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("finished");
         setPickFriend(false);
       }
@@ -316,16 +372,32 @@ export function GamePage() {
     } catch {
       // Vseeno odidi — WS/HTTP lahko že odpade.
     }
+    lobbyMemberIdsRef.current = null;
     wsRef.current?.close();
     const mode = message?.settings?.mode || message?.mode;
     navigate(mode === "dirka" ? "/igra/dirka" : mode === "multiplayer" ? "/igra/vec-igralcev" : "/igra");
+  }
+
+  async function kickMember(memberId: string) {
+    if (!memberId || kickingId) return;
+    setKickingId(memberId);
+    try {
+      await api(`/api/rooms/${code}/kick/`, {
+        method: "POST",
+        body: JSON.stringify({ member_id: memberId }),
+      });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Kick ni uspel.");
+    } finally {
+      setKickingId("");
+    }
   }
 
   function next() {
     const socket = wsRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
     unlockSfx();
-    playSfx("next");
+    // Zvok "next" samo ob prejetem question dogodku (sicer 2×: tukaj + handleMessage).
     socket.send(JSON.stringify({ type: "next_question" }));
   }
 
@@ -607,6 +679,8 @@ export function GamePage() {
             sendReady={sendReady}
             startMulti={startMulti}
             leaveRoom={() => void leaveRoom()}
+            kickMember={(id) => void kickMember(id)}
+            kickingId={kickingId}
             sendInvite={sendInvite}
             saveLobbySettings={() => saveLobbySettings()}
             changeBots={changeBots}
@@ -658,14 +732,16 @@ export function GamePage() {
       {dirkaPlaying ? (
         <div className="dirka-race-top">
           <DirkaRaceTrack
-            standings={standings}
+            standings={dirkaRaceStandings.length ? dirkaRaceStandings : standings}
             targetScore={message.target_score || message.settings?.target_score || 200}
             myId={myId}
-            mySafeProgress={{
-              current: dirkaMe?.correct_in_segment ?? 0,
-              every: dirkaMe?.safe_every ?? message.safe_every ?? 5,
-              until: dirkaMe?.until_safe ?? message.safe_every ?? 5,
-            }}
+            mySafeProgress={
+              dirkaRaceSafe || {
+                current: dirkaMe?.correct_in_segment ?? 0,
+                every: dirkaMe?.safe_every ?? message.safe_every ?? 5,
+                until: dirkaMe?.until_safe ?? message.safe_every ?? 5,
+              }
+            }
           />
         </div>
       ) : null}
@@ -782,5 +858,21 @@ function mergeDirkaMessage(current: GameMessage | null, incoming: GameMessage, m
       : current?.you,
     deadline_at: mine?.deadline_at || (myId && incoming.deadlines?.[myId]) || incoming.deadline_at || current?.deadline_at,
   };
+}
+
+function commitDirkaRace(
+  incoming: GameMessage,
+  myId: string,
+  setStandings: (rows: StandingRow[]) => void,
+  setSafe: (safe: { current: number; every: number; until: number } | null) => void,
+) {
+  if (incoming.mode !== "dirka") return;
+  if (incoming.standings) setStandings(incoming.standings);
+  const me = myId ? incoming.players?.[myId] : undefined;
+  setSafe({
+    current: me?.correct_in_segment ?? 0,
+    every: me?.safe_every ?? incoming.safe_every ?? 5,
+    until: me?.until_safe ?? incoming.safe_every ?? 5,
+  });
 }
 

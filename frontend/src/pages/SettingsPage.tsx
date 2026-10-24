@@ -131,7 +131,6 @@ export function SettingsPage() {
           />
           Zvočni učinki v igri
         </label>
-        <p className="fine">Privzeto vklopljeno. Velja za ta brskalnik (tudi kot gost).</p>
       </fieldset>
 
       {!user?.is_guest ? (

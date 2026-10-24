@@ -250,6 +250,25 @@ def admin_kick_member(room, member_id):
     """Admin: vrzi igralca/bota iz žive sobe (ne hosta)."""
     if room.status not in {"waiting", "playing"}:
         raise GameError("Soba ni aktivna.")
+    return _kick_member(room, member_id)
+
+
+def host_kick_member(user, code, member_id):
+    """Host: vrzi igralca/bota iz lobbyja (ne sebe)."""
+    room = Room.objects.filter(code=str(code or "").upper()).first()
+    if room is None:
+        raise GameError("Soba ne obstaja.")
+    if room.status != "waiting":
+        raise GameError("Igralca lahko vržeš samo v lobbyju.")
+    host = room.members.filter(user=user, left_at__isnull=True, is_host=True, is_bot=False).first()
+    if host is None:
+        raise GameError("Samo host lahko vrže igralca.")
+    member = _kick_member(room, member_id)
+    touch_room(room)
+    return room, member
+
+
+def _kick_member(room, member_id):
     member = room.members.filter(pk=member_id, left_at__isnull=True).first()
     if member is None:
         raise GameError("Igralec ni v sobi.")
@@ -268,6 +287,37 @@ def admin_kick_member(room, member_id):
         room.settings = settings
         room.save(update_fields=["settings"])
     return member
+
+
+def notify_room_lobby(room, *, lobby_event=None, lobby_event_member_id=None, kicked_message=None):
+    """Pošlji lobby osvežitev (opcijsko z dogodkom join/leave/kick)."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        from game.modes import LOBBY_MODES
+
+        layer = get_channel_layer()
+        if layer is None:
+            return
+        mode = (room.settings or {}).get("mode")
+        if room.status != "waiting" or mode not in LOBBY_MODES:
+            return
+        payload = refresh_can_start(lobby_payload(room, viewer=None))
+        payload["type"] = "lobby"
+        payload["phase"] = "lobby"
+        payload["mode"] = mode
+        if lobby_event:
+            payload["lobby_event"] = lobby_event
+        if lobby_event_member_id:
+            payload["lobby_event_member_id"] = str(lobby_event_member_id)
+        if kicked_message:
+            payload["kicked_message"] = kicked_message
+        async_to_sync(layer.group_send)(
+            f"room_{room.code}",
+            {"type": "game.event", "payload": payload},
+        )
+    except Exception:
+        pass
 
 
 def _notify_room_closed(room):
@@ -313,6 +363,16 @@ def close_stale_rooms():
     closed = 0
     for room in stale.iterator():
         close_room(room, reason="inactive")
+        closed += 1
+    return closed
+
+
+def close_live_rooms():
+    """Admin: zapri vse sobe v čakanju ali teku (tudi aktivne igre)."""
+    live = Room.objects.filter(status__in=["waiting", "playing"]).order_by("created_at")
+    closed = 0
+    for room in live.iterator():
+        close_room(room, reason="admin_bulk")
         closed += 1
     return closed
 
@@ -663,7 +723,6 @@ def rematch_room(user, code):
     host_member.save(update_fields=["is_host", "is_ready", "is_connected", "last_activity"])
 
     sync_room_bots(room)
-    refresh_can_start(room)
     touch_room(room)
     return room
 

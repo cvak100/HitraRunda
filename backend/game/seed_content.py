@@ -46,7 +46,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_hint",
-        "name": "Hint",
+        "name": "Namig",
         "description": "MC: odstrani 1 napačno. Matching: poveže 1. Slider: rahlo zoži območje.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "hint",
@@ -56,7 +56,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_extra_time",
-        "name": "Extra Time",
+        "name": "Dodaten čas",
         "description": "+30 s na tvoj osebni timer.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "extra_time",
@@ -66,7 +66,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_second_chance",
-        "name": "Second Chance",
+        "name": "Drugi poskus",
         "description": "En dodaten poskus, če zgrešiš.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "second_chance",
@@ -86,7 +86,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_shield",
-        "name": "Shield",
+        "name": "Ščit",
         "description": "Naslednji napačen/timeout te ne kaznuje.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "shield",
@@ -96,7 +96,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_steal",
-        "name": "Steal",
+        "name": "Kraja",
         "description": "Ob pravilnem ukradeš 20–40 točk igralcu tik pred tabo.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "steal",
@@ -106,7 +106,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_rush",
-        "name": "Rush",
+        "name": "Pospešek",
         "description": "Nasprotniku (tik pred tabo) se timer pohitri.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "rush",
@@ -116,7 +116,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_double",
-        "name": "Double",
+        "name": "Dvojne točke",
         "description": "Dvojne točke za naslednje pravilno vprašanje.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "double",
@@ -126,7 +126,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_block",
-        "name": "Block",
+        "name": "Blokada",
         "description": "Nasprotnik ne more uporabiti bonusa na naslednjem vprašanju.",
         "bonus_kind": BonusDefinition.Kind.MAIN,
         "effect_key": "block",
@@ -136,7 +136,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_streak",
-        "name": "Streak",
+        "name": "Niz",
         "description": "3 pravilne zapored → +50 točk.",
         "bonus_kind": BonusDefinition.Kind.ROUND,
         "effect_key": "streak",
@@ -146,7 +146,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_hot_streak",
-        "name": "Hot Streak",
+        "name": "Vroč niz",
         "description": "5 pravilnih zapored → +100 in naključni šibki bonus.",
         "bonus_kind": BonusDefinition.Kind.ROUND,
         "effect_key": "hot_streak",
@@ -156,7 +156,7 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_comeback",
-        "name": "Comeback",
+        "name": "Povratek",
         "description": "Zaostanek ≥150 → naslednji pravilen +30 %.",
         "bonus_kind": BonusDefinition.Kind.ROUND,
         "effect_key": "comeback",
@@ -166,8 +166,8 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_safe_reward",
-        "name": "Safe Reward",
-        "description": "Ob safe zone majhen točkovni bonus.",
+        "name": "Nagrada varne zone",
+        "description": "Ob varni zoni majhen točkovni bonus.",
         "bonus_kind": BonusDefinition.Kind.ROUND,
         "effect_key": "safe_reward",
         "modes": [MODE_DIRKA],
@@ -176,8 +176,8 @@ DEFAULT_BONUSES = (
     },
     {
         "key": "dirka_clean_sheet",
-        "name": "Clean Sheet",
-        "description": "Safe zone brez napake v segmentu → ekstra točke.",
+        "name": "Čista bela",
+        "description": "Varna zona brez napake v segmentu → ekstra točke.",
         "bonus_kind": BonusDefinition.Kind.ROUND,
         "effect_key": "clean_sheet",
         "modes": [MODE_DIRKA],
