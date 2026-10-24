@@ -34,6 +34,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-only-not-for-production}
       DJANGO_DEBUG: ${DJANGO_DEBUG:-1}
+      # DEBUG=1 → ALLOWED_HOSTS=* + CSRF za LAN (telefon). Sicer dodaj IP v .env.
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
       DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:5008,http://127.0.0.1:5008}
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-admin@hitrarunda.local}

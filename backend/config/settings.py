@@ -48,6 +48,11 @@ if _app and _app.hostname:
     if APP_URL not in CSRF_TRUSTED_ORIGINS:
         CSRF_TRUSTED_ORIGINS.append(APP_URL)
 
+# Lokalni razvoj prek telefona (LAN IP): sicer Django vrne HTML DisallowedHost
+# in frontend javi »neberljiv odgovor«.
+if DEBUG:
+    ALLOWED_HOSTS = ["*"]
+
 INSTALLED_APPS = [
     "daphne",
     "django.contrib.admin",
@@ -71,6 +76,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "accounts.middleware.DebugLanCsrfMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",

@@ -14,10 +14,11 @@ export default defineConfig({
     hmr: { clientPort: 5008 },
     watch: { usePolling: true, interval: 300 },
     proxy: {
-      "/api": { target: "http://backend:8000" },
-      "/admin": { target: "http://backend:8000" },
-      "/static": { target: "http://backend:8000" },
-      "/ws": { target: "http://backend:8000", ws: true },
+      // changeOrigin: Host gre kot backend (sicer LAN IP → DisallowedHost HTML).
+      "/api": { target: "http://backend:8000", changeOrigin: true },
+      "/admin": { target: "http://backend:8000", changeOrigin: true },
+      "/static": { target: "http://backend:8000", changeOrigin: true },
+      "/ws": { target: "http://backend:8000", ws: true, changeOrigin: true },
     },
   },
 });
