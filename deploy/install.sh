@@ -64,8 +64,14 @@ else
   esac
 fi
 
+# Verzija iz VERSION (če APP_VERSION ni v .env).
+if [ -z "${APP_VERSION:-}" ] && [ -f VERSION ]; then
+  APP_VERSION=$(head -n1 VERSION | tr -d '\r')
+  export APP_VERSION
+fi
+
 export COMPOSE_PROFILES="$MODE"
-echo "Zagon (profil=$MODE)…"
+echo "Zagon (profil=$MODE${APP_VERSION:+, verzija=$APP_VERSION})…"
 docker compose -f docker-compose.prod.yml --env-file .env up -d --build
 
 echo ""
@@ -77,3 +83,4 @@ else
   echo "DNS A/AAAA za $APP_DOMAIN mora kazati na ta strežnik; porta 80 in 443 odprta."
 fi
 echo "Logi: docker compose -f docker-compose.prod.yml --env-file .env logs -f"
+echo "Smoke: ./deploy/smoke.sh \"$APP_URL\""

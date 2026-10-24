@@ -45,6 +45,7 @@ type Summary = {
   generated_at: string;
   health?: {
     ok: boolean;
+    version?: string;
     db: HealthPart;
     redis: HealthPart & { ping_ms?: number | null; url?: string };
   };
@@ -181,6 +182,12 @@ export function AdminHomePage() {
       <h1>Nadzorna plošča</h1>
       <p className="fine admin-dash-lead">
         Pregled vsebine, živih sob in nedavne aktivnosti. Številke se osvežijo ob vsakem odprtju strani.
+        {health?.version ? (
+          <>
+            {" "}
+            Verzija <strong>v{health.version}</strong>.
+          </>
+        ) : null}
       </p>
       {error ? <p className="error">{error}</p> : null}
       {notice ? <p className="fine">{notice}</p> : null}

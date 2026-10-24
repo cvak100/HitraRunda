@@ -53,8 +53,12 @@ export function CategoryPicker({
         <div className="category-picker-grid">
           {categories.map((category) => {
             const count = countFor(category);
+            const empty = count === 0;
             return (
-              <label key={category.slug} className="check category-picker-item">
+              <label
+                key={category.slug}
+                className={`check category-picker-item${empty ? " is-empty" : ""}`}
+              >
                 <input
                   type="checkbox"
                   checked={value.includes(category.slug)}
@@ -72,6 +76,16 @@ export function CategoryPicker({
       ) : (
         <p className="fine">Ni kategorij.</p>
       )}
+      {showCounts &&
+      value.length > 0 &&
+      value.every((slug) => {
+        const cat = categories.find((c) => c.slug === slug);
+        return cat != null && countFor(cat) === 0;
+      }) ? (
+        <p className="error category-picker-warn">
+          Izbrane kategorije nimajo vprašanj — igra se ne more začeti.
+        </p>
+      ) : null}
       {showSelectAll && categories.length > 0 ? (
         <div className="actions category-picker-actions">
           <button
@@ -80,6 +94,23 @@ export function CategoryPicker({
             onClick={() => onChange(categories.map((c) => c.slug))}
           >
             Vse
+          </button>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() =>
+              onChange(
+                categories
+                  .filter((c) => {
+                    const n = countFor(c);
+                    return n == null || n > 0;
+                  })
+                  .map((c) => c.slug),
+              )
+            }
+            title="Samo kategorije z vprašanji"
+          >
+            Z vprašanji
           </button>
           <button type="button" disabled={disabled} onClick={() => onChange([])}>
             Nobena

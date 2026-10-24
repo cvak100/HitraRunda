@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
 
+import { api } from "../api";
 import { useAuth } from "../auth";
 import { GearIcon, UpIcon } from "../icons";
 
@@ -8,10 +9,25 @@ export function Layout() {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [navOpen, setNavOpen] = useState(false);
+  const [appVersion, setAppVersion] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const year = new Date().getFullYear();
 
   useEffect(() => {
     setNavOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    api<{ version?: string; contact_email?: string }>("/api/game-config/")
+      .then((data) => {
+        setAppVersion(data.version || "");
+        setContactEmail(data.contact_email || "");
+      })
+      .catch(() => {
+        setAppVersion("");
+        setContactEmail("");
+      });
+  }, []);
 
   useEffect(() => {
     if (!navOpen) return;
@@ -88,12 +104,49 @@ export function Layout() {
       <footer className="site-footer">
         <button
           type="button"
-          className="btn-with-icon back-to-top"
+          className="back-to-top"
+          aria-label="Nazaj na vrh"
+          title="Nazaj na vrh"
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         >
           <UpIcon />
-          Nazaj na vrh
         </button>
+        <nav className="site-footer-nav" aria-label="Noga">
+          <Link to="/lestvica">Lestvica</Link>
+          <span aria-hidden="true">·</span>
+          <Link to={user ? "/igra" : "/"}>Igraj</Link>
+          {!user ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <Link to="/prijava">Prijava</Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/registracija">Registracija</Link>
+            </>
+          ) : null}
+          <span aria-hidden="true">·</span>
+          <Link to="/kako-igrati">Kako igrati</Link>
+          {contactEmail ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <a
+                href={`mailto:${contactEmail}?subject=${encodeURIComponent("Hitra runda — poročilo o napaki")}`}
+              >
+                Poročilo o napaki
+              </a>
+            </>
+          ) : null}
+        </nav>
+        <p className="site-footer-meta">
+          <span>© {year} Hitra runda</span>
+          {appVersion ? (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="app-version" title="Verzija aplikacije">
+                v{appVersion}
+              </span>
+            </>
+          ) : null}
+        </p>
       </footer>
     </div>
   );

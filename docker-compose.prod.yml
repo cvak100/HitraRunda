@@ -6,7 +6,8 @@ x-frontend: &frontend
     dockerfile: Dockerfile.prod
   image: hitrarunda-frontend:prod
   depends_on:
-    - backend
+    backend:
+      condition: service_healthy
   restart: unless-stopped
 
 services:
@@ -45,6 +46,7 @@ services:
       POSTGRES_PORT: "5432"
       REDIS_URL: redis://redis:6379/0
       APP_URL: ${APP_URL:?nastavi APP_URL (http://… ali https://…)}
+      APP_VERSION: ${APP_VERSION:-}
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?nastavi DJANGO_SECRET_KEY}
       DJANGO_DEBUG: "0"
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-}
@@ -60,6 +62,12 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   # HTTP: aplikacija neposredno na APP_PORT (privzeto 5008).
   frontend:

@@ -674,11 +674,15 @@ def is_mode_enabled(mode: str) -> bool:
 
 
 def public_game_config() -> dict:
+    from django.conf import settings
+
     data = get_all()
     skip = []
     for item in data["sixty_skip_limits"]:
         skip.append(None if item is None else int(item))
     return {
+        "version": getattr(settings, "APP_VERSION", ""),
+        "contact_email": getattr(settings, "CONTACT_EMAIL", "") or "",
         "enabled_modes": list(data["enabled_modes"]),
         "hitrarunda": {
             "times": list(data["hr_allowed_times"]),

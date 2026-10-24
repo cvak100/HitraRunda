@@ -17,6 +17,10 @@ def split_csv(value):
 DEBUG = env("DJANGO_DEBUG", "0") == "1"
 TESTING = "test" in sys.argv
 
+from config.app_version import get_app_version  # noqa: E402
+
+APP_VERSION = get_app_version()
+
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
     if DEBUG or TESTING:
@@ -205,6 +209,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", "1") == "1"
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", "noreply@hitrarunda.local")
+CONTACT_EMAIL = env("CONTACT_EMAIL", "feedback@hitrarunda.local")
 
 LOGGING = {
     "version": 1,

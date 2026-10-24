@@ -56,7 +56,9 @@ class HealthView(APIView):
     authentication_classes = []
 
     def get(self, request):
-        return Response({"ok": True})
+        from django.conf import settings
+
+        return Response({"ok": True, "version": getattr(settings, "APP_VERSION", "")})
 
 
 def _normalize_board_mode(mode: str) -> str:

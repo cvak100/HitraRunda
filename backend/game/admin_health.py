@@ -32,6 +32,7 @@ def collect_health(detail: bool = False) -> dict:
     cache_info = _check_django_cache()
     return {
         "generated_at": now.isoformat(),
+        "version": getattr(settings, "APP_VERSION", ""),
         "ok": bool(db["ok"] and redis_info["ok"]),
         "db": db,
         "redis": redis_info,
