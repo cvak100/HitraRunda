@@ -90,8 +90,8 @@ def validate_settings(raw):
             count = int(raw.get("question_count", 10))
     except (TypeError, ValueError):
         raise GameError("Število vprašanj in čas morata biti števili.")
-    if mode == MODE_HITRARUNDA and not 5 <= count <= 15:
-        raise GameError("Število vprašanj mora biti med 5 in 15.")
+    if mode == MODE_HITRARUNDA and not 5 <= count <= 100:
+        raise GameError("Število vprašanj mora biti med 5 in 100.")
     mp_counts = get_int_set("mp_question_counts")
     if mode == MODE_MULTIPLAYER and count not in mp_counts:
         raise GameError("Število vprašanj ni med dovoljenimi.")
@@ -425,14 +425,11 @@ def snapshot(member_id):
 
 def start_game(member_id):
     mode = _room_mode(member_id)
-    if mode == MODE_MULTIPLAYER:
-        from game.multiplayer import start_multiplayer
+    if mode == MODE_MULTIPLAYER or mode == MODE_DIRKA:
+        from game.lobby_countdown import begin_lobby_countdown
 
-        return start_multiplayer(member_id)
-    if mode == MODE_DIRKA:
-        from game.dirka import start_dirka
-
-        return start_dirka(member_id)
+        # Najprej usklajen 3→2→1 za vse; commit po izteku v consumerju.
+        return begin_lobby_countdown(member_id)
     if mode == MODE_60_SEKUND:
         from game.sixty import start_sixty
 
@@ -461,7 +458,7 @@ def start_game(member_id):
             )
             now = timezone.now()
             state = {
-                "prize_ladder": ladder_for(len(questions)),
+                "prize_ladder": ladder_for(len(questions)) if mode == MODE_ALA_MILIJONAR else [],
                 "prize_reached": 0,
                 "speed_bonus_total": 0,
                 "correct_count": 0,
@@ -877,12 +874,20 @@ def _grade_locked(member, room, session, game_question, message):
     game_question.ended_at = now
     game_question.save(update_fields=["ended_at"])
     state = dict(session.state or {})
-    ladder = state.get("prize_ladder") or ladder_for(session.total_questions)
+    ladder = state.get("prize_ladder") or (
+        ladder_for(session.total_questions) if session.mode == MODE_ALA_MILIJONAR else []
+    )
     if is_correct:
         state["correct_count"] = state.get("correct_count", 0) + 1
-        state["prize_reached"] = ladder[state["correct_count"] - 1]
-        state["speed_bonus_total"] = state.get("speed_bonus_total", 0) + bonus
-        state["score"] = state["prize_reached"] + state["speed_bonus_total"]
+        if session.mode == MODE_HITRARUNDA:
+            base_pts = int(site_get("hr_base_points"))
+            state["prize_reached"] = int(state.get("prize_reached") or 0) + base_pts
+            state["speed_bonus_total"] = int(state.get("speed_bonus_total") or 0) + bonus
+            state["score"] = int(state["prize_reached"]) + int(state["speed_bonus_total"])
+        else:
+            state["prize_reached"] = ladder[state["correct_count"] - 1]
+            state["speed_bonus_total"] = state.get("speed_bonus_total", 0) + bonus
+            state["score"] = state["prize_reached"] + state["speed_bonus_total"]
     elif session.mode == MODE_ALA_MILIJONAR:
         # Varne točke: napačen/timeout pusti zagotovljeno nagrado.
         guaranteed = guaranteed_prize(int(state.get("correct_count") or 0), ladder)
@@ -1030,7 +1035,12 @@ def _answer_for(game_question, member):
 
 def _state(session):
     state = session.state or {}
-    ladder = state.get("prize_ladder") or ladder_for(session.total_questions)
+    if "prize_ladder" in state:
+        ladder = list(state.get("prize_ladder") or [])
+    elif session.mode == MODE_ALA_MILIJONAR:
+        ladder = ladder_for(session.total_questions)
+    else:
+        ladder = []
     friends = []
     friend_keys = (state.get("lifelines") or {}).get("phone_friend", {}).get("friend_keys") or []
     if friend_keys:

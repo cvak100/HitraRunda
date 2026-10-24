@@ -714,7 +714,10 @@ def rematch_room(user, code):
     room.status = "waiting"
     room.finished_at = None
     room.last_activity = timezone.now()
-    room.save(update_fields=["status", "finished_at", "last_activity"])
+    settings = dict(room.settings or {})
+    settings.pop("lobby_countdown_ends_at", None)
+    room.settings = settings
+    room.save(update_fields=["status", "finished_at", "last_activity", "settings"])
 
     room.members.filter(left_at__isnull=True, is_bot=False).update(is_ready=False, is_host=False)
     host_member.is_host = True

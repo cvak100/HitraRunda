@@ -172,6 +172,8 @@ export type GameMessage = {
   duration_ms?: number;
   deadline_at?: string;
   server_now?: string;
+  countdown_ends_at?: string;
+  countdown_steps?: number;
   time_limit_seconds?: number;
   is_correct?: boolean;
   timed_out?: boolean;
@@ -206,6 +208,7 @@ export type GameMessage = {
       armed?: Record<string, boolean>;
       active_helps?: ActiveHelps;
       shield?: boolean;
+      shield_left?: number;
       second_chance?: boolean;
       blocked?: boolean;
       deadline_at?: string;
@@ -241,11 +244,17 @@ export type GameMessage = {
     streak_bonus?: number;
     catchup_bonus?: number;
     steal?: number;
+    stolen_amount?: number;
+    shielded?: boolean;
+    steal_blocked?: boolean;
     eliminated?: boolean;
     bonus_gained?: string;
     bonuses_gained?: string[];
     safe_reward?: number;
     clean_sheet?: boolean;
+    breakthrough?: boolean;
+    solo_sprint?: boolean;
+    bonus_convert?: { from?: string; to?: string; cleared?: number };
   }[];
   answered_count?: number;
   player_count?: number;

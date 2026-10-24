@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { api } from "../api";
-import { DirkaBonusIcon, dirkaBonusMeta } from "../dirkaBonuses";
+import { DirkaBonusIcon, dirkaBonusMeta, dirkaBonusPool } from "../dirkaBonuses";
 import { Modal } from "./Modal";
 
 type PublicBonus = {
@@ -20,6 +20,12 @@ function kindTitle(kind: string, label: string) {
   if (kind === "main") return "Aktivni bonusi (porabiš med igro)";
   if (kind === "round") return "Samodejni / rundni bonusi";
   return label || kind;
+}
+
+function poolLabel(pool: "weak" | "strong" | null) {
+  if (pool === "weak") return "Šibek drop";
+  if (pool === "strong") return "Močan drop";
+  return null;
 }
 
 export function DirkaBonusesHelp() {
@@ -58,13 +64,43 @@ export function DirkaBonusesHelp() {
   return (
     <>
       <button type="button" className="dirka-bonuses-help-btn" onClick={() => setOpen(true)}>
-        Kaj delajo bonusi?
+        Bonusi
       </button>
       <Modal title="Dirka — bonusi" open={open} onClose={() => setOpen(false)}>
         {loading ? <p className="status">Nalagam…</p> : null}
         {error ? <p className="error">{error}</p> : null}
-        {!loading && !error
-          ? groups.map((group) => (
+        {!loading && !error ? (
+          <>
+            <div className="dirka-bonus-help-how">
+              <h3>Kako jih dobiš</h3>
+              <p className="fine">
+                Na začetku je torba prazna. Bonusi padejo med igro (naključno iz poola):
+              </p>
+              <ul>
+                <li>
+                  <strong>Streak</strong> (3 pravilni zapored) → šibek drop
+                </li>
+                <li>
+                  <strong>Hot streak</strong> (5 pravilnih) → šibek drop
+                </li>
+                <li>
+                  <strong>Varna zona</strong> (z missom v segmentu) → šibek drop
+                </li>
+                <li>
+                  <strong>Čista varna zona</strong> (brez missa) → močan drop
+                </li>
+                <li>
+                  <strong>Preboj</strong> (prvič 50 % cilja) → močan drop, 1× na dirko
+                </li>
+                <li>
+                  <strong>Solo sprint</strong> (edini pravilen v rundi) → močan drop
+                </li>
+                <li>
+                  <strong>Pretvorba</strong> (3 enaki + 4. isti) → stack gre stran, 1 močan
+                </li>
+              </ul>
+            </div>
+            {groups.map((group) => (
               <div key={group.kind} className="dirka-bonus-help-group">
                 <h3>{kindTitle(group.kind, group.label)}</h3>
                 <ul className="dirka-bonus-help-list">
@@ -73,6 +109,8 @@ export function DirkaBonusesHelp() {
                     const meta = dirkaBonusMeta(effect);
                     const name = bonus.name || meta.label;
                     const description = bonus.description || meta.description;
+                    const pool = bonus.passive ? null : dirkaBonusPool(effect);
+                    const poolText = poolLabel(pool);
                     return (
                       <li key={bonus.key}>
                         <strong className="dirka-bonus-help-title">
@@ -80,16 +118,18 @@ export function DirkaBonusesHelp() {
                           {name}
                         </strong>
                         {bonus.passive ? <span className="fine"> · samodejno</span> : null}
+                        {poolText ? (
+                          <span className={`dirka-bonus-pool-tag is-${pool}`}>{poolText}</span>
+                        ) : null}
                         <p>{description || "—"}</p>
                       </li>
                     );
                   })}
                 </ul>
               </div>
-            ))
-          : null}
-        {!loading && !error && bonuses.length === 0 ? (
-          <p className="fine">Ni aktivnih bonusov za Dirko.</p>
+            ))}
+            {bonuses.length === 0 ? <p className="fine">Ni aktivnih bonusov za Dirko.</p> : null}
+          </>
         ) : null}
       </Modal>
     </>

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 
 import { ApiError, api } from "../../api";
-import { formatPoints } from "../../format";
+import { REASONS, formatPoints } from "../../format";
 import type { GameMessage } from "../../types";
-import { ReviewFinish } from "./GameFinish";
+import { FinishActions } from "./FinishActions";
+import { ReviewAnswerReveal } from "./ReviewAnswerReveal";
 
 const NEXT_BEAT_MS = 700;
 
@@ -18,6 +19,7 @@ export function ReviewPanel({
 }) {
   const question = message.question;
   const [leaving, setLeaving] = useState(false);
+  const finished = message.phase === "finished" || Boolean(message.finished);
 
   useEffect(() => {
     setLeaving(false);
@@ -36,6 +38,8 @@ export function ReviewPanel({
         ? "Pravilno"
         : "Napačno";
   const tone = message.walked_away || message.is_correct ? "good" : "bad";
+  const reason = message.reason || "";
+  const showReason = reason === "completed" || reason === "walk_away";
 
   function goNext() {
     if (leaving || !message.is_correct) return;
@@ -44,37 +48,73 @@ export function ReviewPanel({
     window.setTimeout(() => onNext(), NEXT_BEAT_MS);
   }
 
+  if (finished) {
+    return (
+      <div className="finish-screen">
+        <section className={`finish-last-q review ${tone}`}>
+          <p className="review-verdict">{title}</p>
+          {question && !message.walked_away ? (
+            <>
+              <h2 className="finish-q-text">{question.text}</h2>
+              {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+              <div className="finish-answer-row">
+                <div className="finish-answer-info">
+                  <ReviewAnswerReveal message={message} />
+                </div>
+                <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
+              </div>
+            </>
+          ) : null}
+        </section>
+
+        <section className="finish-summary">
+          <p className="finish-summary-title">Konec igre</p>
+          <p className="finish-summary-score">
+            <strong>{formatPoints(message.score ?? 0)}</strong>
+            <span> točk</span>
+          </p>
+          <p className="finish-summary-breakdown">
+            <span>
+              {message.mode === "hitrarunda" ? "Točke" : "Nagrada"}{" "}
+              {formatPoints(message.prize_reached ?? 0)}
+            </span>
+            <span className="finish-summary-sep">+</span>
+            <span>bonus {formatPoints(message.speed_bonus_total ?? 0)}</span>
+            <span className="finish-summary-sep">·</span>
+            <span>
+              {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0}{" "}
+              pravilnih
+            </span>
+          </p>
+          {showReason ? <p className="finish-summary-reason">{REASONS[reason]}</p> : null}
+        </section>
+
+        <FinishActions replayTo={replayPath} boardPath={boardPath} resultId={message.result_id} />
+      </div>
+    );
+  }
+
   return (
     <div className={`review ${tone}${leaving ? " is-leaving" : ""}`}>
       <p className="review-verdict">{title}</p>
       <p className="review-score">
-        Nagrada {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
+        {message.mode === "hitrarunda" ? "Točke" : "Nagrada"}{" "}
+        {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
         {formatPoints(message.speed_bonus_total ?? 0)} ={" "}
         <strong>{formatPoints(message.score ?? 0)}</strong>
       </p>
-      {message.phase === "finished" || message.finished ? (
-        <>
-          {question && !message.walked_away ? (
-            <div className="play-slot-cta">
-              <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
-            </div>
-          ) : null}
-          <ReviewFinish message={message} replayTo={replayPath} boardPath={boardPath} />
-        </>
-      ) : (
-        <div className="play-slot-cta">
-          {question && !message.walked_away ? (
-            <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
-          ) : (
-            <span />
-          )}
-          {message.is_correct ? (
-            <button type="button" className="primary btn-cta" disabled={leaving} onClick={goNext}>
-              {leaving ? "…" : `Naprej${message.next_stake ? ` za ${formatPoints(message.next_stake)}` : ""}`}
-            </button>
-          ) : null}
-        </div>
-      )}
+      <div className="play-slot-cta">
+        {question && !message.walked_away ? (
+          <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
+        ) : (
+          <span />
+        )}
+        {message.is_correct ? (
+          <button type="button" className="primary btn-cta" disabled={leaving} onClick={goNext}>
+            {leaving ? "…" : `Naprej${message.next_stake ? ` za ${formatPoints(message.next_stake)}` : ""}`}
+          </button>
+        ) : null}
+      </div>
     </div>
   );
 }

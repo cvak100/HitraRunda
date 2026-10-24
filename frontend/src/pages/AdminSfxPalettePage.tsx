@@ -11,7 +11,7 @@ import {
 } from "../soundPlayground";
 
 export function AdminSfxPalettePage() {
-  const [countdown, setCountdown] = useState<number | "go" | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(
     () => () => {
@@ -23,12 +23,8 @@ export function AdminSfxPalettePage() {
 
   function onCountdown() {
     startCountdownPreview((step) => {
-      if (step === "go") {
-        setCountdown("go");
-        setTimeout(() => setCountdown(null), 800);
-      } else {
-        setCountdown(step);
-      }
+      setCountdown(step);
+      if (step === 1) setTimeout(() => setCountdown(null), 900);
     });
   }
 
@@ -103,14 +99,14 @@ export function AdminSfxPalettePage() {
 
         <div className="sfx-playground-group">
           <h3>Countdown (naslednje vprašanje)</h3>
-          <p className="fine">4 → 3 → 2 → 1 → go</p>
+          <p className="fine">3 → 2 → 1</p>
           <div className="sfx-countdown-row">
             <button type="button" className="primary" onClick={onCountdown}>
               Start countdown
             </button>
             {countdown != null ? (
               <span className="sfx-countdown-n" aria-live="polite">
-                {countdown === "go" ? "go!" : countdown}
+                {countdown}
               </span>
             ) : null}
             {countdown != null ? (

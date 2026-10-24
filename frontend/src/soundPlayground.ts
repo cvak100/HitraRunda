@@ -628,11 +628,11 @@ export function previewPlaygroundSfx(name: PlaygroundSfxName): void {
   }
 }
 
-/** Countdown 4 → 3 → 2 → 1 → go (naslednje vprašanje). */
-export function startCountdownPreview(onTick?: (n: number | "go") => void): () => void {
+/** Countdown 3 → 2 → 1 (naslednje vprašanje). */
+export function startCountdownPreview(onTick?: (n: number) => void): () => void {
   unlockSfx();
   stopCountdownPreview();
-  const steps: (number | "go")[] = [4, 3, 2, 1, "go"];
+  const steps = [3, 2, 1];
   let i = 0;
 
   const run = () => {
@@ -642,8 +642,7 @@ export function startCountdownPreview(onTick?: (n: number | "go") => void): () =
       return;
     }
     onTick?.(step);
-    if (step === "go") previewPlaygroundSfx("countdown_go");
-    else previewPlaygroundSfx("countdown_beep");
+    previewPlaygroundSfx("countdown_beep");
     i += 1;
     if (i < steps.length) {
       countdownTimer = setTimeout(run, 1000);

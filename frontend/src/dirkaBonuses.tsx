@@ -2,64 +2,97 @@
 
 import type { ReactNode } from "react";
 
+export type DirkaBonusPool = "weak" | "strong";
+
 export type DirkaBonusMeta = {
   label: string;
   short: string;
   description: string;
+  /** Drop pool (aktivni bonusi). */
+  pool?: DirkaBonusPool;
 };
+
+/** Ujemanje z backend DIRKA_WEAK / DIRKA_STRONG. */
+export const DIRKA_WEAK_EFFECTS = new Set(["hint", "extra_time", "shield", "skip"]);
+export const DIRKA_STRONG_EFFECTS = new Set([
+  "fifty_fifty",
+  "steal",
+  "double",
+  "second_chance",
+  "rush",
+  "block",
+]);
 
 export const DIRKA_BONUS_META: Record<string, DirkaBonusMeta> = {
   fifty_fifty: {
     label: "50/50",
     short: "50/50",
     description: "Odstrani 2 napačni možnosti (ali močno pomaga pri matching/slider).",
+    pool: "strong",
   },
   hint: {
     label: "Namig",
     short: "Namig",
     description: "Odstrani 1 napačno možnost (ali rahlo pomaga pri matching/slider).",
+    pool: "weak",
   },
   extra_time: {
     label: "Dodaten čas",
     short: "+čas",
     description: "+30 s na tvoj osebni timer.",
+    pool: "weak",
   },
   second_chance: {
     label: "Drugi poskus",
     short: "2. poskus",
     description: "En dodaten poskus, če zgrešiš.",
+    pool: "strong",
   },
   skip: {
     label: "Preskoči",
     short: "Preskok",
     description: "0 točk, brez kazni, brez napredka.",
+    pool: "weak",
   },
   shield: {
     label: "Ščit",
     short: "Ščit",
-    description: "Naslednji napačen odgovor ali potek časa te ne kaznuje.",
+    description: "3 runde: napačen/timeout brez kazni, blokira tudi kraje točk.",
+    pool: "weak",
   },
   steal: {
     label: "Kraja",
     short: "Kraja",
-    description: "Ob pravilnem ukradeš 20–40 točk igralcu tik pred tabo.",
+    description: "Ob pravilnem ukradeš 2–4 točke igralcu tik pred tabo.",
+    pool: "strong",
   },
   rush: {
     label: "Pospešek",
     short: "Pospešek",
-    description: "Nasprotniku tik pred tabo se timer pohitri.",
+    description: "Vsem nasprotnikom se timer pohitri.",
+    pool: "strong",
   },
   double: {
     label: "Dvojne točke",
     short: "×2",
     description: "Dvojne točke za naslednje pravilno vprašanje.",
+    pool: "strong",
   },
   block: {
     label: "Blokada",
     short: "Blok",
-    description: "Nasprotnik ne more uporabiti bonusa na naslednjem vprašanju.",
+    description: "Vsi nasprotniki na naslednjem vprašanju ne morejo uporabiti bonusov.",
+    pool: "strong",
   },
 };
+
+export function dirkaBonusPool(effect: string): DirkaBonusPool | null {
+  const meta = DIRKA_BONUS_META[effect];
+  if (meta?.pool) return meta.pool;
+  if (DIRKA_WEAK_EFFECTS.has(effect)) return "weak";
+  if (DIRKA_STRONG_EFFECTS.has(effect)) return "strong";
+  return null;
+}
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -173,6 +206,7 @@ export function dirkaBonusMeta(effect: string): DirkaBonusMeta {
       label: effect,
       short: effect,
       description: "Bonus v Dirki.",
+      pool: dirkaBonusPool(effect) || undefined,
     }
   );
 }

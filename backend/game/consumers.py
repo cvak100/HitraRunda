@@ -126,6 +126,12 @@ class GameConsumer(AsyncWebsocketConsumer):
                 return
             if kind == "start_game":
                 payloads = await database_sync_to_async(start_game)(self.member_id)
+                await self._broadcast_all(payloads or [])
+                if payloads and payloads[0].get("phase") == "countdown":
+                    await self._arm_lobby_countdown(payloads[0])
+                elif payloads and payloads[0].get("phase") == "question":
+                    await self._arm_bots(payloads[0])
+                return
             elif kind == "submit_answer":
                 payloads = await database_sync_to_async(submit_answer)(self.member_id, message)
             elif kind == "next_question":
@@ -168,10 +174,16 @@ class GameConsumer(AsyncWebsocketConsumer):
             self._cancel_timer()
             # Vsi klientni WS načrtujejo prehod (claim deli isti deadline) — če eden odpade, drugi potisnejo naprej.
             await self._arm_auto_advance()
+        elif payload.get("phase") == "countdown":
+            self._cancel_timer()
+            self._cancel_advance()
+            # Vsi WS načrtujejo commit (claim) — usklajeno z countdown_ends_at.
+            await self._arm_lobby_countdown(payload)
         elif payload.get("phase") in {"waiting_answers", "lobby", "finished"}:
             self._cancel_timer()
             if payload.get("phase") in {"lobby", "finished"}:
                 self._cancel_advance()
+                self._cancel_lobby_countdown()
         else:
             self._cancel_timer()
 
@@ -195,6 +207,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         if mode not in LOBBY_MODES:
             return {"type": "game_state", "phase": "waiting"}
         touch_room(room)
+        from game.lobby_countdown import active_countdown_payload
+
+        countdown = active_countdown_payload(room)
+        if countdown:
+            return countdown
         payload = refresh_can_start(lobby_payload(room, viewer=None))
         payload["type"] = "lobby"
         payload["phase"] = "lobby"
@@ -223,6 +240,59 @@ class GameConsumer(AsyncWebsocketConsumer):
             task.cancel()
         if task is not current:
             self.advance_task = None
+
+    def _cancel_lobby_countdown(self):
+        task = getattr(self, "lobby_countdown_task", None)
+        current = asyncio.current_task()
+        if task and task is not current and not task.done():
+            task.cancel()
+        if task is not current:
+            self.lobby_countdown_task = None
+
+    async def _arm_lobby_countdown(self, payload):
+        self._cancel_lobby_countdown()
+        ends_raw = payload.get("countdown_ends_at")
+        server_now_raw = payload.get("server_now")
+        if not ends_raw:
+            return
+        from django.utils.dateparse import parse_datetime
+
+        ends = parse_datetime(str(ends_raw))
+        server_now = parse_datetime(str(server_now_raw)) if server_now_raw else None
+        if ends is None:
+            return
+        from django.utils import timezone as dj_tz
+
+        if dj_tz.is_naive(ends):
+            ends = dj_tz.make_aware(ends, dj_tz.get_current_timezone())
+        now = dj_tz.now()
+        if server_now is not None:
+            if dj_tz.is_naive(server_now):
+                server_now = dj_tz.make_aware(server_now, dj_tz.get_current_timezone())
+            # Sleep do absolutnega konca (server ura ≈ wall clock na istem stroju).
+            delay = max(0.0, (ends - now).total_seconds())
+        else:
+            delay = max(0.0, (ends - now).total_seconds())
+        self.lobby_countdown_task = asyncio.create_task(self._lobby_start_later(delay))
+
+    async def _lobby_start_later(self, delay):
+        try:
+            await asyncio.sleep(float(delay))
+            from game.lobby_countdown import claim_commit_lobby_start
+
+            payloads = await database_sync_to_async(claim_commit_lobby_start)(self.member_id)
+            if not payloads:
+                return
+            await self._broadcast_all(payloads)
+            if payloads[0].get("phase") == "question":
+                await self._arm_bots(payloads[0])
+        except asyncio.CancelledError:
+            return
+        except GameError:
+            logger.info("Lobby countdown start zavrnjen", exc_info=False)
+            return
+        except Exception:
+            logger.exception("Lobby countdown start ni uspel")
 
     async def _arm(self, payload):
         self._cancel_timer()

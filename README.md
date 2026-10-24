@@ -18,7 +18,7 @@ Po prijavi (ali kot gost) odpreš seznam načinov. Vsak način ima lastno nastav
 
 ### Hitra runda
 
-Kratke solo runde. Izbereš kategorije, število vprašanj (5–15) in čas na vprašanje. Brez jokerjev — šteje hitrost. Prvi napačen ali prepozen odgovor konča igro; točke do tja ostanejo na rezultatu.
+Kratke solo runde. Izbereš kategorije, število vprašanj (5–100) in čas na vprašanje. Brez jokerjev — vsak pravilen odgovor da 100 točk + speed bonus. Prvi napačen ali prepozen odgovor konča igro; točke do tja ostanejo na rezultatu.
 
 ![Hitra runda — nastavitev](docs/screenshots/mode-hitrarunda.png)
 

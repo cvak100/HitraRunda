@@ -15,7 +15,9 @@ export type SfxName =
   | "bonus_gain"
   | "bonus_use"
   | "safe_zone"
-  | "sixty_clock";
+  | "sixty_clock"
+  | "countdown_beep"
+  | "countdown_go";
 
 /** Vsi uporabljeni SFX — za admin paleto. */
 export const SFX_CATALOG: { name: SfxName; label: string }[] = [
@@ -32,6 +34,8 @@ export const SFX_CATALOG: { name: SfxName; label: string }[] = [
   { name: "bonus_use", label: "Bonus · uporabiš" },
   { name: "safe_zone", label: "Dirka · varna zona" },
   { name: "sixty_clock", label: "60 s · tick clock" },
+  { name: "countdown_beep", label: "Countdown · beep" },
+  { name: "countdown_go", label: "Countdown · Zdaj" },
 ];
 
 let unlocked = false;
@@ -165,6 +169,13 @@ function emitSfx(name: SfxName, force = false): void {
       // en tick iz playground sixty_tension_b (srednja napetost)
       emitSixtyClockTick(0.5, force);
       break;
+    case "countdown_beep":
+      tone(760, 0.09, "square", 0.06, 0, force);
+      break;
+    case "countdown_go":
+      tone(520, 0.08, "triangle", 0.07, 0, force);
+      tone(780, 0.18, "triangle", 0.08, 0.08, force);
+      break;
     default:
       break;
   }
@@ -233,7 +244,98 @@ const SFX_DURATION_MS: Record<SfxName, number> = {
   bonus_use: 580,
   safe_zone: 620,
   sixty_clock: 80,
+  countdown_beep: 120,
+  countdown_go: 280,
 };
+
+let questionCountdownTimer: number | null = null;
+
+/**
+ * Countdown pred prvim vprašanjem: 3 → 2 → 1, nato vprašanje.
+ */
+export function startQuestionCountdown(
+  onTick?: (step: number) => void,
+  onDone?: () => void,
+): () => void {
+  unlockSfx();
+  stopQuestionCountdown();
+  const steps = [3, 2, 1];
+  let i = 0;
+
+  const run = () => {
+    const step = steps[i];
+    if (step === undefined) {
+      questionCountdownTimer = null;
+      onDone?.();
+      return;
+    }
+    onTick?.(step);
+    playSfx("countdown_beep");
+    i += 1;
+    if (i < steps.length) {
+      questionCountdownTimer = window.setTimeout(run, 1000);
+    } else {
+      // Kratek trenutek na "1 · Zdaj", nato vprašanje.
+      questionCountdownTimer = window.setTimeout(() => {
+        questionCountdownTimer = null;
+        onDone?.();
+      }, 550);
+    }
+  };
+
+  run();
+  return stopQuestionCountdown;
+}
+
+export function stopQuestionCountdown(): void {
+  if (questionCountdownTimer != null) {
+    window.clearTimeout(questionCountdownTimer);
+    questionCountdownTimer = null;
+  }
+}
+
+/**
+ * Countdown usklajen s strežnikom (multiplayer / dirka).
+ * Koraki 3→2→1 glede na countdown_ends_at + server_now.
+ */
+export function startSyncedCountdown(
+  endsAtIso: string,
+  serverNowIso: string,
+  onTick?: (step: number) => void,
+): () => void {
+  unlockSfx();
+  stopQuestionCountdown();
+  const ends = Date.parse(endsAtIso);
+  const serverNow = Date.parse(serverNowIso);
+  if (!Number.isFinite(ends) || !Number.isFinite(serverNow)) {
+    return stopQuestionCountdown;
+  }
+  const skew = Date.now() - serverNow;
+  let lastStep: number | null = null;
+  const totalMs = 3 * 1000 + 550;
+
+  const tick = () => {
+    const nowServer = Date.now() - skew;
+    const remaining = ends - nowServer;
+    let step: number;
+    if (remaining > totalMs - 1000) step = 3;
+    else if (remaining > totalMs - 2000) step = 2;
+    else step = 1;
+    if (step !== lastStep) {
+      lastStep = step;
+      onTick?.(step);
+      playSfx("countdown_beep");
+    }
+    if (remaining <= 0) {
+      questionCountdownTimer = null;
+      return;
+    }
+    questionCountdownTimer = window.setTimeout(tick, 40);
+  };
+
+  tick();
+  return stopQuestionCountdown;
+}
 
 /** Globalni debounce — isti SFX ne smejo iti sočasno (npr. next iz več poti). */
 const lastPlayedAt: Partial<Record<SfxName, number>> = {};

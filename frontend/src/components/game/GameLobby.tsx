@@ -3,6 +3,7 @@ import { AiOpponentsField, type LobbyAiMode } from "../AiOpponentsField";
 import { Avatar } from "../Avatar";
 import { CategoryPicker } from "../CategoryPicker";
 import { ChoiceGroup } from "../ChoiceGroup";
+import { DirkaBonusesHelp } from "../DirkaBonusesHelp";
 import { NumberStepper } from "../NumberStepper";
 import { VisibilityField, type RoomVisibility } from "../VisibilityField";
 
@@ -131,6 +132,11 @@ export function GameLobby(props: GameLobbyProps) {
             {message.settings?.time_limit_seconds ? ` · ${message.settings.time_limit_seconds} s` : ""}
             {message.settings?.bot_count ? ` · ${message.settings.bot_count} AI` : ""}
           </p>
+          {lobbyMode === "dirka" ? (
+            <div className="mode-extra-actions">
+              <DirkaBonusesHelp />
+            </div>
+          ) : null}
           <h2>
             Igralci ({message.members?.length || 0}/{message.max_players || "?"})
           </h2>

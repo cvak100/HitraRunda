@@ -59,6 +59,7 @@ DEFAULTS: dict = {
     "mp_round_advance_seconds": 5,
     # Hitra runda
     "hr_allowed_times": [10, 15, 20, 30, 45, 60],
+    "hr_base_points": 100,
     "hr_max_speed_bonus": 100,
     # Ala milijonar
     "ala_time_seconds": 90,
@@ -525,6 +526,14 @@ FIELDS = [
         "help": "Npr. 10, 15, 20, 30, 45, 60",
     },
     {
+        "key": "hr_base_points",
+        "group": "hitrarunda",
+        "label": "Točke za pravilen odgovor",
+        "type": "int",
+        "min": 1,
+        "max": 1000,
+    },
+    {
         "key": "hr_max_speed_bonus",
         "group": "hitrarunda",
         "label": "Max speed bonus",
@@ -695,6 +704,7 @@ def public_game_config() -> dict:
         "enabled_modes": list(data["enabled_modes"]),
         "hitrarunda": {
             "times": list(data["hr_allowed_times"]),
+            "base_points": int(data["hr_base_points"]),
             "max_speed_bonus": int(data["hr_max_speed_bonus"]),
         },
         "ala_milijonar": {

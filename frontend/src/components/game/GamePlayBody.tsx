@@ -5,6 +5,7 @@ import { TimerBar } from "../TimerBar";
 import { formatPoints } from "../../format";
 import type { GameMessage } from "../../types";
 import { SixtyFinish } from "./GameFinish";
+import { ReviewAnswerReveal } from "./ReviewAnswerReveal";
 import { ReviewPanel } from "./ReviewPanel";
 import { RoundReview } from "./RoundReview";
 
@@ -87,32 +88,34 @@ export function GamePlayBody({
               .filter(Boolean)
               .join(" ")}
           >
-            <div className="q-meta play-slot-status">
-              <span>
-                {(message.index ?? 0) + 1}
-                {isDirka || isSixty ? "" : ` / ${message.total}`}
-              </span>
-              <span>{question.category_name}</span>
-              <span>Težavnost {question.difficulty}</span>
-              {isSixty ? (
+            {!(isSixty && phase === "finished") ? (
+              <div className="q-meta play-slot-status">
                 <span>
-                  Pravilni {message.correct_count ?? 0}
-                  {message.answered_count != null ? ` / ${message.answered_count}` : ""}
+                  {(message.index ?? 0) + 1}
+                  {isDirka || isSixty ? "" : ` / ${message.total}`}
                 </span>
-              ) : null}
-              {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
-              {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
-                <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
-              ) : null}
-              {isDirka && message.target_score ? <span>Cilj {formatPoints(message.target_score)}</span> : null}
-              {isDirka ? (
-                <span title="Varna zona po N pravilnih (napačen odgovor ne resetira števca, samo clean sheet).">
-                  Varna zona {dirkaMe?.correct_in_segment ?? 0}/{dirkaMe?.safe_every ?? message.safe_every ?? 5}
-                  {` · še ${dirkaMe?.until_safe ?? message.safe_every ?? 5}`}
-                  {dirkaMe?.safe_locked ? ` · zaklenjeno ${formatPoints(dirkaMe.safe_locked)}` : ""}
-                </span>
-              ) : null}
-            </div>
+                <span>{question.category_name}</span>
+                <span>Težavnost {question.difficulty}</span>
+                {isSixty ? (
+                  <span>
+                    Pravilni {message.correct_count ?? 0}
+                    {message.answered_count != null ? ` / ${message.answered_count}` : ""}
+                  </span>
+                ) : null}
+                {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
+                {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
+                  <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
+                ) : null}
+                {isDirka && message.target_score ? <span>Cilj {formatPoints(message.target_score)}</span> : null}
+                {isDirka ? (
+                  <span title="Varna zona po N pravilnih (napačen odgovor ne resetira števca, samo clean sheet).">
+                    Varna zona {dirkaMe?.correct_in_segment ?? 0}/{dirkaMe?.safe_every ?? message.safe_every ?? 5}
+                    {` · še ${dirkaMe?.until_safe ?? message.safe_every ?? 5}`}
+                    {dirkaMe?.safe_locked ? ` · zaklenjeno ${formatPoints(dirkaMe.safe_locked)}` : ""}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
             {isSixty && phase !== "finished" ? (
               <>
                 <p
@@ -283,21 +286,18 @@ export function GamePlayBody({
                 .filter(Boolean)
                 .join(" ")}
             >
-            {!(isSixty && phase === "finished") ? (
+            {phase !== "finished" ? (
               <div
                 className={[
                   "play-slot-question",
-                  phase === "review" || phase === "round_review" || phase === "finished"
-                    ? "is-dimmed"
-                    : undefined,
+                  phase === "review" || phase === "round_review" ? "is-dimmed" : undefined,
                 ]
                   .filter(Boolean)
                   .join(" ")}
               >
                 <h1>{question.text}</h1>
                 {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
-                {(phase === "review" || phase === "round_review" || phase === "finished") &&
-                !message.walked_away ? (
+                {(phase === "review" || phase === "round_review") && !message.walked_away ? (
                   <ReviewAnswerReveal message={message} />
                 ) : null}
               </div>
@@ -379,49 +379,4 @@ export function GamePlayBody({
           ) : null}
         </div>
   );
-}
-
-function ReviewAnswerReveal({ message }: { message: GameMessage }) {
-  const correct = formatCorrectAnswer(message);
-  const explanation = (message.explanation || "").trim();
-  if (!correct && !explanation) return null;
-
-  return (
-    <div className="review-answer-block">
-      {correct ? (
-        <p className="review-answer">
-          <span className="review-answer-label">Odgovor:</span> {correct}
-        </p>
-      ) : null}
-      {explanation ? <p className="review-explain under-question">{explanation}</p> : null}
-      {message.correct_value !== undefined && message.selected_value !== undefined ? (
-        <p className="fine under-question">Tvoja ocena: {formatPoints(message.selected_value)}</p>
-      ) : null}
-    </div>
-  );
-}
-
-function formatCorrectAnswer(message: GameMessage): string | null {
-  const question = message.question;
-  if (!question) return null;
-
-  if (message.correct_option_ids?.length && question.options?.length) {
-    const texts = message.correct_option_ids
-      .map((id) => question.options?.find((option) => option.id === id)?.text)
-      .filter((text): text is string => Boolean(text));
-    if (!texts.length) return null;
-    if (question.question_type === "ordering") return texts.join(" → ");
-    return texts.join(", ");
-  }
-
-  if (message.correct_pairs?.length) {
-    return message.correct_pairs.map((pair) => `${pair.left} → ${pair.right}`).join("; ");
-  }
-
-  if (message.correct_value !== undefined) {
-    const tol = message.tolerance != null ? ` (± ${formatPoints(message.tolerance)})` : "";
-    return `${formatPoints(message.correct_value)}${tol}`;
-  }
-
-  return null;
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { formatPoints } from "../../format";
+import { playSfx, unlockSfx } from "../../sound";
 import type { GameMessage } from "../../types";
 import { Avatar } from "../Avatar";
 
@@ -20,6 +21,8 @@ export function RoundReview({
   const [secondsLeft, setSecondsLeft] = useState(advanceSeconds);
   const onNextRef = useRef(onNext);
   onNextRef.current = onNext;
+  const lastBeepRef = useRef<number | null>(null);
+  const isDirka = message.mode === "dirka";
 
   const mine = (message.answers || []).find((row) => row.member_id === myId);
   const title = !mine
@@ -40,11 +43,18 @@ export function RoundReview({
 
   useEffect(() => {
     setSecondsLeft(advanceSeconds);
+    lastBeepRef.current = null;
     const started = Date.now();
     let lastNudge = 0;
     const tick = window.setInterval(() => {
       const left = Math.max(0, advanceSeconds - Math.floor((Date.now() - started) / 1000));
       setSecondsLeft(left);
+      // Dirka: zadnje 3 s — tk tk tk (countdown_beep).
+      if (isDirka && left >= 1 && left <= 3 && lastBeepRef.current !== left) {
+        lastBeepRef.current = left;
+        unlockSfx();
+        playSfx("countdown_beep");
+      }
       // Ob 0: potisni next, in ponavljaj vsake ~1.5 s dokler strežnik ne pošlje novega vprašanja
       // (sicer en neuspešen [] / race pusti UI na »čez 0 s« za vedno).
       if (left <= 0) {
@@ -56,7 +66,7 @@ export function RoundReview({
       }
     }, 200);
     return () => window.clearInterval(tick);
-  }, [advanceSeconds, message.index]);
+  }, [advanceSeconds, message.index, isDirka]);
 
   return (
     <div className={`review ${tone}`}>
@@ -108,7 +118,13 @@ export function RoundReview({
               {row.round_bonus ? " · rundni bonus" : ""}
               {row.streak_bonus ? ` · streak +${row.streak_bonus}` : ""}
               {row.catchup_bonus ? ` · catch-up +${row.catchup_bonus}` : ""}
-              {row.steal ? ` · kraja ${formatPoints(row.steal)}` : ""}
+              {row.steal ? ` · kraja +${formatPoints(row.steal)}` : ""}
+              {row.stolen_amount ? ` · ukradeno −${formatPoints(row.stolen_amount)}` : ""}
+              {row.shielded ? " · ščit" : ""}
+              {row.steal_blocked ? " · kraja blokirana" : ""}
+              {row.breakthrough ? " · preboj" : ""}
+              {row.solo_sprint ? " · solo sprint" : ""}
+              {row.bonus_convert ? " · pretvorba" : ""}
               {row.eliminated ? " · izločen" : ""}
             </span>
           </li>

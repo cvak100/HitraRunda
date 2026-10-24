@@ -778,6 +778,9 @@ a.primary:hover {
   color: var(--gold-ink);
   border-color: var(--gold);
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   font-weight: 700;
 }
 
@@ -940,6 +943,9 @@ input[type="checkbox"]:focus-visible {
 }
 
 .q-meta, .slider-scale { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); flex-wrap: wrap; }
+.q-meta.play-slot-status {
+  margin-bottom: 20px;
+}
 
 .timer { display: flex; align-items: center; gap: 12px; margin: 12px 0 18px; }
 .timer-track { flex: 1; height: 10px; background: #0e1310; border-radius: 999px; overflow: hidden; }
@@ -1065,10 +1071,6 @@ button.btn-tertiary:hover {
 .finish-actions {
   flex-wrap: wrap;
   gap: 10px;
-}
-.finish-actions .btn-cta,
-.finish-actions .primary {
-  order: -1;
 }
 
 /* Nav tertiary — Prijava manjša od Igraj */
@@ -1345,7 +1347,7 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
   margin-top: 8px;
 }
 
-.review { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); }
+.review { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--line); }
 .review.good h2,
 .review.good .review-verdict { color: var(--good); }
 .review.bad h2,
@@ -1437,17 +1439,109 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
   list-style: none;
 }
 .finish-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 12px;
   border-top: 0;
   padding-top: 0;
 }
-.finish-screen > h1 {
-  margin-bottom: 0.85rem;
+.finish-last-q {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
-.finish-screen > h2 {
-  margin-top: 0.25rem;
+.finish-last-q .review-verdict {
+  font-size: clamp(1.25rem, 2.6vw, 1.65rem);
+  font-weight: 680;
+  margin-bottom: 0.4rem;
+}
+.finish-q-text {
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  font-weight: 650;
+  line-height: 1.25;
+  margin: 0 0 0.55rem;
+  color: var(--cream);
+}
+.finish-answer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-top: 0.45rem;
+}
+.finish-answer-info {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.finish-answer-info .review-answer-block {
+  margin-top: 0;
+}
+.finish-answer-row > .complaint:not(.is-open) {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.finish-answer-row > .complaint.is-open,
+.finish-answer-row > .complaint-sent {
+  flex: 1 1 100%;
+}
+.finish-summary {
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.finish-summary-title {
+  margin: 0 0 10px;
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--cream);
+}
+.finish-summary-score {
+  margin: 0 0 12px;
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(2.1rem, 5vw, 3rem);
+  font-weight: 720;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: var(--cream);
+}
+.finish-summary-score strong {
+  color: var(--gold);
+  font-weight: 720;
+}
+.finish-summary-score span {
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--muted);
+  margin-left: 0.2em;
+}
+.finish-summary-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0.35rem 0.55rem;
+  margin: 0;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  font-weight: 550;
+  line-height: 1.35;
+  color: var(--cream);
+}
+.finish-summary-sep {
+  color: var(--muted);
+  font-weight: 500;
+}
+.finish-summary-reason {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.98rem;
 }
 .finish-actions {
-  margin-top: 28px;
+  margin-top: 4px;
   padding-top: 4px;
   gap: 12px;
 }
@@ -1805,6 +1899,34 @@ button.danger {
   gap: 10px;
   background: #121815;
 }
+.hr-score-side {
+  padding: 16px 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(18, 24, 21, 0.92);
+  text-align: center;
+  position: sticky;
+  top: 12px;
+}
+.hr-score-side .eyebrow {
+  margin-bottom: 4px;
+}
+.hr-score-value {
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.35rem);
+  font-weight: 720;
+  line-height: 1.1;
+  color: var(--gold);
+  margin: 0 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+.hr-score-side .fine {
+  margin: 0;
+  line-height: 1.35;
+}
+.hr-score-side .fine + .fine {
+  margin-top: 4px;
+}
 .ladder { list-style: none; margin: 0; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
 .ladder li {
   border: 1px solid var(--line);
@@ -2102,6 +2224,47 @@ a.board-icon-btn:hover {
 }
 .dirka-bonuses-help-btn {
   font-weight: 600;
+}
+.dirka-bonus-help-how {
+  margin-bottom: 1.1rem;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.dirka-bonus-help-how h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+.dirka-bonus-help-how ul {
+  margin: 8px 0 0;
+  padding-left: 1.15rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.dirka-bonus-help-how li {
+  margin-bottom: 4px;
+}
+.dirka-bonus-help-how li:last-child {
+  margin-bottom: 0;
+}
+.dirka-bonus-pool-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  vertical-align: middle;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.dirka-bonus-pool-tag.is-weak {
+  border-color: color-mix(in srgb, var(--cream) 25%, var(--line));
+}
+.dirka-bonus-pool-tag.is-strong {
+  border-color: color-mix(in srgb, var(--gold) 50%, var(--line));
+  color: var(--gold);
 }
 .dirka-bonus-help-group {
   margin-bottom: 1rem;
@@ -2960,6 +3123,36 @@ button.friend-pick-card {
   font-weight: 700;
   min-width: 2ch;
   color: var(--gold, #d4a84b);
+}
+.question-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 14rem;
+  text-align: center;
+  padding: 24px 12px;
+}
+.question-countdown-n {
+  margin: 0;
+  font-family: "Bricolage Grotesque", Georgia, serif;
+  font-size: clamp(4.5rem, 18vw, 7.5rem);
+  font-weight: 720;
+  line-height: 1;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+  animation: question-countdown-pop 0.35s ease-out;
+}
+@keyframes question-countdown-pop {
+  from {
+    transform: scale(0.72);
+    opacity: 0.35;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .color-swatch {
   width: 28px;

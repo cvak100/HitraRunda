@@ -10,7 +10,16 @@ import { GamePlayBody } from "../components/game/GamePlayBody";
 import { PodiumFinish } from "../components/game/PodiumFinish";
 import { formatMode, formatPoints } from "../format";
 import { boardPath as modeBoardPath } from "../gameModes";
-import { cancelSfxSequence, playSfx, playSfxSequence, unlockSfx, type SfxName } from "../sound";
+import {
+  cancelSfxSequence,
+  playSfx,
+  playSfxSequence,
+  startQuestionCountdown,
+  startSyncedCountdown,
+  stopQuestionCountdown,
+  unlockSfx,
+  type SfxName,
+} from "../sound";
 import type { Category, GameMessage, StandingRow } from "../types";
 
 const DEFAULT_LOBBY_TIMES = [30, 60, 90, 120, 300];
@@ -67,6 +76,9 @@ export function GamePage() {
   myIdRef.current = myId;
   const lobbyMemberIdsRef = useRef<string[] | null>(null);
   const lastNextQuestionIdRef = useRef<string>("");
+  const skipNextSfxRef = useRef(false);
+  const countdownActiveRef = useRef(false);
+  const [countdownStep, setCountdownStep] = useState<number | null>(null);
   const [kickingId, setKickingId] = useState("");
   const isLobbyMode = message?.mode === "multiplayer" || message?.mode === "dirka" || phase === "lobby";
   const isMulti = isLobbyMode;
@@ -78,7 +90,12 @@ export function GamePage() {
     const current = message;
     if (!socket || socket.readyState !== WebSocket.OPEN || !current?.question || phaseRef.current !== "question") return;
     unlockSfx();
-    if (!body.timeout) playSfx("click");
+    // Hitra runda / Ala: correct|wrong pride ob review — klik tukaj se podvoji.
+    // MP/Dirka/60s: klik ostane (feedback je drugače).
+    const mode = current.mode;
+    if (!body.timeout && mode !== "hitrarunda" && mode !== "ala_milijonar") {
+      playSfx("click");
+    }
     setPhase("submitting");
     socket.send(
       JSON.stringify({
@@ -152,7 +169,21 @@ export function GamePage() {
       setError("");
       setReconnectNote("");
       if (incoming.you?.id) setMyId(incoming.you.id);
+      if (incoming.phase === "countdown") {
+        if (!incoming.countdown_ends_at || !incoming.server_now) return;
+        countdownActiveRef.current = true;
+        setMessage(incoming);
+        setPhase("countdown");
+        setCountdownStep(3);
+        startSyncedCountdown(incoming.countdown_ends_at, incoming.server_now, (step) => {
+          setCountdownStep(step);
+        });
+        return;
+      }
       if (incoming.phase === "lobby") {
+        if (countdownActiveRef.current || phaseRef.current === "countdown") {
+          return;
+        }
         const me = incoming.you?.id || myIdRef.current;
         const ids = (incoming.members || []).map((m) => m.id);
         const prev = lobbyMemberIdsRef.current;
@@ -181,6 +212,10 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "waiting") {
+        // Snapshot ob connect ne sme prekiniti countdown UI (zvok bi tekel, zaslon pa "Pripravljam…").
+        if (countdownActiveRef.current || phaseRef.current === "countdown") {
+          return;
+        }
         setPhase("waiting");
         setMessage(incoming);
         return;
@@ -196,15 +231,19 @@ export function GamePage() {
           if (incoming.feedback.skipped) playSfx("click");
           else if (incoming.feedback.is_correct) playSfx("correct");
           else playSfx("wrong");
-        } else if (phaseRef.current === "review" || phaseRef.current === "round_review") {
-          // Prekini bonus/safe zaporedje in predvajaj next samo 1× na vprašanje
-          // (več WS auto-advance je lahko poslalo isti event večkrat).
+        } else if (qid && lastNextQuestionIdRef.current !== qid) {
+          // Novo vprašanje — enkrat "next". Po countdown go prvo vprašanje brez next.
+          lastNextQuestionIdRef.current = qid;
           cancelSfxSequence();
-          if (qid && lastNextQuestionIdRef.current !== qid) {
-            lastNextQuestionIdRef.current = qid;
+          if (skipNextSfxRef.current) {
+            skipNextSfxRef.current = false;
+          } else {
             playSfx("next");
           }
         }
+        countdownActiveRef.current = false;
+        stopQuestionCountdown();
+        setCountdownStep(null);
         setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
         commitDirkaRace(incoming, myIdRef.current, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("question");
@@ -253,21 +292,41 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "review") {
-        if (incoming.is_correct) playSfx("correct");
-        else if (!incoming.walked_away) playSfx("wrong");
+        if (incoming.is_correct) {
+          const crossedSafe =
+            incoming.mode === "ala_milijonar" &&
+            (incoming.safe_orders || []).includes((incoming.correct_count ?? 0) - 1);
+          if (crossedSafe) playSfxSequence(["correct", "safe_zone"]);
+          else playSfx("correct");
+        } else if (!incoming.walked_away && !incoming.timed_out) playSfx("wrong");
+        else if (incoming.timed_out) playSfx("click");
         setMessage(incoming);
         setPhase("review");
         setPickFriend(false);
         return;
       }
       if (incoming.phase === "finished" || incoming.type === "game_finished") {
+        const endSeq: SfxName[] = [];
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
           setSixtyTickKey((n) => n + 1);
-          if (incoming.feedback.is_correct) playSfx("correct");
-          else if (!incoming.feedback.skipped) playSfx("wrong");
+          if (incoming.feedback.skipped) endSeq.push("click");
+          else if (incoming.feedback.is_correct) endSeq.push("correct");
+          else endSeq.push("wrong");
+        } else if (incoming.mode === "hitrarunda" || incoming.mode === "ala_milijonar") {
+          if (incoming.is_correct) {
+            endSeq.push("correct");
+            if (
+              incoming.mode === "ala_milijonar" &&
+              (incoming.safe_orders || []).includes((incoming.correct_count ?? 0) - 1)
+            ) {
+              endSeq.push("safe_zone");
+            }
+          } else if (incoming.timed_out) endSeq.push("click");
+          else if (!incoming.walked_away) endSeq.push("wrong");
         }
-        playSfx("finish");
+        endSeq.push("finish");
+        playSfxSequence(endSeq);
         setMessage((current) => {
           const merged = mergeDirkaMessage(current, incoming, myIdRef.current);
           // 60s: ne obdrži starega clock_ends_at, sicer timer še teče ob finish zaslonu.
@@ -314,6 +373,27 @@ export function GamePage() {
                 // Mid-game: strežnik pošlje snapshot ob connect; dodatno sync za zanesljivost.
                 socket.send(JSON.stringify({ type: "lobby_sync" }));
               }
+            } else if (
+              (room.settings?.mode === "hitrarunda" ||
+                room.settings?.mode === "ala_milijonar" ||
+                room.settings?.mode === "60_sekund") &&
+              room.status !== "playing"
+            ) {
+              // Pred prvim vprašanjem: 3 → 2 → 1 (timer še ne teče).
+              countdownActiveRef.current = true;
+              setCountdownStep(3);
+              setPhase("countdown");
+              startQuestionCountdown(
+                (step) => {
+                  if (!stopped) setCountdownStep(step);
+                },
+                () => {
+                  if (stopped || socket.readyState !== WebSocket.OPEN) return;
+                  skipNextSfxRef.current = true;
+                  // Ostani na "1 · Zdaj" dokler ne pride vprašanje (sicer blisk Pripravljeni).
+                  socket.send(JSON.stringify({ type: "start_game" }));
+                },
+              );
             } else {
               socket.send(JSON.stringify({ type: "start_game" }));
             }
@@ -350,7 +430,11 @@ export function GamePage() {
         }
         const delay = Math.min(8000, 600 * 2 ** (attempt - 1));
         setReconnectNote(`Ponovna povezava čez ${Math.ceil(delay / 1000)} s… (${attempt}/8)`);
-        setPhase((current) => (current === "finished" || current === "closed" ? current : "connecting"));
+        setPhase((current) =>
+          current === "finished" || current === "closed" || current === "countdown"
+            ? current
+            : "connecting",
+        );
         retryTimer = window.setTimeout(connect, delay);
       };
     }
@@ -358,6 +442,8 @@ export function GamePage() {
     connect();
     return () => {
       stopped = true;
+      countdownActiveRef.current = false;
+      stopQuestionCountdown();
       if (retryTimer) window.clearTimeout(retryTimer);
       wsRef.current?.close();
     };
@@ -412,6 +498,8 @@ export function GamePage() {
   function useHelp(effect: string, friendKey?: string) {
     const socket = wsRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN || !message?.question || phase !== "question") return;
+    unlockSfx();
+    playSfx("bonus_use");
     socket.send(
       JSON.stringify({
         type: "use_lifeline",
@@ -509,6 +597,8 @@ export function GamePage() {
   }
 
   function sendReady(ready: boolean) {
+    unlockSfx();
+    playSfx(ready ? "correct" : "click");
     wsRef.current?.send(JSON.stringify({ type: "set_ready", ready }));
   }
 
@@ -617,7 +707,20 @@ export function GamePage() {
             </button>
           ) : null}
         </div>
-        {phase === "connecting" || phase === "waiting" ? (
+        {phase === "countdown" || countdownStep != null ? (
+          <div className="question-countdown" aria-live="polite">
+            <p className="eyebrow">
+              {countdownStep === 3
+                ? "Pripravljeni…"
+                : countdownStep === 2
+                  ? "Pozor…"
+                  : "Zdaj…"}
+            </p>
+            <p key={String(countdownStep ?? 1)} className="question-countdown-n">
+              {countdownStep ?? 1}
+            </p>
+          </div>
+        ) : phase === "connecting" || phase === "waiting" ? (
           <p className="status">{reconnectNote || "Pripravljam vprašanja…"}</p>
         ) : null}
         {reconnectNote && phase !== "connecting" && phase !== "waiting" ? (
@@ -809,7 +912,7 @@ export function GamePage() {
             </p>
           ) : null}
         </div>
-      ) : !isDirka ? (
+      ) : message?.mode === "ala_milijonar" && ladder.length > 0 ? (
         <ol className="ladder">
           {[...ladder].reverse().map((prize, reversed) => {
             const index = ladder.length - 1 - reversed;
@@ -827,6 +930,18 @@ export function GamePage() {
             );
           })}
         </ol>
+      ) : message?.mode === "hitrarunda" && playing ? (
+        <aside className="hr-score-side" aria-label="Točke">
+          <p className="eyebrow">Točke</p>
+          <p className="hr-score-value">{formatPoints(message.score ?? 0)}</p>
+          <p className="fine">
+            {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
+            {formatPoints(message.speed_bonus_total ?? 0)}
+          </p>
+          <p className="fine">
+            {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0} pravilnih
+          </p>
+        </aside>
       ) : null}
     </section>
   );
