@@ -73,7 +73,9 @@ Na Fedori (isti host kot app). Backupi: `/opt/dockerapps/hitrarunda-backups/`.
 
 - Jenkins user v skupini `docker` (`usermod -aG docker jenkins` + restart Jenkins).
 - SSH do GitHuba dela za uporabnika, pod katerim teče agent (`ssh -T git@github.com`).
-- Produkcija v `/opt/dockerapps/hitrarunda` z veljavnim `.env` (HTTPS).
+- Produkcija v `/opt/dockerapps/hitrarunda` z veljavnim `.env`.
+- Če **httpd/nginx** že drži 80/443: `INSTALL_MODE=http`, `APP_URL=https://…` (TLS zunaj, app na `APP_PORT`).
+- Če porta 80/443 prosta: `INSTALL_MODE=https` (Caddy v compose).
 
 ### Job 1: HitraRunda-Deploy
 
@@ -85,9 +87,10 @@ Na Fedori (isti host kot app). Backupi: `/opt/dockerapps/hitrarunda-backups/`.
    - Script Path: `Jenkinsfile.deploy`
 4. Shrani. Zaženi **Build with Parameters**:
    - `DEPLOY_REF` = `main` ali tag (`v0.4.37`)
+   - `INSTALL_MODE` = `http` (Apache na tem hostu) ali `https`
    - `APP_DIR` / `BACKUP_ROOT` pusti privzeto
 
-Potek: pg_dump → git checkout v `APP_DIR` → `install.sh https` → smoke → Django testi (`--exclude-tag=slow`).
+Potek: pg_dump → git checkout v `APP_DIR` → `install.sh $INSTALL_MODE` → smoke → Django testi (`--exclude-tag=slow`).
 
 ### Job 2: HitraRunda-Rollback
 

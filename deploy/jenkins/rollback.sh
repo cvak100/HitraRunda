@@ -5,6 +5,7 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/opt/dockerapps/hitrarunda}"
 BACKUP_ROOT="${BACKUP_ROOT:-/opt/dockerapps/hitrarunda-backups}"
 RESTORE_DB="${RESTORE_DB:-true}"
+INSTALL_MODE="${INSTALL_MODE:-http}"
 
 cd "$APP_DIR"
 if [[ ! -f .env ]]; then
@@ -54,7 +55,7 @@ if [[ "$RESTORE_DB" == "true" || "$RESTORE_DB" == "1" || "$RESTORE_DB" == "yes" 
 fi
 
 chmod +x deploy/install.sh deploy/smoke.sh 2>/dev/null || true
-./deploy/install.sh https
+./deploy/install.sh "$INSTALL_MODE"
 
 echo "Smoke…"
 ./deploy/smoke.sh "$APP_URL"

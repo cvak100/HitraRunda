@@ -21,6 +21,11 @@ pipeline {
       defaultValue: '/opt/dockerapps/hitrarunda-backups',
       description: 'Mapa za pg_dump + deploy state'
     )
+    choice(
+      name: 'INSTALL_MODE',
+      choices: ['http', 'https'],
+      description: 'Enako kot Deploy (pri Apache httpd: http)'
+    )
   }
   stages {
     stage('Rollback') {
@@ -30,6 +35,7 @@ pipeline {
           export APP_DIR='${params.APP_DIR}'
           export BACKUP_ROOT='${params.BACKUP_ROOT}'
           export RESTORE_DB='${params.RESTORE_DB}'
+          export INSTALL_MODE='${params.INSTALL_MODE}'
           bash "\${WORKSPACE}/deploy/jenkins/rollback.sh"
         """
       }

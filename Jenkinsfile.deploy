@@ -21,6 +21,11 @@ pipeline {
       defaultValue: '/opt/dockerapps/hitrarunda-backups',
       description: 'Mapa za pg_dump + deploy state'
     )
+    choice(
+      name: 'INSTALL_MODE',
+      choices: ['http', 'https'],
+      description: 'http = APP_PORT za Apache/nginx; https = Caddy na 80/443 (samo če porta prosta)'
+    )
   }
   stages {
     stage('Deploy') {
@@ -30,6 +35,7 @@ pipeline {
           export APP_DIR='${params.APP_DIR}'
           export BACKUP_ROOT='${params.BACKUP_ROOT}'
           export DEPLOY_REF='${params.DEPLOY_REF}'
+          export INSTALL_MODE='${params.INSTALL_MODE}'
           bash "\${WORKSPACE}/deploy/jenkins/deploy.sh"
         """
       }

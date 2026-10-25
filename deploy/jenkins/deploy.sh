@@ -6,6 +6,8 @@ APP_DIR="${APP_DIR:-/opt/dockerapps/hitrarunda}"
 BACKUP_ROOT="${BACKUP_ROOT:-/opt/dockerapps/hitrarunda-backups}"
 DEPLOY_REF="${DEPLOY_REF:-main}"
 KEEP_BACKUPS="${KEEP_BACKUPS:-10}"
+# http = APP_PORT (privzeto 5008) za zunanji reverse proxy; https = Caddy na 80/443.
+INSTALL_MODE="${INSTALL_MODE:-http}"
 
 # Jenkins Branch Specifier je "*/feature/0.5" — za git checkout rabimo brez */.
 DEPLOY_REF="${DEPLOY_REF#\*/}"
@@ -70,7 +72,7 @@ NEW_REF=$(git rev-parse HEAD)
 echo "Deploying $NEW_REF ($(git describe --tags --always 2>/dev/null || true))"
 
 chmod +x deploy/install.sh deploy/smoke.sh deploy/jenkins/*.sh 2>/dev/null || true
-./deploy/install.sh https
+./deploy/install.sh "$INSTALL_MODE"
 
 echo "Smoke…"
 ./deploy/smoke.sh "$APP_URL"
