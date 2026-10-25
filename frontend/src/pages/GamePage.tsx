@@ -40,6 +40,7 @@ export function GamePage() {
   const [pickFriend, setPickFriend] = useState(false);
   const [myId, setMyId] = useState("");
   const [inviteName, setInviteName] = useState("");
+  const [inviteNotice, setInviteNotice] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [lobbyTimes, setLobbyTimes] = useState(DEFAULT_LOBBY_TIMES);
   const [dirkaTimes, setDirkaTimes] = useState(DEFAULT_DIRKA_TIMES);
@@ -615,6 +616,9 @@ export function GamePage() {
     if (!inviteName.trim()) return;
     wsRef.current?.send(JSON.stringify({ type: "invite", nickname: inviteName.trim() }));
     setInviteName("");
+    // Enako sporočilo vedno — ne razkrivaj, ali vzdevek obstaja (V7).
+    setInviteNotice("Če igralec obstaja, je povabljen.");
+    window.setTimeout(() => setInviteNotice(""), 4000);
   }
 
   function lobbyInviteUrl() {
@@ -757,6 +761,7 @@ export function GamePage() {
             leaving={leaving}
             inviteName={inviteName}
             setInviteName={setInviteName}
+            inviteNotice={inviteNotice}
             copyNotice={copyNotice}
             categories={categories}
             lobbyTimes={(message.settings?.mode || message.mode) === "dirka" ? dirkaTimes : lobbyTimes}

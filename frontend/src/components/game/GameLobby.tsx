@@ -20,6 +20,7 @@ export type GameLobbyProps = {
   leaving: boolean;
   inviteName: string;
   setInviteName: (v: string) => void;
+  inviteNotice: string;
   copyNotice: string;
   categories: Category[];
   lobbyTimes: number[];
@@ -68,6 +69,7 @@ export function GameLobby(props: GameLobbyProps) {
     leaving,
     inviteName,
     setInviteName,
+    inviteNotice,
     copyNotice,
     categories,
     lobbyTimes,
@@ -220,6 +222,7 @@ export function GameLobby(props: GameLobbyProps) {
                   Povabi
                 </button>
               </div>
+              {inviteNotice ? <p className="fine">{inviteNotice}</p> : null}
               <h2>Nastavitve (v živo)</h2>
               <NumberStepper label="Največ igralcev" value={editMax} min={2} max={maxPlayersCap} onChange={changeMaxPlayers} />
               {lobbyMode === "multiplayer" ? (

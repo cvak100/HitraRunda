@@ -131,7 +131,10 @@ def start_multiplayer(member_id):
         room.status = "playing"
         room.started_at = now
         room.last_activity = now
-        room.save(update_fields=["status", "started_at", "last_activity"])
+        settings = dict(room.settings or {})
+        settings["invites"] = []
+        room.settings = settings
+        room.save(update_fields=["status", "started_at", "last_activity", "settings"])
         game_question = _current(session)
         return [question_payload(session, game_question, members[0], "game_started")]
 
