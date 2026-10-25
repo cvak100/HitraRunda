@@ -133,6 +133,38 @@ def create_multiplayer_room(user, raw):
     raise GameError("Sobe ni bilo mogoče ustvariti.")
 
 
+def _invites_list(room):
+    return [
+        item
+        for item in ((room.settings or {}).get("invites") or [])
+        if isinstance(item, dict)
+    ]
+
+
+def clear_invite_for_user(room, user_id):
+    """Odstrani povabilo za uporabnika (po vstopu v sobo)."""
+    invites = _invites_list(room)
+    kept = [item for item in invites if int(item.get("user_id") or 0) != int(user_id)]
+    if len(kept) == len(invites):
+        return room
+    settings = dict(room.settings or {})
+    settings["invites"] = kept
+    room.settings = settings
+    room.save(update_fields=["settings"])
+    return room
+
+
+def clear_all_invites(room, *, save=True):
+    if not _invites_list(room):
+        return room
+    settings = dict(room.settings or {})
+    settings["invites"] = []
+    room.settings = settings
+    if save:
+        room.save(update_fields=["settings"])
+    return room
+
+
 def join_room(user, code, raw):
     close_stale_rooms()
     raw = raw if isinstance(raw, dict) else {}
@@ -145,14 +177,14 @@ def join_room(user, code, raw):
         raise GameError("To ni večigralska soba.")
     invited = any(
         int(item.get("user_id") or 0) == int(user.id)
-        for item in ((room.settings or {}).get("invites") or [])
-        if isinstance(item, dict)
+        for item in _invites_list(room)
     )
     if not invited and not room.check_password(str(raw.get("password") or "")):
         raise GameError("Napačno geslo.")
     active = room.members.filter(left_at__isnull=True)
     existing = active.filter(user=user).first()
     if existing:
+        clear_invite_for_user(room, user.id)
         return room
     if active.count() >= room.max_players:
         raise GameError("Soba je polna.")
@@ -171,6 +203,7 @@ def join_room(user, code, raw):
     except IntegrityError:
         raise NicknameError("Ta vzdevek je v sobi že zaseden.")
     _remember_nickname(user, nickname)
+    clear_invite_for_user(room, user.id)
     touch_room(room)
     return room
 
@@ -236,6 +269,7 @@ def close_room(room, reason="closed"):
     room.last_activity = now
     settings = dict(room.settings or {})
     settings["close_reason"] = reason
+    settings["invites"] = []
     room.settings = settings
     room.save(update_fields=["status", "finished_at", "last_activity", "settings"])
     from game.models import GameSession
@@ -849,7 +883,10 @@ def leave_room(user, code):
         # Lobby (ali igra brez botov): zapri — boti sami v čakalni sobi ne držijo sobe.
         room.status = "closed"
         room.finished_at = now
-        room.save(update_fields=["status", "finished_at", "last_activity"])
+        settings = dict(room.settings or {})
+        settings["invites"] = []
+        room.settings = settings
+        room.save(update_fields=["status", "finished_at", "last_activity", "settings"])
         from game.models import GameSession
 
         GameSession.objects.filter(room=room, status="active").update(

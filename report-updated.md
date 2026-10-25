@@ -18,9 +18,9 @@ Backend testi: **77/77 uspešnih** (dodan `tests_snapshot_finished.py`).
 | N4 CSP blokira Sentry | Narejeno | `connect-src` vključuje Sentry domene. |
 | N5 Finish REST 400 | Narejeno | `RoomDetailView`: članom `finished` → 200; `closed`/nečlani → 400. Test `rooms.tests_room_detail`. |
 | N6 Apache → http profil XFF | Narejeno | nginx `real_ip` + `$forwarded_proto` od zaupanega peerja; Apache mora poslati XFF/Proto (ops.md). |
-| Boti izbirajo iz živih opcij | Ni | `_bot_answer_message` še vedno bere `question.options`. |
-| Povratna informacija ob povabilu | Ni | UI še ne pove "Če igralec obstaja, je povabljen". |
-| Povabila se ne brišejo | Ni | |
+| Boti izbirajo iz živih opcij | Ni (nizka prioriteta) | `_bot_answer_message` še vedno bere `question.options`. |
+| Povratna informacija ob povabilu | Narejeno | Lobby: "Če igralec obstaja, je povabljen." (brez enumeracije). |
+| Povabila se ne brišejo | Narejeno | Odstranitev ob join, start igre, close sobe. |
 
 ### N5 — Osvežitev zaključnega zaslona (REST) — **narejeno**
 
