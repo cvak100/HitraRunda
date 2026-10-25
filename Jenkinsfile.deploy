@@ -9,7 +9,7 @@ pipeline {
     string(
       name: 'DEPLOY_REF',
       defaultValue: 'main',
-      description: 'Git branch ali tag za APP_DIR (npr. main, feature/0.5, v0.4.37)'
+      description: 'Git branch ali tag (brez */): main, feature/0.5, v0.4.37'
     )
     string(
       name: 'APP_DIR',

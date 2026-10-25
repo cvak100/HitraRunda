@@ -7,6 +7,9 @@ BACKUP_ROOT="${BACKUP_ROOT:-/opt/dockerapps/hitrarunda-backups}"
 DEPLOY_REF="${DEPLOY_REF:-main}"
 KEEP_BACKUPS="${KEEP_BACKUPS:-10}"
 
+# Jenkins Branch Specifier je "*/feature/0.5" — za git checkout rabimo brez */.
+DEPLOY_REF="${DEPLOY_REF#\*/}"
+
 cd "$APP_DIR"
 if [[ ! -f .env ]]; then
   echo "Manjka $APP_DIR/.env"
