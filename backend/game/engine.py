@@ -428,7 +428,7 @@ def snapshot(member_id):
 
         return snapshot_sixty(member_id)
     with transaction.atomic():
-        member, _room, session = _lock(member_id)
+        member, _room, session = _lock(member_id, include_finished=True)
         if session is None:
             return {"type": "game_state", "phase": "waiting"}
         if session.status == "active":
@@ -1039,7 +1039,7 @@ def _attach_result_id(payload, session, member=None):
     return payload
 
 
-def _lock(member_id):
+def _lock(member_id, *, include_finished=False):
     try:
         member = RoomMember.objects.select_related("user").get(pk=member_id)
     except RoomMember.DoesNotExist:
@@ -1052,6 +1052,15 @@ def _lock(member_id):
         .order_by("-created_at")
         .first()
     )
+    # Snapshot po koncu: soba finished/closed nima žive seje, a UI potrebuje finish.
+    # Rematch (waiting) namerno ne vključi stare seje — ostane lobby.
+    if session is None and include_finished and room.status in {"finished", "closed"}:
+        session = (
+            GameSession.objects.select_for_update()
+            .filter(room=room, status="finished")
+            .order_by("-created_at")
+            .first()
+        )
     return member, room, session
 
 

@@ -25,7 +25,7 @@ from questions.models import Question
 
 def snapshot_sixty(member_id):
     with transaction.atomic():
-        member, room, session = _lock(member_id)
+        member, room, session = _lock(member_id, include_finished=True)
         if session is None:
             return {"type": "game_state", "phase": "waiting"}
         if session.status == "active":

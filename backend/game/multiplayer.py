@@ -38,7 +38,7 @@ SINGLE_TYPES = {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE}
 
 def snapshot_multiplayer(member_id):
     with transaction.atomic():
-        member, room, session = _lock(member_id)
+        member, room, session = _lock(member_id, include_finished=True)
         if session is None:
             return lobby_event(room, member.user, "lobby")
         if session.status == "finished":

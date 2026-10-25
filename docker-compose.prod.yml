@@ -99,7 +99,35 @@ services:
       - frontend_tls
     restart: unless-stopped
 
+  # Dnevni pg_dump (ohrani 7 dni). Vklopi: docker compose -f docker-compose.prod.yml --env-file .env --profile backup up -d db-backup
+  db-backup:
+    image: postgres:16-alpine
+    profiles: ["backup"]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hitrarunda}
+      POSTGRES_USER: ${POSTGRES_USER:-hitrarunda}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?nastavi POSTGRES_PASSWORD}
+      PGHOST: db
+    volumes:
+      - pgbackups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        while true; do
+          stamp=$$(date +%F)
+          echo "[backup] $$stamp"
+          pg_dump -U "$$POSTGRES_USER" "$$POSTGRES_DB" | gzip > "/backups/hitrarunda-$$stamp.sql.gz"
+          ls -1t /backups/hitrarunda-*.sql.gz 2>/dev/null | tail -n +8 | xargs -r rm -f
+          sleep 86400
+        done
+
 volumes:
   pgdata:
   caddy_data:
   caddy_config:
+  pgbackups:

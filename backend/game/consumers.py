@@ -214,9 +214,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         room = Room.objects.filter(code=self.code).first()
         if room is None:
             return {"type": "error", "message": "Soba ne obstaja.", "phase": "error"}
-        if room.status in {"closed", "finished"}:
+        if room.status == "closed":
             return {"type": "error", "message": "Soba je zaprta.", "phase": "error"}
-        # Med igro nikoli ne vsili lobby (TOCTOU okoli start_game / reconnect).
+        # finished / playing: osebni snapshot (ne "zaprta" — sicer finish refresh vrže vse ven).
         if room.status != "waiting":
             return snapshot(self.member_id)
         mode = (room.settings or {}).get("mode")
