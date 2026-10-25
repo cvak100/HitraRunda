@@ -66,10 +66,12 @@ export function HomePage() {
 
       {!user ? (
         <form onSubmit={onSubmit} className="stack home-guest">
-          <NicknameField value={nickname} onChange={setNickname} required />
-          <p className="fine">
-            Predlagan je naključni vzdevek — lahko ga spremeniš ali vržeš novega s kocko.
-          </p>
+          <NicknameField
+            value={nickname}
+            onChange={setNickname}
+            required
+            hint="Lahko spremeniš ali vržeš novega s kocko."
+          />
           <div className="actions">
             <button className="primary" type="submit" disabled={pending}>
               Nadaljuj kot gost

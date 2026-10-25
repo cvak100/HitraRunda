@@ -6,16 +6,24 @@ type Props = {
   onChange: (value: string) => void;
   required?: boolean;
   maxLength?: number;
+  hint?: string;
 };
 
-export function NicknameField({ label = "Vzdevek", value, onChange, required, maxLength = 30 }: Props) {
+export function NicknameField({
+  label = "Vzdevek",
+  value,
+  onChange,
+  required,
+  maxLength = 30,
+  hint,
+}: Props) {
   async function roll() {
     const data = await api<{ nickname: string }>("/api/auth/nickname/");
     onChange(data.nickname.slice(0, maxLength));
   }
 
   return (
-    <label>
+    <label className="nick-label">
       {label}
       <div className="nick-field">
         <input
@@ -28,6 +36,7 @@ export function NicknameField({ label = "Vzdevek", value, onChange, required, ma
           🎲
         </button>
       </div>
+      {hint ? <span className="nick-hint">{hint}</span> : null}
     </label>
   );
 }

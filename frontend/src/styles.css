@@ -893,6 +893,12 @@ a.primary:hover {
   font-size: 1.25rem;
   line-height: 1;
 }
+.nick-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  color: var(--muted);
+}
 
 label { display: flex; flex-direction: column; gap: 6px; }
 
