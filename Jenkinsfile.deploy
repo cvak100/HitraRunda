@@ -1,5 +1,4 @@
 // Ročni deploy — Build with Parameters. Agent na istem hostu kot app.
-// Pipeline from SCM (ta datoteka); skripte tečejo iz Jenkins workspace, app v APP_DIR.
 pipeline {
   agent any
   options {
@@ -10,7 +9,7 @@ pipeline {
     string(
       name: 'DEPLOY_REF',
       defaultValue: 'main',
-      description: 'Git branch ali tag za APP_DIR (npr. main, v0.4.37)'
+      description: 'Git branch ali tag za APP_DIR (npr. main, feature/0.5, v0.4.37)'
     )
     string(
       name: 'APP_DIR',
@@ -26,13 +25,13 @@ pipeline {
   stages {
     stage('Deploy') {
       steps {
-        sh '''
+        sh """
           set -euo pipefail
-          export APP_DIR="${APP_DIR}"
-          export BACKUP_ROOT="${BACKUP_ROOT}"
-          export DEPLOY_REF="${DEPLOY_REF}"
-          bash "${WORKSPACE}/deploy/jenkins/deploy.sh"
-        '''
+          export APP_DIR='${params.APP_DIR}'
+          export BACKUP_ROOT='${params.BACKUP_ROOT}'
+          export DEPLOY_REF='${params.DEPLOY_REF}'
+          bash "\${WORKSPACE}/deploy/jenkins/deploy.sh"
+        """
       }
     }
   }

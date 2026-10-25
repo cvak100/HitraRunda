@@ -25,13 +25,13 @@ pipeline {
   stages {
     stage('Rollback') {
       steps {
-        sh '''
+        sh """
           set -euo pipefail
-          export APP_DIR="${APP_DIR}"
-          export BACKUP_ROOT="${BACKUP_ROOT}"
-          export RESTORE_DB="${RESTORE_DB}"
-          bash "${WORKSPACE}/deploy/jenkins/rollback.sh"
-        '''
+          export APP_DIR='${params.APP_DIR}'
+          export BACKUP_ROOT='${params.BACKUP_ROOT}'
+          export RESTORE_DB='${params.RESTORE_DB}'
+          bash "\${WORKSPACE}/deploy/jenkins/rollback.sh"
+        """
       }
     }
   }
