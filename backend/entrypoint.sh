@@ -25,6 +25,20 @@ else
   python manage.py seed_questions
 fi
 
+# Države (ugib zastav) samo ob prazni bazi.
+if python -c "
+import os, django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django.setup()
+from geo.models import Country
+raise SystemExit(0 if Country.objects.exists() else 1)
+"; then
+  echo "Drzave ze v bazi — seed preskocen."
+else
+  echo "Prvi zagon: uvazam drzave..."
+  python manage.py seed_countries
+fi
+
 python manage.py seed_game_content
 python manage.py ensure_superuser
 

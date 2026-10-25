@@ -1,4 +1,4 @@
-"""Uvoz držav iz JSON (ročni paket ali countries_seed.json)."""
+"""Uvoz držav iz JSON paketov (*_drzave.json v geo/data/)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,10 @@ from typing import Any
 
 from geo.models import Country
 
-SEED_PATH = Path(__file__).resolve().parent / "data" / "countries_seed.json"
+DATA_DIR = Path(__file__).resolve().parent / "data"
+# Združljivost: stari enojni seed, če še obstaja.
+SEED_PATH = DATA_DIR / "countries_seed.json"
+SEED_GLOB = "*_drzave.json"
 
 CONTINENT_LABELS = {
     "africa": "Afrika",
@@ -32,6 +35,16 @@ SUBREGION_LABELS = {
     "southern_south_america": "Južna Južna Amerika",
     "central_south_america": "Srednja Južna Amerika",
 }
+
+
+def seed_paths() -> list[Path]:
+    """Vsi seed paketi držav (razvrščeni po imenu)."""
+    paths = sorted(DATA_DIR.glob(SEED_GLOB))
+    if paths:
+        return paths
+    if SEED_PATH.is_file():
+        return [SEED_PATH]
+    return []
 
 
 def load_payload(raw: str | bytes | dict | list) -> dict:
@@ -125,10 +138,51 @@ def import_countries(raw: str | bytes | dict | list, *, only_new: bool = False) 
     }
 
 
+def import_seed_files(*, only_new: bool = False) -> dict:
+    """Uvozi vse pakete iz geo/data/*_drzave.json."""
+    paths = seed_paths()
+    if not paths:
+        return {
+            "created": 0,
+            "updated": 0,
+            "skipped": 0,
+            "errors": ["Ni seed paketov (*_drzave.json) v geo/data/."],
+            "total": Country.objects.count(),
+            "files": [],
+        }
+    created = updated = skipped = 0
+    errors: list[str] = []
+    files: list[str] = []
+    for path in paths:
+        files.append(path.name)
+        report = import_countries(path.read_text(encoding="utf-8"), only_new=only_new)
+        created += int(report.get("created") or 0)
+        updated += int(report.get("updated") or 0)
+        skipped += int(report.get("skipped") or 0)
+        for err in report.get("errors") or []:
+            errors.append(f"{path.name}: {err}")
+    return {
+        "created": created,
+        "updated": updated,
+        "skipped": skipped,
+        "errors": errors,
+        "total": Country.objects.count(),
+        "files": files,
+    }
+
+
 def ensure_seed_countries() -> dict:
+    """Ob prazni tabeli uvozi vse seed pakete (prva inštalacija)."""
     if Country.objects.exists():
-        return {"created": 0, "updated": 0, "skipped": Country.objects.count(), "errors": [], "total": Country.objects.count()}
-    return import_countries(SEED_PATH.read_text(encoding="utf-8"))
+        return {
+            "created": 0,
+            "updated": 0,
+            "skipped": Country.objects.count(),
+            "errors": [],
+            "total": Country.objects.count(),
+            "files": [],
+        }
+    return import_seed_files(only_new=False)
 
 
 def quiz_countries(

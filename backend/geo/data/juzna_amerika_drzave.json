@@ -1,0 +1,3125 @@
+{
+  "version": 1,
+  "source": "manual",
+  "updated_at": "2026-10-25",
+  "countries": [
+    {
+      "iso2": "ar",
+      "iso3": "arg",
+      "iso_numeric": 32,
+      "ccn3": "032",
+      "name": {
+        "sl": "Argentina",
+        "en": "Argentina",
+        "official_sl": "Argentinska republika",
+        "official_en": "Argentine Republic",
+        "native": [
+          "Argentina"
+        ]
+      },
+      "aliases_sl": [
+        "Argentinska republika"
+      ],
+      "aliases_en": [
+        "Argentine Republic"
+      ],
+      "demonym": {
+        "sl_m": "Argentinec",
+        "sl_f": "Argentinka",
+        "en": "Argentine"
+      },
+      "flag": {
+        "code": "ar",
+        "file_4x3": "flags/4x3/ar.svg",
+        "file_1x1": "flags/1x1/ar.svg",
+        "emoji": "🇦🇷",
+        "notes": "Svetlo modra-bela-svetlo modra vodoravno z majskim soncem; podobna urugvajski zastavi (tudi majsko sonce) ter zastavam Nikaragve, Hondurasa, Salvadorja in Gvatemale.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -34.0,
+        "lon": -64.0,
+        "area_km2": 2780400,
+        "coastline_km": 4989,
+        "highest_point": {
+          "name_sl": "Aconcagua",
+          "name_en": "Aconcagua",
+          "elevation_m": 6961
+        },
+        "lowest_point": {
+          "name_sl": "Laguna del Carbón",
+          "name_en": "Laguna del Carbón",
+          "elevation_m": -105
+        },
+        "borders_iso2": [
+          "bo",
+          "br",
+          "cl",
+          "py",
+          "uy"
+        ],
+        "borders_notes": "Zahteva Falklandske otoke (Malvine), ki jih upravlja Združeno kraljestvo.",
+        "timezones": [
+          "America/Argentina/Buenos_Aires"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Buenos Aires",
+        "en": "Buenos Aires",
+        "lat": -34.6,
+        "lon": -58.38,
+        "population": 3120000
+      },
+      "top_cities": [
+        {
+          "sl": "Buenos Aires",
+          "en": "Buenos Aires",
+          "population": 3120000
+        },
+        {
+          "sl": "Córdoba",
+          "en": "Córdoba",
+          "population": 1500000
+        },
+        {
+          "sl": "Rosario",
+          "en": "Rosario",
+          "population": 1000000
+        },
+        {
+          "sl": "La Plata",
+          "en": "La Plata",
+          "population": 770000
+        },
+        {
+          "sl": "Mar del Plata",
+          "en": "Mar del Plata",
+          "population": 680000
+        },
+        {
+          "sl": "Salta",
+          "en": "Salta",
+          "population": 620000
+        },
+        {
+          "sl": "San Miguel de Tucumán",
+          "en": "San Miguel de Tucumán",
+          "population": 600000
+        },
+        {
+          "sl": "Santa Fe",
+          "en": "Santa Fe",
+          "population": 430000
+        },
+        {
+          "sl": "Corrientes",
+          "en": "Corrientes",
+          "population": 410000
+        },
+        {
+          "sl": "Neuquén",
+          "en": "Neuquén",
+          "population": 290000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Parana",
+            "en": "Paraná"
+          },
+          {
+            "sl": "Urugvaj",
+            "en": "Uruguay"
+          },
+          {
+            "sl": "Paragvaj",
+            "en": "Paraguay"
+          },
+          {
+            "sl": "Río Negro",
+            "en": "Río Negro"
+          },
+          {
+            "sl": "Colorado",
+            "en": "Colorado"
+          },
+          {
+            "sl": "Salado",
+            "en": "Salado"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Lago Argentino",
+            "en": "Lago Argentino"
+          },
+          {
+            "sl": "Nahuel Huapi",
+            "en": "Nahuel Huapi"
+          },
+          {
+            "sl": "Mar Chiquita",
+            "en": "Mar Chiquita"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Río de la Plata",
+            "en": "Río de la Plata"
+          }
+        ]
+      },
+      "population": {
+        "total": 45900000,
+        "year": 2025,
+        "density_per_km2": 17
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "gvaranščina",
+          "italijanščina",
+          "kečuanščina"
+        ]
+      },
+      "currency": {
+        "code": "ARS",
+        "name_sl": "argentinski peso",
+        "name_en": "Argentine peso",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".ar"
+        ],
+        "phone_prefix": "+54",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "south_america",
+          "mercosur",
+          "hispanophone",
+          "andes",
+          "patagonia",
+          "g20",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "uy",
+          "cl",
+          "py"
+        ],
+        "hint_sl": "Država tanga, Patagonije in Ognjene zemlje, druga največja v Južni Ameriki; prestolnica Buenos Aires."
+      },
+      "extra": {
+        "motto_sl": "V zvezi in svobodi",
+        "national_day": "1816-07-09",
+        "former_names_sl": [
+          "Združene province Río de la Plata"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Argentina",
+        "notes": "Španščina je uradni jezik de facto. Državni praznik je dan neodvisnosti (9. julij 1816); majska revolucija je bila 25. maja 1810. Argentina zahteva tudi Južno Georgijo in del Antarktike. Prebivalstvo mest: mesto ali departma/partido (približno, popis 2022)."
+      }
+    },
+    {
+      "iso2": "bo",
+      "iso3": "bol",
+      "iso_numeric": 68,
+      "ccn3": "068",
+      "name": {
+        "sl": "Bolivija",
+        "en": "Bolivia",
+        "official_sl": "Večnacionalna država Bolivija",
+        "official_en": "Plurinational State of Bolivia",
+        "native": [
+          "Bolivia",
+          "Buliwya",
+          "Wuliwya",
+          "Volívia"
+        ]
+      },
+      "aliases_sl": [
+        "Večnacionalna država Bolivija",
+        "Republika Bolivija"
+      ],
+      "aliases_en": [
+        "Plurinational State of Bolivia",
+        "Republic of Bolivia"
+      ],
+      "demonym": {
+        "sl_m": "Bolivijec",
+        "sl_f": "Bolivijka",
+        "en": "Bolivian"
+      },
+      "flag": {
+        "code": "bo",
+        "file_4x3": "flags/4x3/bo.svg",
+        "file_1x1": "flags/1x1/bo.svg",
+        "emoji": "🇧🇴",
+        "notes": "Rdeča-rumena-zelena vodoravno (državna zastava z grbom); brez grba podobna zastavi Gane brez zvezde, obratni vrstni red barv ima Litva.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": true,
+        "lat": -17.0,
+        "lon": -65.0,
+        "area_km2": 1098581,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Nevado Sajama",
+          "name_en": "Nevado Sajama",
+          "elevation_m": 6542
+        },
+        "lowest_point": {
+          "name_sl": "reka Paragvaj",
+          "name_en": "Paraguay River",
+          "elevation_m": 90
+        },
+        "borders_iso2": [
+          "ar",
+          "br",
+          "cl",
+          "pe",
+          "py"
+        ],
+        "borders_notes": "Od vojne za Pacifik (1879–1884) nima izhoda na morje; še vedno zahteva dostop do Tihega oceana.",
+        "timezones": [
+          "America/La_Paz"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Sucre",
+        "en": "Sucre",
+        "lat": -19.05,
+        "lon": -65.26,
+        "population": 296000
+      },
+      "top_cities": [
+        {
+          "sl": "Santa Cruz de la Sierra",
+          "en": "Santa Cruz de la Sierra",
+          "population": 1607000
+        },
+        {
+          "sl": "El Alto",
+          "en": "El Alto",
+          "population": 885000
+        },
+        {
+          "sl": "La Paz",
+          "en": "La Paz",
+          "population": 756000
+        },
+        {
+          "sl": "Cochabamba",
+          "en": "Cochabamba",
+          "population": 661000
+        },
+        {
+          "sl": "Oruro",
+          "en": "Oruro",
+          "population": 297000
+        },
+        {
+          "sl": "Sucre",
+          "en": "Sucre",
+          "population": 296000
+        },
+        {
+          "sl": "Tarija",
+          "en": "Tarija",
+          "population": 239000
+        },
+        {
+          "sl": "Potosí",
+          "en": "Potosí",
+          "population": 218000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Mamoré",
+            "en": "Mamoré"
+          },
+          {
+            "sl": "Beni",
+            "en": "Beni"
+          },
+          {
+            "sl": "Pilcomayo",
+            "en": "Pilcomayo"
+          },
+          {
+            "sl": "Paragvaj",
+            "en": "Paraguay"
+          },
+          {
+            "sl": "Madre de Dios",
+            "en": "Madre de Dios"
+          },
+          {
+            "sl": "Guaporé (Iténez)",
+            "en": "Guaporé (Iténez)"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Titikaka",
+            "en": "Lake Titicaca"
+          },
+          {
+            "sl": "Poopó",
+            "en": "Lake Poopó"
+          },
+          {
+            "sl": "Salar de Uyuni",
+            "en": "Salar de Uyuni"
+          }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 12600000,
+        "year": 2025,
+        "density_per_km2": 11
+      },
+      "languages": {
+        "official_sl": [
+          "španščina",
+          "kečuanščina",
+          "ajmarščina",
+          "gvaranščina"
+        ],
+        "official_en": [
+          "Spanish",
+          "Quechua",
+          "Aymara",
+          "Guaraní"
+        ],
+        "also_spoken_sl": [
+          "drugi domorodni jeziki (ustava jih priznava 36)"
+        ]
+      },
+      "currency": {
+        "code": "BOB",
+        "name_sl": "boliviano",
+        "name_en": "Bolivian boliviano",
+        "symbol": "Bs"
+      },
+      "communications": {
+        "tld": [
+          ".bo"
+        ],
+        "phone_prefix": "+591",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "south_america",
+          "mercosur",
+          "andean",
+          "andes",
+          "amazon",
+          "hispanophone",
+          "landlocked"
+        ],
+        "common_confusions_iso2": [
+          "py",
+          "pe",
+          "ec"
+        ],
+        "hint_sl": "Celinska andska država z jezerom Titikaka in solno planoto Uyuni; ustavna prestolnica Sucre, vlada v La Pazu."
+      },
+      "extra": {
+        "motto_sl": "Enotnost je moč",
+        "national_day": "1825-08-06",
+        "former_names_sl": [
+          "Republika Bolivija"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Bolivija",
+        "notes": "Ustavna prestolnica je Sucre (sedež vrhovnega sodišča), sedež vlade in parlamenta pa je La Paz. Največje mesto je Santa Cruz de la Sierra. Ustava iz leta 2009 za uradne priznava španščino in 36 domorodnih jezikov; tu so navedeni najbolj razširjeni. Polnopravna članica Mercosurja od julija 2024. Popis 2024 je naštel 11,37 milijona prebivalcev (navedena je ocena ZN). Prebivalstvo mest: občine, popis 2024."
+      }
+    },
+    {
+      "iso2": "br",
+      "iso3": "bra",
+      "iso_numeric": 76,
+      "ccn3": "076",
+      "name": {
+        "sl": "Brazilija",
+        "en": "Brazil",
+        "official_sl": "Federativna republika Brazilija",
+        "official_en": "Federative Republic of Brazil",
+        "native": [
+          "Brasil"
+        ]
+      },
+      "aliases_sl": [
+        "Federativna republika Brazilija"
+      ],
+      "aliases_en": [
+        "Federative Republic of Brazil"
+      ],
+      "demonym": {
+        "sl_m": "Brazilec",
+        "sl_f": "Brazilka",
+        "en": "Brazilian"
+      },
+      "flag": {
+        "code": "br",
+        "file_4x3": "flags/4x3/br.svg",
+        "file_1x1": "flags/1x1/br.svg",
+        "emoji": "🇧🇷",
+        "notes": "Zelena z rumenim rombom in modro nebesno kroglo z 27 zvezdami ter napisom Ordem e Progresso.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -10.0,
+        "lon": -55.0,
+        "area_km2": 8515767,
+        "coastline_km": 7491,
+        "highest_point": {
+          "name_sl": "Pico da Neblina",
+          "name_en": "Pico da Neblina",
+          "elevation_m": 2995
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "ar",
+          "bo",
+          "co",
+          "gf",
+          "gy",
+          "pe",
+          "py",
+          "sr",
+          "uy",
+          "ve"
+        ],
+        "borders_notes": "Meji na vse južnoameriške države razen Čila in Ekvadorja. Meja s Francosko Gvajano je kopenska meja s Francijo (in EU).",
+        "timezones": [
+          "America/Sao_Paulo",
+          "America/Manaus",
+          "America/Noronha",
+          "America/Rio_Branco"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Brasília",
+        "en": "Brasília",
+        "lat": -15.79,
+        "lon": -47.88,
+        "population": 2820000
+      },
+      "top_cities": [
+        {
+          "sl": "São Paulo",
+          "en": "São Paulo",
+          "population": 11450000
+        },
+        {
+          "sl": "Rio de Janeiro",
+          "en": "Rio de Janeiro",
+          "population": 6210000
+        },
+        {
+          "sl": "Brasília",
+          "en": "Brasília",
+          "population": 2820000
+        },
+        {
+          "sl": "Fortaleza",
+          "en": "Fortaleza",
+          "population": 2430000
+        },
+        {
+          "sl": "Salvador",
+          "en": "Salvador",
+          "population": 2420000
+        },
+        {
+          "sl": "Belo Horizonte",
+          "en": "Belo Horizonte",
+          "population": 2320000
+        },
+        {
+          "sl": "Manaus",
+          "en": "Manaus",
+          "population": 2060000
+        },
+        {
+          "sl": "Curitiba",
+          "en": "Curitiba",
+          "population": 1770000
+        },
+        {
+          "sl": "Recife",
+          "en": "Recife",
+          "population": 1490000
+        },
+        {
+          "sl": "Goiânia",
+          "en": "Goiânia",
+          "population": 1440000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Amazonka",
+            "en": "Amazon"
+          },
+          {
+            "sl": "Parana",
+            "en": "Paraná"
+          },
+          {
+            "sl": "São Francisco",
+            "en": "São Francisco"
+          },
+          {
+            "sl": "Tocantins",
+            "en": "Tocantins"
+          },
+          {
+            "sl": "Madeira",
+            "en": "Madeira"
+          },
+          {
+            "sl": "Rio Negro",
+            "en": "Rio Negro"
+          },
+          {
+            "sl": "Xingu",
+            "en": "Xingu"
+          },
+          {
+            "sl": "Iguaçu",
+            "en": "Iguazu"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Lagoa dos Patos",
+            "en": "Lagoa dos Patos"
+          },
+          {
+            "sl": "Lagoa Mirim",
+            "en": "Lagoa Mirim"
+          },
+          {
+            "sl": "Itaipu (akumulacijsko jezero)",
+            "en": "Itaipu Reservoir"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 212800000,
+        "year": 2025,
+        "density_per_km2": 25
+      },
+      "languages": {
+        "official_sl": [
+          "portugalščina"
+        ],
+        "official_en": [
+          "Portuguese"
+        ],
+        "also_spoken_sl": [
+          "brazilski znakovni jezik",
+          "nemščina",
+          "italijanščina",
+          "domorodni jeziki"
+        ]
+      },
+      "currency": {
+        "code": "BRL",
+        "name_sl": "brazilski real",
+        "name_en": "Brazilian real",
+        "symbol": "R$"
+      },
+      "communications": {
+        "tld": [
+          ".br"
+        ],
+        "phone_prefix": "+55",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "south_america",
+          "mercosur",
+          "lusophone",
+          "amazon",
+          "brics",
+          "g20",
+          "atlantic",
+          "equator"
+        ],
+        "common_confusions_iso2": [
+          "pt",
+          "ar",
+          "co"
+        ],
+        "hint_sl": "Največja država Južne Amerike z Amazonko in karnevalom v Riu de Janeiru; prestolnica Brasília."
+      },
+      "extra": {
+        "motto_sl": "Red in napredek",
+        "national_day": "1822-09-07",
+        "former_names_sl": [
+          "Brazilsko cesarstvo",
+          "Združene države Brazilije"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Brazilija",
+        "notes": "Največje mesto je São Paulo. Brasília je prestolnica od leta 1960 (prej Rio de Janeiro). Brazilski znakovni jezik (libras) je zakonsko priznan. Prebivalstvo mest: občine, popis 2022."
+      }
+    },
+    {
+      "iso2": "cl",
+      "iso3": "chl",
+      "iso_numeric": 152,
+      "ccn3": "152",
+      "name": {
+        "sl": "Čile",
+        "en": "Chile",
+        "official_sl": "Republika Čile",
+        "official_en": "Republic of Chile",
+        "native": [
+          "Chile"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Čile"
+      ],
+      "aliases_en": [
+        "Republic of Chile"
+      ],
+      "demonym": {
+        "sl_m": "Čilenec",
+        "sl_f": "Čilenka",
+        "en": "Chilean"
+      },
+      "flag": {
+        "code": "cl",
+        "file_4x3": "flags/4x3/cl.svg",
+        "file_1x1": "flags/1x1/cl.svg",
+        "emoji": "🇨🇱",
+        "notes": "Bela in rdeča vodoravno z modrim kvadratom in belo zvezdo; podobna zastavi ameriške zvezne države Teksas in zastavi Portorika.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -30.0,
+        "lon": -71.0,
+        "area_km2": 756102,
+        "coastline_km": 6435,
+        "highest_point": {
+          "name_sl": "Ojos del Salado",
+          "name_en": "Ojos del Salado",
+          "elevation_m": 6893
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "ar",
+          "bo",
+          "pe"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Santiago",
+          "America/Punta_Arenas",
+          "Pacific/Easter"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Santiago de Chile",
+        "en": "Santiago",
+        "lat": -33.45,
+        "lon": -70.67,
+        "population": 6900000
+      },
+      "top_cities": [
+        {
+          "sl": "Santiago de Chile",
+          "en": "Santiago",
+          "population": 6900000
+        },
+        {
+          "sl": "Valparaíso",
+          "en": "Valparaíso",
+          "population": 1000000
+        },
+        {
+          "sl": "Concepción",
+          "en": "Concepción",
+          "population": 1000000
+        },
+        {
+          "sl": "La Serena",
+          "en": "La Serena",
+          "population": 500000
+        },
+        {
+          "sl": "Antofagasta",
+          "en": "Antofagasta",
+          "population": 400000
+        },
+        {
+          "sl": "Temuco",
+          "en": "Temuco",
+          "population": 400000
+        },
+        {
+          "sl": "Iquique",
+          "en": "Iquique",
+          "population": 330000
+        },
+        {
+          "sl": "Rancagua",
+          "en": "Rancagua",
+          "population": 300000
+        },
+        {
+          "sl": "Puerto Montt",
+          "en": "Puerto Montt",
+          "population": 260000
+        },
+        {
+          "sl": "Talca",
+          "en": "Talca",
+          "population": 250000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Loa",
+            "en": "Loa"
+          },
+          {
+            "sl": "Biobío",
+            "en": "Biobío"
+          },
+          {
+            "sl": "Baker",
+            "en": "Baker"
+          },
+          {
+            "sl": "Maule",
+            "en": "Maule"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Llanquihue",
+            "en": "Lake Llanquihue"
+          },
+          {
+            "sl": "General Carrera",
+            "en": "General Carrera Lake"
+          },
+          {
+            "sl": "Chungará",
+            "en": "Lake Chungará"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 19900000,
+        "year": 2025,
+        "density_per_km2": 26
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "mapudungun",
+          "ajmarščina",
+          "rapanujščina"
+        ]
+      },
+      "currency": {
+        "code": "CLP",
+        "name_sl": "čilski peso",
+        "name_en": "Chilean peso",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".cl"
+        ],
+        "phone_prefix": "+56",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "south_america",
+          "hispanophone",
+          "andes",
+          "patagonia",
+          "pacific"
+        ],
+        "common_confusions_iso2": [
+          "ar",
+          "pe",
+          "bo"
+        ],
+        "hint_sl": "Dolga ozka država med Andi in Tihim oceanom s puščavo Atacama; prestolnica Santiago."
+      },
+      "extra": {
+        "motto_sl": "Z razumom ali s silo",
+        "national_day": "1810-09-18",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Čile",
+        "notes": "Španščina je uradni jezik de facto. Kongres ima sedež v Valparaísu. K Čilu spada tudi Velikonočni otok. Prebivalstvo mest: urbane aglomeracije (Veliki Santiago, Veliki Valparaíso, Veliki Concepción ...), približno."
+      }
+    },
+    {
+      "iso2": "co",
+      "iso3": "col",
+      "iso_numeric": 170,
+      "ccn3": "170",
+      "name": {
+        "sl": "Kolumbija",
+        "en": "Colombia",
+        "official_sl": "Republika Kolumbija",
+        "official_en": "Republic of Colombia",
+        "native": [
+          "Colombia"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Kolumbija"
+      ],
+      "aliases_en": [
+        "Republic of Colombia"
+      ],
+      "demonym": {
+        "sl_m": "Kolumbijec",
+        "sl_f": "Kolumbijka",
+        "en": "Colombian"
+      },
+      "flag": {
+        "code": "co",
+        "file_4x3": "flags/4x3/co.svg",
+        "file_1x1": "flags/1x1/co.svg",
+        "emoji": "🇨🇴",
+        "notes": "Rumena-modra-rdeča vodoravno, rumeni pas je širok pol zastave. Zelo podobna ekvadorski (ima grb) in venezuelski zastavi (enako široki pasovi, zvezde).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 4.0,
+        "lon": -72.0,
+        "area_km2": 1141748,
+        "coastline_km": 3208,
+        "highest_point": {
+          "name_sl": "Pico Cristóbal Colón",
+          "name_en": "Pico Cristóbal Colón",
+          "elevation_m": 5730
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "br",
+          "ec",
+          "pa",
+          "pe",
+          "ve"
+        ],
+        "borders_notes": "Meji tudi na Panamo (Srednja Amerika).",
+        "timezones": [
+          "America/Bogota"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Bogota",
+        "en": "Bogotá",
+        "lat": 4.71,
+        "lon": -74.07,
+        "population": 7970000
+      },
+      "top_cities": [
+        {
+          "sl": "Bogota",
+          "en": "Bogotá",
+          "population": 7970000
+        },
+        {
+          "sl": "Medellín",
+          "en": "Medellín",
+          "population": 2700000
+        },
+        {
+          "sl": "Cali",
+          "en": "Cali",
+          "population": 2300000
+        },
+        {
+          "sl": "Barranquilla",
+          "en": "Barranquilla",
+          "population": 1350000
+        },
+        {
+          "sl": "Cartagena",
+          "en": "Cartagena",
+          "population": 1060000
+        },
+        {
+          "sl": "Cúcuta",
+          "en": "Cúcuta",
+          "population": 790000
+        },
+        {
+          "sl": "Soacha",
+          "en": "Soacha",
+          "population": 760000
+        },
+        {
+          "sl": "Soledad",
+          "en": "Soledad",
+          "population": 690000
+        },
+        {
+          "sl": "Bucaramanga",
+          "en": "Bucaramanga",
+          "population": 620000
+        },
+        {
+          "sl": "Villavicencio",
+          "en": "Villavicencio",
+          "population": 560000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Magdalena",
+            "en": "Magdalena"
+          },
+          {
+            "sl": "Cauca",
+            "en": "Cauca"
+          },
+          {
+            "sl": "Amazonka",
+            "en": "Amazon"
+          },
+          {
+            "sl": "Orinoko",
+            "en": "Orinoco"
+          },
+          {
+            "sl": "Putumayo",
+            "en": "Putumayo"
+          },
+          {
+            "sl": "Caquetá",
+            "en": "Caquetá"
+          },
+          {
+            "sl": "Meta",
+            "en": "Meta"
+          },
+          {
+            "sl": "Guaviare",
+            "en": "Guaviare"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Tota",
+            "en": "Lake Tota"
+          },
+          {
+            "sl": "Guatavita",
+            "en": "Lake Guatavita"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 53400000,
+        "year": 2025,
+        "density_per_km2": 47
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "wayuunaiki",
+          "angleščina (San Andrés)",
+          "drugi domorodni jeziki"
+        ]
+      },
+      "currency": {
+        "code": "COP",
+        "name_sl": "kolumbijski peso",
+        "name_en": "Colombian peso",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".co"
+        ],
+        "phone_prefix": "+57",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "south_america",
+          "andean",
+          "andes",
+          "amazon",
+          "hispanophone",
+          "pacific",
+          "caribbean",
+          "equator"
+        ],
+        "common_confusions_iso2": [
+          "ec",
+          "ve",
+          "bo"
+        ],
+        "hint_sl": "Edina južnoameriška država ob Tihem oceanu in Karibskem morju, znana po kavi; prestolnica Bogotá."
+      },
+      "extra": {
+        "motto_sl": "Svoboda in red",
+        "national_day": "1810-07-20",
+        "former_names_sl": [
+          "Nova Granada",
+          "Granadinska konfederacija",
+          "Združene države Kolumbije"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Kolumbija",
+        "notes": "Domorodni jeziki so souradni na svojih ozemljih. Višina Pica Cristóbal Colón ni povsem zanesljiva (merjenja okoli 5700–5730 m). Prebivalstvo mest: občine, projekcija DANE za 2025, približno."
+      }
+    },
+    {
+      "iso2": "ec",
+      "iso3": "ecu",
+      "iso_numeric": 218,
+      "ccn3": "218",
+      "name": {
+        "sl": "Ekvador",
+        "en": "Ecuador",
+        "official_sl": "Republika Ekvador",
+        "official_en": "Republic of Ecuador",
+        "native": [
+          "Ecuador"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Ekvador"
+      ],
+      "aliases_en": [
+        "Republic of Ecuador"
+      ],
+      "demonym": {
+        "sl_m": "Ekvadorec",
+        "sl_f": "Ekvadorka",
+        "en": "Ecuadorian"
+      },
+      "flag": {
+        "code": "ec",
+        "file_4x3": "flags/4x3/ec.svg",
+        "file_1x1": "flags/1x1/ec.svg",
+        "emoji": "🇪🇨",
+        "notes": "Rumena-modra-rdeča vodoravno z grbom (kondor); brez grba enaka kolumbijski, podobna tudi venezuelski.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -2.0,
+        "lon": -77.5,
+        "area_km2": 276841,
+        "coastline_km": 2237,
+        "highest_point": {
+          "name_sl": "Chimborazo",
+          "name_en": "Chimborazo",
+          "elevation_m": 6263
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "co",
+          "pe"
+        ],
+        "borders_notes": "Galapaški otoki ležijo okoli 1000 km zahodno od celine.",
+        "timezones": [
+          "America/Guayaquil",
+          "Pacific/Galapagos"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Quito",
+        "en": "Quito",
+        "lat": -0.18,
+        "lon": -78.47,
+        "population": 2680000
+      },
+      "top_cities": [
+        {
+          "sl": "Guayaquil",
+          "en": "Guayaquil",
+          "population": 2750000
+        },
+        {
+          "sl": "Quito",
+          "en": "Quito",
+          "population": 2680000
+        },
+        {
+          "sl": "Cuenca",
+          "en": "Cuenca",
+          "population": 600000
+        },
+        {
+          "sl": "Santo Domingo",
+          "en": "Santo Domingo",
+          "population": 490000
+        },
+        {
+          "sl": "Ambato",
+          "en": "Ambato",
+          "population": 370000
+        },
+        {
+          "sl": "Portoviejo",
+          "en": "Portoviejo",
+          "population": 320000
+        },
+        {
+          "sl": "Durán",
+          "en": "Durán",
+          "population": 300000
+        },
+        {
+          "sl": "Machala",
+          "en": "Machala",
+          "population": 290000
+        },
+        {
+          "sl": "Manta",
+          "en": "Manta",
+          "population": 270000
+        },
+        {
+          "sl": "Loja",
+          "en": "Loja",
+          "population": 240000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Guayas",
+            "en": "Guayas"
+          },
+          {
+            "sl": "Napo",
+            "en": "Napo"
+          },
+          {
+            "sl": "Esmeraldas",
+            "en": "Esmeraldas"
+          },
+          {
+            "sl": "Pastaza",
+            "en": "Pastaza"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Quilotoa",
+            "en": "Quilotoa"
+          },
+          {
+            "sl": "San Pablo",
+            "en": "Lake San Pablo"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 18300000,
+        "year": 2025,
+        "density_per_km2": 66
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "kečuanščina (kichwa)",
+          "shuar"
+        ]
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".ec"
+        ],
+        "phone_prefix": "+593",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "south_america",
+          "andean",
+          "andes",
+          "amazon",
+          "hispanophone",
+          "pacific",
+          "equator"
+        ],
+        "common_confusions_iso2": [
+          "co",
+          "ve",
+          "pe"
+        ],
+        "hint_sl": "Država na ekvatorju z Galapaškimi otoki in vulkanom Chimborazo; prestolnica Quito."
+      },
+      "extra": {
+        "motto_sl": "Bog, domovina in svoboda",
+        "national_day": "1809-08-10",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Ekvador",
+        "notes": "Od leta 2000 uporablja ameriški dolar (prej sucre); kovance za cente kuje sama. Kichwa in shuar sta uradna jezika medkulturnih odnosov. Največje mesto je Guayaquil. Vrh Chimborazza je točka na Zemlji, najbolj oddaljena od njenega središča. Prebivalstvo mest: kantoni, popis 2022."
+      }
+    },
+    {
+      "iso2": "fk",
+      "iso3": "flk",
+      "iso_numeric": 238,
+      "ccn3": "238",
+      "name": {
+        "sl": "Falklandski otoki",
+        "en": "Falkland Islands",
+        "official_sl": "Falklandski otoki",
+        "official_en": "Falkland Islands",
+        "native": [
+          "Falkland Islands"
+        ]
+      },
+      "aliases_sl": [
+        "Falklandi",
+        "Falklandsko otočje",
+        "Malvini"
+      ],
+      "aliases_en": [
+        "Falklands",
+        "Islas Malvinas"
+      ],
+      "demonym": {
+        "sl_m": "Falklandčan",
+        "sl_f": "Falklandčanka",
+        "en": "Falkland Islander"
+      },
+      "flag": {
+        "code": "fk",
+        "file_4x3": "flags/4x3/fk.svg",
+        "file_1x1": "flags/1x1/fk.svg",
+        "emoji": "🇫🇰",
+        "notes": "Modra z britansko zastavo v kotu in grbom otokov (ovca, ladja Desire); podobna zastavam drugih britanskih ozemelj, npr. Južne Georgije.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -51.75,
+        "lon": -59.0,
+        "area_km2": 12173,
+        "coastline_km": 1288,
+        "highest_point": {
+          "name_sl": "Mount Usborne",
+          "name_en": "Mount Usborne",
+          "elevation_m": 705
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Atlantic/Stanley"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Stanley",
+        "en": "Stanley",
+        "lat": -51.69,
+        "lon": -57.86,
+        "population": 2500
+      },
+      "top_cities": [
+        {
+          "sl": "Stanley",
+          "en": "Stanley",
+          "population": 2500
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "San Carlos",
+            "en": "San Carlos"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 3470,
+        "year": 2025,
+        "density_per_km2": 0
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "španščina"
+        ]
+      },
+      "currency": {
+        "code": "FKP",
+        "name_sl": "falklandski funt",
+        "name_en": "Falkland Islands pound",
+        "symbol": "£"
+      },
+      "communications": {
+        "tld": [
+          ".fk"
+        ],
+        "phone_prefix": "+500",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": false,
+        "un_member": false,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Ni samostojna država: britansko čezmorsko ozemlje. Suverenost zahteva Argentina (Islas Malvinas); leta 1982 je zaradi otokov potekala falklandska vojna. Na referendumu leta 2013 je 99,8 % volivcev podprlo ohranitev britanskega statusa. ZN ga vodijo kot nesamoupravno ozemlje.",
+        "quiz_exclude": true,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "south_america",
+          "island",
+          "overseas_territory",
+          "disputed",
+          "anglophone",
+          "atlantic",
+          "patagonia"
+        ],
+        "common_confusions_iso2": [
+          "gs",
+          "ar",
+          "gb"
+        ],
+        "hint_sl": "Britansko čezmorsko ozemlje v južnem Atlantiku, ki ga zahteva Argentina; glavno mesto Stanley."
+      },
+      "extra": {
+        "motto_sl": "Želi si pravice",
+        "national_day": "1982-06-14",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Falklandi",
+        "notes": "Okoli 3500 prebivalcev, zato je gostota zaokrožena na 0. Državni praznik je dan osvoboditve (14. junij 1982, konec falklandske vojne). Falklandski funt je vezan na britanski funt v razmerju 1 : 1. Pravopis navaja ime Malvini (Falklandsko otočje) ter prebivalca Malvinčan, Malvinčanka."
+      }
+    },
+    {
+      "iso2": "gf",
+      "iso3": "guf",
+      "iso_numeric": 254,
+      "ccn3": "254",
+      "name": {
+        "sl": "Francoska Gvajana",
+        "en": "French Guiana",
+        "official_sl": "Francoska Gvajana",
+        "official_en": "French Guiana",
+        "native": [
+          "Guyane"
+        ]
+      },
+      "aliases_sl": [
+        "Gvajana (Francija)"
+      ],
+      "aliases_en": [
+        "Guiana",
+        "Guyane"
+      ],
+      "demonym": {
+        "sl_m": "Francoskogvajanec",
+        "sl_f": "Francoskogvajanka",
+        "en": "French Guianese"
+      },
+      "flag": {
+        "code": "gf",
+        "file_4x3": "flags/4x3/gf.svg",
+        "file_1x1": "flags/1x1/gf.svg",
+        "emoji": "🇬🇫",
+        "notes": "Uradna zastava je francoska trobojnica (modra-bela-rdeča navpično); flag-icons gf.svg je enaka francoski. Uporablja se tudi neuradna regionalna zastava (rumena in zelena z rdečo zvezdo).",
+        "same_as": "fr"
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 4.0,
+        "lon": -53.0,
+        "area_km2": 83534,
+        "coastline_km": 378,
+        "highest_point": {
+          "name_sl": "Bellevue de l'Inini",
+          "name_en": "Bellevue de l'Inini",
+          "elevation_m": 851
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "br",
+          "sr"
+        ],
+        "borders_notes": "Francosko ozemlje: meja z Brazilijo je najdaljša kopenska meja Francije.",
+        "timezones": [
+          "America/Cayenne"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Cayenne",
+        "en": "Cayenne",
+        "lat": 4.94,
+        "lon": -52.33,
+        "population": 63000
+      },
+      "top_cities": [
+        {
+          "sl": "Cayenne",
+          "en": "Cayenne",
+          "population": 63000
+        },
+        {
+          "sl": "Saint-Laurent-du-Maroni",
+          "en": "Saint-Laurent-du-Maroni",
+          "population": 50000
+        },
+        {
+          "sl": "Matoury",
+          "en": "Matoury",
+          "population": 33000
+        },
+        {
+          "sl": "Rémire-Montjoly",
+          "en": "Rémire-Montjoly",
+          "population": 26000
+        },
+        {
+          "sl": "Kourou",
+          "en": "Kourou",
+          "population": 25000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Maroni",
+            "en": "Maroni"
+          },
+          {
+            "sl": "Oyapock",
+            "en": "Oyapock"
+          },
+          {
+            "sl": "Approuague",
+            "en": "Approuague"
+          },
+          {
+            "sl": "Mana",
+            "en": "Mana"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Petit-Saut (akumulacijsko jezero)",
+            "en": "Petit-Saut Reservoir"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 314000,
+        "year": 2025,
+        "density_per_km2": 4
+      },
+      "languages": {
+        "official_sl": [
+          "francoščina"
+        ],
+        "official_en": [
+          "French"
+        ],
+        "also_spoken_sl": [
+          "gvajanska kreolščina",
+          "sranan tongo",
+          "hmongščina",
+          "domorodni jeziki"
+        ]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [
+          ".gf"
+        ],
+        "phone_prefix": "+594",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": false,
+        "un_member": false,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Ni samostojna država: čezmorski departma in regija Francije (od 2015 enotna teritorialna skupnost) in s tem del Evropske unije kot njena najbolj oddaljena regija. Uporablja evro, ni pa del schengenskega območja. V ZN jo zastopa Francija.",
+        "quiz_exclude": true,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "south_america",
+          "overseas_territory",
+          "eu_outermost_region",
+          "francophone",
+          "amazon",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "gy",
+          "sr",
+          "fr"
+        ],
+        "hint_sl": "Francoski čezmorski departma z vesoljskim centrom v Kourouju; glavno mesto Cayenne."
+      },
+      "extra": {
+        "motto_sl": "Svoboda, enakost, bratstvo",
+        "national_day": "1789-07-14",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Francoska_Gvajana",
+        "notes": "Geslo in državni praznik sta francoska (14. julij). Evropsko vesoljsko središče Guiana Space Centre je v Kourouju. Prebivalstvo mest: približno."
+      }
+    },
+    {
+      "iso2": "gy",
+      "iso3": "guy",
+      "iso_numeric": 328,
+      "ccn3": "328",
+      "name": {
+        "sl": "Gvajana",
+        "en": "Guyana",
+        "official_sl": "Kooperativna republika Gvajana",
+        "official_en": "Co-operative Republic of Guyana",
+        "native": [
+          "Guyana"
+        ]
+      },
+      "aliases_sl": [
+        "Kooperativna republika Gvajana"
+      ],
+      "aliases_en": [
+        "Co-operative Republic of Guyana"
+      ],
+      "demonym": {
+        "sl_m": "Gvajanec",
+        "sl_f": "Gvajanka",
+        "en": "Guyanese"
+      },
+      "flag": {
+        "code": "gy",
+        "file_4x3": "flags/4x3/gy.svg",
+        "file_1x1": "flags/1x1/gy.svg",
+        "emoji": "🇬🇾",
+        "notes": "Zlata puščica: zelena z rdečim in rumenim trikotnikom s črnim oziroma belim robom.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 5.0,
+        "lon": -59.0,
+        "area_km2": 214969,
+        "coastline_km": 459,
+        "highest_point": {
+          "name_sl": "Roraima (Laberinto del Norte)",
+          "name_en": "Mount Roraima (Laberinto del Norte)",
+          "elevation_m": 2775
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "br",
+          "sr",
+          "ve"
+        ],
+        "borders_notes": "Venezuela zahteva ozemlje zahodno od reke Essequibo; s Surinamom je sporno območje Tigri.",
+        "timezones": [
+          "America/Guyana"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Georgetown",
+        "en": "Georgetown",
+        "lat": 6.8,
+        "lon": -58.16,
+        "population": 120000
+      },
+      "top_cities": [
+        {
+          "sl": "Georgetown",
+          "en": "Georgetown",
+          "population": 120000
+        },
+        {
+          "sl": "Linden",
+          "en": "Linden",
+          "population": 27000
+        },
+        {
+          "sl": "New Amsterdam",
+          "en": "New Amsterdam",
+          "population": 17000
+        },
+        {
+          "sl": "Anna Regina",
+          "en": "Anna Regina",
+          "population": 12000
+        },
+        {
+          "sl": "Corriverton",
+          "en": "Corriverton",
+          "population": 11000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Essequibo",
+            "en": "Essequibo"
+          },
+          {
+            "sl": "Demerara",
+            "en": "Demerara"
+          },
+          {
+            "sl": "Berbice",
+            "en": "Berbice"
+          },
+          {
+            "sl": "Courantyne",
+            "en": "Courantyne"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 836000,
+        "year": 2025,
+        "density_per_km2": 4
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "gvajanska kreolščina",
+          "hindustanščina",
+          "domorodni jeziki"
+        ]
+      },
+      "currency": {
+        "code": "GYD",
+        "name_sl": "gvajanski dolar",
+        "name_en": "Guyanese dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".gy"
+        ],
+        "phone_prefix": "+592",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "south_america",
+          "caricom",
+          "commonwealth",
+          "anglophone",
+          "amazon",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "sr",
+          "gf",
+          "gh"
+        ],
+        "hint_sl": "Edina angleško govoreča država celinske Južne Amerike, s slapom Kaieteur; prestolnica Georgetown."
+      },
+      "extra": {
+        "motto_sl": "Eno ljudstvo, en narod, ena usoda",
+        "national_day": "1966-05-26",
+        "former_names_sl": [
+          "Britanska Gvajana"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Gvajana",
+        "notes": "Venezuela zahteva okoli dve tretjini ozemlja (Guayana Esequiba). Dan republike (Mashramani) je 23. februarja. Članica Commonwealtha in Karibske skupnosti (CARICOM)."
+      }
+    },
+    {
+      "iso2": "py",
+      "iso3": "pry",
+      "iso_numeric": 600,
+      "ccn3": "600",
+      "name": {
+        "sl": "Paragvaj",
+        "en": "Paraguay",
+        "official_sl": "Republika Paragvaj",
+        "official_en": "Republic of Paraguay",
+        "native": [
+          "Paraguay",
+          "Paraguái"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Paragvaj"
+      ],
+      "aliases_en": [
+        "Republic of Paraguay"
+      ],
+      "demonym": {
+        "sl_m": "Paragvajec",
+        "sl_f": "Paragvajka",
+        "en": "Paraguayan"
+      },
+      "flag": {
+        "code": "py",
+        "file_4x3": "flags/4x3/py.svg",
+        "file_1x1": "flags/1x1/py.svg",
+        "emoji": "🇵🇾",
+        "notes": "Rdeča-bela-modra vodoravno; edina zastava z različnima stranema (spredaj državni grb, zadaj pečat zakladnice). Brez grba podobna nizozemski.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": true,
+        "lat": -23.0,
+        "lon": -58.0,
+        "area_km2": 406752,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Cerro Peró (Cerro Tres Kandú)",
+          "name_en": "Cerro Peró (Cerro Tres Kandú)",
+          "elevation_m": 842
+        },
+        "lowest_point": {
+          "name_sl": "sotočje rek Paragvaj in Parana",
+          "name_en": "junction of the Paraguay and Paraná rivers",
+          "elevation_m": 46
+        },
+        "borders_iso2": [
+          "ar",
+          "bo",
+          "br"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Asuncion"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Asunción",
+        "en": "Asunción",
+        "lat": -25.26,
+        "lon": -57.58,
+        "population": 460000
+      },
+      "top_cities": [
+        {
+          "sl": "Asunción",
+          "en": "Asunción",
+          "population": 460000
+        },
+        {
+          "sl": "Ciudad del Este",
+          "en": "Ciudad del Este",
+          "population": 300000
+        },
+        {
+          "sl": "Luque",
+          "en": "Luque",
+          "population": 260000
+        },
+        {
+          "sl": "San Lorenzo",
+          "en": "San Lorenzo",
+          "population": 250000
+        },
+        {
+          "sl": "Capiatá",
+          "en": "Capiatá",
+          "population": 240000
+        },
+        {
+          "sl": "Limpio",
+          "en": "Limpio",
+          "population": 130000
+        },
+        {
+          "sl": "Encarnación",
+          "en": "Encarnación",
+          "population": 130000
+        },
+        {
+          "sl": "Lambaré",
+          "en": "Lambaré",
+          "population": 120000
+        },
+        {
+          "sl": "Fernando de la Mora",
+          "en": "Fernando de la Mora",
+          "population": 110000
+        },
+        {
+          "sl": "Ñemby",
+          "en": "Ñemby",
+          "population": 110000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Paragvaj",
+            "en": "Paraguay"
+          },
+          {
+            "sl": "Parana",
+            "en": "Paraná"
+          },
+          {
+            "sl": "Pilcomayo",
+            "en": "Pilcomayo"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Ypacaraí",
+            "en": "Lake Ypacaraí"
+          },
+          {
+            "sl": "Itaipu (akumulacijsko jezero)",
+            "en": "Itaipu Reservoir"
+          }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 7010000,
+        "year": 2025,
+        "density_per_km2": 17
+      },
+      "languages": {
+        "official_sl": [
+          "španščina",
+          "gvaranščina"
+        ],
+        "official_en": [
+          "Spanish",
+          "Guaraní"
+        ],
+        "also_spoken_sl": [
+          "portugalščina",
+          "nemščina (menoniti)"
+        ]
+      },
+      "currency": {
+        "code": "PYG",
+        "name_sl": "gvarani",
+        "name_en": "Paraguayan guaraní",
+        "symbol": "₲"
+      },
+      "communications": {
+        "tld": [
+          ".py"
+        ],
+        "phone_prefix": "+595",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "south_america",
+          "mercosur",
+          "hispanophone",
+          "landlocked",
+          "chaco"
+        ],
+        "common_confusions_iso2": [
+          "uy",
+          "bo",
+          "nl"
+        ],
+        "hint_sl": "Celinska država, kjer je ob španščini uradna tudi gvaranščina; prestolnica Asunción."
+      },
+      "extra": {
+        "motto_sl": "Mir in pravica",
+        "national_day": "1811-05-15",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Paragvaj",
+        "notes": "Dan neodvisnosti praznujejo 14. in 15. maja. Večina prebivalcev govori gvaransko. Hidroelektrarno Itaipu si deli z Brazilijo. Prebivalstvo mest: popis 2022, približno."
+      }
+    },
+    {
+      "iso2": "pe",
+      "iso3": "per",
+      "iso_numeric": 604,
+      "ccn3": "604",
+      "name": {
+        "sl": "Peru",
+        "en": "Peru",
+        "official_sl": "Republika Peru",
+        "official_en": "Republic of Peru",
+        "native": [
+          "Perú",
+          "Piruw"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Peru"
+      ],
+      "aliases_en": [
+        "Republic of Peru"
+      ],
+      "demonym": {
+        "sl_m": "Perujec",
+        "sl_f": "Perujka",
+        "en": "Peruvian"
+      },
+      "flag": {
+        "code": "pe",
+        "file_4x3": "flags/4x3/pe.svg",
+        "file_1x1": "flags/1x1/pe.svg",
+        "emoji": "🇵🇪",
+        "notes": "Rdeča-bela-rdeča navpično (državna zastava z grbom); obrnjena podobna avstrijski, podobna tudi kanadski brez javorovega lista.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -10.0,
+        "lon": -76.0,
+        "area_km2": 1285216,
+        "coastline_km": 2414,
+        "highest_point": {
+          "name_sl": "Huascarán",
+          "name_en": "Huascarán",
+          "elevation_m": 6768
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "bo",
+          "br",
+          "cl",
+          "co",
+          "ec"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Lima"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Lima",
+        "en": "Lima",
+        "lat": -12.05,
+        "lon": -77.04,
+        "population": 10100000
+      },
+      "top_cities": [
+        {
+          "sl": "Lima",
+          "en": "Lima",
+          "population": 10100000
+        },
+        {
+          "sl": "Arequipa",
+          "en": "Arequipa",
+          "population": 1100000
+        },
+        {
+          "sl": "Trujillo",
+          "en": "Trujillo",
+          "population": 1000000
+        },
+        {
+          "sl": "Chiclayo",
+          "en": "Chiclayo",
+          "population": 600000
+        },
+        {
+          "sl": "Piura",
+          "en": "Piura",
+          "population": 500000
+        },
+        {
+          "sl": "Iquitos",
+          "en": "Iquitos",
+          "population": 480000
+        },
+        {
+          "sl": "Cusco",
+          "en": "Cusco",
+          "population": 450000
+        },
+        {
+          "sl": "Huancayo",
+          "en": "Huancayo",
+          "population": 400000
+        },
+        {
+          "sl": "Chimbote",
+          "en": "Chimbote",
+          "population": 390000
+        },
+        {
+          "sl": "Pucallpa",
+          "en": "Pucallpa",
+          "population": 330000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Amazonka",
+            "en": "Amazon"
+          },
+          {
+            "sl": "Ucayali",
+            "en": "Ucayali"
+          },
+          {
+            "sl": "Marañón",
+            "en": "Marañón"
+          },
+          {
+            "sl": "Huallaga",
+            "en": "Huallaga"
+          },
+          {
+            "sl": "Urubamba",
+            "en": "Urubamba"
+          },
+          {
+            "sl": "Madre de Dios",
+            "en": "Madre de Dios"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Titikaka",
+            "en": "Lake Titicaca"
+          },
+          {
+            "sl": "Junín",
+            "en": "Lake Junín"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 34600000,
+        "year": 2025,
+        "density_per_km2": 27
+      },
+      "languages": {
+        "official_sl": [
+          "španščina",
+          "kečuanščina",
+          "ajmarščina"
+        ],
+        "official_en": [
+          "Spanish",
+          "Quechua",
+          "Aymara"
+        ],
+        "also_spoken_sl": [
+          "drugi domorodni jeziki"
+        ]
+      },
+      "currency": {
+        "code": "PEN",
+        "name_sl": "perujski sol",
+        "name_en": "Peruvian sol",
+        "symbol": "S/"
+      },
+      "communications": {
+        "tld": [
+          ".pe"
+        ],
+        "phone_prefix": "+51",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "south_america",
+          "andean",
+          "andes",
+          "amazon",
+          "hispanophone",
+          "pacific",
+          "inca"
+        ],
+        "common_confusions_iso2": [
+          "bo",
+          "ec",
+          "cl"
+        ],
+        "hint_sl": "Država Inkov z Machu Picchujem, Cuscom in jezerom Titikaka; prestolnica Lima."
+      },
+      "extra": {
+        "motto_sl": "Trdni in srečni v enotnosti",
+        "national_day": "1821-07-28",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Peru",
+        "notes": "Kečuanščina, ajmarščina in drugi domorodni jeziki so uradni na območjih, kjer prevladujejo. Prebivalstvo mest: urbane aglomeracije, približno (Lima z okolico brez Callaa)."
+      }
+    },
+    {
+      "iso2": "sr",
+      "iso3": "sur",
+      "iso_numeric": 740,
+      "ccn3": "740",
+      "name": {
+        "sl": "Surinam",
+        "en": "Suriname",
+        "official_sl": "Republika Surinam",
+        "official_en": "Republic of Suriname",
+        "native": [
+          "Suriname"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Surinam"
+      ],
+      "aliases_en": [
+        "Republic of Suriname"
+      ],
+      "demonym": {
+        "sl_m": "Surinamec",
+        "sl_f": "Surinamka",
+        "en": "Surinamese"
+      },
+      "flag": {
+        "code": "sr",
+        "file_4x3": "flags/4x3/sr.svg",
+        "file_1x1": "flags/1x1/sr.svg",
+        "emoji": "🇸🇷",
+        "notes": "Zelena-bela-rdeča-bela-zelena vodoravno z rumeno zvezdo na sredini.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 4.0,
+        "lon": -56.0,
+        "area_km2": 163820,
+        "coastline_km": 386,
+        "highest_point": {
+          "name_sl": "Juliana Top",
+          "name_en": "Juliana Top",
+          "elevation_m": 1280
+        },
+        "lowest_point": {
+          "name_sl": "neimenovano mesto v obalni nižini",
+          "name_en": "unnamed location in the coastal plain",
+          "elevation_m": -2
+        },
+        "borders_iso2": [
+          "br",
+          "gf",
+          "gy"
+        ],
+        "borders_notes": "Na vzhodu meji na Francosko Gvajano (francosko ozemlje, EU). Sporni območji ob meji z Gvajano (Tigri) in Francosko Gvajano (ob reki Lawa).",
+        "timezones": [
+          "America/Paramaribo"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Paramaribo",
+        "en": "Paramaribo",
+        "lat": 5.85,
+        "lon": -55.2,
+        "population": 240000
+      },
+      "top_cities": [
+        {
+          "sl": "Paramaribo",
+          "en": "Paramaribo",
+          "population": 240000
+        },
+        {
+          "sl": "Lelydorp",
+          "en": "Lelydorp",
+          "population": 20000
+        },
+        {
+          "sl": "Nieuw Nickerie",
+          "en": "Nieuw Nickerie",
+          "population": 13000
+        },
+        {
+          "sl": "Moengo",
+          "en": "Moengo",
+          "population": 7000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Surinam",
+            "en": "Suriname River"
+          },
+          {
+            "sl": "Maroni",
+            "en": "Maroni"
+          },
+          {
+            "sl": "Courantyne",
+            "en": "Courantyne"
+          },
+          {
+            "sl": "Coppename",
+            "en": "Coppename"
+          },
+          {
+            "sl": "Saramacca",
+            "en": "Saramacca"
+          },
+          {
+            "sl": "Commewijne",
+            "en": "Commewijne"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Brokopondo (akumulacijsko jezero)",
+            "en": "Brokopondo Reservoir"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 640000,
+        "year": 2025,
+        "density_per_km2": 4
+      },
+      "languages": {
+        "official_sl": [
+          "nizozemščina"
+        ],
+        "official_en": [
+          "Dutch"
+        ],
+        "also_spoken_sl": [
+          "sranan tongo",
+          "sarnami (hindustanščina)",
+          "javanščina",
+          "angleščina"
+        ]
+      },
+      "currency": {
+        "code": "SRD",
+        "name_sl": "surinamski dolar",
+        "name_en": "Surinamese dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".sr"
+        ],
+        "phone_prefix": "+597",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "south_america",
+          "caricom",
+          "dutch_speaking",
+          "amazon",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "gy",
+          "gf",
+          "nl"
+        ],
+        "hint_sl": "Najmanjša samostojna država Južne Amerike, kjer je uradni jezik nizozemščina; prestolnica Paramaribo."
+      },
+      "extra": {
+        "motto_sl": "Pravičnost, pobožnost, zaupanje",
+        "national_day": "1975-11-25",
+        "former_names_sl": [
+          "Nizozemska Gvajana"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Surinam",
+        "notes": "Do leta 1975 nizozemska kolonija. Članica Karibske skupnosti (CARICOM). Prebivalstvo mest: približno."
+      }
+    },
+    {
+      "iso2": "uy",
+      "iso3": "ury",
+      "iso_numeric": 858,
+      "ccn3": "858",
+      "name": {
+        "sl": "Urugvaj",
+        "en": "Uruguay",
+        "official_sl": "Vzhodna republika Urugvaj",
+        "official_en": "Oriental Republic of Uruguay",
+        "native": [
+          "Uruguay"
+        ]
+      },
+      "aliases_sl": [
+        "Vzhodna republika Urugvaj"
+      ],
+      "aliases_en": [
+        "Oriental Republic of Uruguay"
+      ],
+      "demonym": {
+        "sl_m": "Urugvajec",
+        "sl_f": "Urugvajka",
+        "en": "Uruguayan"
+      },
+      "flag": {
+        "code": "uy",
+        "file_4x3": "flags/4x3/uy.svg",
+        "file_1x1": "flags/1x1/uy.svg",
+        "emoji": "🇺🇾",
+        "notes": "Devet belih in modrih vodoravnih pasov z majskim soncem v belem kvadratu; podobna grški in argentinski zastavi.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": -33.0,
+        "lon": -56.0,
+        "area_km2": 181034,
+        "coastline_km": 660,
+        "highest_point": {
+          "name_sl": "Cerro Catedral",
+          "name_en": "Cerro Catedral",
+          "elevation_m": 514
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "ar",
+          "br"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Montevideo"
+        ],
+        "utc_offset_standard": "-03:00"
+      },
+      "capital": {
+        "sl": "Montevideo",
+        "en": "Montevideo",
+        "lat": -34.9,
+        "lon": -56.16,
+        "population": 1300000
+      },
+      "top_cities": [
+        {
+          "sl": "Montevideo",
+          "en": "Montevideo",
+          "population": 1300000
+        },
+        {
+          "sl": "Salto",
+          "en": "Salto",
+          "population": 110000
+        },
+        {
+          "sl": "Ciudad de la Costa",
+          "en": "Ciudad de la Costa",
+          "population": 110000
+        },
+        {
+          "sl": "Paysandú",
+          "en": "Paysandú",
+          "population": 77000
+        },
+        {
+          "sl": "Las Piedras",
+          "en": "Las Piedras",
+          "population": 70000
+        },
+        {
+          "sl": "Maldonado",
+          "en": "Maldonado",
+          "population": 70000
+        },
+        {
+          "sl": "Rivera",
+          "en": "Rivera",
+          "population": 65000
+        },
+        {
+          "sl": "Tacuarembó",
+          "en": "Tacuarembó",
+          "population": 55000
+        },
+        {
+          "sl": "Melo",
+          "en": "Melo",
+          "population": 52000
+        },
+        {
+          "sl": "Mercedes",
+          "en": "Mercedes",
+          "population": 42000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Urugvaj",
+            "en": "Uruguay"
+          },
+          {
+            "sl": "Río Negro",
+            "en": "Río Negro"
+          },
+          {
+            "sl": "Santa Lucía",
+            "en": "Santa Lucía"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Merín",
+            "en": "Laguna Merín"
+          },
+          {
+            "sl": "Rincón del Bonete (akumulacijsko jezero)",
+            "en": "Rincón del Bonete Reservoir"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Río de la Plata",
+            "en": "Río de la Plata"
+          }
+        ]
+      },
+      "population": {
+        "total": 3380000,
+        "year": 2025,
+        "density_per_km2": 19
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "portugalščina",
+          "urugvajski znakovni jezik"
+        ]
+      },
+      "currency": {
+        "code": "UYU",
+        "name_sl": "urugvajski peso",
+        "name_en": "Uruguayan peso",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".uy"
+        ],
+        "phone_prefix": "+598",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "south_america",
+          "mercosur",
+          "hispanophone",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "ar",
+          "py",
+          "gr"
+        ],
+        "hint_sl": "Majhna država ob Río de la Plata, gostiteljica in prva svetovna prvakinja v nogometu (1930); prestolnica Montevideo."
+      },
+      "extra": {
+        "motto_sl": "Svoboda ali smrt",
+        "national_day": "1825-08-25",
+        "former_names_sl": [
+          "Cisplatinska provinca"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Urugvaj",
+        "notes": "Španščina je uradni jezik de facto. Montevideo je sedež Mercosurja. Prebivalstvo mest: popis 2023, približno (Montevideo: departma)."
+      }
+    },
+    {
+      "iso2": "ve",
+      "iso3": "ven",
+      "iso_numeric": 862,
+      "ccn3": "862",
+      "name": {
+        "sl": "Venezuela",
+        "en": "Venezuela",
+        "official_sl": "Bolivarska republika Venezuela",
+        "official_en": "Bolivarian Republic of Venezuela",
+        "native": [
+          "Venezuela"
+        ]
+      },
+      "aliases_sl": [
+        "Bolivarska republika Venezuela"
+      ],
+      "aliases_en": [
+        "Bolivarian Republic of Venezuela"
+      ],
+      "demonym": {
+        "sl_m": "Venezuelec",
+        "sl_f": "Venezuelka",
+        "en": "Venezuelan"
+      },
+      "flag": {
+        "code": "ve",
+        "file_4x3": "flags/4x3/ve.svg",
+        "file_1x1": "flags/1x1/ve.svg",
+        "emoji": "🇻🇪",
+        "notes": "Rumena-modra-rdeča vodoravno v enako širokih pasovih z lokom osmih belih zvezd (državna zastava ima še grb); podobna kolumbijski in ekvadorski.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "south_america",
+        "subregion": "south_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 8.0,
+        "lon": -66.0,
+        "area_km2": 916445,
+        "coastline_km": 2800,
+        "highest_point": {
+          "name_sl": "Pico Bolívar",
+          "name_en": "Pico Bolívar",
+          "elevation_m": 4978
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "br",
+          "co",
+          "gy"
+        ],
+        "borders_notes": "Zahteva ozemlje Gvajane zahodno od reke Essequibo (Guayana Esequiba).",
+        "timezones": [
+          "America/Caracas"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Caracas",
+        "en": "Caracas",
+        "lat": 10.49,
+        "lon": -66.88,
+        "population": 2100000
+      },
+      "top_cities": [
+        {
+          "sl": "Caracas",
+          "en": "Caracas",
+          "population": 2100000
+        },
+        {
+          "sl": "Maracaibo",
+          "en": "Maracaibo",
+          "population": 1600000
+        },
+        {
+          "sl": "Valencia",
+          "en": "Valencia",
+          "population": 1500000
+        },
+        {
+          "sl": "Barquisimeto",
+          "en": "Barquisimeto",
+          "population": 1100000
+        },
+        {
+          "sl": "Maracay",
+          "en": "Maracay",
+          "population": 1000000
+        },
+        {
+          "sl": "Ciudad Guayana",
+          "en": "Ciudad Guayana",
+          "population": 900000
+        },
+        {
+          "sl": "Maturín",
+          "en": "Maturín",
+          "population": 500000
+        },
+        {
+          "sl": "Barcelona",
+          "en": "Barcelona",
+          "population": 500000
+        },
+        {
+          "sl": "Cumaná",
+          "en": "Cumaná",
+          "population": 400000
+        },
+        {
+          "sl": "Barinas",
+          "en": "Barinas",
+          "population": 400000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Orinoko",
+            "en": "Orinoco"
+          },
+          {
+            "sl": "Caroní",
+            "en": "Caroní"
+          },
+          {
+            "sl": "Apure",
+            "en": "Apure"
+          },
+          {
+            "sl": "Caura",
+            "en": "Caura"
+          },
+          {
+            "sl": "Meta",
+            "en": "Meta"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Maracaibo",
+            "en": "Lake Maracaibo"
+          },
+          {
+            "sl": "Valencia",
+            "en": "Lake Valencia"
+          },
+          {
+            "sl": "Guri (akumulacijsko jezero)",
+            "en": "Guri Reservoir"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 28500000,
+        "year": 2025,
+        "density_per_km2": 31
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "wayuunaiki",
+          "warao",
+          "drugi domorodni jeziki"
+        ]
+      },
+      "currency": {
+        "code": "VES",
+        "name_sl": "bolívar",
+        "name_en": "Venezuelan bolívar",
+        "symbol": "Bs."
+      },
+      "communications": {
+        "tld": [
+          ".ve"
+        ],
+        "phone_prefix": "+58",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "south_america",
+          "hispanophone",
+          "andes",
+          "amazon",
+          "caribbean",
+          "atlantic",
+          "opec"
+        ],
+        "common_confusions_iso2": [
+          "co",
+          "ec",
+          "gy"
+        ],
+        "hint_sl": "Država z najvišjim slapom na svetu (Salto Ángel) in največjimi dokazanimi zalogami nafte; prestolnica Caracas."
+      },
+      "extra": {
+        "motto_sl": "Bog in federacija",
+        "national_day": "1811-07-05",
+        "former_names_sl": [
+          "Republika Venezuela"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Venezuela",
+        "notes": "Valuta je bolívar: od 1. oktobra 2021 digitalni bolívar (Bs.D) po odvzemu šestih ničel; ISO koda ostaja VES (VED je pomožna koda). Ime Bolivarska republika od ustave 1999. Uradnega gesla nima, navedeno je zgodovinsko. Članstvo v Mercosurju je od leta 2016 suspendirano. Prebivalstvo mest: približne ocene (zadnji popis 2011)."
+      }
+    }
+  ]
+}

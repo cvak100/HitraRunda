@@ -1,0 +1,5208 @@
+{
+  "version": 1,
+  "source": "manual",
+  "updated_at": "2026-10-25",
+  "countries": [
+    {
+      "iso2": "ag",
+      "iso3": "atg",
+      "iso_numeric": 28,
+      "ccn3": "028",
+      "name": {
+        "sl": "Antigva in Barbuda",
+        "en": "Antigua and Barbuda",
+        "official_sl": "Antigva in Barbuda",
+        "official_en": "Antigua and Barbuda",
+        "native": [
+          "Antigua and Barbuda"
+        ]
+      },
+      "aliases_sl": [
+        "Antigva"
+      ],
+      "aliases_en": [
+        "Antigua"
+      ],
+      "demonym": {
+        "sl_m": "Antigvanec",
+        "sl_f": "Antigvanka",
+        "en": "Antiguan and Barbudan"
+      },
+      "flag": {
+        "code": "ag",
+        "file_4x3": "flags/4x3/ag.svg",
+        "file_1x1": "flags/1x1/ag.svg",
+        "emoji": "🇦🇬",
+        "notes": "Rdeča z obrnjenim trikotnikom (V) v črni, modri in beli barvi ter zlatim vzhajajočim soncem.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 17.05,
+        "lon": -61.8,
+        "area_km2": 442,
+        "coastline_km": 153,
+        "highest_point": {
+          "name_sl": "Mount Obama (Boggy Peak)",
+          "name_en": "Mount Obama (Boggy Peak)",
+          "elevation_m": 402
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Antigua"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Saint John's",
+        "en": "Saint John's",
+        "lat": 17.12,
+        "lon": -61.85,
+        "population": 22000
+      },
+      "top_cities": [
+        {
+          "sl": "Saint John's",
+          "en": "Saint John's",
+          "population": 22000
+        },
+        {
+          "sl": "All Saints",
+          "en": "All Saints",
+          "population": 3400
+        },
+        {
+          "sl": "Liberta",
+          "en": "Liberta",
+          "population": 3000
+        },
+        {
+          "sl": "Potter's Village",
+          "en": "Potter's Village",
+          "population": 3000
+        },
+        {
+          "sl": "Bolans",
+          "en": "Bolans",
+          "population": 1700
+        },
+        {
+          "sl": "Codrington",
+          "en": "Codrington",
+          "population": 1200
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 94000,
+        "year": 2025,
+        "density_per_km2": 213
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "antigvanska kreolščina"
+        ]
+      },
+      "currency": {
+        "code": "XCD",
+        "name_sl": "vzhodnokaribski dolar",
+        "name_en": "Eastern Caribbean dollar",
+        "symbol": "EC$"
+      },
+      "communications": {
+        "tld": [
+          ".ag"
+        ],
+        "phone_prefix": "+1-268",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "oecs",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "kn",
+          "bb",
+          "dm"
+        ],
+        "hint_sl": "Otoška država dveh glavnih otokov v Malih Antilih; prestolnica Saint John's."
+      },
+      "extra": {
+        "motto_sl": "Vsak si prizadeva, vsi dosegajo",
+        "national_day": "1981-11-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Antigva_in_Barbuda",
+        "notes": "Vodja države je kralj Karel III. Od leta 2026 izvoljeni funkcionarji ne prisegajo več zvestobe kralju; referendum o republiki še ni razpisan. Slovenski pravopis imena prebivalcev ne navaja."
+      }
+    },
+    {
+      "iso2": "bs",
+      "iso3": "bhs",
+      "iso_numeric": 44,
+      "ccn3": "044",
+      "name": {
+        "sl": "Bahami",
+        "en": "Bahamas",
+        "official_sl": "Skupnost Bahamov",
+        "official_en": "Commonwealth of The Bahamas",
+        "native": [
+          "The Bahamas"
+        ]
+      },
+      "aliases_sl": [
+        "Bahamski otoki",
+        "Skupnost Bahamov"
+      ],
+      "aliases_en": [
+        "The Bahamas",
+        "Commonwealth of The Bahamas"
+      ],
+      "demonym": {
+        "sl_m": "Bahamec",
+        "sl_f": "Bahamka",
+        "en": "Bahamian"
+      },
+      "flag": {
+        "code": "bs",
+        "file_4x3": "flags/4x3/bs.svg",
+        "file_1x1": "flags/1x1/bs.svg",
+        "emoji": "🇧🇸",
+        "notes": "Modra-zlata-modra vodoravno s črnim trikotnikom ob drogu.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 24.25,
+        "lon": -76.0,
+        "area_km2": 13943,
+        "coastline_km": 3542,
+        "highest_point": {
+          "name_sl": "Mount Alvernia (Como Hill)",
+          "name_en": "Mount Alvernia (Como Hill)",
+          "elevation_m": 64
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Nassau"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Nassau",
+        "en": "Nassau",
+        "lat": 25.06,
+        "lon": -77.35,
+        "population": 296000
+      },
+      "top_cities": [
+        {
+          "sl": "Nassau",
+          "en": "Nassau",
+          "population": 296000
+        },
+        {
+          "sl": "Freeport",
+          "en": "Freeport",
+          "population": 27000
+        },
+        {
+          "sl": "Marsh Harbour",
+          "en": "Marsh Harbour",
+          "population": 6000
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 403000,
+        "year": 2025,
+        "density_per_km2": 29
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "bahamska kreolščina"
+        ]
+      },
+      "currency": {
+        "code": "BSD",
+        "name_sl": "bahamski dolar",
+        "name_en": "Bahamian dollar",
+        "symbol": "B$"
+      },
+      "communications": {
+        "tld": [
+          ".bs"
+        ],
+        "phone_prefix": "+1-242",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "bb",
+          "jm",
+          "cu"
+        ],
+        "hint_sl": "Otočje v Atlantiku jugovzhodno od Floride; prestolnica Nassau."
+      },
+      "extra": {
+        "motto_sl": "Naprej, navzgor, dalje, skupaj",
+        "national_day": "1973-07-10",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Bahami",
+        "notes": "Okoli 700 otokov in 2000 čeri. Ameriški dolar je splošno sprejet v razmerju 1 : 1. Ime je v slovenščini v množini (na Bahamih). Kljub legi v Atlantiku ga ZN uvrščajo v Karibe. Vodja države je kralj Karel III."
+      }
+    },
+    {
+      "iso2": "bb",
+      "iso3": "brb",
+      "iso_numeric": 52,
+      "ccn3": "052",
+      "name": {
+        "sl": "Barbados",
+        "en": "Barbados",
+        "official_sl": "Barbados",
+        "official_en": "Barbados",
+        "native": [
+          "Barbados"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Barbadošan",
+        "sl_f": "Barbadošanka",
+        "en": "Barbadian"
+      },
+      "flag": {
+        "code": "bb",
+        "file_4x3": "flags/4x3/bb.svg",
+        "file_1x1": "flags/1x1/bb.svg",
+        "emoji": "🇧🇧",
+        "notes": "Modra-zlata-modra navpično s črnim trizobom v sredini.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 13.17,
+        "lon": -59.53,
+        "area_km2": 430,
+        "coastline_km": 97,
+        "highest_point": {
+          "name_sl": "Mount Hillaby",
+          "name_en": "Mount Hillaby",
+          "elevation_m": 336
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Barbados"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Bridgetown",
+        "en": "Bridgetown",
+        "lat": 13.1,
+        "lon": -59.62,
+        "population": 110000
+      },
+      "top_cities": [
+        {
+          "sl": "Bridgetown",
+          "en": "Bridgetown",
+          "population": 110000
+        },
+        {
+          "sl": "Speightstown",
+          "en": "Speightstown",
+          "population": 3600
+        },
+        {
+          "sl": "Oistins",
+          "en": "Oistins",
+          "population": 2300
+        },
+        {
+          "sl": "Holetown",
+          "en": "Holetown",
+          "population": 1500
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 283000,
+        "year": 2025,
+        "density_per_km2": 658
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "bajanščina (barbadoška kreolščina)"
+        ]
+      },
+      "currency": {
+        "code": "BBD",
+        "name_sl": "barbadoški dolar",
+        "name_en": "Barbadian dollar",
+        "symbol": "Bds$"
+      },
+      "communications": {
+        "tld": [
+          ".bb"
+        ],
+        "phone_prefix": "+1-246",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "caricom",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "bs",
+          "tt",
+          "lc"
+        ],
+        "hint_sl": "Najvzhodnejši otok Malih Antilov, od leta 2021 republika; prestolnica Bridgetown."
+      },
+      "extra": {
+        "motto_sl": "Ponos in delavnost",
+        "national_day": "1966-11-30",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Barbados",
+        "notes": "Republika je postala 30. novembra 2021, ko je kraljico Elizabeto II. kot vodjo države zamenjala predsednica. Prebivalstvo Bridgetowna velja za širše mestno območje."
+      }
+    },
+    {
+      "iso2": "bz",
+      "iso3": "blz",
+      "iso_numeric": 84,
+      "ccn3": "084",
+      "name": {
+        "sl": "Belize",
+        "en": "Belize",
+        "official_sl": "Belize",
+        "official_en": "Belize",
+        "native": [
+          "Belize"
+        ]
+      },
+      "aliases_sl": [
+        "Britanski Honduras"
+      ],
+      "aliases_en": [
+        "British Honduras"
+      ],
+      "demonym": {
+        "sl_m": "Belizejčan",
+        "sl_f": "Belizejčanka",
+        "en": "Belizean"
+      },
+      "flag": {
+        "code": "bz",
+        "file_4x3": "flags/4x3/bz.svg",
+        "file_1x1": "flags/1x1/bz.svg",
+        "emoji": "🇧🇿",
+        "notes": "Modra z rdečima pasovoma zgoraj in spodaj ter grbom v belem krogu; ena redkih državnih zastav z upodobljenimi ljudmi (dva delavca na grbu).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 17.25,
+        "lon": -88.75,
+        "area_km2": 22966,
+        "coastline_km": 386,
+        "highest_point": {
+          "name_sl": "Doyle's Delight",
+          "name_en": "Doyle's Delight",
+          "elevation_m": 1124
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "gt",
+          "mx"
+        ],
+        "borders_notes": "Gvatemala ima dolgoletno ozemeljsko zahtevo do dela Belizea; spor je pred Meddržavnim sodiščem.",
+        "timezones": [
+          "America/Belize"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "Belmopan",
+        "en": "Belmopan",
+        "lat": 17.25,
+        "lon": -88.77,
+        "population": 26000
+      },
+      "top_cities": [
+        {
+          "sl": "Belize City",
+          "en": "Belize City",
+          "population": 62000
+        },
+        {
+          "sl": "Belmopan",
+          "en": "Belmopan",
+          "population": 26000
+        },
+        {
+          "sl": "San Ignacio",
+          "en": "San Ignacio",
+          "population": 24000
+        },
+        {
+          "sl": "San Pedro",
+          "en": "San Pedro",
+          "population": 17000
+        },
+        {
+          "sl": "Orange Walk",
+          "en": "Orange Walk",
+          "population": 14000
+        },
+        {
+          "sl": "Corozal",
+          "en": "Corozal",
+          "population": 12000
+        },
+        {
+          "sl": "Dangriga",
+          "en": "Dangriga",
+          "population": 10000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Belize",
+            "en": "Belize River"
+          },
+          {
+            "sl": "Hondo",
+            "en": "Río Hondo"
+          },
+          {
+            "sl": "Sarstún",
+            "en": "Sarstoon River"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 423000,
+        "year": 2025,
+        "density_per_km2": 18
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "španščina",
+          "belizejska kreolščina",
+          "majevski jeziki",
+          "garifunščina"
+        ]
+      },
+      "currency": {
+        "code": "BZD",
+        "name_sl": "belizejski dolar",
+        "name_en": "Belize dollar",
+        "symbol": "BZ$"
+      },
+      "communications": {
+        "tld": [
+          ".bz"
+        ],
+        "phone_prefix": "+501",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "central_america",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "sica",
+          "barrier_reef"
+        ],
+        "common_confusions_iso2": [
+          "gt",
+          "hn",
+          "mx"
+        ],
+        "hint_sl": "Edina srednjeameriška država z angleščino kot uradnim jezikom; prestolnica Belmopan."
+      },
+      "extra": {
+        "motto_sl": "Pod senco cvetim",
+        "national_day": "1981-09-21",
+        "former_names_sl": [
+          "Britanski Honduras"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Belize",
+        "notes": "Največje mesto je Belize City, prestolnica pa je od leta 1970 Belmopan. Ob obali leži drugi največji koralni greben na svetu. Vodja države je kralj Karel III."
+      }
+    },
+    {
+      "iso2": "ca",
+      "iso3": "can",
+      "iso_numeric": 124,
+      "ccn3": "124",
+      "name": {
+        "sl": "Kanada",
+        "en": "Canada",
+        "official_sl": "Kanada",
+        "official_en": "Canada",
+        "native": [
+          "Canada"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Kanadčan",
+        "sl_f": "Kanadčanka",
+        "en": "Canadian"
+      },
+      "flag": {
+        "code": "ca",
+        "file_4x3": "flags/4x3/ca.svg",
+        "file_1x1": "flags/1x1/ca.svg",
+        "emoji": "🇨🇦",
+        "notes": "Rdeča-bela-rdeča navpično z rdečim javorjevim listom v belem polju; podobna zastavi Perua (rdeča-bela-rdeča, brez lista).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "northern_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 60.0,
+        "lon": -95.0,
+        "area_km2": 9984670,
+        "coastline_km": 202080,
+        "highest_point": {
+          "name_sl": "Mount Logan",
+          "name_en": "Mount Logan",
+          "elevation_m": 5959
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "gl",
+          "us"
+        ],
+        "borders_notes": "Najdaljša kopenska meja na svetu (z ZDA, okoli 8891 km, vključno z Aljasko). Od leta 2022 ima na otoku Hans (Tartupaluk) kratko kopensko mejo z Grenlandijo (Danska).",
+        "timezones": [
+          "America/Toronto",
+          "America/St_Johns",
+          "America/Halifax",
+          "America/Winnipeg",
+          "America/Regina",
+          "America/Edmonton",
+          "America/Whitehorse",
+          "America/Vancouver"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Ottawa",
+        "en": "Ottawa",
+        "lat": 45.42,
+        "lon": -75.7,
+        "population": 1017000
+      },
+      "top_cities": [
+        {
+          "sl": "Toronto",
+          "en": "Toronto",
+          "population": 2794000
+        },
+        {
+          "sl": "Montreal",
+          "en": "Montreal",
+          "population": 1763000
+        },
+        {
+          "sl": "Calgary",
+          "en": "Calgary",
+          "population": 1307000
+        },
+        {
+          "sl": "Ottawa",
+          "en": "Ottawa",
+          "population": 1017000
+        },
+        {
+          "sl": "Edmonton",
+          "en": "Edmonton",
+          "population": 1011000
+        },
+        {
+          "sl": "Winnipeg",
+          "en": "Winnipeg",
+          "population": 750000
+        },
+        {
+          "sl": "Mississauga",
+          "en": "Mississauga",
+          "population": 718000
+        },
+        {
+          "sl": "Vancouver",
+          "en": "Vancouver",
+          "population": 662000
+        },
+        {
+          "sl": "Brampton",
+          "en": "Brampton",
+          "population": 656000
+        },
+        {
+          "sl": "Hamilton",
+          "en": "Hamilton",
+          "population": 569000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Reka svetega Lovrenca",
+            "en": "Saint Lawrence River"
+          },
+          {
+            "sl": "Mackenzie",
+            "en": "Mackenzie"
+          },
+          {
+            "sl": "Jukon",
+            "en": "Yukon"
+          },
+          {
+            "sl": "Nelson",
+            "en": "Nelson"
+          },
+          {
+            "sl": "Fraser",
+            "en": "Fraser"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Gornje jezero",
+            "en": "Lake Superior"
+          },
+          {
+            "sl": "Huronsko jezero",
+            "en": "Lake Huron"
+          },
+          {
+            "sl": "Veliko medvedje jezero",
+            "en": "Great Bear Lake"
+          },
+          {
+            "sl": "Veliko suženjsko jezero",
+            "en": "Great Slave Lake"
+          },
+          {
+            "sl": "Eriejsko jezero",
+            "en": "Lake Erie"
+          },
+          {
+            "sl": "Ontarijsko jezero",
+            "en": "Lake Ontario"
+          },
+          {
+            "sl": "Winnipeško jezero",
+            "en": "Lake Winnipeg"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Severni ledeni ocean",
+            "en": "Arctic Ocean"
+          },
+          {
+            "sl": "Hudsonov zaliv",
+            "en": "Hudson Bay"
+          }
+        ]
+      },
+      "population": {
+        "total": 40127000,
+        "year": 2025,
+        "density_per_km2": 4
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina",
+          "francoščina"
+        ],
+        "official_en": [
+          "English",
+          "French"
+        ],
+        "also_spoken_sl": [
+          "kantonščina",
+          "pandžabščina",
+          "mandarinščina",
+          "inuktitut"
+        ]
+      },
+      "currency": {
+        "code": "CAD",
+        "name_sl": "kanadski dolar",
+        "name_en": "Canadian dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".ca"
+        ],
+        "phone_prefix": "+1",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": true,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "north_america",
+          "northern_america",
+          "anglophone",
+          "francophone",
+          "bilingual",
+          "commonwealth",
+          "monarchy",
+          "nato",
+          "g7",
+          "g20",
+          "usmca",
+          "atlantic",
+          "pacific",
+          "arctic"
+        ],
+        "common_confusions_iso2": [
+          "us",
+          "gl",
+          "pe"
+        ],
+        "hint_sl": "Po površini druga največja država na svetu z javorjevim listom na zastavi; prestolnica Ottawa."
+      },
+      "extra": {
+        "motto_sl": "Od morja do morja",
+        "national_day": "1867-07-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Kanada",
+        "notes": "Ustavna monarhija; vodja države je kralj Karel III. Dvojezična država (angleščina in francoščina; v Quebecu prevladuje francoščina). Šest standardnih časovnih pasov. Prebivalstvo mest po popisu 2021."
+      }
+    },
+    {
+      "iso2": "cr",
+      "iso3": "cri",
+      "iso_numeric": 188,
+      "ccn3": "188",
+      "name": {
+        "sl": "Kostarika",
+        "en": "Costa Rica",
+        "official_sl": "Republika Kostarika",
+        "official_en": "Republic of Costa Rica",
+        "native": [
+          "Costa Rica"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Kostarika",
+        "Costa Rica"
+      ],
+      "aliases_en": [
+        "Republic of Costa Rica"
+      ],
+      "demonym": {
+        "sl_m": "Kostaričan",
+        "sl_f": "Kostaričanka",
+        "en": "Costa Rican"
+      },
+      "flag": {
+        "code": "cr",
+        "file_4x3": "flags/4x3/cr.svg",
+        "file_1x1": "flags/1x1/cr.svg",
+        "emoji": "🇨🇷",
+        "notes": "Modra-bela-rdeča-bela-modra vodoravno z grbom; podobna tajski zastavi z zamenjanima barvama (Tajska ima modro v sredini).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 10.0,
+        "lon": -84.0,
+        "area_km2": 51100,
+        "coastline_km": 1290,
+        "highest_point": {
+          "name_sl": "Cerro Chirripó",
+          "name_en": "Cerro Chirripó",
+          "elevation_m": 3819
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "ni",
+          "pa"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Costa_Rica"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "San José",
+        "en": "San José",
+        "lat": 9.93,
+        "lon": -84.08,
+        "population": 350000
+      },
+      "top_cities": [
+        {
+          "sl": "San José",
+          "en": "San José",
+          "population": 350000
+        },
+        {
+          "sl": "Alajuela",
+          "en": "Alajuela",
+          "population": 320000
+        },
+        {
+          "sl": "Desamparados",
+          "en": "Desamparados",
+          "population": 230000
+        },
+        {
+          "sl": "San Carlos",
+          "en": "San Carlos",
+          "population": 200000
+        },
+        {
+          "sl": "Cartago",
+          "en": "Cartago",
+          "population": 160000
+        },
+        {
+          "sl": "Pérez Zeledón",
+          "en": "Pérez Zeledón",
+          "population": 140000
+        },
+        {
+          "sl": "Heredia",
+          "en": "Heredia",
+          "population": 140000
+        },
+        {
+          "sl": "Puntarenas",
+          "en": "Puntarenas",
+          "population": 130000
+        },
+        {
+          "sl": "Limón",
+          "en": "Limón",
+          "population": 100000
+        },
+        {
+          "sl": "Liberia",
+          "en": "Liberia",
+          "population": 80000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "San Juan",
+            "en": "San Juan"
+          },
+          {
+            "sl": "Tempisque",
+            "en": "Tempisque"
+          },
+          {
+            "sl": "Reventazón",
+            "en": "Reventazón"
+          },
+          {
+            "sl": "Grande de Térraba",
+            "en": "Grande de Térraba"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Arenal",
+            "en": "Lake Arenal"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 5153000,
+        "year": 2025,
+        "density_per_km2": 101
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "angleščina",
+          "bribri"
+        ]
+      },
+      "currency": {
+        "code": "CRC",
+        "name_sl": "kostariški kolon",
+        "name_en": "Costa Rican colón",
+        "symbol": "₡"
+      },
+      "communications": {
+        "tld": [
+          ".cr"
+        ],
+        "phone_prefix": "+506",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "sica",
+          "atlantic",
+          "pacific",
+          "no_army",
+          "volcanoes"
+        ],
+        "common_confusions_iso2": [
+          "pa",
+          "ni",
+          "th"
+        ],
+        "hint_sl": "Srednjeameriška država brez vojske, znana po deževnih gozdovih; prestolnica San José."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1821-09-15",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Kostarika",
+        "notes": "Vojsko je odpravila leta 1948. Država nima uradnega gesla. Prebivalstvo mest velja za kantone."
+      }
+    },
+    {
+      "iso2": "cu",
+      "iso3": "cub",
+      "iso_numeric": 192,
+      "ccn3": "192",
+      "name": {
+        "sl": "Kuba",
+        "en": "Cuba",
+        "official_sl": "Republika Kuba",
+        "official_en": "Republic of Cuba",
+        "native": [
+          "Cuba"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Kuba"
+      ],
+      "aliases_en": [
+        "Republic of Cuba"
+      ],
+      "demonym": {
+        "sl_m": "Kubanec",
+        "sl_f": "Kubanka",
+        "en": "Cuban"
+      },
+      "flag": {
+        "code": "cu",
+        "file_4x3": "flags/4x3/cu.svg",
+        "file_1x1": "flags/1x1/cu.svg",
+        "emoji": "🇨🇺",
+        "notes": "Pet modrih in belih vodoravnih prog z rdečim trikotnikom in belo zvezdo; skoraj zrcalna portoriški zastavi (ta ima rdeče proge in moder trikotnik).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 21.5,
+        "lon": -80.0,
+        "area_km2": 109884,
+        "coastline_km": 3735,
+        "highest_point": {
+          "name_sl": "Pico Turquino",
+          "name_en": "Pico Turquino",
+          "elevation_m": 1974
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Havana"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Havana",
+        "en": "Havana",
+        "lat": 23.13,
+        "lon": -82.38,
+        "population": 2130000
+      },
+      "top_cities": [
+        {
+          "sl": "Havana",
+          "en": "Havana",
+          "population": 2130000
+        },
+        {
+          "sl": "Santiago de Cuba",
+          "en": "Santiago de Cuba",
+          "population": 510000
+        },
+        {
+          "sl": "Camagüey",
+          "en": "Camagüey",
+          "population": 320000
+        },
+        {
+          "sl": "Holguín",
+          "en": "Holguín",
+          "population": 300000
+        },
+        {
+          "sl": "Santa Clara",
+          "en": "Santa Clara",
+          "population": 250000
+        },
+        {
+          "sl": "Guantánamo",
+          "en": "Guantánamo",
+          "population": 230000
+        },
+        {
+          "sl": "Bayamo",
+          "en": "Bayamo",
+          "population": 200000
+        },
+        {
+          "sl": "Pinar del Río",
+          "en": "Pinar del Río",
+          "population": 190000
+        },
+        {
+          "sl": "Cienfuegos",
+          "en": "Cienfuegos",
+          "population": 175000
+        },
+        {
+          "sl": "Las Tunas",
+          "en": "Las Tunas",
+          "population": 170000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Cauto",
+            "en": "Cauto"
+          },
+          {
+            "sl": "Toa",
+            "en": "Toa"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Mehiški zaliv",
+            "en": "Gulf of Mexico"
+          }
+        ]
+      },
+      "population": {
+        "total": 10937000,
+        "year": 2025,
+        "density_per_km2": 100
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "CUP",
+        "name_sl": "kubanski peso",
+        "name_en": "Cuban peso",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".cu"
+        ],
+        "phone_prefix": "+53",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "hispanophone",
+          "communist",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "pr",
+          "do",
+          "jm"
+        ],
+        "hint_sl": "Največji karibski otok, socialistična republika; prestolnica Havana."
+      },
+      "extra": {
+        "motto_sl": "Domovina ali smrt, zmagali bomo!",
+        "national_day": "1959-01-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Kuba",
+        "notes": "Konvertibilni peso (CUC) je bil ukinjen leta 2021. Na jugovzhodu je ameriško pomorsko oporišče Guantánamo (zakup od leta 1903). Državni praznik je dan zmage revolucije (1. januar)."
+      }
+    },
+    {
+      "iso2": "dm",
+      "iso3": "dma",
+      "iso_numeric": 212,
+      "ccn3": "212",
+      "name": {
+        "sl": "Dominika",
+        "en": "Dominica",
+        "official_sl": "Skupnost Dominika",
+        "official_en": "Commonwealth of Dominica",
+        "native": [
+          "Dominica"
+        ]
+      },
+      "aliases_sl": [
+        "Skupnost Dominika"
+      ],
+      "aliases_en": [
+        "Commonwealth of Dominica"
+      ],
+      "demonym": {
+        "sl_m": "Dominičan",
+        "sl_f": "Dominičanka",
+        "en": "Dominican"
+      },
+      "flag": {
+        "code": "dm",
+        "file_4x3": "flags/4x3/dm.svg",
+        "file_1x1": "flags/1x1/dm.svg",
+        "emoji": "🇩🇲",
+        "notes": "Zelena z rumeno-črno-belim križem in rdečim krogom s papigo sisserou ter desetimi zvezdami; ena redkih zastav z vijolično barvo. Ne zamenjuj z Dominikansko republiko.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 15.42,
+        "lon": -61.33,
+        "area_km2": 751,
+        "coastline_km": 148,
+        "highest_point": {
+          "name_sl": "Morne Diablotins",
+          "name_en": "Morne Diablotins",
+          "elevation_m": 1447
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Dominica"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Roseau",
+        "en": "Roseau",
+        "lat": 15.3,
+        "lon": -61.39,
+        "population": 15000
+      },
+      "top_cities": [
+        {
+          "sl": "Roseau",
+          "en": "Roseau",
+          "population": 15000
+        },
+        {
+          "sl": "Portsmouth",
+          "en": "Portsmouth",
+          "population": 3600
+        },
+        {
+          "sl": "Marigot",
+          "en": "Marigot",
+          "population": 2700
+        },
+        {
+          "sl": "Berekua",
+          "en": "Berekua",
+          "population": 2500
+        },
+        {
+          "sl": "Mahaut",
+          "en": "Mahaut",
+          "population": 2400
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Layou",
+            "en": "Layou"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Vrelo jezero",
+            "en": "Boiling Lake"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 66000,
+        "year": 2025,
+        "density_per_km2": 88
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "antilska kreolščina (francoska)"
+        ]
+      },
+      "currency": {
+        "code": "XCD",
+        "name_sl": "vzhodnokaribski dolar",
+        "name_en": "Eastern Caribbean dollar",
+        "symbol": "EC$"
+      },
+      "communications": {
+        "tld": [
+          ".dm"
+        ],
+        "phone_prefix": "+1-767",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "caricom",
+          "oecs",
+          "volcanoes",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "do",
+          "gd",
+          "lc"
+        ],
+        "hint_sl": "Gorat vulkanski otok v Malih Antilih z Vrelim jezerom; prestolnica Roseau."
+      },
+      "extra": {
+        "motto_sl": "Po Bogu je zemlja",
+        "national_day": "1978-11-03",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Dominika",
+        "notes": "Republika od neodvisnosti leta 1978. Pogosto zamenjevana z Dominikansko republiko. Geslo je v antilski kreolščini (Après Bondie, C'est La Ter)."
+      }
+    },
+    {
+      "iso2": "do",
+      "iso3": "dom",
+      "iso_numeric": 214,
+      "ccn3": "214",
+      "name": {
+        "sl": "Dominikanska republika",
+        "en": "Dominican Republic",
+        "official_sl": "Dominikanska republika",
+        "official_en": "Dominican Republic",
+        "native": [
+          "República Dominicana"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Dominikanec",
+        "sl_f": "Dominikanka",
+        "en": "Dominican"
+      },
+      "flag": {
+        "code": "do",
+        "file_4x3": "flags/4x3/do.svg",
+        "file_1x1": "flags/1x1/do.svg",
+        "emoji": "🇩🇴",
+        "notes": "Bel križ z modrimi in rdečimi polji ter grbom v sredini; ime države pogosto zamenjujejo z Dominiko, zastavi pa si nista podobni.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 19.0,
+        "lon": -70.67,
+        "area_km2": 48671,
+        "coastline_km": 1288,
+        "highest_point": {
+          "name_sl": "Pico Duarte",
+          "name_en": "Pico Duarte",
+          "elevation_m": 3098
+        },
+        "lowest_point": {
+          "name_sl": "Jezero Enriquillo",
+          "name_en": "Lake Enriquillo",
+          "elevation_m": -46
+        },
+        "borders_iso2": [
+          "ht"
+        ],
+        "borders_notes": "Z Haitijem si deli otok Hispaniola (vzhodni dve tretjini otoka).",
+        "timezones": [
+          "America/Santo_Domingo"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Santo Domingo",
+        "en": "Santo Domingo",
+        "lat": 18.47,
+        "lon": -69.89,
+        "population": 1030000
+      },
+      "top_cities": [
+        {
+          "sl": "Santo Domingo",
+          "en": "Santo Domingo",
+          "population": 1030000
+        },
+        {
+          "sl": "Santo Domingo Este",
+          "en": "Santo Domingo Este",
+          "population": 1000000
+        },
+        {
+          "sl": "Santiago de los Caballeros",
+          "en": "Santiago de los Caballeros",
+          "population": 900000
+        },
+        {
+          "sl": "Santo Domingo Norte",
+          "en": "Santo Domingo Norte",
+          "population": 600000
+        },
+        {
+          "sl": "Santo Domingo Oeste",
+          "en": "Santo Domingo Oeste",
+          "population": 400000
+        },
+        {
+          "sl": "San Cristóbal",
+          "en": "San Cristóbal",
+          "population": 290000
+        },
+        {
+          "sl": "Higüey",
+          "en": "Higüey",
+          "population": 290000
+        },
+        {
+          "sl": "La Romana",
+          "en": "La Romana",
+          "population": 260000
+        },
+        {
+          "sl": "San Pedro de Macorís",
+          "en": "San Pedro de Macorís",
+          "population": 200000
+        },
+        {
+          "sl": "Puerto Plata",
+          "en": "Puerto Plata",
+          "population": 160000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Yaque del Norte",
+            "en": "Yaque del Norte"
+          },
+          {
+            "sl": "Yuna",
+            "en": "Yuna"
+          },
+          {
+            "sl": "Ozama",
+            "en": "Ozama"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Enriquillo",
+            "en": "Lake Enriquillo"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 11520000,
+        "year": 2025,
+        "density_per_km2": 237
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "haitijska kreolščina"
+        ]
+      },
+      "currency": {
+        "code": "DOP",
+        "name_sl": "dominikanski peso",
+        "name_en": "Dominican peso",
+        "symbol": "RD$"
+      },
+      "communications": {
+        "tld": [
+          ".do"
+        ],
+        "phone_prefix": "+1-809",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "hispanophone",
+          "sica",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "ht",
+          "dm",
+          "pr"
+        ],
+        "hint_sl": "Vzhodni del otoka Hispaniola s prestolnico Santo Domingo, najstarejšim evropskim mestom v Ameriki."
+      },
+      "extra": {
+        "motto_sl": "Bog, domovina, svoboda",
+        "national_day": "1844-02-27",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Dominikanska_republika",
+        "notes": "Jezero Enriquillo je najnižja točka Karibov. Polnopravna članica SICA od leta 2013. Prebivalstvo mest velja za občine (približno)."
+      }
+    },
+    {
+      "iso2": "sv",
+      "iso3": "slv",
+      "iso_numeric": 222,
+      "ccn3": "222",
+      "name": {
+        "sl": "Salvador",
+        "en": "El Salvador",
+        "official_sl": "Republika Salvador",
+        "official_en": "Republic of El Salvador",
+        "native": [
+          "El Salvador"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Salvador",
+        "El Salvador"
+      ],
+      "aliases_en": [
+        "Republic of El Salvador"
+      ],
+      "demonym": {
+        "sl_m": "Salvadorec",
+        "sl_f": "Salvadorka",
+        "en": "Salvadoran"
+      },
+      "flag": {
+        "code": "sv",
+        "file_4x3": "flags/4x3/sv.svg",
+        "file_1x1": "flags/1x1/sv.svg",
+        "emoji": "🇸🇻",
+        "notes": "Modra-bela-modra vodoravno z grbom; zelo podobna zastavi Nikaragve (Salvador ima napis »República de El Salvador en la América Central«), podobna tudi Hondurasu.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 13.83,
+        "lon": -88.92,
+        "area_km2": 21041,
+        "coastline_km": 307,
+        "highest_point": {
+          "name_sl": "Cerro El Pital",
+          "name_en": "Cerro El Pital",
+          "elevation_m": 2730
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "gt",
+          "hn"
+        ],
+        "borders_notes": "Edina srednjeameriška država brez obale ob Karibskem morju.",
+        "timezones": [
+          "America/El_Salvador"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "San Salvador",
+        "en": "San Salvador",
+        "lat": 13.69,
+        "lon": -89.19,
+        "population": 320000
+      },
+      "top_cities": [
+        {
+          "sl": "San Salvador",
+          "en": "San Salvador",
+          "population": 320000
+        },
+        {
+          "sl": "Santa Ana",
+          "en": "Santa Ana",
+          "population": 250000
+        },
+        {
+          "sl": "Soyapango",
+          "en": "Soyapango",
+          "population": 240000
+        },
+        {
+          "sl": "San Miguel",
+          "en": "San Miguel",
+          "population": 220000
+        },
+        {
+          "sl": "Mejicanos",
+          "en": "Mejicanos",
+          "population": 140000
+        },
+        {
+          "sl": "Apopa",
+          "en": "Apopa",
+          "population": 130000
+        },
+        {
+          "sl": "Santa Tecla",
+          "en": "Santa Tecla",
+          "population": 120000
+        },
+        {
+          "sl": "Ciudad Delgado",
+          "en": "Ciudad Delgado",
+          "population": 120000
+        },
+        {
+          "sl": "Ilopango",
+          "en": "Ilopango",
+          "population": 100000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Lempa",
+            "en": "Lempa"
+          },
+          {
+            "sl": "Goascorán",
+            "en": "Goascorán"
+          },
+          {
+            "sl": "Paz",
+            "en": "Paz"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Ilopango",
+            "en": "Lake Ilopango"
+          },
+          {
+            "sl": "Coatepeque",
+            "en": "Lake Coatepeque"
+          },
+          {
+            "sl": "Güija",
+            "en": "Lake Güija"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 6366000,
+        "year": 2025,
+        "density_per_km2": 303
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "nahuatl (pipil)"
+        ]
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".sv"
+        ],
+        "phone_prefix": "+503",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "sica",
+          "pacific",
+          "volcanoes"
+        ],
+        "common_confusions_iso2": [
+          "ni",
+          "hn",
+          "gt"
+        ],
+        "hint_sl": "Najmanjša in najgosteje naseljena celinska država Amerike; prestolnica San Salvador."
+      },
+      "extra": {
+        "motto_sl": "Bog, enotnost, svoboda",
+        "national_day": "1821-09-15",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Salvador",
+        "notes": "Ameriški dolar je uradna valuta od leta 2001. Bitcoin je bil leta 2021 razglašen za zakonito plačilno sredstvo, od spremembe zakona januarja 2025 pa njegovo sprejemanje ni več obvezno. Prebivalstvo mest velja pred občinsko reformo leta 2024."
+      }
+    },
+    {
+      "iso2": "gl",
+      "iso3": "grl",
+      "iso_numeric": 304,
+      "ccn3": "304",
+      "name": {
+        "sl": "Grenlandija",
+        "en": "Greenland",
+        "official_sl": "Grenlandija",
+        "official_en": "Greenland",
+        "native": [
+          "Kalaallit Nunaat",
+          "Grønland"
+        ]
+      },
+      "aliases_sl": [
+        "Kalaallit Nunaat"
+      ],
+      "aliases_en": [
+        "Kalaallit Nunaat"
+      ],
+      "demonym": {
+        "sl_m": "Grenlandec",
+        "sl_f": "Grenlandka",
+        "en": "Greenlandic"
+      },
+      "flag": {
+        "code": "gl",
+        "file_4x3": "flags/4x3/gl.svg",
+        "file_1x1": "flags/1x1/gl.svg",
+        "emoji": "🇬🇱",
+        "notes": "Vodoravno bela zgoraj in rdeča spodaj s krogom obrnjenih barv, zamaknjenim proti drogu.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "northern_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 72.0,
+        "lon": -40.0,
+        "area_km2": 2166086,
+        "coastline_km": 44087,
+        "highest_point": {
+          "name_sl": "Gunnbjørn Fjeld",
+          "name_en": "Gunnbjørn Fjeld",
+          "elevation_m": 3694
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "ca"
+        ],
+        "borders_notes": "Otok; od leta 2022 ima na otoku Hans (Tartupaluk) v Naresovem prelivu kratko kopensko mejo (okoli 1,3 km) s Kanado.",
+        "timezones": [
+          "America/Nuuk",
+          "America/Danmarkshavn",
+          "America/Scoresbysund",
+          "America/Thule"
+        ],
+        "utc_offset_standard": "-02:00"
+      },
+      "capital": {
+        "sl": "Nuuk",
+        "en": "Nuuk",
+        "lat": 64.18,
+        "lon": -51.72,
+        "population": 20000
+      },
+      "top_cities": [
+        {
+          "sl": "Nuuk",
+          "en": "Nuuk",
+          "population": 20000
+        },
+        {
+          "sl": "Sisimiut",
+          "en": "Sisimiut",
+          "population": 5400
+        },
+        {
+          "sl": "Ilulissat",
+          "en": "Ilulissat",
+          "population": 4900
+        },
+        {
+          "sl": "Qaqortoq",
+          "en": "Qaqortoq",
+          "population": 3000
+        },
+        {
+          "sl": "Aasiaat",
+          "en": "Aasiaat",
+          "population": 3000
+        },
+        {
+          "sl": "Maniitsoq",
+          "en": "Maniitsoq",
+          "population": 2500
+        },
+        {
+          "sl": "Tasiilaq",
+          "en": "Tasiilaq",
+          "population": 2000
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Severni ledeni ocean",
+            "en": "Arctic Ocean"
+          },
+          {
+            "sl": "Baffinov zaliv",
+            "en": "Baffin Bay"
+          },
+          {
+            "sl": "Grenlandsko morje",
+            "en": "Greenland Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 56500,
+        "year": 2025,
+        "density_per_km2": 0
+      },
+      "languages": {
+        "official_sl": [
+          "grenlandščina"
+        ],
+        "official_en": [
+          "Greenlandic"
+        ],
+        "also_spoken_sl": [
+          "danščina",
+          "angleščina"
+        ]
+      },
+      "currency": {
+        "code": "DKK",
+        "name_sl": "danska krona",
+        "name_en": "Danish krone",
+        "symbol": "kr."
+      },
+      "communications": {
+        "tld": [
+          ".gl"
+        ],
+        "phone_prefix": "+299",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": false,
+        "un_member": false,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Samoupravno ozemlje znotraj Kraljevine Danske (samouprava od leta 1979, razširjena leta 2009, ko je dobila pravico do samoodločbe). Ni članica EU (izstopila 1985). Zunanjo in obrambno politiko vodi Danska. Septembra 2026 so ZDA, Danska in Grenlandija podpisale obrambni sporazum, ki ohranja dansko suverenost.",
+        "quiz_exclude": true,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "northern_america",
+          "island",
+          "territory",
+          "arctic",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "dk",
+          "ca",
+          "is"
+        ],
+        "hint_sl": "Največji otok na svetu, samoupravno ozemlje Danske; prestolnica Nuuk."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1985-06-21",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Grenlandija",
+        "notes": "Okoli 80 % površine prekriva ledeni pokrov. Državni praznik je 21. junij (najdaljši dan), praznuje se od leta 1985."
+      }
+    },
+    {
+      "iso2": "gd",
+      "iso3": "grd",
+      "iso_numeric": 308,
+      "ccn3": "308",
+      "name": {
+        "sl": "Grenada",
+        "en": "Grenada",
+        "official_sl": "Grenada",
+        "official_en": "Grenada",
+        "native": [
+          "Grenada"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Grenadčan",
+        "sl_f": "Grenadčanka",
+        "en": "Grenadian"
+      },
+      "flag": {
+        "code": "gd",
+        "file_4x3": "flags/4x3/gd.svg",
+        "file_1x1": "flags/1x1/gd.svg",
+        "emoji": "🇬🇩",
+        "notes": "Rdeč rob s šestimi zlatimi zvezdami, rumeni in zeleni trikotniki, v sredini rdeč krog z zvezdo, ob drogu muškatni orešek.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 12.12,
+        "lon": -61.67,
+        "area_km2": 344,
+        "coastline_km": 121,
+        "highest_point": {
+          "name_sl": "Mount Saint Catherine",
+          "name_en": "Mount Saint Catherine",
+          "elevation_m": 840
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Grenada"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Saint George's",
+        "en": "Saint George's",
+        "lat": 12.05,
+        "lon": -61.75,
+        "population": 33000
+      },
+      "top_cities": [
+        {
+          "sl": "Saint George's",
+          "en": "Saint George's",
+          "population": 33000
+        },
+        {
+          "sl": "Gouyave",
+          "en": "Gouyave",
+          "population": 3000
+        },
+        {
+          "sl": "Grenville",
+          "en": "Grenville",
+          "population": 2500
+        },
+        {
+          "sl": "Victoria",
+          "en": "Victoria",
+          "population": 2000
+        },
+        {
+          "sl": "Hillsborough",
+          "en": "Hillsborough",
+          "population": 1000
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [
+          {
+            "sl": "Grand Etang",
+            "en": "Grand Etang"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 117000,
+        "year": 2025,
+        "density_per_km2": 340
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "grenadska kreolščina"
+        ]
+      },
+      "currency": {
+        "code": "XCD",
+        "name_sl": "vzhodnokaribski dolar",
+        "name_en": "Eastern Caribbean dollar",
+        "symbol": "EC$"
+      },
+      "communications": {
+        "tld": [
+          ".gd"
+        ],
+        "phone_prefix": "+1-473",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "oecs",
+          "spice"
+        ],
+        "common_confusions_iso2": [
+          "lc",
+          "vc",
+          "dm"
+        ],
+        "hint_sl": "»Otok začimb« z muškatnim oreškom na zastavi; prestolnica Saint George's."
+      },
+      "extra": {
+        "motto_sl": "Vedno zavedajoč se Boga si prizadevamo, gradimo in napredujemo kot eno ljudstvo",
+        "national_day": "1974-02-07",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Grenada",
+        "notes": "Država obsega Grenado ter otoka Carriacou in Petite Martinique. Leta 1983 je bila tarča ameriške vojaške invazije. Vodja države je kralj Karel III. Prebivalstvo prestolnice velja za širše mestno območje."
+      }
+    },
+    {
+      "iso2": "gt",
+      "iso3": "gtm",
+      "iso_numeric": 320,
+      "ccn3": "320",
+      "name": {
+        "sl": "Gvatemala",
+        "en": "Guatemala",
+        "official_sl": "Republika Gvatemala",
+        "official_en": "Republic of Guatemala",
+        "native": [
+          "Guatemala"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Gvatemala"
+      ],
+      "aliases_en": [
+        "Republic of Guatemala"
+      ],
+      "demonym": {
+        "sl_m": "Gvatemalec",
+        "sl_f": "Gvatemalka",
+        "en": "Guatemalan"
+      },
+      "flag": {
+        "code": "gt",
+        "file_4x3": "flags/4x3/gt.svg",
+        "file_1x1": "flags/1x1/gt.svg",
+        "emoji": "🇬🇹",
+        "notes": "Svetlo modra-bela-svetlo modra navpično z grbom s ptico kecal; ena redkih srednjeameriških zastav z navpičnimi pasovi.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 15.5,
+        "lon": -90.25,
+        "area_km2": 108889,
+        "coastline_km": 400,
+        "highest_point": {
+          "name_sl": "Tajumulco",
+          "name_en": "Tajumulco",
+          "elevation_m": 4220
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "bz",
+          "hn",
+          "mx",
+          "sv"
+        ],
+        "borders_notes": "Ima ozemeljsko zahtevo do dela Belizea; spor je pred Meddržavnim sodiščem.",
+        "timezones": [
+          "America/Guatemala"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "Gvatemala",
+        "en": "Guatemala City",
+        "lat": 14.63,
+        "lon": -90.51,
+        "population": 920000
+      },
+      "top_cities": [
+        {
+          "sl": "Gvatemala",
+          "en": "Guatemala City",
+          "population": 920000
+        },
+        {
+          "sl": "Mixco",
+          "en": "Mixco",
+          "population": 465000
+        },
+        {
+          "sl": "Villa Nueva",
+          "en": "Villa Nueva",
+          "population": 434000
+        },
+        {
+          "sl": "Cobán",
+          "en": "Cobán",
+          "population": 210000
+        },
+        {
+          "sl": "Quetzaltenango",
+          "en": "Quetzaltenango",
+          "population": 180000
+        },
+        {
+          "sl": "Escuintla",
+          "en": "Escuintla",
+          "population": 160000
+        },
+        {
+          "sl": "Villa Canales",
+          "en": "Villa Canales",
+          "population": 155000
+        },
+        {
+          "sl": "San Miguel Petapa",
+          "en": "San Miguel Petapa",
+          "population": 130000
+        },
+        {
+          "sl": "Chinautla",
+          "en": "Chinautla",
+          "population": 130000
+        },
+        {
+          "sl": "Huehuetenango",
+          "en": "Huehuetenango",
+          "population": 120000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Usumacinta",
+            "en": "Usumacinta"
+          },
+          {
+            "sl": "Motagua",
+            "en": "Motagua"
+          },
+          {
+            "sl": "Polochic",
+            "en": "Polochic"
+          },
+          {
+            "sl": "Sarstún",
+            "en": "Sarstoon"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Atitlán",
+            "en": "Lake Atitlán"
+          },
+          {
+            "sl": "Izabal",
+            "en": "Lake Izabal"
+          },
+          {
+            "sl": "Petén Itzá",
+            "en": "Lake Petén Itzá"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 18688000,
+        "year": 2025,
+        "density_per_km2": 172
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "kiče",
+          "kakčikel",
+          "kekči",
+          "mam"
+        ]
+      },
+      "currency": {
+        "code": "GTQ",
+        "name_sl": "gvatemalski kecal",
+        "name_en": "Guatemalan quetzal",
+        "symbol": "Q"
+      },
+      "communications": {
+        "tld": [
+          ".gt"
+        ],
+        "phone_prefix": "+502",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "sica",
+          "maya",
+          "volcanoes",
+          "atlantic",
+          "pacific"
+        ],
+        "common_confusions_iso2": [
+          "hn",
+          "sv",
+          "bz"
+        ],
+        "hint_sl": "Najštevilčnejša srednjeameriška država z majevskim Tikalom; prestolnica Gvatemala."
+      },
+      "extra": {
+        "motto_sl": "Rasti svobodno in plodno",
+        "national_day": "1821-09-15",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Gvatemala",
+        "notes": "Prestolnica ima isto ime kot država (Ciudad de Guatemala). Geslo Libre crezca fecundo je neuradno. Prebivalstvo mest velja za občine (popis 2018)."
+      }
+    },
+    {
+      "iso2": "ht",
+      "iso3": "hti",
+      "iso_numeric": 332,
+      "ccn3": "332",
+      "name": {
+        "sl": "Haiti",
+        "en": "Haiti",
+        "official_sl": "Republika Haiti",
+        "official_en": "Republic of Haiti",
+        "native": [
+          "Haïti",
+          "Ayiti"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Haiti"
+      ],
+      "aliases_en": [
+        "Republic of Haiti"
+      ],
+      "demonym": {
+        "sl_m": "Haitijec",
+        "sl_f": "Haitijka",
+        "en": "Haitian"
+      },
+      "flag": {
+        "code": "ht",
+        "file_4x3": "flags/4x3/ht.svg",
+        "file_1x1": "flags/1x1/ht.svg",
+        "emoji": "🇭🇹",
+        "notes": "Modra-rdeča vodoravno z grbom v belem pravokotniku; brez grba podobna zastavi Lihtenštajna (ta ima krono).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 19.0,
+        "lon": -72.42,
+        "area_km2": 27750,
+        "coastline_km": 1771,
+        "highest_point": {
+          "name_sl": "Pic la Selle",
+          "name_en": "Pic la Selle",
+          "elevation_m": 2680
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "do"
+        ],
+        "borders_notes": "Z Dominikansko republiko si deli otok Hispaniola (zahodna tretjina otoka).",
+        "timezones": [
+          "America/Port-au-Prince"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Port-au-Prince",
+        "en": "Port-au-Prince",
+        "lat": 18.54,
+        "lon": -72.34,
+        "population": 990000
+      },
+      "top_cities": [
+        {
+          "sl": "Port-au-Prince",
+          "en": "Port-au-Prince",
+          "population": 990000
+        },
+        {
+          "sl": "Carrefour",
+          "en": "Carrefour",
+          "population": 500000
+        },
+        {
+          "sl": "Delmas",
+          "en": "Delmas",
+          "population": 400000
+        },
+        {
+          "sl": "Pétion-Ville",
+          "en": "Pétion-Ville",
+          "population": 380000
+        },
+        {
+          "sl": "Gonaïves",
+          "en": "Gonaïves",
+          "population": 300000
+        },
+        {
+          "sl": "Cap-Haïtien",
+          "en": "Cap-Haïtien",
+          "population": 280000
+        },
+        {
+          "sl": "Croix-des-Bouquets",
+          "en": "Croix-des-Bouquets",
+          "population": 270000
+        },
+        {
+          "sl": "Saint-Marc",
+          "en": "Saint-Marc",
+          "population": 260000
+        },
+        {
+          "sl": "Les Cayes",
+          "en": "Les Cayes",
+          "population": 140000
+        },
+        {
+          "sl": "Jacmel",
+          "en": "Jacmel",
+          "population": 140000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Artibonite",
+            "en": "Artibonite"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Étang Saumâtre (Azuei)",
+            "en": "Étang Saumâtre (Lake Azuei)"
+          },
+          {
+            "sl": "Péligre",
+            "en": "Lake Péligre"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 11906000,
+        "year": 2025,
+        "density_per_km2": 429
+      },
+      "languages": {
+        "official_sl": [
+          "francoščina",
+          "haitijska kreolščina"
+        ],
+        "official_en": [
+          "French",
+          "Haitian Creole"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "HTG",
+        "name_sl": "haitijski gurd",
+        "name_en": "Haitian gourde",
+        "symbol": "G"
+      },
+      "communications": {
+        "tld": [
+          ".ht"
+        ],
+        "phone_prefix": "+509",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "francophone",
+          "caricom",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "do",
+          "li",
+          "jm"
+        ],
+        "hint_sl": "Prva neodvisna črnska republika (1804) na zahodu Hispaniole; prestolnica Port-au-Prince."
+      },
+      "extra": {
+        "motto_sl": "Svoboda, enakost, bratstvo",
+        "national_day": "1804-01-01",
+        "former_names_sl": [
+          "Saint-Domingue"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Haiti",
+        "notes": "Prehodni predsedniški svet je mandat končal 7. februarja 2026; od takrat državo vodi vlada premierja Alixa Didierja Fils-Aiméja. Volitve, predvidene za 13. december 2026, so bile oktobra 2026 preložene za nedoločen čas. Prebivalstvo mest velja za komune (približno). Na grbu je geslo L'union fait la force (V enotnosti je moč)."
+      }
+    },
+    {
+      "iso2": "hn",
+      "iso3": "hnd",
+      "iso_numeric": 340,
+      "ccn3": "340",
+      "name": {
+        "sl": "Honduras",
+        "en": "Honduras",
+        "official_sl": "Republika Honduras",
+        "official_en": "Republic of Honduras",
+        "native": [
+          "Honduras"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Honduras"
+      ],
+      "aliases_en": [
+        "Republic of Honduras"
+      ],
+      "demonym": {
+        "sl_m": "Hondurašan",
+        "sl_f": "Hondurašanka",
+        "en": "Honduran"
+      },
+      "flag": {
+        "code": "hn",
+        "file_4x3": "flags/4x3/hn.svg",
+        "file_1x1": "flags/1x1/hn.svg",
+        "emoji": "🇭🇳",
+        "notes": "Modra-bela-modra vodoravno s petimi modrimi zvezdami v belem pasu; podobna zastavama Salvadorja in Nikaragve (vse izhajajo iz zastave Srednjeameriške federacije).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 15.0,
+        "lon": -86.5,
+        "area_km2": 112492,
+        "coastline_km": 820,
+        "highest_point": {
+          "name_sl": "Cerro Las Minas",
+          "name_en": "Cerro Las Minas",
+          "elevation_m": 2870
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "gt",
+          "ni",
+          "sv"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Tegucigalpa"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "Tegucigalpa",
+        "en": "Tegucigalpa",
+        "lat": 14.07,
+        "lon": -87.19,
+        "population": 1280000
+      },
+      "top_cities": [
+        {
+          "sl": "Tegucigalpa",
+          "en": "Tegucigalpa",
+          "population": 1280000
+        },
+        {
+          "sl": "San Pedro Sula",
+          "en": "San Pedro Sula",
+          "population": 800000
+        },
+        {
+          "sl": "Choloma",
+          "en": "Choloma",
+          "population": 260000
+        },
+        {
+          "sl": "La Ceiba",
+          "en": "La Ceiba",
+          "population": 200000
+        },
+        {
+          "sl": "El Progreso",
+          "en": "El Progreso",
+          "population": 200000
+        },
+        {
+          "sl": "Choluteca",
+          "en": "Choluteca",
+          "population": 160000
+        },
+        {
+          "sl": "Comayagua",
+          "en": "Comayagua",
+          "population": 150000
+        },
+        {
+          "sl": "Puerto Cortés",
+          "en": "Puerto Cortés",
+          "population": 130000
+        },
+        {
+          "sl": "Danlí",
+          "en": "Danlí",
+          "population": 130000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Patuca",
+            "en": "Patuca"
+          },
+          {
+            "sl": "Ulúa",
+            "en": "Ulúa"
+          },
+          {
+            "sl": "Coco (Segovia)",
+            "en": "Coco (Segovia)"
+          },
+          {
+            "sl": "Aguán",
+            "en": "Aguán"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Yojoa",
+            "en": "Lake Yojoa"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 11006000,
+        "year": 2025,
+        "density_per_km2": 98
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "garifunščina",
+          "miskito",
+          "angleščina"
+        ]
+      },
+      "currency": {
+        "code": "HNL",
+        "name_sl": "honduraška lempira",
+        "name_en": "Honduran lempira",
+        "symbol": "L"
+      },
+      "communications": {
+        "tld": [
+          ".hn"
+        ],
+        "phone_prefix": "+504",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "sica",
+          "atlantic",
+          "pacific",
+          "maya"
+        ],
+        "common_confusions_iso2": [
+          "ni",
+          "sv",
+          "gt"
+        ],
+        "hint_sl": "Srednjeameriška država z majevskim mestom Copán in prestolnico Tegucigalpa."
+      },
+      "extra": {
+        "motto_sl": "Svobodna, suverena in neodvisna",
+        "national_day": "1821-09-15",
+        "former_names_sl": [
+          "Španski Honduras"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Honduras",
+        "notes": "Prestolnico uradno sestavljata Tegucigalpa in Comayagüela (Distrito Central). Na tihomorski strani ima dostop do zaliva Fonseca."
+      }
+    },
+    {
+      "iso2": "jm",
+      "iso3": "jam",
+      "iso_numeric": 388,
+      "ccn3": "388",
+      "name": {
+        "sl": "Jamajka",
+        "en": "Jamaica",
+        "official_sl": "Jamajka",
+        "official_en": "Jamaica",
+        "native": [
+          "Jamaica"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Jamajčan",
+        "sl_f": "Jamajčanka",
+        "en": "Jamaican"
+      },
+      "flag": {
+        "code": "jm",
+        "file_4x3": "flags/4x3/jm.svg",
+        "file_1x1": "flags/1x1/jm.svg",
+        "emoji": "🇯🇲",
+        "notes": "Zlat diagonalni križ z zelenima in črnima trikotnikoma; edina državna zastava brez rdeče, bele in modre barve.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 18.25,
+        "lon": -77.5,
+        "area_km2": 10991,
+        "coastline_km": 1022,
+        "highest_point": {
+          "name_sl": "Blue Mountain Peak",
+          "name_en": "Blue Mountain Peak",
+          "elevation_m": 2256
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Jamaica"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Kingston",
+        "en": "Kingston",
+        "lat": 17.97,
+        "lon": -76.79,
+        "population": 660000
+      },
+      "top_cities": [
+        {
+          "sl": "Kingston",
+          "en": "Kingston",
+          "population": 660000
+        },
+        {
+          "sl": "Portmore",
+          "en": "Portmore",
+          "population": 180000
+        },
+        {
+          "sl": "Spanish Town",
+          "en": "Spanish Town",
+          "population": 150000
+        },
+        {
+          "sl": "Montego Bay",
+          "en": "Montego Bay",
+          "population": 110000
+        },
+        {
+          "sl": "May Pen",
+          "en": "May Pen",
+          "population": 60000
+        },
+        {
+          "sl": "Mandeville",
+          "en": "Mandeville",
+          "population": 50000
+        },
+        {
+          "sl": "Old Harbour",
+          "en": "Old Harbour",
+          "population": 30000
+        },
+        {
+          "sl": "Savanna-la-Mar",
+          "en": "Savanna-la-Mar",
+          "population": 20000
+        },
+        {
+          "sl": "Ocho Rios",
+          "en": "Ocho Rios",
+          "population": 16000
+        },
+        {
+          "sl": "Linstead",
+          "en": "Linstead",
+          "population": 15000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Black River",
+            "en": "Black River"
+          },
+          {
+            "sl": "Rio Minho",
+            "en": "Rio Minho"
+          },
+          {
+            "sl": "Rio Grande",
+            "en": "Rio Grande"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 2837000,
+        "year": 2025,
+        "density_per_km2": 258
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "jamajška kreolščina (patois)"
+        ]
+      },
+      "currency": {
+        "code": "JMD",
+        "name_sl": "jamajški dolar",
+        "name_en": "Jamaican dollar",
+        "symbol": "J$"
+      },
+      "communications": {
+        "tld": [
+          ".jm"
+        ],
+        "phone_prefix": "+1-876",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "reggae"
+        ],
+        "common_confusions_iso2": [
+          "tt",
+          "bs",
+          "cu"
+        ],
+        "hint_sl": "Karibski otok reggaeja in Boba Marleyja; prestolnica Kingston."
+      },
+      "extra": {
+        "motto_sl": "Izmed mnogih eno ljudstvo",
+        "national_day": "1962-08-06",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Jamajka",
+        "notes": "Vodja države je kralj Karel III. Zakon o republiki iz leta 2024 je obtičal, referendum še ni razpisan (stanje oktober 2026). Prebivalstvo Kingstona vključuje župnijo St. Andrew."
+      }
+    },
+    {
+      "iso2": "mx",
+      "iso3": "mex",
+      "iso_numeric": 484,
+      "ccn3": "484",
+      "name": {
+        "sl": "Mehika",
+        "en": "Mexico",
+        "official_sl": "Združene mehiške države",
+        "official_en": "United Mexican States",
+        "native": [
+          "México"
+        ]
+      },
+      "aliases_sl": [
+        "Združene mehiške države"
+      ],
+      "aliases_en": [
+        "United Mexican States",
+        "Estados Unidos Mexicanos"
+      ],
+      "demonym": {
+        "sl_m": "Mehičan",
+        "sl_f": "Mehičanka",
+        "en": "Mexican"
+      },
+      "flag": {
+        "code": "mx",
+        "file_4x3": "flags/4x3/mx.svg",
+        "file_1x1": "flags/1x1/mx.svg",
+        "emoji": "🇲🇽",
+        "notes": "Zelena-bela-rdeča navpično z grbom (orel s kačo na kaktusu); brez grba skoraj enaka italijanski zastavi, ki ima drugačno razmerje in svetlejše odtenke.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 23.0,
+        "lon": -102.0,
+        "area_km2": 1964375,
+        "coastline_km": 9330,
+        "highest_point": {
+          "name_sl": "Pico de Orizaba (Citlaltépetl)",
+          "name_en": "Pico de Orizaba (Citlaltépetl)",
+          "elevation_m": 5636
+        },
+        "lowest_point": {
+          "name_sl": "Laguna Salada",
+          "name_en": "Laguna Salada",
+          "elevation_m": -10
+        },
+        "borders_iso2": [
+          "bz",
+          "gt",
+          "us"
+        ],
+        "borders_notes": "Meja z ZDA je dolga okoli 3145 km.",
+        "timezones": [
+          "America/Mexico_City",
+          "America/Cancun",
+          "America/Mazatlan",
+          "America/Hermosillo",
+          "America/Tijuana"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "Ciudad de México",
+        "en": "Mexico City",
+        "lat": 19.43,
+        "lon": -99.13,
+        "population": 9210000
+      },
+      "top_cities": [
+        {
+          "sl": "Ciudad de México",
+          "en": "Mexico City",
+          "population": 9210000
+        },
+        {
+          "sl": "Tijuana",
+          "en": "Tijuana",
+          "population": 1923000
+        },
+        {
+          "sl": "León",
+          "en": "León",
+          "population": 1721000
+        },
+        {
+          "sl": "Puebla",
+          "en": "Puebla",
+          "population": 1692000
+        },
+        {
+          "sl": "Ecatepec",
+          "en": "Ecatepec",
+          "population": 1645000
+        },
+        {
+          "sl": "Ciudad Juárez",
+          "en": "Ciudad Juárez",
+          "population": 1512000
+        },
+        {
+          "sl": "Zapopan",
+          "en": "Zapopan",
+          "population": 1476000
+        },
+        {
+          "sl": "Guadalajara",
+          "en": "Guadalajara",
+          "population": 1386000
+        },
+        {
+          "sl": "Monterrey",
+          "en": "Monterrey",
+          "population": 1143000
+        },
+        {
+          "sl": "Nezahualcóyotl",
+          "en": "Nezahualcóyotl",
+          "population": 1077000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Rio Grande (Río Bravo)",
+            "en": "Rio Grande (Río Bravo)"
+          },
+          {
+            "sl": "Usumacinta",
+            "en": "Usumacinta"
+          },
+          {
+            "sl": "Grijalva",
+            "en": "Grijalva"
+          },
+          {
+            "sl": "Lerma",
+            "en": "Lerma"
+          },
+          {
+            "sl": "Balsas",
+            "en": "Balsas"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Chapala",
+            "en": "Lake Chapala"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Mehiški zaliv",
+            "en": "Gulf of Mexico"
+          },
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Kalifornijski zaliv",
+            "en": "Gulf of California"
+          }
+        ]
+      },
+      "population": {
+        "total": 131947000,
+        "year": 2025,
+        "density_per_km2": 67
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "nahuatl",
+          "jukatanska majevščina",
+          "cetalščina",
+          "micteščina"
+        ]
+      },
+      "currency": {
+        "code": "MXN",
+        "name_sl": "mehiški peso",
+        "name_en": "Mexican peso",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".mx"
+        ],
+        "phone_prefix": "+52",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "g20",
+          "usmca",
+          "federation",
+          "maya",
+          "aztec",
+          "atlantic",
+          "pacific"
+        ],
+        "common_confusions_iso2": [
+          "gt",
+          "us",
+          "it"
+        ],
+        "hint_sl": "Država Aztekov in Majev med ZDA in Gvatemalo; prestolnica Ciudad de México."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1810-09-16",
+        "former_names_sl": [
+          "Nova Španija"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Mehika",
+        "notes": "Država nima uradnega gesla. Španščina je dejansko uradni jezik; zakon priznava še 68 avtohtonih jezikov kot narodne jezike. Prebivalstvo mest velja za občine (popis 2020). Ob priključitvi Teksasa in mehiško-ameriški vojni (1846–1848) je izgubila okoli polovico ozemlja."
+      }
+    },
+    {
+      "iso2": "ni",
+      "iso3": "nic",
+      "iso_numeric": 558,
+      "ccn3": "558",
+      "name": {
+        "sl": "Nikaragva",
+        "en": "Nicaragua",
+        "official_sl": "Republika Nikaragva",
+        "official_en": "Republic of Nicaragua",
+        "native": [
+          "Nicaragua"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Nikaragva"
+      ],
+      "aliases_en": [
+        "Republic of Nicaragua"
+      ],
+      "demonym": {
+        "sl_m": "Nikaragovec",
+        "sl_f": "Nikaragovka",
+        "en": "Nicaraguan"
+      },
+      "flag": {
+        "code": "ni",
+        "file_4x3": "flags/4x3/ni.svg",
+        "file_1x1": "flags/1x1/ni.svg",
+        "emoji": "🇳🇮",
+        "notes": "Modra-bela-modra vodoravno z grbom (trikotnik z mavrico in petimi vulkani); zelo podobna salvadorski in podobna honduraški zastavi.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 13.0,
+        "lon": -85.0,
+        "area_km2": 130373,
+        "coastline_km": 910,
+        "highest_point": {
+          "name_sl": "Mogotón",
+          "name_en": "Mogotón",
+          "elevation_m": 2085
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "cr",
+          "hn"
+        ],
+        "borders_notes": "",
+        "timezones": [
+          "America/Managua"
+        ],
+        "utc_offset_standard": "-06:00"
+      },
+      "capital": {
+        "sl": "Managua",
+        "en": "Managua",
+        "lat": 12.13,
+        "lon": -86.25,
+        "population": 1050000
+      },
+      "top_cities": [
+        {
+          "sl": "Managua",
+          "en": "Managua",
+          "population": 1050000
+        },
+        {
+          "sl": "León",
+          "en": "León",
+          "population": 210000
+        },
+        {
+          "sl": "Masaya",
+          "en": "Masaya",
+          "population": 170000
+        },
+        {
+          "sl": "Matagalpa",
+          "en": "Matagalpa",
+          "population": 160000
+        },
+        {
+          "sl": "Tipitapa",
+          "en": "Tipitapa",
+          "population": 140000
+        },
+        {
+          "sl": "Chinandega",
+          "en": "Chinandega",
+          "population": 130000
+        },
+        {
+          "sl": "Estelí",
+          "en": "Estelí",
+          "population": 130000
+        },
+        {
+          "sl": "Granada",
+          "en": "Granada",
+          "population": 130000
+        },
+        {
+          "sl": "Ciudad Sandino",
+          "en": "Ciudad Sandino",
+          "population": 100000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "San Juan",
+            "en": "San Juan"
+          },
+          {
+            "sl": "Coco (Segovia)",
+            "en": "Coco (Segovia)"
+          },
+          {
+            "sl": "Escondido",
+            "en": "Escondido"
+          },
+          {
+            "sl": "Grande de Matagalpa",
+            "en": "Grande de Matagalpa"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Nikaragovsko jezero",
+            "en": "Lake Nicaragua"
+          },
+          {
+            "sl": "Managvsko jezero",
+            "en": "Lake Managua"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 7008000,
+        "year": 2025,
+        "density_per_km2": 54
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "miskito",
+          "angleščina (kreolska)"
+        ]
+      },
+      "currency": {
+        "code": "NIO",
+        "name_sl": "nikaragovska kordoba",
+        "name_en": "Nicaraguan córdoba",
+        "symbol": "C$"
+      },
+      "communications": {
+        "tld": [
+          ".ni"
+        ],
+        "phone_prefix": "+505",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "sica",
+          "volcanoes",
+          "atlantic",
+          "pacific"
+        ],
+        "common_confusions_iso2": [
+          "sv",
+          "hn",
+          "cr"
+        ],
+        "hint_sl": "Največja srednjeameriška država z velikim jezerom Nikaragva; prestolnica Managua."
+      },
+      "extra": {
+        "motto_sl": "V Boga zaupamo",
+        "national_day": "1821-09-15",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Nikaragva",
+        "notes": "Nikaragovsko jezero (Cocibolca) je največje jezero v Srednji Ameriki."
+      }
+    },
+    {
+      "iso2": "pa",
+      "iso3": "pan",
+      "iso_numeric": 591,
+      "ccn3": "591",
+      "name": {
+        "sl": "Panama",
+        "en": "Panama",
+        "official_sl": "Republika Panama",
+        "official_en": "Republic of Panama",
+        "native": [
+          "Panamá"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Panama"
+      ],
+      "aliases_en": [
+        "Republic of Panama"
+      ],
+      "demonym": {
+        "sl_m": "Panamec",
+        "sl_f": "Panamka",
+        "en": "Panamanian"
+      },
+      "flag": {
+        "code": "pa",
+        "file_4x3": "flags/4x3/pa.svg",
+        "file_1x1": "flags/1x1/pa.svg",
+        "emoji": "🇵🇦",
+        "notes": "Štiri polja: belo z modro zvezdo, rdeče, modro in belo z rdečo zvezdo.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "central_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 9.0,
+        "lon": -80.0,
+        "area_km2": 75417,
+        "coastline_km": 2490,
+        "highest_point": {
+          "name_sl": "Volcán Barú",
+          "name_en": "Volcán Barú",
+          "elevation_m": 3475
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "co",
+          "cr"
+        ],
+        "borders_notes": "Meji na Kolumbijo (Južna Amerika) v neprehodni regiji Darién; to je kopenska povezava Srednje in Južne Amerike.",
+        "timezones": [
+          "America/Panama"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Panama",
+        "en": "Panama City",
+        "lat": 8.98,
+        "lon": -79.52,
+        "population": 1000000
+      },
+      "top_cities": [
+        {
+          "sl": "Panama",
+          "en": "Panama City",
+          "population": 1000000
+        },
+        {
+          "sl": "Arraiján",
+          "en": "Arraiján",
+          "population": 300000
+        },
+        {
+          "sl": "San Miguelito",
+          "en": "San Miguelito",
+          "population": 280000
+        },
+        {
+          "sl": "La Chorrera",
+          "en": "La Chorrera",
+          "population": 200000
+        },
+        {
+          "sl": "Colón",
+          "en": "Colón",
+          "population": 200000
+        },
+        {
+          "sl": "David",
+          "en": "David",
+          "population": 160000
+        },
+        {
+          "sl": "Santiago de Veraguas",
+          "en": "Santiago de Veraguas",
+          "population": 100000
+        },
+        {
+          "sl": "Penonomé",
+          "en": "Penonomé",
+          "population": 90000
+        },
+        {
+          "sl": "Chitré",
+          "en": "Chitré",
+          "population": 50000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Chagres",
+            "en": "Chagres"
+          },
+          {
+            "sl": "Tuira",
+            "en": "Tuira"
+          },
+          {
+            "sl": "Chepo (Bayano)",
+            "en": "Chepo (Bayano)"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Gatunsko jezero",
+            "en": "Gatun Lake"
+          },
+          {
+            "sl": "Bayano",
+            "en": "Lake Bayano"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 4571000,
+        "year": 2025,
+        "density_per_km2": 61
+      },
+      "languages": {
+        "official_sl": [
+          "španščina"
+        ],
+        "official_en": [
+          "Spanish"
+        ],
+        "also_spoken_sl": [
+          "angleščina",
+          "ngäbere",
+          "kuna"
+        ]
+      },
+      "currency": {
+        "code": "PAB",
+        "name_sl": "panamska balboa",
+        "name_en": "Panamanian balboa",
+        "symbol": "B/."
+      },
+      "communications": {
+        "tld": [
+          ".pa"
+        ],
+        "phone_prefix": "+507",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "central_america",
+          "hispanophone",
+          "sica",
+          "canal",
+          "atlantic",
+          "pacific"
+        ],
+        "common_confusions_iso2": [
+          "cr",
+          "co",
+          "cu"
+        ],
+        "hint_sl": "Država ob istoimenskem prekopu, ki povezuje Atlantik in Tihi ocean."
+      },
+      "extra": {
+        "motto_sl": "Za blagor sveta",
+        "national_day": "1903-11-03",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Panama",
+        "notes": "Do leta 1903 je bila del Kolumbije. Ameriški dolar je zakonito plačilno sredstvo poleg balboe (balboa obstaja večinoma v kovancih). Panamski prekop je pod panamskim upravljanjem od 31. decembra 1999. Prebivalstvo mest velja za okraje (približno)."
+      }
+    },
+    {
+      "iso2": "pr",
+      "iso3": "pri",
+      "iso_numeric": 630,
+      "ccn3": "630",
+      "name": {
+        "sl": "Portoriko",
+        "en": "Puerto Rico",
+        "official_sl": "Svobodna pridružena država Portoriko",
+        "official_en": "Commonwealth of Puerto Rico",
+        "native": [
+          "Puerto Rico",
+          "Estado Libre Asociado de Puerto Rico"
+        ]
+      },
+      "aliases_sl": [
+        "Puerto Rico"
+      ],
+      "aliases_en": [
+        "Commonwealth of Puerto Rico"
+      ],
+      "demonym": {
+        "sl_m": "Portoričan",
+        "sl_f": "Portoričanka",
+        "en": "Puerto Rican"
+      },
+      "flag": {
+        "code": "pr",
+        "file_4x3": "flags/4x3/pr.svg",
+        "file_1x1": "flags/1x1/pr.svg",
+        "emoji": "🇵🇷",
+        "notes": "Pet rdečih in belih vodoravnih prog z modrim trikotnikom in belo zvezdo; skoraj zrcalna kubanski zastavi (ta ima modre proge in rdeč trikotnik).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 18.25,
+        "lon": -66.5,
+        "area_km2": 8870,
+        "coastline_km": 501,
+        "highest_point": {
+          "name_sl": "Cerro de Punta",
+          "name_en": "Cerro de Punta",
+          "elevation_m": 1338
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Puerto_Rico"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "San Juan",
+        "en": "San Juan",
+        "lat": 18.47,
+        "lon": -66.11,
+        "population": 342000
+      },
+      "top_cities": [
+        {
+          "sl": "San Juan",
+          "en": "San Juan",
+          "population": 342000
+        },
+        {
+          "sl": "Bayamón",
+          "en": "Bayamón",
+          "population": 185000
+        },
+        {
+          "sl": "Carolina",
+          "en": "Carolina",
+          "population": 155000
+        },
+        {
+          "sl": "Ponce",
+          "en": "Ponce",
+          "population": 138000
+        },
+        {
+          "sl": "Caguas",
+          "en": "Caguas",
+          "population": 127000
+        },
+        {
+          "sl": "Guaynabo",
+          "en": "Guaynabo",
+          "population": 89000
+        },
+        {
+          "sl": "Arecibo",
+          "en": "Arecibo",
+          "population": 87000
+        },
+        {
+          "sl": "Toa Baja",
+          "en": "Toa Baja",
+          "population": 75000
+        },
+        {
+          "sl": "Mayagüez",
+          "en": "Mayagüez",
+          "population": 73000
+        },
+        {
+          "sl": "Trujillo Alto",
+          "en": "Trujillo Alto",
+          "population": 67000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Río Grande de Loíza",
+            "en": "Río Grande de Loíza"
+          },
+          {
+            "sl": "Río Grande de Arecibo",
+            "en": "Río Grande de Arecibo"
+          },
+          {
+            "sl": "La Plata",
+            "en": "La Plata"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 3235000,
+        "year": 2025,
+        "density_per_km2": 365
+      },
+      "languages": {
+        "official_sl": [
+          "španščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Spanish",
+          "English"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".pr"
+        ],
+        "phone_prefix": "+1-787",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": false,
+        "un_member": false,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Nepriključeno ozemlje ZDA (unincorporated territory) s statusom »Commonwealth« od leta 1952. Ni samostojna država in ni članica ZN; o statusu je bilo več nezavezujočih referendumov (nazadnje 2024, večina za priključitev kot zvezna država).",
+        "quiz_exclude": true,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "territory",
+          "hispanophone",
+          "atlantic"
+        ],
+        "common_confusions_iso2": [
+          "cu",
+          "do",
+          "us"
+        ],
+        "hint_sl": "Karibski otok, nepriključeno ozemlje ZDA; prestolnica San Juan."
+      },
+      "extra": {
+        "motto_sl": "Janez je njegovo ime",
+        "national_day": "1952-07-25",
+        "former_names_sl": [
+          "Porto Rico"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Portoriko",
+        "notes": "Prebivalci imajo ameriško državljanstvo od leta 1917, a ne volijo predsednika ZDA. Geslo je latinsko (Joannes est nomen eius). Prebivalstvo mest: popis 2020. Državni praznik je dan ustave (25. julij)."
+      }
+    },
+    {
+      "iso2": "kn",
+      "iso3": "kna",
+      "iso_numeric": 659,
+      "ccn3": "659",
+      "name": {
+        "sl": "Sveti Krištof in Nevis",
+        "en": "Saint Kitts and Nevis",
+        "official_sl": "Federacija Sveti Krištof in Nevis",
+        "official_en": "Federation of Saint Christopher and Nevis",
+        "native": [
+          "Saint Kitts and Nevis"
+        ]
+      },
+      "aliases_sl": [
+        "Federacija Sveti Krištof in Nevis",
+        "Saint Kitts in Nevis"
+      ],
+      "aliases_en": [
+        "Federation of Saint Christopher and Nevis",
+        "Saint Christopher and Nevis",
+        "St Kitts and Nevis"
+      ],
+      "demonym": {
+        "sl_m": "prebivalec Svetega Krištofa in Nevisa",
+        "sl_f": "prebivalka Svetega Krištofa in Nevisa",
+        "en": "Kittitian or Nevisian"
+      },
+      "flag": {
+        "code": "kn",
+        "file_4x3": "flags/4x3/kn.svg",
+        "file_1x1": "flags/1x1/kn.svg",
+        "emoji": "🇰🇳",
+        "notes": "Črn diagonalni pas z rumenimi robovi in dvema belima zvezdama, zelen zgornji in rdeč spodnji trikotnik; diagonalna zasnova spominja na zastavo Tanzanije.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 17.33,
+        "lon": -62.75,
+        "area_km2": 261,
+        "coastline_km": 135,
+        "highest_point": {
+          "name_sl": "Mount Liamuiga",
+          "name_en": "Mount Liamuiga",
+          "elevation_m": 1156
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/St_Kitts"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Basseterre",
+        "en": "Basseterre",
+        "lat": 17.3,
+        "lon": -62.72,
+        "population": 14000
+      },
+      "top_cities": [
+        {
+          "sl": "Basseterre",
+          "en": "Basseterre",
+          "population": 14000
+        },
+        {
+          "sl": "Sandy Point Town",
+          "en": "Sandy Point Town",
+          "population": 3000
+        },
+        {
+          "sl": "Cayon",
+          "en": "Cayon",
+          "population": 2500
+        },
+        {
+          "sl": "Charlestown",
+          "en": "Charlestown",
+          "population": 1800
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 47000,
+        "year": 2025,
+        "density_per_km2": 180
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "kreolščina Svetega Krištofa"
+        ]
+      },
+      "currency": {
+        "code": "XCD",
+        "name_sl": "vzhodnokaribski dolar",
+        "name_en": "Eastern Caribbean dollar",
+        "symbol": "EC$"
+      },
+      "communications": {
+        "tld": [
+          ".kn"
+        ],
+        "phone_prefix": "+1-869",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 5,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "oecs",
+          "federation",
+          "smallest"
+        ],
+        "common_confusions_iso2": [
+          "ag",
+          "tt",
+          "vc"
+        ],
+        "hint_sl": "Najmanjša država Amerik (po površini in prebivalstvu), zveza dveh otokov; prestolnica Basseterre."
+      },
+      "extra": {
+        "motto_sl": "Država nad samim seboj",
+        "national_day": "1983-09-19",
+        "former_names_sl": [
+          "Sveti Krištof - Nevis - Angvila"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Sveti_Krištof_in_Nevis",
+        "notes": "Vodja države je kralj Karel III. Slovenski pravopis ne navaja imena prebivalcev, zato je uporabljen opisni izraz. Ne zamenjuj prestolnice z Basse-Terre na Guadeloupu."
+      }
+    },
+    {
+      "iso2": "lc",
+      "iso3": "lca",
+      "iso_numeric": 662,
+      "ccn3": "662",
+      "name": {
+        "sl": "Sveta Lucija",
+        "en": "Saint Lucia",
+        "official_sl": "Sveta Lucija",
+        "official_en": "Saint Lucia",
+        "native": [
+          "Saint Lucia"
+        ]
+      },
+      "aliases_sl": [
+        "Saint Lucia"
+      ],
+      "aliases_en": [
+        "St Lucia"
+      ],
+      "demonym": {
+        "sl_m": "Svetolucijec",
+        "sl_f": "Svetolucijka",
+        "en": "Saint Lucian"
+      },
+      "flag": {
+        "code": "lc",
+        "file_4x3": "flags/4x3/lc.svg",
+        "file_1x1": "flags/1x1/lc.svg",
+        "emoji": "🇱🇨",
+        "notes": "Svetlo modra z rumenim trikotnikom pred črnim trikotnikom z belim robom (gori Pitons).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 13.88,
+        "lon": -60.97,
+        "area_km2": 616,
+        "coastline_km": 158,
+        "highest_point": {
+          "name_sl": "Mount Gimie",
+          "name_en": "Mount Gimie",
+          "elevation_m": 950
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/St_Lucia"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Castries",
+        "en": "Castries",
+        "lat": 14.01,
+        "lon": -60.99,
+        "population": 70000
+      },
+      "top_cities": [
+        {
+          "sl": "Castries",
+          "en": "Castries",
+          "population": 70000
+        },
+        {
+          "sl": "Gros Islet",
+          "en": "Gros Islet",
+          "population": 25000
+        },
+        {
+          "sl": "Vieux Fort",
+          "en": "Vieux Fort",
+          "population": 16000
+        },
+        {
+          "sl": "Micoud",
+          "en": "Micoud",
+          "population": 16000
+        },
+        {
+          "sl": "Dennery",
+          "en": "Dennery",
+          "population": 13000
+        },
+        {
+          "sl": "Soufrière",
+          "en": "Soufrière",
+          "population": 8000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Roseau",
+            "en": "Roseau"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 180000,
+        "year": 2025,
+        "density_per_km2": 292
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "antilska kreolščina (kwéyòl)"
+        ]
+      },
+      "currency": {
+        "code": "XCD",
+        "name_sl": "vzhodnokaribski dolar",
+        "name_en": "Eastern Caribbean dollar",
+        "symbol": "EC$"
+      },
+      "communications": {
+        "tld": [
+          ".lc"
+        ],
+        "phone_prefix": "+1-758",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "oecs",
+          "volcanoes"
+        ],
+        "common_confusions_iso2": [
+          "vc",
+          "gd",
+          "dm"
+        ],
+        "hint_sl": "Otok z dvema vulkanskima stožcema Pitons; prestolnica Castries."
+      },
+      "extra": {
+        "motto_sl": "Dežela, ljudstvo, luč",
+        "national_day": "1979-02-22",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Sveta_Lucija",
+        "notes": "Edina država, poimenovana po zgodovinski ženski osebi (sv. Luciji iz Sirakuz). Vodja države je kralj Karel III. Prebivalstvo mest velja za okrožja (quarters)."
+      }
+    },
+    {
+      "iso2": "vc",
+      "iso3": "vct",
+      "iso_numeric": 670,
+      "ccn3": "670",
+      "name": {
+        "sl": "Sveti Vincencij in Grenadine",
+        "en": "Saint Vincent and the Grenadines",
+        "official_sl": "Sveti Vincencij in Grenadine",
+        "official_en": "Saint Vincent and the Grenadines",
+        "native": [
+          "Saint Vincent and the Grenadines"
+        ]
+      },
+      "aliases_sl": [
+        "Saint Vincent in Grenadine"
+      ],
+      "aliases_en": [
+        "St Vincent and the Grenadines",
+        "SVG"
+      ],
+      "demonym": {
+        "sl_m": "prebivalec Svetega Vincencija in Grenadin",
+        "sl_f": "prebivalka Svetega Vincencija in Grenadin",
+        "en": "Vincentian"
+      },
+      "flag": {
+        "code": "vc",
+        "file_4x3": "flags/4x3/vc.svg",
+        "file_1x1": "flags/1x1/vc.svg",
+        "emoji": "🇻🇨",
+        "notes": "Modra-rumena-zelena navpično s tremi zelenimi rombi v obliki črke V v rumenem pasu.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 13.25,
+        "lon": -61.2,
+        "area_km2": 389,
+        "coastline_km": 84,
+        "highest_point": {
+          "name_sl": "La Soufrière",
+          "name_en": "La Soufrière",
+          "elevation_m": 1234
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/St_Vincent"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Kingstown",
+        "en": "Kingstown",
+        "lat": 13.16,
+        "lon": -61.22,
+        "population": 13000
+      },
+      "top_cities": [
+        {
+          "sl": "Kingstown",
+          "en": "Kingstown",
+          "population": 13000
+        },
+        {
+          "sl": "Georgetown",
+          "en": "Georgetown",
+          "population": 1500
+        },
+        {
+          "sl": "Layou",
+          "en": "Layou",
+          "population": 1300
+        },
+        {
+          "sl": "Port Elizabeth",
+          "en": "Port Elizabeth",
+          "population": 1000
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 100000,
+        "year": 2025,
+        "density_per_km2": 257
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "vincentinska kreolščina"
+        ]
+      },
+      "currency": {
+        "code": "XCD",
+        "name_sl": "vzhodnokaribski dolar",
+        "name_en": "Eastern Caribbean dollar",
+        "symbol": "EC$"
+      },
+      "communications": {
+        "tld": [
+          ".vc"
+        ],
+        "phone_prefix": "+1-784",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 5,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "monarchy",
+          "caricom",
+          "oecs",
+          "volcanoes"
+        ],
+        "common_confusions_iso2": [
+          "lc",
+          "gd",
+          "kn"
+        ],
+        "hint_sl": "Vulkanski otok z verigo Grenadin južno od Svete Lucije; prestolnica Kingstown."
+      },
+      "extra": {
+        "motto_sl": "Mir in pravica",
+        "national_day": "1979-10-27",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Sveti_Vincencij_in_Grenadine",
+        "notes": "Vulkan La Soufrière je nazadnje izbruhnil leta 2021. Na referendumu 2009 republika ni dobila zahtevane dvotretjinske podpore. Slovenski pravopis imena države in prebivalcev ne navaja (ime po sl.wikipediji). Ne zamenjuj Kingstowna s Kingstonom na Jamajki."
+      }
+    },
+    {
+      "iso2": "tt",
+      "iso3": "tto",
+      "iso_numeric": 780,
+      "ccn3": "780",
+      "name": {
+        "sl": "Trinidad in Tobago",
+        "en": "Trinidad and Tobago",
+        "official_sl": "Republika Trinidad in Tobago",
+        "official_en": "Republic of Trinidad and Tobago",
+        "native": [
+          "Trinidad and Tobago"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Trinidad in Tobago"
+      ],
+      "aliases_en": [
+        "Republic of Trinidad and Tobago"
+      ],
+      "demonym": {
+        "sl_m": "Trinidadčan",
+        "sl_f": "Trinidadčanka",
+        "en": "Trinidadian or Tobagonian"
+      },
+      "flag": {
+        "code": "tt",
+        "file_4x3": "flags/4x3/tt.svg",
+        "file_1x1": "flags/1x1/tt.svg",
+        "emoji": "🇹🇹",
+        "notes": "Rdeča z diagonalnim črnim pasom z belimi robovi.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "caribbean",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 11.0,
+        "lon": -61.0,
+        "area_km2": 5130,
+        "coastline_km": 362,
+        "highest_point": {
+          "name_sl": "El Cerro del Aripo",
+          "name_en": "El Cerro del Aripo",
+          "elevation_m": 940
+        },
+        "lowest_point": {
+          "name_sl": "Karibsko morje",
+          "name_en": "Caribbean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "America/Port_of_Spain"
+        ],
+        "utc_offset_standard": "-04:00"
+      },
+      "capital": {
+        "sl": "Port of Spain",
+        "en": "Port of Spain",
+        "lat": 10.66,
+        "lon": -61.51,
+        "population": 37000
+      },
+      "top_cities": [
+        {
+          "sl": "Chaguanas",
+          "en": "Chaguanas",
+          "population": 84000
+        },
+        {
+          "sl": "San Fernando",
+          "en": "San Fernando",
+          "population": 49000
+        },
+        {
+          "sl": "Port of Spain",
+          "en": "Port of Spain",
+          "population": 37000
+        },
+        {
+          "sl": "Arima",
+          "en": "Arima",
+          "population": 34000
+        },
+        {
+          "sl": "Point Fortin",
+          "en": "Point Fortin",
+          "population": 20000
+        },
+        {
+          "sl": "Scarborough",
+          "en": "Scarborough",
+          "population": 18000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Caroni",
+            "en": "Caroni"
+          },
+          {
+            "sl": "Ortoire",
+            "en": "Ortoire"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Smolnato jezero",
+            "en": "Pitch Lake"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Karibsko morje",
+            "en": "Caribbean Sea"
+          },
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 1511000,
+        "year": 2025,
+        "density_per_km2": 295
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "trinidadska kreolščina",
+          "hindijščina (bhodžpuri)"
+        ]
+      },
+      "currency": {
+        "code": "TTD",
+        "name_sl": "trinidadski dolar",
+        "name_en": "Trinidad and Tobago dollar",
+        "symbol": "TT$"
+      },
+      "communications": {
+        "tld": [
+          ".tt"
+        ],
+        "phone_prefix": "+1-868",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "north_america",
+          "caribbean",
+          "island",
+          "anglophone",
+          "commonwealth",
+          "caricom",
+          "atlantic",
+          "calypso"
+        ],
+        "common_confusions_iso2": [
+          "jm",
+          "gd",
+          "kn"
+        ],
+        "hint_sl": "Južnokaribska otoška država tik ob Venezueli, domovina kalipsa in steel banda; prestolnica Port of Spain."
+      },
+      "extra": {
+        "motto_sl": "Skupaj si prizadevamo, skupaj dosegamo",
+        "national_day": "1962-08-31",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Trinidad_in_Tobago",
+        "notes": "Republika od leta 1976. Smolnato jezero (Pitch Lake) je največje naravno nahajališče asfalta na svetu. Slovenski pravopis imena prebivalcev ne navaja (sl.wikipedija: Trinidadčan in Tobagovec). Prebivalstvo mest: popis 2011."
+      }
+    },
+    {
+      "iso2": "us",
+      "iso3": "usa",
+      "iso_numeric": 840,
+      "ccn3": "840",
+      "name": {
+        "sl": "Združene države Amerike",
+        "en": "United States",
+        "official_sl": "Združene države Amerike",
+        "official_en": "United States of America",
+        "native": [
+          "United States"
+        ]
+      },
+      "aliases_sl": [
+        "ZDA",
+        "Amerika",
+        "Združene države"
+      ],
+      "aliases_en": [
+        "USA",
+        "US",
+        "United States of America",
+        "America"
+      ],
+      "demonym": {
+        "sl_m": "Američan",
+        "sl_f": "Američanka",
+        "en": "American"
+      },
+      "flag": {
+        "code": "us",
+        "file_4x3": "flags/4x3/us.svg",
+        "file_1x1": "flags/1x1/us.svg",
+        "emoji": "🇺🇸",
+        "notes": "13 rdečih in belih prog ter 50 belih zvezd na modrem polju; podobni sta zastavi Liberije (ena zvezda, 11 prog) in Malezije (polmesec in zvezda, 14 prog).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "north_america",
+        "subregion": "northern_america",
+        "region_un": "Americas",
+        "landlocked": false,
+        "lat": 38.0,
+        "lon": -97.0,
+        "area_km2": 9833517,
+        "coastline_km": 19924,
+        "highest_point": {
+          "name_sl": "Denali",
+          "name_en": "Denali",
+          "elevation_m": 6190
+        },
+        "lowest_point": {
+          "name_sl": "Badwater Basin (Dolina smrti)",
+          "name_en": "Badwater Basin (Death Valley)",
+          "elevation_m": -86
+        },
+        "borders_iso2": [
+          "ca",
+          "mx"
+        ],
+        "borders_notes": "Aljaska meji le na Kanado.",
+        "timezones": [
+          "America/New_York",
+          "America/Chicago",
+          "America/Denver",
+          "America/Phoenix",
+          "America/Los_Angeles",
+          "America/Anchorage",
+          "America/Adak",
+          "Pacific/Honolulu"
+        ],
+        "utc_offset_standard": "-05:00"
+      },
+      "capital": {
+        "sl": "Washington",
+        "en": "Washington, D.C.",
+        "lat": 38.9,
+        "lon": -77.04,
+        "population": 702000
+      },
+      "top_cities": [
+        {
+          "sl": "New York",
+          "en": "New York",
+          "population": 8478000
+        },
+        {
+          "sl": "Los Angeles",
+          "en": "Los Angeles",
+          "population": 3879000
+        },
+        {
+          "sl": "Chicago",
+          "en": "Chicago",
+          "population": 2721000
+        },
+        {
+          "sl": "Houston",
+          "en": "Houston",
+          "population": 2391000
+        },
+        {
+          "sl": "Phoenix",
+          "en": "Phoenix",
+          "population": 1673000
+        },
+        {
+          "sl": "Philadelphia",
+          "en": "Philadelphia",
+          "population": 1573000
+        },
+        {
+          "sl": "San Antonio",
+          "en": "San Antonio",
+          "population": 1526000
+        },
+        {
+          "sl": "San Diego",
+          "en": "San Diego",
+          "population": 1405000
+        },
+        {
+          "sl": "Dallas",
+          "en": "Dallas",
+          "population": 1327000
+        },
+        {
+          "sl": "Washington",
+          "en": "Washington, D.C.",
+          "population": 702000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Misisipi",
+            "en": "Mississippi"
+          },
+          {
+            "sl": "Misuri",
+            "en": "Missouri"
+          },
+          {
+            "sl": "Kolorado",
+            "en": "Colorado"
+          },
+          {
+            "sl": "Rio Grande",
+            "en": "Rio Grande"
+          },
+          {
+            "sl": "Jukon",
+            "en": "Yukon"
+          },
+          {
+            "sl": "Ohio",
+            "en": "Ohio"
+          },
+          {
+            "sl": "Columbia",
+            "en": "Columbia"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Gornje jezero",
+            "en": "Lake Superior"
+          },
+          {
+            "sl": "Michigansko jezero",
+            "en": "Lake Michigan"
+          },
+          {
+            "sl": "Huronsko jezero",
+            "en": "Lake Huron"
+          },
+          {
+            "sl": "Eriejsko jezero",
+            "en": "Lake Erie"
+          },
+          {
+            "sl": "Ontarijsko jezero",
+            "en": "Lake Ontario"
+          },
+          {
+            "sl": "Veliko slano jezero",
+            "en": "Great Salt Lake"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Atlantski ocean",
+            "en": "Atlantic Ocean"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Mehiški zaliv",
+            "en": "Gulf of Mexico"
+          },
+          {
+            "sl": "Severni ledeni ocean",
+            "en": "Arctic Ocean"
+          },
+          {
+            "sl": "Beringovo morje",
+            "en": "Bering Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 347276000,
+        "year": 2025,
+        "density_per_km2": 35
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "španščina",
+          "kitajščina",
+          "tagalog",
+          "vietnamščina"
+        ]
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".us"
+        ],
+        "phone_prefix": "+1",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": true,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "north_america",
+          "northern_america",
+          "anglophone",
+          "nato",
+          "g7",
+          "g20",
+          "usmca",
+          "atlantic",
+          "pacific",
+          "arctic",
+          "federation"
+        ],
+        "common_confusions_iso2": [
+          "ca",
+          "lr",
+          "my"
+        ],
+        "hint_sl": "Zvezna republika s 50 zveznimi državami; prestolnica Washington."
+      },
+      "extra": {
+        "motto_sl": "V Boga zaupamo",
+        "national_day": "1776-07-04",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Združene_države_Amerike",
+        "notes": "Angleščina je uradni jezik na zvezni ravni od izvršnega ukaza marca 2025. Površina je skupna (kopno in vode). Washington je na seznam mest dodan kot prestolnica, čeprav po številu prebivalcev ni med 10 največjimi mesti. Ameriška vlada od leta 2025 Mehiški zaliv uradno imenuje »Gulf of America«. Prebivalstvo mest: ocene 2024."
+      }
+    }
+  ]
+}

@@ -1,0 +1,2984 @@
+{
+  "version": 1,
+  "source": "manual",
+  "updated_at": "2026-10-25",
+  "countries": [
+    {
+      "iso2": "au",
+      "iso3": "aus",
+      "iso_numeric": 36,
+      "ccn3": "036",
+      "name": {
+        "sl": "Avstralija",
+        "en": "Australia",
+        "official_sl": "Avstralska zveza",
+        "official_en": "Commonwealth of Australia",
+        "native": [
+          "Australia"
+        ]
+      },
+      "aliases_sl": [
+        "Avstralska zveza"
+      ],
+      "aliases_en": [
+        "Commonwealth of Australia"
+      ],
+      "demonym": {
+        "sl_m": "Avstralec",
+        "sl_f": "Avstralka",
+        "en": "Australian"
+      },
+      "flag": {
+        "code": "au",
+        "file_4x3": "flags/4x3/au.svg",
+        "file_1x1": "flags/1x1/au.svg",
+        "emoji": "🇦🇺",
+        "notes": "Modra zastava z britansko zastavo (Union Jack) levo zgoraj, veliko sedemkrako zvezdo Commonwealtha pod njo in Južnim križem (pet belih zvezd) na desni. Zelo podobna novozelandski, ki ima štiri rdeče zvezde z belim robom; podobne so tudi zastave Tuvaluja, Fidžija in Cookovih otokov.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "australia_and_new_zealand",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -27.0,
+        "lon": 133.0,
+        "area_km2": 7692024,
+        "coastline_km": 25760,
+        "highest_point": {
+          "name_sl": "Kosciuszko",
+          "name_en": "Mount Kosciuszko",
+          "elevation_m": 2228
+        },
+        "lowest_point": {
+          "name_sl": "Eyrovo jezero",
+          "name_en": "Lake Eyre (Kati Thanda)",
+          "elevation_m": -15
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Australia/Sydney",
+          "Australia/Melbourne",
+          "Australia/Brisbane",
+          "Australia/Adelaide",
+          "Australia/Darwin",
+          "Australia/Perth",
+          "Australia/Hobart",
+          "Australia/Broken_Hill",
+          "Australia/Lindeman",
+          "Australia/Eucla",
+          "Australia/Lord_Howe",
+          "Antarctica/Macquarie"
+        ],
+        "utc_offset_standard": "+10:00"
+      },
+      "capital": {
+        "sl": "Canberra",
+        "en": "Canberra",
+        "lat": -35.28,
+        "lon": 149.13,
+        "population": 485000
+      },
+      "top_cities": [
+        {
+          "sl": "Sydney",
+          "en": "Sydney",
+          "population": 5640000
+        },
+        {
+          "sl": "Melbourne",
+          "en": "Melbourne",
+          "population": 5440000
+        },
+        {
+          "sl": "Brisbane",
+          "en": "Brisbane",
+          "population": 2780000
+        },
+        {
+          "sl": "Perth",
+          "en": "Perth",
+          "population": 2390000
+        },
+        {
+          "sl": "Adelajda",
+          "en": "Adelaide",
+          "population": 1470000
+        },
+        {
+          "sl": "Gold Coast",
+          "en": "Gold Coast",
+          "population": 750000
+        },
+        {
+          "sl": "Newcastle",
+          "en": "Newcastle",
+          "population": 530000
+        },
+        {
+          "sl": "Canberra",
+          "en": "Canberra",
+          "population": 485000
+        },
+        {
+          "sl": "Sunshine Coast",
+          "en": "Sunshine Coast",
+          "population": 420000
+        },
+        {
+          "sl": "Wollongong",
+          "en": "Wollongong",
+          "population": 320000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Murray",
+            "en": "Murray"
+          },
+          {
+            "sl": "Darling",
+            "en": "Darling"
+          },
+          {
+            "sl": "Murrumbidgee",
+            "en": "Murrumbidgee"
+          },
+          {
+            "sl": "Lachlan",
+            "en": "Lachlan"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "Eyrovo jezero",
+            "en": "Lake Eyre"
+          },
+          {
+            "sl": "jezero Torrens",
+            "en": "Lake Torrens"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Indijski ocean",
+            "en": "Indian Ocean"
+          },
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Tasmanovo morje",
+            "en": "Tasman Sea"
+          },
+          {
+            "sl": "Koralno morje",
+            "en": "Coral Sea"
+          },
+          {
+            "sl": "Arafursko morje",
+            "en": "Arafura Sea"
+          },
+          {
+            "sl": "Timorsko morje",
+            "en": "Timor Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 27000000,
+        "year": 2025,
+        "density_per_km2": 4
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "mandarinščina",
+          "arabščina",
+          "vietnamščina",
+          "kantonščina",
+          "avstralski aboridžinski jeziki"
+        ]
+      },
+      "currency": {
+        "code": "AUD",
+        "name_sl": "avstralski dolar",
+        "name_en": "Australian dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".au"
+        ],
+        "phone_prefix": "+61",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "oceania",
+          "australia_and_new_zealand",
+          "commonwealth",
+          "commonwealth_realm",
+          "pacific_islands_forum",
+          "g20",
+          "indian_ocean",
+          "pacific",
+          "continent"
+        ],
+        "common_confusions_iso2": [
+          "nz",
+          "at",
+          "pg"
+        ],
+        "hint_sl": "Država, ki zavzema celotno celino; prestolnica je Canberra, največje mesto pa Sydney."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1788-01-26",
+        "former_names_sl": [
+          "Nova Holandija"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Avstralija",
+        "notes": "Angleščina je de facto nacionalni jezik (uradnega jezika zakon ne določa). Prebivalstvo mest velja za širša metropolitanska območja (ABS, 2025). Državni praznik je dan Avstralije (26. januar). Časovni pasovi: brez poletnega časa so Queensland, Severni teritorij in Zahodna Avstralija."
+      }
+    },
+    {
+      "iso2": "ck",
+      "iso3": "cok",
+      "iso_numeric": 184,
+      "ccn3": "184",
+      "name": {
+        "sl": "Cookovi otoki",
+        "en": "Cook Islands",
+        "official_sl": "Cookovi otoki",
+        "official_en": "Cook Islands",
+        "native": [
+          "Cook Islands",
+          "Kūki ʻĀirani"
+        ]
+      },
+      "aliases_sl": [
+        "Cookovo otočje"
+      ],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Cookovootočan",
+        "sl_f": "Cookovootočanka",
+        "en": "Cook Islander"
+      },
+      "flag": {
+        "code": "ck",
+        "file_4x3": "flags/4x3/ck.svg",
+        "file_1x1": "flags/1x1/ck.svg",
+        "emoji": "🇨🇰",
+        "notes": "Modra zastava z britansko zastavo levo zgoraj in krogom petnajstih belih zvezd na desni; podobna zastavam Avstralije, Nove Zelandije in Tuvaluja.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "polynesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -21.23,
+        "lon": -159.77,
+        "area_km2": 236,
+        "coastline_km": 120,
+        "highest_point": {
+          "name_sl": "Te Manga",
+          "name_en": "Te Manga",
+          "elevation_m": 652
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Rarotonga"
+        ],
+        "utc_offset_standard": "-10:00"
+      },
+      "capital": {
+        "sl": "Avarua",
+        "en": "Avarua",
+        "lat": -21.21,
+        "lon": -159.78,
+        "population": 5100
+      },
+      "top_cities": [
+        {
+          "sl": "Avarua",
+          "en": "Avarua",
+          "population": 5100
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 13300,
+        "year": 2025,
+        "density_per_km2": 56
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina",
+          "cookovootoška maorščina"
+        ],
+        "official_en": [
+          "English",
+          "Cook Islands Māori"
+        ],
+        "also_spoken_sl": [
+          "pukapukanščina"
+        ]
+      },
+      "currency": {
+        "code": "NZD",
+        "name_sl": "novozelandski dolar",
+        "name_en": "New Zealand dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".ck"
+        ],
+        "phone_prefix": "+682",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": false,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Samoupravna država v svobodni zvezi z Novo Zelandijo (od 1965). Vodi lastno zunanjo politiko in ima diplomatske odnose z več kot 50 državami ter članstvo v nekaterih agencijah ZN, ni pa članica OZN; prebivalci so novozelandski državljani, Nova Zelandija pomaga pri obrambi na zaprosilo.",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "polynesia",
+          "island",
+          "atoll",
+          "pacific",
+          "pacific_islands_forum",
+          "free_association"
+        ],
+        "common_confusions_iso2": [
+          "nu",
+          "nz",
+          "ws"
+        ],
+        "hint_sl": "Polinezijsko otočje v svobodni zvezi z Novo Zelandijo, glavno mesto Avarua na Rarotongi."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1965-08-04",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Cookovi_otoki",
+        "notes": "Samoupravna država v svobodni zvezi z Novo Zelandijo; prebivalci so novozelandski državljani. Poleg novozelandskega dolarja so v obtoku tudi lokalni kovanci in bankovci cookovootoškega dolarja. Državni praznik je dan ustave (4. avgust)."
+      }
+    },
+    {
+      "iso2": "fj",
+      "iso3": "fji",
+      "iso_numeric": 242,
+      "ccn3": "242",
+      "name": {
+        "sl": "Fidži",
+        "en": "Fiji",
+        "official_sl": "Republika Fidži",
+        "official_en": "Republic of Fiji",
+        "native": [
+          "Fiji",
+          "Viti",
+          "फ़िजी"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Fidži",
+        "Fidžijski otoki"
+      ],
+      "aliases_en": [
+        "Republic of Fiji"
+      ],
+      "demonym": {
+        "sl_m": "Fidžijec",
+        "sl_f": "Fidžijka",
+        "en": "Fijian"
+      },
+      "flag": {
+        "code": "fj",
+        "file_4x3": "flags/4x3/fj.svg",
+        "file_1x1": "flags/1x1/fj.svg",
+        "emoji": "🇫🇯",
+        "notes": "Svetlo modra zastava z britansko zastavo levo zgoraj in ščitom državnega grba na desni; podobna zastavi Tuvaluja (tudi svetlo modra).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "melanesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -18.0,
+        "lon": 175.0,
+        "area_km2": 18272,
+        "coastline_km": 1129,
+        "highest_point": {
+          "name_sl": "Tomanivi",
+          "name_en": "Mount Tomanivi",
+          "elevation_m": 1324
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Fiji"
+        ],
+        "utc_offset_standard": "+12:00"
+      },
+      "capital": {
+        "sl": "Suva",
+        "en": "Suva",
+        "lat": -18.14,
+        "lon": 178.44,
+        "population": 94000
+      },
+      "top_cities": [
+        {
+          "sl": "Suva",
+          "en": "Suva",
+          "population": 94000
+        },
+        {
+          "sl": "Nasinu",
+          "en": "Nasinu",
+          "population": 92000
+        },
+        {
+          "sl": "Lautoka",
+          "en": "Lautoka",
+          "population": 72000
+        },
+        {
+          "sl": "Nadi",
+          "en": "Nadi",
+          "population": 60000
+        },
+        {
+          "sl": "Nausori",
+          "en": "Nausori",
+          "population": 57000
+        },
+        {
+          "sl": "Labasa",
+          "en": "Labasa",
+          "population": 28000
+        },
+        {
+          "sl": "Lami",
+          "en": "Lami",
+          "population": 20000
+        },
+        {
+          "sl": "Ba",
+          "en": "Ba",
+          "population": 18000
+        },
+        {
+          "sl": "Sigatoka",
+          "en": "Sigatoka",
+          "population": 10000
+        },
+        {
+          "sl": "Savusavu",
+          "en": "Savusavu",
+          "population": 7000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Rewa",
+            "en": "Rewa"
+          },
+          {
+            "sl": "Sigatoka",
+            "en": "Sigatoka"
+          },
+          {
+            "sl": "Navua",
+            "en": "Navua"
+          }
+        ],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 933000,
+        "year": 2025,
+        "density_per_km2": 51
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina",
+          "fidžijščina",
+          "fidžijska hindijščina"
+        ],
+        "official_en": [
+          "English",
+          "Fijian",
+          "Fiji Hindi"
+        ],
+        "also_spoken_sl": [
+          "rotumanščina"
+        ]
+      },
+      "currency": {
+        "code": "FJD",
+        "name_sl": "fidžijski dolar",
+        "name_en": "Fijian dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".fj"
+        ],
+        "phone_prefix": "+679",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "oceania",
+          "melanesia",
+          "island",
+          "pacific",
+          "commonwealth",
+          "pacific_islands_forum",
+          "rugby"
+        ],
+        "common_confusions_iso2": [
+          "tv",
+          "to",
+          "ws"
+        ],
+        "hint_sl": "Melanezijsko otočje s preko 300 otoki (Viti Levu, Vanua Levu), glavno mesto Suva."
+      },
+      "extra": {
+        "motto_sl": "Boj se Boga in časti kralja",
+        "national_day": "1970-10-10",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Fidži",
+        "notes": "Prebivalstvo mest po popisu 2017 (mestna območja). Leta 1987 in 2006 vojaška udara; republika od leta 1987."
+      }
+    },
+    {
+      "iso2": "ki",
+      "iso3": "kir",
+      "iso_numeric": 296,
+      "ccn3": "296",
+      "name": {
+        "sl": "Kiribati",
+        "en": "Kiribati",
+        "official_sl": "Republika Kiribati",
+        "official_en": "Republic of Kiribati",
+        "native": [
+          "Kiribati",
+          "Ribaberiki Kiribati"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Kiribati"
+      ],
+      "aliases_en": [
+        "Republic of Kiribati"
+      ],
+      "demonym": {
+        "sl_m": "Kiribatijec",
+        "sl_f": "Kiribatijka",
+        "en": "I-Kiribati"
+      },
+      "flag": {
+        "code": "ki",
+        "file_4x3": "flags/4x3/ki.svg",
+        "file_1x1": "flags/1x1/ki.svg",
+        "emoji": "🇰🇮",
+        "notes": "Zgornja polovica rdeča z zlato fregatko nad vzhajajočim soncem, spodnja polovica modro-bele valovite proge.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "micronesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": 1.42,
+        "lon": 173.0,
+        "area_km2": 811,
+        "coastline_km": 1143,
+        "highest_point": {
+          "name_sl": "neimenovana točka na Banabi",
+          "name_en": "unnamed location on Banaba",
+          "elevation_m": 81
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Tarawa",
+          "Pacific/Kanton",
+          "Pacific/Kiritimati"
+        ],
+        "utc_offset_standard": "+12:00"
+      },
+      "capital": {
+        "sl": "Južna Tarava",
+        "en": "South Tarawa",
+        "lat": 1.33,
+        "lon": 172.98,
+        "population": 73000
+      },
+      "top_cities": [
+        {
+          "sl": "Južna Tarava",
+          "en": "South Tarawa",
+          "population": 73000
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 136000,
+        "year": 2025,
+        "density_per_km2": 168
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina",
+          "kiribatijščina (gilbertščina)"
+        ],
+        "official_en": [
+          "English",
+          "Gilbertese"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "AUD",
+        "name_sl": "avstralski dolar",
+        "name_en": "Australian dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".ki"
+        ],
+        "phone_prefix": "+686",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "micronesia",
+          "island",
+          "atoll",
+          "pacific",
+          "commonwealth",
+          "pacific_islands_forum",
+          "equator",
+          "date_line",
+          "climate_change"
+        ],
+        "common_confusions_iso2": [
+          "tv",
+          "mh",
+          "nr"
+        ],
+        "hint_sl": "Atolna država ob ekvatorju, ki se razteza čez vse štiri poloble; prva pozdravi novo leto."
+      },
+      "extra": {
+        "motto_sl": "Zdravje, mir in blaginja",
+        "national_day": "1979-07-12",
+        "former_names_sl": [
+          "Gilbertovi otoki"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Kiribati",
+        "notes": "Edina država na vseh štirih poloblah. Ima tri časovne pasove (UTC+12, +13, +14); leta 1995 je premaknila datumsko mejo, zato Linijski otoki (UTC+14) prvi na svetu dočakajo nov dan. Uradna prestolnica je Tarava (upravno središče na Južni Taravi, urad predsednika v Bairikiju). Prebivalstvo Južne Tarave po popisu 2026 (navedba en.wikipedia). Ob avstralskem dolarju so v obtoku tudi kiribatijski kovanci. Iz Foruma pacifiških otokov je izstopil leta 2022 in se vrnil leta 2023."
+      }
+    },
+    {
+      "iso2": "mh",
+      "iso3": "mhl",
+      "iso_numeric": 584,
+      "ccn3": "584",
+      "name": {
+        "sl": "Marshallovi otoki",
+        "en": "Marshall Islands",
+        "official_sl": "Republika Marshallovi otoki",
+        "official_en": "Republic of the Marshall Islands",
+        "native": [
+          "Marshall Islands",
+          "Aolepān Aorōkin M̧ajeļ"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Marshallovi otoki",
+        "Marshallovo otočje"
+      ],
+      "aliases_en": [
+        "Republic of the Marshall Islands",
+        "RMI"
+      ],
+      "demonym": {
+        "sl_m": "Marshallovec",
+        "sl_f": "Marshallovka",
+        "en": "Marshallese"
+      },
+      "flag": {
+        "code": "mh",
+        "file_4x3": "flags/4x3/mh.svg",
+        "file_1x1": "flags/1x1/mh.svg",
+        "emoji": "🇲🇭",
+        "notes": "Modra zastava z oranžnim in belim diagonalnim pasom, ki se širita proti desnemu zgornjemu kotu, ter belo zvezdo s 24 kraki levo zgoraj.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "micronesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": 9.0,
+        "lon": 168.0,
+        "area_km2": 181,
+        "coastline_km": 370,
+        "highest_point": {
+          "name_sl": "otok Airik (atol Maloelap)",
+          "name_en": "Airik Island, Maloelap Atoll",
+          "elevation_m": 14
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Majuro",
+          "Pacific/Kwajalein"
+        ],
+        "utc_offset_standard": "+12:00"
+      },
+      "capital": {
+        "sl": "Majuro",
+        "en": "Majuro",
+        "lat": 7.09,
+        "lon": 171.38,
+        "population": 23000
+      },
+      "top_cities": [
+        {
+          "sl": "Majuro",
+          "en": "Majuro",
+          "population": 23000
+        },
+        {
+          "sl": "Ebeye",
+          "en": "Ebeye",
+          "population": 9600
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 36300,
+        "year": 2025,
+        "density_per_km2": 201
+      },
+      "languages": {
+        "official_sl": [
+          "maršalščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Marshallese",
+          "English"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".mh"
+        ],
+        "phone_prefix": "+692",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "micronesia",
+          "island",
+          "atoll",
+          "pacific",
+          "pacific_islands_forum",
+          "compact_of_free_association",
+          "climate_change"
+        ],
+        "common_confusions_iso2": [
+          "fm",
+          "ki",
+          "pw"
+        ],
+        "hint_sl": "Mikronezijska država 29 atolov, vključno z Bikinijem in Kwajaleinom; glavno mesto Majuro."
+      },
+      "extra": {
+        "motto_sl": "Dosežek s skupnim trudom",
+        "national_day": "1979-05-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Marshallovi_otoki",
+        "notes": "Z ZDA povezana s Pogodbo o svobodni zvezi (Compact of Free Association), ZDA skrbijo za obrambo. Na atolu Bikini so ZDA med letoma 1946 in 1958 izvajale jedrske poskuse. Slovenski pravopis navaja obliko Marshallovo otočje, KSZI pa Marshallovi otoki. Državni praznik je dan ustave (1. maj)."
+      }
+    },
+    {
+      "iso2": "fm",
+      "iso3": "fsm",
+      "iso_numeric": 583,
+      "ccn3": "583",
+      "name": {
+        "sl": "Mikronezija",
+        "en": "Micronesia",
+        "official_sl": "Združene države Mikronezije",
+        "official_en": "Federated States of Micronesia",
+        "native": [
+          "Micronesia"
+        ]
+      },
+      "aliases_sl": [
+        "Združene države Mikronezije",
+        "Federativne države Mikronezije"
+      ],
+      "aliases_en": [
+        "Federated States of Micronesia",
+        "FSM"
+      ],
+      "demonym": {
+        "sl_m": "Mikronezijec",
+        "sl_f": "Mikronezijka",
+        "en": "Micronesian"
+      },
+      "flag": {
+        "code": "fm",
+        "file_4x3": "flags/4x3/fm.svg",
+        "file_1x1": "flags/1x1/fm.svg",
+        "emoji": "🇫🇲",
+        "notes": "Svetlo modra zastava s štirimi belimi zvezdami v rombu (štiri zvezne države); podobna zastavi Somalije in barvam OZN.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "micronesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": 6.92,
+        "lon": 158.25,
+        "area_km2": 702,
+        "coastline_km": 6112,
+        "highest_point": {
+          "name_sl": "Nanlaud (Pohnpei)",
+          "name_en": "Nanlaud, Pohnpei",
+          "elevation_m": 782
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Pohnpei",
+          "Pacific/Chuuk",
+          "Pacific/Kosrae"
+        ],
+        "utc_offset_standard": "+11:00"
+      },
+      "capital": {
+        "sl": "Palikir",
+        "en": "Palikir",
+        "lat": 6.92,
+        "lon": 158.16,
+        "population": 7000
+      },
+      "top_cities": [
+        {
+          "sl": "Weno",
+          "en": "Weno",
+          "population": 13900
+        },
+        {
+          "sl": "Palikir",
+          "en": "Palikir",
+          "population": 7000
+        },
+        {
+          "sl": "Kolonia",
+          "en": "Kolonia",
+          "population": 4500
+        },
+        {
+          "sl": "Colonia",
+          "en": "Colonia",
+          "population": 3100
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 114000,
+        "year": 2025,
+        "density_per_km2": 162
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "čuukeščina",
+          "pohnpejščina",
+          "kosraejščina",
+          "japeščina"
+        ]
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".fm"
+        ],
+        "phone_prefix": "+691",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "micronesia",
+          "island",
+          "pacific",
+          "pacific_islands_forum",
+          "compact_of_free_association",
+          "federation"
+        ],
+        "common_confusions_iso2": [
+          "mh",
+          "pw",
+          "so"
+        ],
+        "hint_sl": "Zvezna država štirih otoških držav (Yap, Chuuk, Pohnpei, Kosrae), glavno mesto Palikir."
+      },
+      "extra": {
+        "motto_sl": "Mir, enotnost, svoboda",
+        "national_day": "1979-05-10",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Združene_države_Mikronezije",
+        "notes": "Ne zamenjevati z regijo Mikronezija. Z ZDA povezana s Pogodbo o svobodni zvezi. Popis 2023 je naštel le okoli 76.000 prebivalcev (izseljevanje v ZDA), ocena ZN 2025 je višja. Prebivalstvo mest je približno (Weno 2010, Kolonia 2023). Državni praznik je dan ustave (10. maj)."
+      }
+    },
+    {
+      "iso2": "nr",
+      "iso3": "nru",
+      "iso_numeric": 520,
+      "ccn3": "520",
+      "name": {
+        "sl": "Nauru",
+        "en": "Nauru",
+        "official_sl": "Republika Nauru",
+        "official_en": "Republic of Nauru",
+        "native": [
+          "Nauru",
+          "Naoero"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Nauru"
+      ],
+      "aliases_en": [
+        "Republic of Nauru"
+      ],
+      "demonym": {
+        "sl_m": "Naurujčan",
+        "sl_f": "Naurujčanka",
+        "en": "Nauruan"
+      },
+      "flag": {
+        "code": "nr",
+        "file_4x3": "flags/4x3/nr.svg",
+        "file_1x1": "flags/1x1/nr.svg",
+        "emoji": "🇳🇷",
+        "notes": "Temno modra zastava z ozkim rumenim vodoravnim pasom (ekvator) in belo dvanajstkrako zvezdo pod njim.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "micronesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -0.53,
+        "lon": 166.92,
+        "area_km2": 21,
+        "coastline_km": 30,
+        "highest_point": {
+          "name_sl": "Command Ridge",
+          "name_en": "Command Ridge",
+          "elevation_m": 71
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Nauru"
+        ],
+        "utc_offset_standard": "+12:00"
+      },
+      "capital": {
+        "sl": "Yaren",
+        "en": "Yaren",
+        "lat": -0.55,
+        "lon": 166.92,
+        "population": 800
+      },
+      "top_cities": [
+        {
+          "sl": "Denigomodu",
+          "en": "Denigomodu",
+          "population": 1900
+        },
+        {
+          "sl": "Meneng",
+          "en": "Meneng",
+          "population": 1800
+        },
+        {
+          "sl": "Aiwo",
+          "en": "Aiwo",
+          "population": 1300
+        },
+        {
+          "sl": "Buada",
+          "en": "Buada",
+          "population": 970
+        },
+        {
+          "sl": "Boe",
+          "en": "Boe",
+          "population": 850
+        },
+        {
+          "sl": "Yaren",
+          "en": "Yaren",
+          "population": 800
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [
+          {
+            "sl": "laguna Buada",
+            "en": "Buada Lagoon"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 12000,
+        "year": 2025,
+        "density_per_km2": 571
+      },
+      "languages": {
+        "official_sl": [
+          "naurujščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Nauruan",
+          "English"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "AUD",
+        "name_sl": "avstralski dolar",
+        "name_en": "Australian dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".nr"
+        ],
+        "phone_prefix": "+674",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "micronesia",
+          "island",
+          "pacific",
+          "commonwealth",
+          "pacific_islands_forum",
+          "microstate",
+          "phosphate"
+        ],
+        "common_confusions_iso2": [
+          "tv",
+          "ki",
+          "pw"
+        ],
+        "hint_sl": "Najmanjša otoška republika na svetu (21 km²), znana po izkopavanju fosfatov."
+      },
+      "extra": {
+        "motto_sl": "Najprej Božja volja",
+        "national_day": "1968-01-31",
+        "former_names_sl": [
+          "Prijetni otok (Pleasant Island)"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Nauru",
+        "notes": "Nauru uradno nima glavnega mesta; vladne ustanove in parlament so v okrožju Yaren, ki velja za de facto prestolnico. Mesta so okrožja (popis 2021). Tretja najmanjša država na svetu po površini."
+      }
+    },
+    {
+      "iso2": "nz",
+      "iso3": "nzl",
+      "iso_numeric": 554,
+      "ccn3": "554",
+      "name": {
+        "sl": "Nova Zelandija",
+        "en": "New Zealand",
+        "official_sl": "Nova Zelandija",
+        "official_en": "New Zealand",
+        "native": [
+          "New Zealand",
+          "Aotearoa"
+        ]
+      },
+      "aliases_sl": [
+        "Aotearoa"
+      ],
+      "aliases_en": [
+        "Aotearoa"
+      ],
+      "demonym": {
+        "sl_m": "Novozelandec",
+        "sl_f": "Novozelandka",
+        "en": "New Zealander"
+      },
+      "flag": {
+        "code": "nz",
+        "file_4x3": "flags/4x3/nz.svg",
+        "file_1x1": "flags/1x1/nz.svg",
+        "emoji": "🇳🇿",
+        "notes": "Modra zastava z britansko zastavo levo zgoraj in štirimi rdečimi zvezdami z belim robom (Južni križ) na desni. Zelo podobna avstralski, ki ima šest belih zvezd.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "australia_and_new_zealand",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -41.0,
+        "lon": 174.0,
+        "area_km2": 270467,
+        "coastline_km": 15134,
+        "highest_point": {
+          "name_sl": "Aoraki/Mount Cook",
+          "name_en": "Aoraki / Mount Cook",
+          "elevation_m": 3724
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Auckland",
+          "Pacific/Chatham"
+        ],
+        "utc_offset_standard": "+12:00"
+      },
+      "capital": {
+        "sl": "Wellington",
+        "en": "Wellington",
+        "lat": -41.29,
+        "lon": 174.78,
+        "population": 215000
+      },
+      "top_cities": [
+        {
+          "sl": "Auckland",
+          "en": "Auckland",
+          "population": 1500000
+        },
+        {
+          "sl": "Christchurch",
+          "en": "Christchurch",
+          "population": 400000
+        },
+        {
+          "sl": "Wellington",
+          "en": "Wellington",
+          "population": 215000
+        },
+        {
+          "sl": "Hamilton",
+          "en": "Hamilton",
+          "population": 185000
+        },
+        {
+          "sl": "Tauranga",
+          "en": "Tauranga",
+          "population": 160000
+        },
+        {
+          "sl": "Lower Hutt",
+          "en": "Lower Hutt",
+          "population": 115000
+        },
+        {
+          "sl": "Dunedin",
+          "en": "Dunedin",
+          "population": 105000
+        },
+        {
+          "sl": "Palmerston North",
+          "en": "Palmerston North",
+          "population": 85000
+        },
+        {
+          "sl": "Napier",
+          "en": "Napier",
+          "population": 68000
+        },
+        {
+          "sl": "Porirua",
+          "en": "Porirua",
+          "population": 60000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Waikato",
+            "en": "Waikato"
+          },
+          {
+            "sl": "Clutha",
+            "en": "Clutha"
+          },
+          {
+            "sl": "Whanganui",
+            "en": "Whanganui"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "jezero Taupo",
+            "en": "Lake Taupō"
+          },
+          {
+            "sl": "jezero Te Anau",
+            "en": "Lake Te Anau"
+          },
+          {
+            "sl": "jezero Wakatipu",
+            "en": "Lake Wakatipu"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Tasmanovo morje",
+            "en": "Tasman Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 5250000,
+        "year": 2025,
+        "density_per_km2": 19
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina",
+          "maorščina",
+          "novozelandski znakovni jezik"
+        ],
+        "official_en": [
+          "English",
+          "Māori",
+          "New Zealand Sign Language"
+        ],
+        "also_spoken_sl": [
+          "samojščina",
+          "hindijščina",
+          "mandarinščina"
+        ]
+      },
+      "currency": {
+        "code": "NZD",
+        "name_sl": "novozelandski dolar",
+        "name_en": "New Zealand dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".nz"
+        ],
+        "phone_prefix": "+64",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": [
+          "oceania",
+          "australia_and_new_zealand",
+          "island",
+          "pacific",
+          "commonwealth",
+          "commonwealth_realm",
+          "pacific_islands_forum",
+          "rugby"
+        ],
+        "common_confusions_iso2": [
+          "au",
+          "ck",
+          "fj"
+        ],
+        "hint_sl": "Otoška država s Severnim in Južnim otokom; maorsko ime Aotearoa, prestolnica Wellington."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1840-02-06",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Nova_Zelandija",
+        "notes": "Angleščina je de facto uradni jezik, maorščina in znakovni jezik sta uradna z zakonom. Največje mesto je Auckland. Prebivalstvo mest velja za mestna območja (približno). Državni praznik je dan Waitangija (6. februar 1840, podpis pogodbe iz Waitangija). Cookovi otoki in Nijuve sta z Novo Zelandijo v svobodni zvezi, Tokelau je njeno odvisno ozemlje."
+      }
+    },
+    {
+      "iso2": "nu",
+      "iso3": "niu",
+      "iso_numeric": 570,
+      "ccn3": "570",
+      "name": {
+        "sl": "Nijuve",
+        "en": "Niue",
+        "official_sl": "Nijuve",
+        "official_en": "Niue",
+        "native": [
+          "Niue",
+          "Niuē"
+        ]
+      },
+      "aliases_sl": [
+        "Niue"
+      ],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Nijuvčan",
+        "sl_f": "Nijuvčanka",
+        "en": "Niuean"
+      },
+      "flag": {
+        "code": "nu",
+        "file_4x3": "flags/4x3/nu.svg",
+        "file_1x1": "flags/1x1/nu.svg",
+        "emoji": "🇳🇺",
+        "notes": "Rumena zastava z britansko zastavo levo zgoraj, na kateri je pet rumenih zvezd (večja v modrem krogu).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "polynesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -19.03,
+        "lon": -169.87,
+        "area_km2": 260,
+        "coastline_km": 64,
+        "highest_point": {
+          "name_sl": "neimenovana točka pri Mutalauu",
+          "name_en": "unnamed elevation near Mutalau",
+          "elevation_m": 68
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Niue"
+        ],
+        "utc_offset_standard": "-11:00"
+      },
+      "capital": {
+        "sl": "Alofi",
+        "en": "Alofi",
+        "lat": -19.06,
+        "lon": -169.92,
+        "population": 610
+      },
+      "top_cities": [
+        {
+          "sl": "Alofi",
+          "en": "Alofi",
+          "population": 610
+        },
+        {
+          "sl": "Hakupu",
+          "en": "Hakupu",
+          "population": 200
+        },
+        {
+          "sl": "Avatele",
+          "en": "Avatele",
+          "population": 140
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 1820,
+        "year": 2025,
+        "density_per_km2": 7
+      },
+      "languages": {
+        "official_sl": [
+          "nijuvščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Niuean",
+          "English"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "NZD",
+        "name_sl": "novozelandski dolar",
+        "name_en": "New Zealand dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".nu"
+        ],
+        "phone_prefix": "+683",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": false,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Samoupravna država v svobodni zvezi z Novo Zelandijo (od 1974). Vodi lastno zunanjo politiko in ima diplomatske odnose z več državami ter članstvo v nekaterih agencijah ZN, ni pa članica OZN; prebivalci so novozelandski državljani, Nova Zelandija skrbi za obrambo.",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 5,
+        "tags": [
+          "oceania",
+          "polynesia",
+          "island",
+          "pacific",
+          "pacific_islands_forum",
+          "free_association",
+          "microstate"
+        ],
+        "common_confusions_iso2": [
+          "ck",
+          "to",
+          "ws"
+        ],
+        "hint_sl": "Eden največjih koralnih otokov na svetu (»Polinezijska skala«), v svobodni zvezi z Novo Zelandijo."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1974-10-19",
+        "former_names_sl": [
+          "Divji otok (Savage Island)"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Nijuve",
+        "notes": "Samoupravna država v svobodni zvezi z Novo Zelandijo; prebivalci so novozelandski državljani. Ena najmanj naseljenih držav na svetu (popis 2022: okoli 1.700 prebivalcev). Slovenski pravopis imena še ne navaja, KSZI uporablja obliko Nijuve. Državni praznik je dan ustave (19. oktober)."
+      }
+    },
+    {
+      "iso2": "pw",
+      "iso3": "plw",
+      "iso_numeric": 585,
+      "ccn3": "585",
+      "name": {
+        "sl": "Palav",
+        "en": "Palau",
+        "official_sl": "Republika Palav",
+        "official_en": "Republic of Palau",
+        "native": [
+          "Palau",
+          "Belau"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Palav",
+        "Palau"
+      ],
+      "aliases_en": [
+        "Republic of Palau",
+        "Belau"
+      ],
+      "demonym": {
+        "sl_m": "Palavčan",
+        "sl_f": "Palavčanka",
+        "en": "Palauan"
+      },
+      "flag": {
+        "code": "pw",
+        "file_4x3": "flags/4x3/pw.svg",
+        "file_1x1": "flags/1x1/pw.svg",
+        "emoji": "🇵🇼",
+        "notes": "Svetlo modra zastava z rumenim krogom (luno), rahlo pomaknjenim proti drogu; podobna zastavi Bangladeša (rdeč krog na zelenem) in japonski.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "micronesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": 7.5,
+        "lon": 134.5,
+        "area_km2": 459,
+        "coastline_km": 1519,
+        "highest_point": {
+          "name_sl": "Ngerchelchuus",
+          "name_en": "Mount Ngerchelchuus",
+          "elevation_m": 242
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Palau"
+        ],
+        "utc_offset_standard": "+09:00"
+      },
+      "capital": {
+        "sl": "Ngerulmud",
+        "en": "Ngerulmud",
+        "lat": 7.5,
+        "lon": 134.62,
+        "population": 0
+      },
+      "top_cities": [
+        {
+          "sl": "Koror",
+          "en": "Koror",
+          "population": 11200
+        },
+        {
+          "sl": "Airai",
+          "en": "Airai",
+          "population": 2500
+        },
+        {
+          "sl": "Ngerulmud",
+          "en": "Ngerulmud",
+          "population": 0
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [
+          {
+            "sl": "jezero Ngardok",
+            "en": "Lake Ngardok"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Filipinsko morje",
+            "en": "Philippine Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 17700,
+        "year": 2025,
+        "density_per_km2": 39
+      },
+      "languages": {
+        "official_sl": [
+          "palavščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Palauan",
+          "English"
+        ],
+        "also_spoken_sl": [
+          "japonščina",
+          "sonsorolščina",
+          "tobijščina"
+        ]
+      },
+      "currency": {
+        "code": "USD",
+        "name_sl": "ameriški dolar",
+        "name_en": "United States dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".pw"
+        ],
+        "phone_prefix": "+680",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "micronesia",
+          "island",
+          "pacific",
+          "pacific_islands_forum",
+          "compact_of_free_association",
+          "diving"
+        ],
+        "common_confusions_iso2": [
+          "fm",
+          "mh",
+          "bd"
+        ],
+        "hint_sl": "Mikronezijsko otočje vzhodno od Filipinov z Jezerom meduz; glavno mesto Ngerulmud."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1994-10-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Palav",
+        "notes": "Glavno mesto je od leta 2006 Ngerulmud (država Melekeok), vladni kompleks brez stalnih prebivalcev; največje mesto je Koror, nekdanja prestolnica. Z ZDA povezana s Pogodbo o svobodni zvezi. Slovenski pravopis imena ne navaja, KSZI uporablja obliko Palav. Japonščina, sonsorolščina in tobijščina so uradne v posameznih zveznih državah."
+      }
+    },
+    {
+      "iso2": "pg",
+      "iso3": "png",
+      "iso_numeric": 598,
+      "ccn3": "598",
+      "name": {
+        "sl": "Papuanska Nova Gvineja",
+        "en": "Papua New Guinea",
+        "official_sl": "Neodvisna država Papuanska Nova Gvineja",
+        "official_en": "Independent State of Papua New Guinea",
+        "native": [
+          "Papua New Guinea",
+          "Papua Niugini",
+          "Papua Niu Gini"
+        ]
+      },
+      "aliases_sl": [
+        "Neodvisna država Papuanska Nova Gvineja",
+        "Papua Nova Gvineja",
+        "PNG"
+      ],
+      "aliases_en": [
+        "Independent State of Papua New Guinea",
+        "PNG"
+      ],
+      "demonym": {
+        "sl_m": "Papuanec",
+        "sl_f": "Papuanka",
+        "en": "Papua New Guinean"
+      },
+      "flag": {
+        "code": "pg",
+        "file_4x3": "flags/4x3/pg.svg",
+        "file_1x1": "flags/1x1/pg.svg",
+        "emoji": "🇵🇬",
+        "notes": "Diagonalno razdeljena: rdeče zgornje polje z zlato rajsko ptico, črno spodnje polje z Južnim križem (pet belih zvezd).",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "melanesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -6.0,
+        "lon": 147.0,
+        "area_km2": 462840,
+        "coastline_km": 5152,
+        "highest_point": {
+          "name_sl": "Wilhelm",
+          "name_en": "Mount Wilhelm",
+          "elevation_m": 4509
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [
+          "id"
+        ],
+        "borders_notes": "Edina kopenska meja je z Indonezijo na otoku Nova Gvineja (indonezijski provinci Papua in Južna Papua).",
+        "timezones": [
+          "Pacific/Port_Moresby",
+          "Pacific/Bougainville"
+        ],
+        "utc_offset_standard": "+10:00"
+      },
+      "capital": {
+        "sl": "Port Moresby",
+        "en": "Port Moresby",
+        "lat": -9.44,
+        "lon": 147.18,
+        "population": 760000
+      },
+      "top_cities": [
+        {
+          "sl": "Port Moresby",
+          "en": "Port Moresby",
+          "population": 760000
+        },
+        {
+          "sl": "Lae",
+          "en": "Lae",
+          "population": 105000
+        },
+        {
+          "sl": "Mount Hagen",
+          "en": "Mount Hagen",
+          "population": 50000
+        },
+        {
+          "sl": "Madang",
+          "en": "Madang",
+          "population": 35000
+        },
+        {
+          "sl": "Kokopo",
+          "en": "Kokopo",
+          "population": 30000
+        },
+        {
+          "sl": "Popondetta",
+          "en": "Popondetta",
+          "population": 30000
+        },
+        {
+          "sl": "Wewak",
+          "en": "Wewak",
+          "population": 25000
+        },
+        {
+          "sl": "Goroka",
+          "en": "Goroka",
+          "population": 20000
+        },
+        {
+          "sl": "Kimbe",
+          "en": "Kimbe",
+          "population": 20000
+        },
+        {
+          "sl": "Arawa",
+          "en": "Arawa",
+          "population": 15000
+        }
+      ],
+      "hydrography": {
+        "rivers": [
+          {
+            "sl": "Sepik",
+            "en": "Sepik"
+          },
+          {
+            "sl": "Fly",
+            "en": "Fly"
+          },
+          {
+            "sl": "Purari",
+            "en": "Purari"
+          },
+          {
+            "sl": "Ramu",
+            "en": "Ramu"
+          }
+        ],
+        "lakes": [
+          {
+            "sl": "jezero Murray",
+            "en": "Lake Murray"
+          },
+          {
+            "sl": "jezero Kutubu",
+            "en": "Lake Kutubu"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Koralno morje",
+            "en": "Coral Sea"
+          },
+          {
+            "sl": "Salomonovo morje",
+            "en": "Solomon Sea"
+          },
+          {
+            "sl": "Bismarckovo morje",
+            "en": "Bismarck Sea"
+          },
+          {
+            "sl": "Arafursko morje",
+            "en": "Arafura Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 10800000,
+        "year": 2025,
+        "density_per_km2": 23
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina",
+          "tok pisin",
+          "hiri motu",
+          "papuanskonovogvinejski znakovni jezik"
+        ],
+        "official_en": [
+          "English",
+          "Tok Pisin",
+          "Hiri Motu",
+          "Papua New Guinean Sign Language"
+        ],
+        "also_spoken_sl": [
+          "več kot 800 domorodnih jezikov"
+        ]
+      },
+      "currency": {
+        "code": "PGK",
+        "name_sl": "kina",
+        "name_en": "Papua New Guinean kina",
+        "symbol": "K"
+      },
+      "communications": {
+        "tld": [
+          ".pg"
+        ],
+        "phone_prefix": "+675",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": [
+          "oceania",
+          "melanesia",
+          "pacific",
+          "commonwealth",
+          "commonwealth_realm",
+          "pacific_islands_forum",
+          "new_guinea",
+          "rainforest"
+        ],
+        "common_confusions_iso2": [
+          "id",
+          "sb",
+          "au"
+        ],
+        "hint_sl": "Vzhodna polovica otoka Nova Gvineja z več kot 800 jeziki; prestolnica Port Moresby."
+      },
+      "extra": {
+        "motto_sl": "Enotnost v raznolikosti",
+        "national_day": "1975-09-16",
+        "former_names_sl": [
+          "Papua in Nova Gvineja"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Papuanska_Nova_Gvineja",
+        "notes": "Jezikovno najraznolikejša država na svetu. Ime po KSZI je Papuanska Nova Gvineja, Slovenski pravopis navaja Papua Nova Gvineja. Prebivalstvo Port Moresbyja velja za Glavno mestno okrožje (popis 2024: 756.754); popis 2024 je naštel 10,2 milijona prebivalcev. Avtonomna regija Bougainville je leta 2019 na referendumu (97,7 %) glasovala za neodvisnost; ratifikacija v parlamentu je bila oktobra 2026 še v teku. Ima dva časovna pasova (Bougainville UTC+11)."
+      }
+    },
+    {
+      "iso2": "ws",
+      "iso3": "wsm",
+      "iso_numeric": 882,
+      "ccn3": "882",
+      "name": {
+        "sl": "Samoa",
+        "en": "Samoa",
+        "official_sl": "Neodvisna država Samoa",
+        "official_en": "Independent State of Samoa",
+        "native": [
+          "Samoa",
+          "Sāmoa"
+        ]
+      },
+      "aliases_sl": [
+        "Neodvisna država Samoa",
+        "Zahodna Samoa"
+      ],
+      "aliases_en": [
+        "Independent State of Samoa",
+        "Western Samoa"
+      ],
+      "demonym": {
+        "sl_m": "Samoanec",
+        "sl_f": "Samoanka",
+        "en": "Samoan"
+      },
+      "flag": {
+        "code": "ws",
+        "file_4x3": "flags/4x3/ws.svg",
+        "file_1x1": "flags/1x1/ws.svg",
+        "emoji": "🇼🇸",
+        "notes": "Rdeča zastava z modrim pravokotnikom levo zgoraj in Južnim križem (pet belih zvezd); podobna zastavi Tajvana (Republike Kitajske), ki ima belo sonce.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "polynesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -13.58,
+        "lon": -172.33,
+        "area_km2": 2842,
+        "coastline_km": 403,
+        "highest_point": {
+          "name_sl": "Silisili",
+          "name_en": "Mount Silisili",
+          "elevation_m": 1857
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Apia"
+        ],
+        "utc_offset_standard": "+13:00"
+      },
+      "capital": {
+        "sl": "Apia",
+        "en": "Apia",
+        "lat": -13.83,
+        "lon": -171.76,
+        "population": 36000
+      },
+      "top_cities": [
+        {
+          "sl": "Apia",
+          "en": "Apia",
+          "population": 36000
+        },
+        {
+          "sl": "Vaitele",
+          "en": "Vaitele",
+          "population": 7000
+        },
+        {
+          "sl": "Salelologa",
+          "en": "Salelologa",
+          "population": 2000
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [
+          {
+            "sl": "jezero Lanoto'o",
+            "en": "Lake Lanoto'o"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 219000,
+        "year": 2025,
+        "density_per_km2": 77
+      },
+      "languages": {
+        "official_sl": [
+          "samojščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Samoan",
+          "English"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "WST",
+        "name_sl": "tala",
+        "name_en": "Samoan tālā",
+        "symbol": "T"
+      },
+      "communications": {
+        "tld": [
+          ".ws"
+        ],
+        "phone_prefix": "+685",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "oceania",
+          "polynesia",
+          "island",
+          "pacific",
+          "commonwealth",
+          "pacific_islands_forum",
+          "rugby",
+          "date_line"
+        ],
+        "common_confusions_iso2": [
+          "as",
+          "to",
+          "fj"
+        ],
+        "hint_sl": "Polinezijska država na otokih Upolu in Savaiʻi, glavno mesto Apia; ne zamenjevati z Ameriško Samoo."
+      },
+      "extra": {
+        "motto_sl": "Samoa temelji na Bogu",
+        "national_day": "1962-06-01",
+        "former_names_sl": [
+          "Zahodna Samoa"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Samoa",
+        "notes": "Neodvisnost 1. januarja 1962 (od Nove Zelandije), praznuje se 1. junija. Do leta 1997 se je imenovala Zahodna Samoa. Konec leta 2011 je preskočila 30. december in se premaknila na zahodno stran datumske meje. Leta 2009 je prešla na vožnjo po levi. Slovenski pravopis navaja prebivalca Samoanec, KSZI pa Samojec."
+      }
+    },
+    {
+      "iso2": "sb",
+      "iso3": "slb",
+      "iso_numeric": 90,
+      "ccn3": "090",
+      "name": {
+        "sl": "Salomonovi otoki",
+        "en": "Solomon Islands",
+        "official_sl": "Salomonovi otoki",
+        "official_en": "Solomon Islands",
+        "native": [
+          "Solomon Islands"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Salomonec",
+        "sl_f": "Salomonka",
+        "en": "Solomon Islander"
+      },
+      "flag": {
+        "code": "sb",
+        "file_4x3": "flags/4x3/sb.svg",
+        "file_1x1": "flags/1x1/sb.svg",
+        "emoji": "🇸🇧",
+        "notes": "Diagonalni tanek rumen pas loči modro zgornje in zeleno spodnje polje; levo zgoraj pet belih zvezd.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "melanesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -8.0,
+        "lon": 159.0,
+        "area_km2": 28896,
+        "coastline_km": 5313,
+        "highest_point": {
+          "name_sl": "Popomanaseu",
+          "name_en": "Mount Popomanaseu",
+          "elevation_m": 2335
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Guadalcanal"
+        ],
+        "utc_offset_standard": "+11:00"
+      },
+      "capital": {
+        "sl": "Honiara",
+        "en": "Honiara",
+        "lat": -9.43,
+        "lon": 159.96,
+        "population": 130000
+      },
+      "top_cities": [
+        {
+          "sl": "Honiara",
+          "en": "Honiara",
+          "population": 130000
+        },
+        {
+          "sl": "Auki",
+          "en": "Auki",
+          "population": 7000
+        },
+        {
+          "sl": "Gizo",
+          "en": "Gizo",
+          "population": 7000
+        },
+        {
+          "sl": "Noro",
+          "en": "Noro",
+          "population": 4000
+        },
+        {
+          "sl": "Tulagi",
+          "en": "Tulagi",
+          "population": 1500
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [
+          {
+            "sl": "jezero Tegano",
+            "en": "Lake Tegano"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Salomonovo morje",
+            "en": "Solomon Sea"
+          },
+          {
+            "sl": "Koralno morje",
+            "en": "Coral Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 839000,
+        "year": 2025,
+        "density_per_km2": 29
+      },
+      "languages": {
+        "official_sl": [
+          "angleščina"
+        ],
+        "official_en": [
+          "English"
+        ],
+        "also_spoken_sl": [
+          "salomonski pidžin (pijin)",
+          "okoli 70 domorodnih jezikov"
+        ]
+      },
+      "currency": {
+        "code": "SBD",
+        "name_sl": "salomonovootoški dolar",
+        "name_en": "Solomon Islands dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".sb"
+        ],
+        "phone_prefix": "+677",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "oceania",
+          "melanesia",
+          "island",
+          "pacific",
+          "commonwealth",
+          "commonwealth_realm",
+          "pacific_islands_forum",
+          "ww2"
+        ],
+        "common_confusions_iso2": [
+          "pg",
+          "vu",
+          "mh"
+        ],
+        "hint_sl": "Melanezijsko otočje z otokom Guadalcanal, kjer leži glavno mesto Honiara."
+      },
+      "extra": {
+        "motto_sl": "Voditi pomeni služiti",
+        "national_day": "1978-07-07",
+        "former_names_sl": [
+          "Britanski protektorat Salomonovi otoki"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Salomonovi_otoki",
+        "notes": "Guadalcanal je bil prizorišče ene ključnih bitk druge svetovne vojne (1942–1943). Prebivalstvo Honiare po popisu 2019."
+      }
+    },
+    {
+      "iso2": "to",
+      "iso3": "ton",
+      "iso_numeric": 776,
+      "ccn3": "776",
+      "name": {
+        "sl": "Tonga",
+        "en": "Tonga",
+        "official_sl": "Kraljevina Tonga",
+        "official_en": "Kingdom of Tonga",
+        "native": [
+          "Tonga",
+          "Puleʻanga Fakatuʻi ʻo Tonga"
+        ]
+      },
+      "aliases_sl": [
+        "Kraljevina Tonga",
+        "Prijateljski otoki"
+      ],
+      "aliases_en": [
+        "Kingdom of Tonga",
+        "Friendly Islands"
+      ],
+      "demonym": {
+        "sl_m": "Tongovec",
+        "sl_f": "Tongovka",
+        "en": "Tongan"
+      },
+      "flag": {
+        "code": "to",
+        "file_4x3": "flags/4x3/to.svg",
+        "file_1x1": "flags/1x1/to.svg",
+        "emoji": "🇹🇴",
+        "notes": "Rdeča zastava z belim pravokotnikom levo zgoraj, v katerem je rdeč križ.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "polynesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -20.0,
+        "lon": -175.0,
+        "area_km2": 747,
+        "coastline_km": 419,
+        "highest_point": {
+          "name_sl": "Kao",
+          "name_en": "Kao Island",
+          "elevation_m": 1033
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Tongatapu"
+        ],
+        "utc_offset_standard": "+13:00"
+      },
+      "capital": {
+        "sl": "Nukualofa",
+        "en": "Nuku'alofa",
+        "lat": -21.14,
+        "lon": -175.2,
+        "population": 28000
+      },
+      "top_cities": [
+        {
+          "sl": "Nukualofa",
+          "en": "Nuku'alofa",
+          "population": 28000
+        },
+        {
+          "sl": "Neiafu",
+          "en": "Neiafu",
+          "population": 4000
+        },
+        {
+          "sl": "Pangai",
+          "en": "Pangai",
+          "population": 1500
+        },
+        {
+          "sl": "'Ohonua",
+          "en": "'Ohonua",
+          "population": 1200
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 104000,
+        "year": 2025,
+        "density_per_km2": 139
+      },
+      "languages": {
+        "official_sl": [
+          "tongovščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Tongan",
+          "English"
+        ],
+        "also_spoken_sl": []
+      },
+      "currency": {
+        "code": "TOP",
+        "name_sl": "paanga",
+        "name_en": "Tongan paʻanga",
+        "symbol": "T$"
+      },
+      "communications": {
+        "tld": [
+          ".to"
+        ],
+        "phone_prefix": "+676",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "oceania",
+          "polynesia",
+          "island",
+          "pacific",
+          "commonwealth",
+          "pacific_islands_forum",
+          "monarchy",
+          "rugby"
+        ],
+        "common_confusions_iso2": [
+          "ws",
+          "fj",
+          "nu"
+        ],
+        "hint_sl": "Edina polinezijska kraljevina, nikoli kolonizirana; glavno mesto Nukualofa na Tongatapuju."
+      },
+      "extra": {
+        "motto_sl": "Bog in Tonga sta moja dediščina",
+        "national_day": "1970-06-04",
+        "former_names_sl": [
+          "Prijateljski otoki"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Tonga",
+        "notes": "Edina pacifiška država, ki nikoli ni bila formalno kolonija (britanski protektorat 1900–1970). Januarja 2022 je izbruh podmorskega ognjenika Hunga Tonga–Hunga Haʻapai sprožil cunami. Državni praznik je dan emancipacije (4. junij). Pisava glavnega mesta: Nukuʻalofa."
+      }
+    },
+    {
+      "iso2": "tv",
+      "iso3": "tuv",
+      "iso_numeric": 798,
+      "ccn3": "798",
+      "name": {
+        "sl": "Tuvalu",
+        "en": "Tuvalu",
+        "official_sl": "Tuvalu",
+        "official_en": "Tuvalu",
+        "native": [
+          "Tuvalu"
+        ]
+      },
+      "aliases_sl": [],
+      "aliases_en": [],
+      "demonym": {
+        "sl_m": "Tuvalujec",
+        "sl_f": "Tuvalujka",
+        "en": "Tuvaluan"
+      },
+      "flag": {
+        "code": "tv",
+        "file_4x3": "flags/4x3/tv.svg",
+        "file_1x1": "flags/1x1/tv.svg",
+        "emoji": "🇹🇻",
+        "notes": "Svetlo modra zastava z britansko zastavo levo zgoraj in devetimi rumenimi zvezdami (otoki) na desni; podobna zastavi Fidžija in drugim zastavam z britansko zastavo.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "polynesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -8.0,
+        "lon": 178.0,
+        "area_km2": 26,
+        "coastline_km": 24,
+        "highest_point": {
+          "name_sl": "neimenovana točka na Niulakiti",
+          "name_en": "unnamed location on Niulakita",
+          "elevation_m": 5
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Funafuti"
+        ],
+        "utc_offset_standard": "+12:00"
+      },
+      "capital": {
+        "sl": "Funafuti",
+        "en": "Funafuti",
+        "lat": -8.52,
+        "lon": 179.2,
+        "population": 6600
+      },
+      "top_cities": [
+        {
+          "sl": "Funafuti",
+          "en": "Funafuti",
+          "population": 6600
+        },
+        {
+          "sl": "Asau",
+          "en": "Asau",
+          "population": 830
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          }
+        ]
+      },
+      "population": {
+        "total": 9490,
+        "year": 2025,
+        "density_per_km2": 365
+      },
+      "languages": {
+        "official_sl": [
+          "tuvalujščina",
+          "angleščina"
+        ],
+        "official_en": [
+          "Tuvaluan",
+          "English"
+        ],
+        "also_spoken_sl": [
+          "kiribatijščina (gilbertščina)"
+        ]
+      },
+      "currency": {
+        "code": "AUD",
+        "name_sl": "avstralski dolar",
+        "name_en": "Australian dollar",
+        "symbol": "$"
+      },
+      "communications": {
+        "tld": [
+          ".tv"
+        ],
+        "phone_prefix": "+688",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 4,
+        "tags": [
+          "oceania",
+          "polynesia",
+          "island",
+          "atoll",
+          "pacific",
+          "commonwealth",
+          "commonwealth_realm",
+          "pacific_islands_forum",
+          "microstate",
+          "climate_change"
+        ],
+        "common_confusions_iso2": [
+          "ki",
+          "nr",
+          "fj"
+        ],
+        "hint_sl": "Majhna atolna država z glavnim mestom Funafuti, zelo ogrožena zaradi dviga morske gladine; domena .tv."
+      },
+      "extra": {
+        "motto_sl": "Tuvalu za Vsemogočnega",
+        "national_day": "1978-10-01",
+        "former_names_sl": [
+          "Elliceovi otoki"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Tuvalu",
+        "notes": "Četrta najmanjša država na svetu po površini (26 km²). Najvišja točka je le okoli 4,6 m nad morjem. Ob avstralskem dolarju so v obtoku tuvalujski kovanci. Leta 2023 je z Avstralijo sklenil pogodbo o zvezi Falepili (v veljavi od 2024), ki prebivalcem omogoča preselitev zaradi podnebnih sprememb. Prihodek od prodaje domene .tv je pomemben vir državnega dohodka."
+      }
+    },
+    {
+      "iso2": "vu",
+      "iso3": "vut",
+      "iso_numeric": 548,
+      "ccn3": "548",
+      "name": {
+        "sl": "Vanuatu",
+        "en": "Vanuatu",
+        "official_sl": "Republika Vanuatu",
+        "official_en": "Republic of Vanuatu",
+        "native": [
+          "Vanuatu",
+          "Ripablik blong Vanuatu",
+          "République de Vanuatu"
+        ]
+      },
+      "aliases_sl": [
+        "Republika Vanuatu",
+        "Novi Hebridi"
+      ],
+      "aliases_en": [
+        "Republic of Vanuatu",
+        "New Hebrides"
+      ],
+      "demonym": {
+        "sl_m": "Vanuatujec",
+        "sl_f": "Vanuatujka",
+        "en": "Ni-Vanuatu"
+      },
+      "flag": {
+        "code": "vu",
+        "file_4x3": "flags/4x3/vu.svg",
+        "file_1x1": "flags/1x1/vu.svg",
+        "emoji": "🇻🇺",
+        "notes": "Rdeče zgornje in zeleno spodnje polje, ločeno z vodoravnim rumenim Y z črnimi robovi; v črnem trikotniku ob drogu zvit merjaščev okel in dve listi praprotnice.",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "oceania",
+        "subregion": "melanesia",
+        "region_un": "Oceania",
+        "landlocked": false,
+        "lat": -16.0,
+        "lon": 167.0,
+        "area_km2": 12189,
+        "coastline_km": 2528,
+        "highest_point": {
+          "name_sl": "Tabwemasana",
+          "name_en": "Mount Tabwemasana",
+          "elevation_m": 1877
+        },
+        "lowest_point": {
+          "name_sl": "Tihi ocean",
+          "name_en": "Pacific Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": [
+          "Pacific/Efate"
+        ],
+        "utc_offset_standard": "+11:00"
+      },
+      "capital": {
+        "sl": "Port Vila",
+        "en": "Port Vila",
+        "lat": -17.73,
+        "lon": 168.32,
+        "population": 49000
+      },
+      "top_cities": [
+        {
+          "sl": "Port Vila",
+          "en": "Port Vila",
+          "population": 49000
+        },
+        {
+          "sl": "Luganville",
+          "en": "Luganville",
+          "population": 18000
+        },
+        {
+          "sl": "Norsup",
+          "en": "Norsup",
+          "population": 3000
+        },
+        {
+          "sl": "Isangel",
+          "en": "Isangel",
+          "population": 1500
+        }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [
+          {
+            "sl": "jezero Letas",
+            "en": "Lake Letas"
+          }
+        ],
+        "seas": [
+          {
+            "sl": "Tihi ocean",
+            "en": "Pacific Ocean"
+          },
+          {
+            "sl": "Koralno morje",
+            "en": "Coral Sea"
+          }
+        ]
+      },
+      "population": {
+        "total": 335000,
+        "year": 2025,
+        "density_per_km2": 27
+      },
+      "languages": {
+        "official_sl": [
+          "bislama",
+          "angleščina",
+          "francoščina"
+        ],
+        "official_en": [
+          "Bislama",
+          "English",
+          "French"
+        ],
+        "also_spoken_sl": [
+          "več kot 100 domorodnih jezikov"
+        ]
+      },
+      "currency": {
+        "code": "VUV",
+        "name_sl": "vatu",
+        "name_en": "Vanuatu vatu",
+        "symbol": "VT"
+      },
+      "communications": {
+        "tld": [
+          ".vu"
+        ],
+        "phone_prefix": "+678",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": false,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 3,
+        "tags": [
+          "oceania",
+          "melanesia",
+          "island",
+          "pacific",
+          "commonwealth",
+          "pacific_islands_forum",
+          "francophone",
+          "volcano"
+        ],
+        "common_confusions_iso2": [
+          "sb",
+          "fj",
+          "nc"
+        ],
+        "hint_sl": "Ognjeniško melanezijsko otočje, nekdanji britansko-francoski kondominij Novi Hebridi; glavno mesto Port Vila."
+      },
+      "extra": {
+        "motto_sl": "V Bogu stojimo",
+        "national_day": "1980-07-30",
+        "former_names_sl": [
+          "Novi Hebridi"
+        ],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Vanuatu",
+        "notes": "Do neodvisnosti leta 1980 britansko-francoski kondominij Novi Hebridi. Država z največjo gostoto jezikov na prebivalca. Prebivalstvo mest po popisu 2020."
+      }
+    }
+  ]
+}
