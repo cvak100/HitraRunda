@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api } from "../api";
@@ -13,6 +13,21 @@ export function HomePage() {
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    if (user) return;
+    let cancelled = false;
+    api<{ nickname: string }>("/api/auth/nickname/")
+      .then((data) => {
+        if (!cancelled && data.nickname) setNickname(data.nickname);
+      })
+      .catch(() => {
+        /* polje ostane prazno — uporabnik lahko še vedno vnese */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -45,12 +60,16 @@ export function HomePage() {
         strategiji.
       </p>
       <p className="lead home-intro">
-        Začneš lahko kot gost z vzdevkom; ko se prijaviš, rezultati ostanejo in se zabeležijo na lestvici.
+        Začneš lahko kot gost z naključnim vzdevkom (lahko ga spremeniš); ko se prijaviš, rezultati ostanejo in se
+        zabeležijo na lestvici.
       </p>
 
       {!user ? (
         <form onSubmit={onSubmit} className="stack home-guest">
           <NicknameField value={nickname} onChange={setNickname} required />
+          <p className="fine">
+            Predlagan je naključni vzdevek — lahko ga spremeniš ali vržeš novega s kocko.
+          </p>
           <div className="actions">
             <button className="primary" type="submit" disabled={pending}>
               Nadaljuj kot gost
