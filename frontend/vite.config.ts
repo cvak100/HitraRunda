@@ -19,6 +19,11 @@ export default defineConfig({
       "/admin": { target: "http://backend:8000", changeOrigin: true },
       "/static": { target: "http://backend:8000", changeOrigin: true },
       "/ws": { target: "http://backend:8000", ws: true, changeOrigin: true },
+      "/_u": {
+        target: "https://umami.geekgalaxy.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/_u/, ""),
+      },
     },
   },
 });
