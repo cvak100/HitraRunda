@@ -75,7 +75,10 @@ Na Fedori (isti host kot app). Backupi: `/opt/dockerapps/hitrarunda-backups/`.
 - SSH do GitHuba dela za uporabnika, pod katerim teče agent (`ssh -T git@github.com`).
 - Produkcija v `/opt/dockerapps/hitrarunda` z veljavnim `.env`.
 - Če **httpd/nginx** že drži 80/443: `INSTALL_MODE=http`, `APP_URL=https://…` (TLS zunaj, app na `APP_PORT`).
-- Če porta 80/443 prosta: `INSTALL_MODE=https` (Caddy v compose).
+  Apache mora na `APP_PORT` poslati odjemalčev IP in shemo, npr.:
+  `RequestHeader set X-Forwarded-Proto "https"` + `ProxyAddHeaders On` (ali `X-Forwarded-For`).
+  Frontend nginx z `real_ip` potem obnovi pravi IP za Django throttle.
+- Če porta 80/443 prosta: `INSTALL_MODE=https` (Caddy v compose; API gre naravnost na backend).
 
 ### Job 1: HitraRunda-Deploy
 
