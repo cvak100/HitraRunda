@@ -1,0 +1,38 @@
+// Ročni rollback — Build with Parameters.
+pipeline {
+  agent any
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+  }
+  parameters {
+    choice(
+      name: 'RESTORE_DB',
+      choices: ['true', 'false'],
+      description: 'Obnovi tudi Postgres dump iz previous-backup'
+    )
+    string(
+      name: 'APP_DIR',
+      defaultValue: '/opt/dockerapps/hitrarunda',
+      description: 'Pot do produkcijske namestitve'
+    )
+    string(
+      name: 'BACKUP_ROOT',
+      defaultValue: '/opt/dockerapps/hitrarunda-backups',
+      description: 'Mapa za pg_dump + deploy state'
+    )
+  }
+  stages {
+    stage('Rollback') {
+      steps {
+        sh '''
+          set -euo pipefail
+          export APP_DIR="${APP_DIR}"
+          export BACKUP_ROOT="${BACKUP_ROOT}"
+          export RESTORE_DB="${RESTORE_DB}"
+          bash "${WORKSPACE}/deploy/jenkins/rollback.sh"
+        '''
+      }
+    }
+  }
+}

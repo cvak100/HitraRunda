@@ -1,0 +1,39 @@
+// Ročni deploy — Build with Parameters. Agent na istem hostu kot app.
+// Pipeline from SCM (ta datoteka); skripte tečejo iz Jenkins workspace, app v APP_DIR.
+pipeline {
+  agent any
+  options {
+    disableConcurrentBuilds()
+    timestamps()
+  }
+  parameters {
+    string(
+      name: 'DEPLOY_REF',
+      defaultValue: 'main',
+      description: 'Git branch ali tag za APP_DIR (npr. main, v0.4.37)'
+    )
+    string(
+      name: 'APP_DIR',
+      defaultValue: '/opt/dockerapps/hitrarunda',
+      description: 'Pot do produkcijske namestitve'
+    )
+    string(
+      name: 'BACKUP_ROOT',
+      defaultValue: '/opt/dockerapps/hitrarunda-backups',
+      description: 'Mapa za pg_dump + deploy state'
+    )
+  }
+  stages {
+    stage('Deploy') {
+      steps {
+        sh '''
+          set -euo pipefail
+          export APP_DIR="${APP_DIR}"
+          export BACKUP_ROOT="${BACKUP_ROOT}"
+          export DEPLOY_REF="${DEPLOY_REF}"
+          bash "${WORKSPACE}/deploy/jenkins/deploy.sh"
+        '''
+      }
+    }
+  }
+}

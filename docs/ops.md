@@ -59,10 +59,53 @@ docker compose -f docker-compose.prod.yml --env-file .env restart backend
 ## Posodobitev
 
 ```bash
-git pull
-# po potrebi: ./scripts/write-version.sh  (če greš v nov release commit)
-./deploy/install.sh http   # rebuild + up
+git fetch --tags
+git checkout v0.X.Y   # ali main
+./deploy/install.sh https   # ali http
 ./deploy/smoke.sh "$APP_URL"
+```
+
+## Jenkins (ročni deploy + rollback)
+
+Na Fedori (isti host kot app). Backupi: `/opt/dockerapps/hitrarunda-backups/`.
+
+### Predpogoji
+
+- Jenkins user v skupini `docker` (`usermod -aG docker jenkins` + restart Jenkins).
+- SSH do GitHuba dela za uporabnika, pod katerim teče agent (`ssh -T git@github.com`).
+- Produkcija v `/opt/dockerapps/hitrarunda` z veljavnim `.env` (HTTPS).
+
+### Job 1: HitraRunda-Deploy
+
+1. **New Item** → ime `HitraRunda-Deploy` → **Pipeline**.
+2. **Build Triggers**: nič (samo ročno).
+3. **Pipeline** → *Pipeline script from SCM* → Git  
+   - URL: `git@github.com:cvak100/HitraRunda.git`  
+   - Branch: `*/main` (ali `*/feature/0.5`, dokler ni merge)  
+   - Script Path: `Jenkinsfile.deploy`
+4. Shrani. Zaženi **Build with Parameters**:
+   - `DEPLOY_REF` = `main` ali tag (`v0.4.37`)
+   - `APP_DIR` / `BACKUP_ROOT` pusti privzeto
+
+Potek: pg_dump → git checkout v `APP_DIR` → `install.sh https` → smoke → Django testi (`--exclude-tag=slow`).
+
+### Job 2: HitraRunda-Rollback
+
+1. Enako kot zgoraj, Script Path: `Jenkinsfile.rollback`.
+2. Parameter `RESTORE_DB` = `true` (privzeto) obnovi tudi dump pred zadnjim deployem.
+
+Prvi rollback deluje šele **po enem uspešnem Deploy** jobu (ustvari `previous-ref`).
+
+### Ročno (brez Jenkins UI)
+
+```bash
+export APP_DIR=/opt/dockerapps/hitrarunda
+export BACKUP_ROOT=/opt/dockerapps/hitrarunda-backups
+export DEPLOY_REF=main
+bash /opt/dockerapps/hitrarunda/deploy/jenkins/deploy.sh
+# rollback:
+export RESTORE_DB=true
+bash /opt/dockerapps/hitrarunda/deploy/jenkins/rollback.sh
 ```
 
 ## Backup Postgres
@@ -74,12 +117,12 @@ docker compose -f docker-compose.prod.yml --env-file .env exec -T db \
   pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup-$(date +%F).sql
 ```
 
-Avtomatsko (dev/prod): servis `db-backup` v `docker-compose.yml` /
-`docker-compose.prod.yml` dnevno zapiše dump v volumen `pgbackups`
-(ohrani zadnjih 7 datotek). Obnovitev:
+Jenkins deploy shrani gzip dump v `/opt/dockerapps/hitrarunda-backups/<timestamp>/dump.sql.gz`.
+
+Obnovitev iz Jenkins backupa:
 
 ```bash
-gunzip -c pgbackups/hitrarunda-YYYY-MM-DD.sql.gz | \
+gunzip -c /opt/dockerapps/hitrarunda-backups/YYYYMMDD-HHMMSS/dump.sql.gz | \
   docker compose -f docker-compose.prod.yml --env-file .env exec -T db \
-  psql -U "$POSTGRES_USER" "$POSTGRES_DB"
+  psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1
 ```
