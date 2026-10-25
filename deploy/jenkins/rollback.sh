@@ -40,6 +40,8 @@ echo "Rollback $BEFORE_REF → $TARGET_REF (RESTORE_DB=$RESTORE_DB)"
 COMPOSE=(docker compose -f docker-compose.prod.yml --env-file .env)
 
 git fetch --tags origin
+git reset --hard HEAD
+git clean -fd
 git checkout --force "$TARGET_REF"
 git reset --hard "$TARGET_REF"
 

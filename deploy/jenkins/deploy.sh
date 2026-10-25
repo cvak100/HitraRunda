@@ -54,8 +54,12 @@ fi
 
 echo "Git fetch / checkout $DEPLOY_REF…"
 git fetch --tags origin
+# Produkcijski clone sme imeti umazane tracked datoteke (CRLF, ročni popravki) —
+# deploy vedno forsira remote; .env je v .gitignore in ostane.
+git reset --hard HEAD
+git clean -fd
 if git show-ref --verify --quiet "refs/remotes/origin/$DEPLOY_REF"; then
-  git checkout -B "$DEPLOY_REF" "origin/$DEPLOY_REF"
+  git checkout -f -B "$DEPLOY_REF" "origin/$DEPLOY_REF"
   git reset --hard "origin/$DEPLOY_REF"
 elif git rev-parse --verify "refs/tags/$DEPLOY_REF" >/dev/null 2>&1; then
   git checkout --force "refs/tags/$DEPLOY_REF"
