@@ -25,7 +25,7 @@ from game.engine import (
     speed_bonus,
 )
 from accounts.nicknames import avatar_for_member, resolve_avatar_key
-from game.modes import MODE_MULTIPLAYER, MP_MIN_PLAYERS
+from game.modes import MODE_MULTIPLAYER
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
 from game.site_settings import get as site_get
@@ -74,8 +74,9 @@ def start_multiplayer(member_id):
         if room.status != "waiting":
             raise GameError("Igre ni mogoče začeti.")
         members = list(room.members.filter(left_at__isnull=True).select_related("user"))
-        if len(members) < MP_MIN_PLAYERS:
-            raise GameError(f"Potrebujeta vsaj {MP_MIN_PLAYERS} igralca.")
+        min_players = int(site_get("mp_min_players"))
+        if len(members) < min_players:
+            raise GameError(f"Potrebujeta vsaj {min_players} igralca.")
         if not all(item.is_ready or item.is_bot for item in members):
             raise GameError("Vsi igralci morajo biti pripravljeni.")
         settings = room.settings or {}

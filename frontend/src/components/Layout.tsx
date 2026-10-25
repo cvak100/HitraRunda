@@ -4,6 +4,7 @@ import { Link, NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../auth";
 import { GearIcon, UpIcon } from "../icons";
+import { NotificationBell } from "./NotificationBell";
 
 export function Layout() {
   const { user, loading } = useAuth();
@@ -80,6 +81,7 @@ export function Layout() {
               Igraj
             </NavLink>
           ) : null}
+          {user ? <NotificationBell /> : null}
           {user ? (
             <Menu
               label={<GearIcon />}

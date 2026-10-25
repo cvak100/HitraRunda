@@ -215,59 +215,72 @@ def room_name_for(mode):
 
 
 def select_questions(slugs, count, progression="increasing", question_types=None, option_count=None):
-    questions = Question.objects.filter(category__slug__in=slugs, is_active=True).select_related("category")
+    # Najprej samo (id, difficulty) — ne naloži 10k+ objektov v Python.
+    base = Question.objects.filter(category__slug__in=slugs, is_active=True)
     if question_types:
-        questions = questions.filter(question_type__in=question_types)
+        base = base.filter(question_type__in=question_types)
     if option_count is not None:
-        # Count("options") v annotate+filter je zanesljiv; list() nato v Pythonu.
-        matched_ids = list(
-            questions.annotate(option_count=Count("options"))
-            .filter(option_count=option_count)
-            .values_list("id", flat=True)
-        )
-        questions = questions.filter(id__in=matched_ids)
-    questions = list(questions)
-    if len(questions) < count:
-        raise GameError(f"Na voljo je {len(questions)} vprašanj, izbral si jih {count}.")
+        base = base.annotate(option_count=Count("options")).filter(option_count=option_count)
+    rows = list(base.values_list("id", "difficulty"))
+    if len(rows) < count:
+        raise GameError(f"Na voljo je {len(rows)} vprašanj, izbral si jih {count}.")
+
     if progression == "random":
-        return random.sample(questions, count)
-
-    buckets = {level: [] for level in range(1, 6)}
-    for question in questions:
-        level = min(5, max(1, question.difficulty))
-        buckets[level].append(question)
-    for bucket in buckets.values():
-        random.shuffle(bucket)
-
-    if progression == "ala_ladder":
-        targets = list(site_get("ala_difficulty_targets"))
-        if count != len(targets):
-            raise GameError(f"Ala milijonar potrebuje {len(targets)} vprašanj za težavnostni vzorec.")
-    elif count == 1:
-        targets = [3]
+        chosen_ids = [row[0] for row in random.sample(rows, count)]
     else:
-        targets = [min(5, max(1, round(1 + index * 4 / (count - 1)))) for index in range(count)]
+        buckets = {level: [] for level in range(1, 6)}
+        for question_id, difficulty in rows:
+            level = min(5, max(1, difficulty))
+            buckets[level].append(question_id)
+        for bucket in buckets.values():
+            random.shuffle(bucket)
 
-    chosen = []
-    used = set()
-    for target in targets:
-        pick = _take_nearest(buckets, target, used)
-        if pick is None:
-            raise GameError("Ni dovolj vprašanj za izbrano težavnost.")
-        chosen.append(pick)
-        used.add(pick.id)
-    return chosen
+        if progression == "ala_ladder":
+            targets = list(site_get("ala_difficulty_targets"))
+            if count != len(targets):
+                raise GameError(f"Ala milijonar potrebuje {len(targets)} vprašanj za težavnostni vzorec.")
+        elif count == 1:
+            targets = [3]
+        else:
+            targets = [min(5, max(1, round(1 + index * 4 / (count - 1)))) for index in range(count)]
+
+        chosen_ids = []
+        used = set()
+        for target in targets:
+            pick_id = _take_nearest_id(buckets, target, used)
+            if pick_id is None:
+                raise GameError("Ni dovolj vprašanj za izbrano težavnost.")
+            chosen_ids.append(pick_id)
+            used.add(pick_id)
+
+    by_id = {
+        question.id: question
+        for question in Question.objects.filter(id__in=chosen_ids).select_related("category")
+    }
+    return [by_id[question_id] for question_id in chosen_ids if question_id in by_id]
 
 
 def grade_answer(question, data, presentation=None):
-    question_type = question.question_type
-    options = list(question.options.all())
+    presentation = presentation or {}
+    question_type = presentation.get("question_type") or question.question_type
+    snap_options = presentation.get("options")
+    if snap_options:
+        options = snap_options
+        option_id_of = lambda option: option["id"]
+        is_correct_of = lambda option: bool(option.get("is_correct"))
+        order_of = lambda option: (option.get("order", 0), option["id"])
+    else:
+        options = list(question.options.all())
+        option_id_of = lambda option: option.id
+        is_correct_of = lambda option: option.is_correct
+        order_of = lambda option: (option.order, option.id)
+
     if question_type in SINGLE_TYPES:
         option_id = _as_int(data.get("option_id"))
-        match = next((option for option in options if option.id == option_id), None)
+        match = next((option for option in options if option_id_of(option) == option_id), None)
         if match is None:
             raise GameError("Neveljavna možnost.")
-        return match.is_correct
+        return is_correct_of(match)
     if question_type == Question.Type.MULTI_SELECT:
         raw_ids = data.get("option_ids")
         if not isinstance(raw_ids, list):
@@ -278,10 +291,10 @@ def grade_answer(question, data, presentation=None):
             if value is None:
                 raise GameError("Neveljavna možnost.")
             ids.append(value)
-        known = {option.id for option in options}
+        known = {option_id_of(option) for option in options}
         if not set(ids) <= known:
             raise GameError("Neveljavna možnost.")
-        correct = {option.id for option in options if option.is_correct}
+        correct = {option_id_of(option) for option in options if is_correct_of(option)}
         return set(ids) == correct
     if question_type == Question.Type.ORDERING:
         raw_ids = data.get("option_ids")
@@ -290,13 +303,13 @@ def grade_answer(question, data, presentation=None):
         ids = [_as_int(raw) for raw in raw_ids]
         if any(value is None for value in ids):
             raise GameError("Neveljaven vrstni red.")
-        correct_ids = [option.id for option in sorted(options, key=lambda option: (option.order, option.id))]
+        correct_ids = [option_id_of(option) for option in sorted(options, key=order_of)]
         if sorted(ids) != sorted(correct_ids):
             raise GameError("Neveljaven vrstni red.")
         return ids == correct_ids
     if question_type == Question.Type.MATCHING:
         pairs = data.get("pairs")
-        links = (presentation or {}).get("links") or []
+        links = presentation.get("links") or []
         if not isinstance(pairs, list) or not links:
             raise GameError("Poveži vse pare.")
         expected = {link["left_id"]: link["right_id"] for link in links}
@@ -314,16 +327,19 @@ def grade_answer(question, data, presentation=None):
             raise GameError("Poveži vse pare.")
         return got == expected
     if question_type == Question.Type.SLIDER:
-        config = question.config or {}
+        slider = presentation.get("slider") or {}
+        config = presentation.get("config") or question.config or {}
         raw_value = data.get("value")
         if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float)):
             raise GameError("Nastavi vrednost.")
         value = float(raw_value)
-        minimum = float(config["min"])
-        maximum = float(config["max"])
+        minimum = float(slider.get("min", config["min"]))
+        maximum = float(slider.get("max", config["max"]))
+        correct = float(slider.get("correct", config["correct"]))
+        tolerance = float(slider.get("tolerance", config["tolerance"]))
         if value < minimum or value > maximum:
             raise GameError("Vrednost je zunaj obsega.")
-        return abs(value - float(config["correct"])) <= float(config["tolerance"]) + 1e-9
+        return abs(value - correct) <= tolerance + 1e-9
     raise GameError("Neznan tip vprašanja.")
 
 
@@ -387,7 +403,11 @@ def _room_mode(member_id):
     member = RoomMember.objects.select_related("room").filter(pk=member_id).first()
     if member is None:
         return None
-    session = GameSession.objects.filter(room_id=member.room_id).first()
+    session = (
+        GameSession.objects.filter(room_id=member.room_id, status__in=["preparing", "active"])
+        .order_by("-created_at")
+        .first()
+    )
     if session is not None:
         return session.mode
     return (member.room.settings or {}).get("mode")
@@ -440,7 +460,15 @@ def start_game(member_id):
             raise GameError("Samo gostitelj lahko začne igro.")
         created = False
         if session is None:
+            # Rematch ohrani končane seje; solo po finish → snapshot, ne nova igra.
             if room.status != "waiting":
+                finished = (
+                    GameSession.objects.filter(room=room, status="finished")
+                    .order_by("-created_at")
+                    .first()
+                )
+                if finished is not None:
+                    return [_finished_snapshot(member, finished)]
                 raise GameError("Igre ni mogoče začeti.")
             settings = room.settings or {}
             mode = settings.get("mode") or MODE_HITRARUNDA
@@ -1017,7 +1045,13 @@ def _lock(member_id):
     except RoomMember.DoesNotExist:
         raise GameError("Soba ne obstaja.")
     room = Room.objects.select_for_update().get(pk=member.room_id)
-    session = GameSession.objects.select_for_update().filter(room=room).first()
+    # Samo živa seja — končane ostanejo za rematch/replay; sicer start ustvari novo.
+    session = (
+        GameSession.objects.select_for_update()
+        .filter(room=room, status__in=["preparing", "active"])
+        .order_by("-created_at")
+        .first()
+    )
     return member, room, session
 
 
@@ -1081,18 +1115,28 @@ def _state(session):
 
 
 def _reveal(game_question):
-    question = game_question.question
-    presentation = game_question.presentation or {}
-    if question.question_type in {
+    from game.presentation import ensure_presentation
+
+    presentation = ensure_presentation(game_question)
+    question_type = presentation.get("question_type") or game_question.question.question_type
+    snap_options = presentation.get("options") or []
+    if question_type in {
         Question.Type.MULTIPLE_CHOICE,
         Question.Type.TRUE_FALSE,
         Question.Type.MULTI_SELECT,
     }:
-        return {"correct_option_ids": [option.id for option in question.options.all() if option.is_correct]}
-    if question.question_type == Question.Type.ORDERING:
-        ordered = sorted(question.options.all(), key=lambda option: (option.order, option.id))
+        if snap_options:
+            return {
+                "correct_option_ids": [option["id"] for option in snap_options if option.get("is_correct")]
+            }
+        return {"correct_option_ids": [option.id for option in game_question.question.options.all() if option.is_correct]}
+    if question_type == Question.Type.ORDERING:
+        if snap_options:
+            ordered = sorted(snap_options, key=lambda option: (option.get("order", 0), option["id"]))
+            return {"correct_option_ids": [option["id"] for option in ordered]}
+        ordered = sorted(game_question.question.options.all(), key=lambda option: (option.order, option.id))
         return {"correct_option_ids": [option.id for option in ordered]}
-    if question.question_type == Question.Type.MATCHING:
+    if question_type == Question.Type.MATCHING:
         return {
             "correct_pairs": [
                 {
@@ -1104,9 +1148,13 @@ def _reveal(game_question):
                 for link in presentation.get("links", [])
             ]
         }
-    if question.question_type == Question.Type.SLIDER:
-        config = question.config or {}
-        return {"correct_value": config.get("correct"), "tolerance": config.get("tolerance")}
+    if question_type == Question.Type.SLIDER:
+        slider = presentation.get("slider") or {}
+        config = presentation.get("config") or game_question.question.config or {}
+        return {
+            "correct_value": slider.get("correct", config.get("correct")),
+            "tolerance": slider.get("tolerance", config.get("tolerance")),
+        }
     return {}
 
 
@@ -1157,6 +1205,21 @@ def _take_nearest(buckets, target, used):
         for question in buckets[level]:
             if question.id not in used:
                 return question
+    return None
+
+
+def _take_nearest_id(buckets, target, used):
+    """Isto kot _take_nearest, a bucketi vsebujejo samo ID-je."""
+    order = [target]
+    for delta in range(1, 5):
+        order.append(target - delta)
+        order.append(target + delta)
+    for level in order:
+        if level < 1 or level > 5:
+            continue
+        for question_id in buckets[level]:
+            if question_id not in used:
+                return question_id
     return None
 
 

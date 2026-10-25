@@ -257,15 +257,108 @@ export function ModePageNav({ boardTo, mode }: { boardTo?: string; mode?: string
   );
 }
 
+type GameConfigSlice = {
+  hitrarunda?: { base_points?: number; max_speed_bonus?: number };
+  ala_milijonar?: { time_limit_seconds?: number; friends_pick?: number; safe_orders?: number[] };
+  multiplayer?: { correct_points?: number; round_bonus?: number };
+  dirka?: { base_points?: number; penalty?: number; targets?: number[] };
+  sixty?: {
+    start_seconds?: number;
+    clock_cap?: number;
+    correct_bonus?: number;
+    wrong_penalty?: number;
+    skip_penalty?: number;
+  };
+};
+
+function rulesFromConfig(modeId: GameModeId, cfg: GameConfigSlice | null): string[] {
+  const base = MODE_BY_ID[modeId]?.rules ? [...MODE_BY_ID[modeId].rules] : [];
+  if (!cfg) return base;
+  if (modeId === "hitrarunda" && cfg.hitrarunda) {
+    const pts = cfg.hitrarunda.base_points ?? 100;
+    const speed = cfg.hitrarunda.max_speed_bonus ?? 100;
+    return base.map((line) =>
+      line.includes("100 točk")
+        ? line.replace("100 točk", `${pts} točk`).replace(/do nastavljivega maksimuma/, `do ${speed}`)
+        : line,
+    );
+  }
+  if (modeId === "ala_milijonar" && cfg.ala_milijonar) {
+    const secs = cfg.ala_milijonar.time_limit_seconds ?? 90;
+    const friends = cfg.ala_milijonar.friends_pick ?? 3;
+    const safes = (cfg.ala_milijonar.safe_orders || [4, 9, 14]).map((n) => n + 1).join(". in ");
+    return base.map((line) => {
+      if (line.includes("Privzeto 90 s")) return line.replace("90 s", `${secs} s`);
+      if (line.includes("3 prijateljev") || line.includes("svojih 3")) {
+        return line.replace(/3 prijatelj/g, `${friends} prijatelj`).replace(/svojih 3/, `svojih ${friends}`);
+      }
+      if (line.includes("Varne stopnje")) {
+        return `Varne stopnje (privzeto ${safes}.): če padeš kasneje, ohraniš vsaj to nagrado.`;
+      }
+      if (line.startsWith("Pred začetkom so 3")) {
+        return line.replace("so 3 prijatelji", `so ${friends} prijatelji`);
+      }
+      return line;
+    });
+  }
+  if (modeId === "multiplayer" && cfg.multiplayer) {
+    const pts = cfg.multiplayer.correct_points ?? 100;
+    return base.map((line) =>
+      line.startsWith("Točke:")
+        ? `Točke: pravilni odgovor ${pts} + hitrost + streak bonusi; možen je catch-up bonus za zaostale.`
+        : line,
+    );
+  }
+  if (modeId === "dirka" && cfg.dirka) {
+    const targets = (cfg.dirka.targets || [100, 200, 500, 1000]).join(" / ");
+    const basePts = cfg.dirka.base_points ?? 5;
+    const penalty = cfg.dirka.penalty ?? 4;
+    return base.map((line) => {
+      if (line.includes("ciljnih točk")) {
+        return `Več igralcev dirka do ciljnih točk (npr. ${targets}). Ista vprašanja za vse.`;
+      }
+      if (line.startsWith("Pravilni odgovor daje")) {
+        return `Pravilni odgovor daje ${basePts} osnovnih točk; napačen lahko odšteje ${penalty}. Streak in hot streak prineseta dodatne bonuse.`;
+      }
+      return line;
+    });
+  }
+  if (modeId === "60_sekund" && cfg.sixty) {
+    const start = cfg.sixty.start_seconds ?? 60;
+    const cap = cfg.sixty.clock_cap ?? 180;
+    const correct = cfg.sixty.correct_bonus ?? 2;
+    const wrong = cfg.sixty.wrong_penalty ?? 5;
+    const skip = cfg.sixty.skip_penalty ?? 2;
+    return base.map((line) => {
+      if (line.includes("skupnim časovnim")) {
+        return `Solo način z enim skupnim časovnim bazenom (privzeto ${start} s na startu, ura se lahko podaljša do ${cap} s).`;
+      }
+      if (line.startsWith("Pravilni odgovor:")) {
+        return `Pravilni odgovor: +${correct} s in +1 na rezultat. Napačen: −${wrong} s. Preskok: −${skip} s.`;
+      }
+      return line;
+    });
+  }
+  return base;
+}
+
 /** Podrobna pravila — takoj pod Druge igre / Lestvica. */
 export function ModeRules({ mode }: { mode: string | null | undefined }) {
   const meta = modeMeta(mode);
+  const [cfg, setCfg] = useState<GameConfigSlice | null>(null);
+  useEffect(() => {
+    api<GameConfigSlice>("/api/game-config/")
+      .then(setCfg)
+      .catch(() => setCfg(null));
+  }, []);
   if (!meta?.rules?.length) return null;
+  const modeId = normalizeMode(mode || "") || meta.id;
+  const rules = rulesFromConfig(modeId, cfg);
   return (
     <div className="mode-rules">
       <p className="mode-rules-lead">{meta.blurb}</p>
       <ul>
-        {meta.rules.map((line) => (
+        {rules.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </ul>

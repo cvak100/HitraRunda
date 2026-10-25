@@ -67,7 +67,19 @@ git pull
 
 ## Backup Postgres
 
+Ročno:
+
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env exec -T db \
   pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup-$(date +%F).sql
+```
+
+Avtomatsko (dev/prod): servis `db-backup` v `docker-compose.yml` /
+`docker-compose.prod.yml` dnevno zapiše dump v volumen `pgbackups`
+(ohrani zadnjih 7 datotek). Obnovitev:
+
+```bash
+gunzip -c pgbackups/hitrarunda-YYYY-MM-DD.sql.gz | \
+  docker compose -f docker-compose.prod.yml --env-file .env exec -T db \
+  psql -U "$POSTGRES_USER" "$POSTGRES_DB"
 ```

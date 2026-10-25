@@ -54,6 +54,7 @@ class GameConsumer(AsyncWebsocketConsumer):
         self.bot_tasks = []
         self.advance_task = None
         self.connection_epoch = None
+        self._rate_times = []
         await self.channel_layer.group_add(self.group, self.channel_name)
         await self.accept()
         self.connection_epoch = await database_sync_to_async(set_member_connected)(
@@ -85,8 +86,23 @@ class GameConsumer(AsyncWebsocketConsumer):
                     await self._broadcast_lobby()
 
     async def receive(self, text_data=None, bytes_data=None):
+        raw = text_data or ""
+        if len(raw) > 8192:
+            await self.send_json({"type": "error", "message": "Sporočilo je preveliko."})
+            return
+        import time
+
+        now = time.monotonic()
+        window = getattr(self, "_rate_times", None) or []
+        window = [t for t in window if now - t < 1.0]
+        if len(window) >= 10:
+            await self.send_json({"type": "error", "message": "Preveč sporočil — počakaj trenutek."})
+            self._rate_times = window
+            return
+        window.append(now)
+        self._rate_times = window
         try:
-            message = json.loads(text_data or "{}")
+            message = json.loads(raw or "{}")
         except json.JSONDecodeError:
             await self.send_json({"type": "error", "message": "Neveljavno sporočilo."})
             return
@@ -284,8 +300,12 @@ class GameConsumer(AsyncWebsocketConsumer):
             if not payloads:
                 return
             await self._broadcast_all(payloads)
-            if payloads[0].get("phase") == "question":
-                await self._arm_bots(payloads[0])
+            first = payloads[0]
+            if first.get("type") == "error":
+                await self._broadcast_lobby()
+                return
+            if first.get("phase") == "question":
+                await self._arm_bots(first)
         except asyncio.CancelledError:
             return
         except GameError:

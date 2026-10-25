@@ -25,6 +25,14 @@ class AuthBurstThrottle(ScopedRateThrottle):
 class GuestBurstThrottle(ScopedRateThrottle):
     scope = "guest"
 
+
+class RegisterThrottle(ScopedRateThrottle):
+    scope = "register"
+
+
+class PasswordResetThrottle(ScopedRateThrottle):
+    scope = "password_reset"
+
 from accounts.models import User, create_guest
 from accounts.nicknames import (
     AVATAR_KEYS,
@@ -134,7 +142,7 @@ class AvatarListView(APIView):
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
-    throttle_classes = [AnonRateThrottle, AuthBurstThrottle]
+    throttle_classes = [AnonRateThrottle, AuthBurstThrottle, RegisterThrottle]
 
     def post(self, request):
         email = str(request.data.get("email") or "").strip().lower()
@@ -247,6 +255,7 @@ class PasswordChangeView(APIView):
 
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = [AnonRateThrottle, PasswordResetThrottle]
 
     def post(self, request):
         email = str(request.data.get("email") or "").strip().lower()

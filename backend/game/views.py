@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg, F, Max, Q, Sum, Window
+from django.db.models import Avg, F, Max, Prefetch, Q, Sum, Window
 from django.db.models.functions import Rank
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -333,14 +333,23 @@ class AdminSessionListView(APIView):
     permission_classes = [StaffOnly]
 
     def get(self, request):
-        sessions = GameSession.objects.select_related("room").order_by("-created_at")
+        top_results = Prefetch(
+            "results",
+            queryset=GameResult.objects.order_by("-score", "duration_ms", "played_at"),
+            to_attr="prefetched_results",
+        )
+        sessions = (
+            GameSession.objects.select_related("room")
+            .prefetch_related(top_results)
+            .order_by("-created_at")
+        )
         query = str(request.query_params.get("q") or "").strip()
         if query:
             sessions = sessions.filter(Q(room__code__icontains=query) | Q(results__nickname__icontains=query)).distinct()
         total = sessions.count()
         rows = []
         for session in sessions[:100]:
-            result = _result(session)
+            result = (session.prefetched_results or [None])[0]
             rows.append(
                 {
                     "id": session.id,
@@ -365,7 +374,3 @@ class AdminSessionDetailView(APIView):
         if session.status != "finished":
             return Response({"detail": "Igra še ni zaključena."}, status=404)
         return Response(session_detail(session))
-
-
-def _result(session):
-    return session.results.order_by("-score", "duration_ms", "played_at").first()

@@ -27,20 +27,9 @@ from game.engine import (
 from game.modes import (
     DIRKA_ACTIVE_BONUSES,
     DIRKA_BOT_KEY,
-    DIRKA_CLEAN_SHEET,
-    DIRKA_EXTRA_TIME,
-    DIRKA_MAX_SPEED_BONUS,
-    DIRKA_QUESTION_POOL,
-    DIRKA_ROUND_ADVANCE_SECONDS,
-    DIRKA_RUSH_CAP,
-    DIRKA_SAFE_REWARD,
-    DIRKA_BREAKTHROUGH_RATIO,
-    DIRKA_CONVERT_STACK,
-    DIRKA_SHIELD_ROUNDS,
     DIRKA_STRONG_BONUSES,
     DIRKA_WEAK_BONUSES,
     MODE_DIRKA,
-    MP_MIN_PLAYERS,
 )
 from accounts.nicknames import avatar_for_member, resolve_avatar_key
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
@@ -98,7 +87,7 @@ def _grant_bonus(stats, effect, amount=1):
     """
     Doda charge. Isti tip se stacka.
     Največ int(site_get("dirka_max_bonus_types")) različnih tipov; če bi bil nov 6., ne doda.
-    Ob DIRKA_CONVERT_STACK enakih: zbriše stack in da 1 naključni močan.
+    Ob int(site_get("dirka_convert_stack")) enakih: zbriše stack in da 1 naključni močan.
     """
     if effect not in DIRKA_ACTIVE_BONUSES or amount <= 0:
         return None
@@ -109,7 +98,7 @@ def _grant_bonus(stats, effect, amount=1):
     new_count = int(bonuses.get(effect) or 0) + int(amount)
     bonuses[effect] = new_count
     stats["bonuses"] = bonuses
-    if new_count < DIRKA_CONVERT_STACK:
+    if new_count < int(site_get("dirka_convert_stack")):
         return effect
     # 3 + 1 (ali več) → pretvori v močan.
     cleared = new_count
@@ -160,15 +149,16 @@ def start_dirka(member_id):
         if room.status != "waiting":
             raise GameError("Igre ni mogoče začeti.")
         members = list(room.members.filter(left_at__isnull=True).select_related("user"))
-        if len(members) < MP_MIN_PLAYERS:
-            raise GameError(f"Potrebujeta vsaj {MP_MIN_PLAYERS} igralca.")
+        min_players = int(site_get("mp_min_players"))
+        if len(members) < min_players:
+            raise GameError(f"Potrebujeta vsaj {min_players} igralca.")
         if not all(item.is_ready or item.is_bot for item in members):
             raise GameError("Vsi igralci morajo biti pripravljeni.")
         settings = room.settings or {}
         target = int(settings.get("target_score") or 200)
         safe_every = int(settings.get("safe_every") or 5)
         time_limit = int(settings.get("time_limit_seconds") or site_get("dirka_time_seconds"))
-        pool_size = min(DIRKA_QUESTION_POOL, _available_count(settings))
+        pool_size = min(int(site_get("dirka_question_pool")), _available_count(settings))
         if pool_size < 5:
             raise GameError("Premalo vprašanj v izbranih kategorijah.")
         questions = select_questions(
@@ -252,7 +242,7 @@ def _reset_round_state(session, game_question, now=None, *, tick_shield=False):
         stats = dict(stats)
         stats["active_helps"] = {}
         stats["second_chance"] = False
-        # Ščit traja DIRKA_SHIELD_ROUNDS rund — tick ob prehodu na naslednje vprašanje.
+        # Ščit traja int(site_get("dirka_shield_rounds")) rund — tick ob prehodu na naslednje vprašanje.
         if tick_shield:
             left = int(stats.get("shield_left") or 0)
             if left > 0:
@@ -430,7 +420,7 @@ def claim_auto_advance_dirka(member_id):
                 "finish": finish,
                 "marker": marker,
             }
-        delay = float(DIRKA_ROUND_ADVANCE_SECONDS)
+        delay = float(int(site_get("dirka_round_advance_seconds")))
         state["auto_advance_for"] = marker
         state["auto_advance_at"] = (now + timedelta(seconds=delay)).isoformat()
         session.state = state
@@ -545,10 +535,10 @@ def use_dirka_bonus(member_id, message):
                 if game_question.started_at
                 else timezone.now()
             )
-            deadlines[key] = (current + timedelta(seconds=DIRKA_EXTRA_TIME)).isoformat()
+            deadlines[key] = (current + timedelta(seconds=int(site_get("dirka_extra_time")))).isoformat()
             state["deadlines"] = deadlines
             result["deadline_at"] = deadlines[key]
-            result["extra_seconds"] = DIRKA_EXTRA_TIME
+            result["extra_seconds"] = int(site_get("dirka_extra_time"))
         elif effect == "second_chance":
             stats["second_chance"] = True
             result["armed"] = True
@@ -566,10 +556,10 @@ def use_dirka_bonus(member_id, message):
                 return broadcast_round_review(session, game_question)
             return [waiting_answers_message(session, game_question, member)]
         elif effect == "shield":
-            stats["shield_left"] = DIRKA_SHIELD_ROUNDS
+            stats["shield_left"] = int(site_get("dirka_shield_rounds"))
             stats["shield"] = True
             result["armed"] = True
-            result["shield_left"] = DIRKA_SHIELD_ROUNDS
+            result["shield_left"] = int(site_get("dirka_shield_rounds"))
         elif effect == "steal":
             armed["steal"] = True
             stats["armed"] = armed
@@ -584,7 +574,7 @@ def use_dirka_bonus(member_id, message):
             for target in opponents:
                 current = _parse_dt(deadlines.get(target)) or now + timedelta(seconds=default_limit)
                 remaining = max(0.0, (current - now).total_seconds())
-                rushed = now + timedelta(seconds=min(DIRKA_RUSH_CAP, remaining * 0.5))
+                rushed = now + timedelta(seconds=min(int(site_get("dirka_rush_cap")), remaining * 0.5))
                 deadlines[target] = rushed.isoformat()
             state["deadlines"] = deadlines
             result["target_ids"] = opponents
@@ -717,7 +707,7 @@ def round_review_message(session, game_question, member, message_type="round_rev
         "is_last": False,
         "is_host": member.is_host,
         "host_member_id": _host_id(session),
-        "advance_seconds": DIRKA_ROUND_ADVANCE_SECONDS,
+        "advance_seconds": int(site_get("dirka_round_advance_seconds")),
         "server_now": timezone.now().isoformat(),
     }
     body.update(_reveal(game_question))
@@ -1159,7 +1149,7 @@ def _store_answer(member, session, game_question, message):
     if is_correct:
         base = int(site_get("dirka_base_points"))
         limit_ms = _time_limit(session) * 1000
-        speed = round(((limit_ms - min(elapsed, limit_ms)) / limit_ms) * DIRKA_MAX_SPEED_BONUS)
+        speed = round(((limit_ms - min(elapsed, limit_ms)) / limit_ms) * int(site_get("dirka_max_speed_bonus")))
         want_double = bool(armed.pop("double", None))
         # Comeback: +30 % na (base+speed), enkrat ko si dovolj zaostal / comeback_armed.
         leaders = standings(session)
@@ -1203,7 +1193,7 @@ def _store_answer(member, session, game_question, message):
         # Safe zone (ni pod double)
         if stats["correct_in_segment"] >= safe_every:
             clean = int(stats.get("segment_misses") or 0) == 0
-            reward = DIRKA_SAFE_REWARD + (DIRKA_CLEAN_SHEET if clean else 0)
+            reward = int(site_get("dirka_safe_reward")) + (int(site_get("dirka_clean_sheet")) if clean else 0)
             stats = _clamp_score(stats, reward)
             stats["safe_locked"] = int(stats.get("score") or 0)
             stats["correct_in_segment"] = 0
@@ -1243,7 +1233,7 @@ def _store_answer(member, session, game_question, message):
                         answer_data["steal_from"] = target_id
                         _annotate_stolen_from(game_question, target_id, key, actual)
         # Preboj: prvič ≥ 50 % cilja → močan (1×).
-        threshold = int(target_score * DIRKA_BREAKTHROUGH_RATIO)
+        threshold = int(target_score * float(site_get("dirka_breakthrough_ratio")))
         if (
             not stats.get("breakthrough_claimed")
             and int(stats.get("score") or 0) >= threshold

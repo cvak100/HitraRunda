@@ -1,6 +1,11 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
+
+
+class RoomJoinThrottle(ScopedRateThrottle):
+    scope = "room_join"
 
 from accounts.nicknames import NicknameError
 from game.engine import GameError
@@ -55,6 +60,7 @@ class RoomQuickJoinView(APIView):
 
 class RoomJoinView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [RoomJoinThrottle]
 
     def post(self, request, code):
         try:

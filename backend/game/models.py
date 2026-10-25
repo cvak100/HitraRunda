@@ -5,7 +5,8 @@ from game.modes import MODE_CHOICES
 
 
 class GameSession(models.Model):
-    room = models.OneToOneField("rooms.Room", on_delete=models.CASCADE, related_name="game_session")
+    # FK (ne OneToOne): rematch ohrani stare seje + GameResult / replay.
+    room = models.ForeignKey("rooms.Room", on_delete=models.CASCADE, related_name="game_sessions")
     mode = models.CharField(
         max_length=20,
         choices=MODE_CHOICES,
@@ -31,6 +32,9 @@ class GameSession(models.Model):
     class Meta:
         verbose_name = "igra"
         verbose_name_plural = "igre"
+        indexes = [
+            models.Index(fields=["room", "status", "-created_at"]),
+        ]
 
     def __str__(self):
         return f"{self.room.code} ({self.mode})"
@@ -106,7 +110,12 @@ class GameResult(models.Model):
         verbose_name = "rezultat"
         verbose_name_plural = "rezultati"
         ordering = ["-score", "duration_ms", "played_at"]
-        indexes = [models.Index(fields=["score", "played_at"])]
+        indexes = [
+            models.Index(fields=["score", "played_at"]),
+            models.Index(fields=["mode", "counts_for_leaderboard", "-score", "-correct_count", "duration_ms"]),
+            models.Index(fields=["game_session"]),
+            models.Index(fields=["user", "mode"]),
+        ]
 
     def __str__(self):
         return f"{self.nickname}: {self.score}"

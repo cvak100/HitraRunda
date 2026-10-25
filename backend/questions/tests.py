@@ -1,7 +1,7 @@
 import json
 
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.utils import timezone
 from rest_framework.test import APIClient
 
@@ -15,11 +15,13 @@ EXPECTED_SEED_COUNT = 14536
 
 
 class ImportTests(TestCase):
+    @tag("slow")
     def test_seed_is_idempotent(self):
         call_command("seed_questions")
         call_command("seed_questions")
         self.assertEqual(Question.objects.count(), EXPECTED_SEED_COUNT)
 
+    @tag("slow")
     def test_update_keeps_option_ids_and_count(self):
         call_command("seed_questions")
         question = Question.objects.get(external_key="sport-d1-1")
@@ -120,6 +122,7 @@ class ImportTests(TestCase):
         self.assertEqual(question.category.slug, "zivali")
         self.assertEqual(question.category.name, "Živali")
 
+    @tag("slow")
     def test_seed_preserves_admin_deactivation(self):
         call_command("seed_questions")
         question = Question.objects.get(external_key="sport-d1-1")
@@ -129,6 +132,7 @@ class ImportTests(TestCase):
         question.refresh_from_db()
         self.assertFalse(question.is_active)
 
+    @tag("slow")
     def test_seed_only_new_skips_existing(self):
         call_command("seed_questions", only_new=True)
         self.assertEqual(Question.objects.count(), EXPECTED_SEED_COUNT)

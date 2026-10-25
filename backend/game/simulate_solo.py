@@ -96,7 +96,11 @@ def simulate_solo(
     if phase not in {"question", "review", "finished"}:
         raise GameError("Igre ni bilo mogoče začeti. Premalo vprašanj v izbranih kategorijah?")
 
-    session = GameSession.objects.filter(room=room).first()
+    session = (
+        GameSession.objects.filter(room=room, status__in=["preparing", "active"])
+        .order_by("-created_at")
+        .first()
+    )
     if session is None:
         raise GameError("Seja ni nastala.")
     log.append(f"Seja #{session.id} aktivna")

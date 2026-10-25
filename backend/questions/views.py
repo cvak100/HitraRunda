@@ -14,7 +14,16 @@ class CategoryListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        from collections import Counter
+
+        from django.core.cache import cache
+
         from questions.importer import ensure_categories
+
+        cache_key = "category_list_payload_v1"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            return Response(cached)
 
         ensure_categories()
         categories = (
@@ -33,29 +42,26 @@ class CategoryListView(APIView):
             .order_by("order", "name")
         )
         # Ala milijonar: samo multiple_choice s točno 4 možnostmi.
-        # (values+annotate po Count("options") da napačne/prazne vsote — štejemo v Pythonu.)
-        from collections import Counter
-
         ala_counts = Counter(
             Question.objects.filter(is_active=True, question_type="multiple_choice")
             .annotate(option_count=Count("options"))
             .filter(option_count=4)
             .values_list("category__slug", flat=True)
         )
-        return Response(
-            {
-                "categories": [
-                    {
-                        "slug": category.slug,
-                        "name": category.name,
-                        "description": category.description,
-                        "question_count": category.question_count,
-                        "classic_question_count": ala_counts.get(category.slug, 0),
-                    }
-                    for category in categories
-                ]
-            }
-        )
+        payload = {
+            "categories": [
+                {
+                    "slug": category.slug,
+                    "name": category.name,
+                    "description": category.description,
+                    "question_count": category.question_count,
+                    "classic_question_count": ala_counts.get(category.slug, 0),
+                }
+                for category in categories
+            ]
+        }
+        cache.set(cache_key, payload, timeout=60)
+        return Response(payload)
 
 
 class StaffOnly(IsAdminUser):

@@ -244,6 +244,81 @@ button.icon-button svg, nav a.icon-button svg { width: 22px; height: 22px; displ
 }
 .menu-panel a { display: block; text-align: left; }
 
+.notify-bell .icon-button { position: relative; }
+.notify-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1a1510;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+.notify-panel {
+  min-width: min(320px, 92vw);
+  max-width: 360px;
+  gap: 8px;
+}
+.notify-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 4px 4px;
+}
+.notify-panel-head button {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
+.notify-empty,
+.notify-error {
+  margin: 0;
+  padding: 4px 6px;
+}
+.notify-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: min(50vh, 360px);
+  overflow: auto;
+}
+.notify-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.notify-item-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.notify-item-text strong {
+  font-size: 0.92rem;
+}
+.notify-item .primary {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 12px 0; }
 .toolbar-end { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 .board-toolbar {
@@ -2742,8 +2817,13 @@ button.friend-pick-card {
     gap: 10px;
   }
   .top-nav .nav-btn.icon-button::after {
-    content: "Račun";
     font-weight: 600;
+  }
+  .top-nav .menu-drop:not(.notify-bell) > .nav-btn.icon-button::after {
+    content: "Račun";
+  }
+  .top-nav .notify-bell > .nav-btn.icon-button::after {
+    content: "Obvestila";
   }
   .menu-drop { width: 100%; }
   .menu-panel {

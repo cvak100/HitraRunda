@@ -1,30 +1,11 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "./auth";
 import { Layout, RequireStaff, RequireUser } from "./components/Layout";
-import { AdminSessionDetailPage, ResultPage } from "./components/SessionDetail";
+import { InvitesProvider } from "./invites";
+import { ResultPage } from "./components/SessionDetail";
 import { AccountLayout } from "./pages/AccountLayout";
-import { AdminActionsPage } from "./pages/AdminActionsPage";
-import { AdminBonusesPage } from "./pages/AdminBonusesPage";
-import { AdminBotsPage } from "./pages/AdminBotsPage";
-import { AdminCategoriesPage } from "./pages/AdminCategoriesPage";
-import { AdminCatalogLayout } from "./pages/AdminCatalogLayout";
-import { AdminContentLayout } from "./pages/AdminContentLayout";
-import { AdminContentPage } from "./pages/AdminContentPage";
-import { AdminFriendsPage } from "./pages/AdminFriendsPage";
-import { AdminHealthPage } from "./pages/AdminHealthPage";
-import { AdminHomePage } from "./pages/AdminHomePage";
-import { AdminLayout } from "./pages/AdminLayout";
-import { AdminQuestionsPage } from "./pages/AdminQuestionsPage";
-import { AdminReportsPage } from "./pages/AdminReportsPage";
-import { AdminRoomsPage } from "./pages/AdminRoomsPage";
-import { AdminSessionsPage } from "./pages/AdminSessionsPage";
-import { AdminSettingsPage } from "./pages/AdminSettingsPage";
-import { AdminTestsPage } from "./pages/AdminTestsPage";
-import { AdminPaletteLayout } from "./pages/AdminPaletteLayout";
-import { AdminSfxPalettePage } from "./pages/AdminSfxPalettePage";
-import { AdminUiPalettePage } from "./pages/AdminUiPalettePage";
-import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { GamePage } from "./pages/GamePage";
 import { LogoutPage } from "./pages/LogoutPage";
 import { HomePage } from "./pages/HomePage";
@@ -41,10 +22,82 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SetupPage } from "./pages/SetupPage";
 
+const AdminActionsPage = lazy(() =>
+  import("./pages/AdminActionsPage").then((m) => ({ default: m.AdminActionsPage })),
+);
+const AdminBonusesPage = lazy(() =>
+  import("./pages/AdminBonusesPage").then((m) => ({ default: m.AdminBonusesPage })),
+);
+const AdminBotsPage = lazy(() =>
+  import("./pages/AdminBotsPage").then((m) => ({ default: m.AdminBotsPage })),
+);
+const AdminCategoriesPage = lazy(() =>
+  import("./pages/AdminCategoriesPage").then((m) => ({ default: m.AdminCategoriesPage })),
+);
+const AdminCatalogLayout = lazy(() =>
+  import("./pages/AdminCatalogLayout").then((m) => ({ default: m.AdminCatalogLayout })),
+);
+const AdminContentLayout = lazy(() =>
+  import("./pages/AdminContentLayout").then((m) => ({ default: m.AdminContentLayout })),
+);
+const AdminContentPage = lazy(() =>
+  import("./pages/AdminContentPage").then((m) => ({ default: m.AdminContentPage })),
+);
+const AdminFriendsPage = lazy(() =>
+  import("./pages/AdminFriendsPage").then((m) => ({ default: m.AdminFriendsPage })),
+);
+const AdminHealthPage = lazy(() =>
+  import("./pages/AdminHealthPage").then((m) => ({ default: m.AdminHealthPage })),
+);
+const AdminHomePage = lazy(() =>
+  import("./pages/AdminHomePage").then((m) => ({ default: m.AdminHomePage })),
+);
+const AdminLayout = lazy(() =>
+  import("./pages/AdminLayout").then((m) => ({ default: m.AdminLayout })),
+);
+const AdminQuestionsPage = lazy(() =>
+  import("./pages/AdminQuestionsPage").then((m) => ({ default: m.AdminQuestionsPage })),
+);
+const AdminReportsPage = lazy(() =>
+  import("./pages/AdminReportsPage").then((m) => ({ default: m.AdminReportsPage })),
+);
+const AdminRoomsPage = lazy(() =>
+  import("./pages/AdminRoomsPage").then((m) => ({ default: m.AdminRoomsPage })),
+);
+const AdminSessionsPage = lazy(() =>
+  import("./pages/AdminSessionsPage").then((m) => ({ default: m.AdminSessionsPage })),
+);
+const AdminSettingsPage = lazy(() =>
+  import("./pages/AdminSettingsPage").then((m) => ({ default: m.AdminSettingsPage })),
+);
+const AdminTestsPage = lazy(() =>
+  import("./pages/AdminTestsPage").then((m) => ({ default: m.AdminTestsPage })),
+);
+const AdminPaletteLayout = lazy(() =>
+  import("./pages/AdminPaletteLayout").then((m) => ({ default: m.AdminPaletteLayout })),
+);
+const AdminSfxPalettePage = lazy(() =>
+  import("./pages/AdminSfxPalettePage").then((m) => ({ default: m.AdminSfxPalettePage })),
+);
+const AdminUiPalettePage = lazy(() =>
+  import("./pages/AdminUiPalettePage").then((m) => ({ default: m.AdminUiPalettePage })),
+);
+const AdminUsersPage = lazy(() =>
+  import("./pages/AdminUsersPage").then((m) => ({ default: m.AdminUsersPage })),
+);
+const AdminSessionDetailPage = lazy(() =>
+  import("./components/SessionDetail").then((m) => ({ default: m.AdminSessionDetailPage })),
+);
+
+function AdminFallback() {
+  return <p className="status">Nalagam…</p>;
+}
+
 export function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <InvitesProvider>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<HomePage />} />
@@ -78,7 +131,14 @@ export function App() {
               </Route>
             </Route>
             <Route element={<RequireStaff />}>
-              <Route path="nadzor" element={<AdminLayout />}>
+              <Route
+                path="nadzor"
+                element={
+                  <Suspense fallback={<AdminFallback />}>
+                    <AdminLayout />
+                  </Suspense>
+                }
+              >
                 <Route index element={<AdminHomePage />} />
                 <Route path="health" element={<AdminHealthPage />} />
                 <Route path="vsebina" element={<AdminContentLayout />}>
@@ -123,6 +183,7 @@ export function App() {
             </Route>
           </Route>
         </Routes>
+        </InvitesProvider>
       </BrowserRouter>
     </AuthProvider>
   );

@@ -178,10 +178,20 @@ REST_FRAMEWORK = {
         "user": "300/min",
         "auth": "20/min",
         "guest": "10/min",
+        "register": "5/hour",
+        "password_reset": "5/hour",
+        "room_join": "30/min",
     },
     # 1 = nginx pred Daphne; 2 če je še Caddy pred nginx.
     "NUM_PROXIES": int(env("DJANGO_NUM_PROXIES", "1") or "1"),
 }
+
+# Testi ustvarijo veliko gostov/sob — throttling bi lažno rušil suite.
+if TESTING:
+    REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+        key: "10000/min" for key in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]
+    }
 
 REDIS_URL = env("REDIS_URL", "redis://localhost:6379/0")
 # redis-py 8 sets socket_timeout to 5s. The channel layer blocks on Redis for

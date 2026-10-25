@@ -476,9 +476,18 @@ class MultiplayerLobbyTests(TestCase):
         room = Room.objects.get(code=code)
         self.assertEqual(room.status, "finished")
 
+        result_ids = list(
+            GameResult.objects.filter(game_session=session).values_list("id", flat=True)
+        )
+        self.assertTrue(result_ids)
+
         rematched = rematch_room(host_user, code)
         self.assertEqual(rematched.status, "waiting")
-        self.assertFalse(GameSession.objects.filter(room=room).exists())
+        # Stara seja ostane — zmage/replay ne smejo izginiti.
+        self.assertTrue(GameSession.objects.filter(pk=session.pk).exists())
+        self.assertEqual(session.results.filter(game_session_id=session.pk).count(), len(result_ids))
+        for result in GameResult.objects.filter(pk__in=result_ids):
+            self.assertEqual(result.game_session_id, session.pk)
         host_member.refresh_from_db()
         self.assertTrue(host_member.is_host)
         self.assertTrue(host_member.is_ready)

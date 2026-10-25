@@ -7,7 +7,8 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from game.engine import GameError, _lock
-from game.modes import LOBBY_MODES, MODE_DIRKA, MP_MIN_PLAYERS
+from game.modes import LOBBY_MODES, MODE_DIRKA
+from game.site_settings import get as site_get
 
 COUNTDOWN_STEPS = 3
 COUNTDOWN_HOLD_MS = 550
@@ -63,15 +64,16 @@ def begin_lobby_countdown(member_id):
         if mode not in LOBBY_MODES:
             raise GameError("Ta način nima lobija.")
         members = list(room.members.filter(left_at__isnull=True))
-        if len(members) < MP_MIN_PLAYERS:
-            raise GameError(f"Potrebujeta vsaj {MP_MIN_PLAYERS} igralca.")
+        if len(members) < int(site_get("mp_min_players")):
+            min_players = int(site_get("mp_min_players"))
+            raise GameError(f"Potrebujeta vsaj {min_players} igralca.")
         if not all(item.is_ready or item.is_bot for item in members):
             raise GameError("Vsi igralci morajo biti pripravljeni.")
         if mode == MODE_DIRKA:
             settings = room.settings or {}
-            from game.dirka import DIRKA_QUESTION_POOL, _available_count
+            from game.dirka import _available_count
 
-            pool_size = min(DIRKA_QUESTION_POOL, _available_count(settings))
+            pool_size = min(int(site_get("dirka_question_pool")), _available_count(settings))
             if pool_size < 5:
                 raise GameError("Premalo vprašanj v izbranih kategorijah.")
 
@@ -93,7 +95,9 @@ def claim_commit_lobby_start(member_id):
     """
     Po izteku countdowna: prvi klic zbriše flag in zažene igro.
     Ostali dobijo [] (že v teku / še prezgodaj).
+    Če start pade, sporoči napako in pusti sobo v waiting (H6).
     """
+    saved_ends = None
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is not None:
@@ -111,20 +115,40 @@ def claim_commit_lobby_start(member_id):
         # Majhen zamik dovoljen zaradi clock/sleep; prezgodnji klici ne smejo štartati.
         if now + timedelta(milliseconds=400) < ends:
             return []
+        saved_ends = ends.isoformat()
         settings.pop(COUNTDOWN_KEY, None)
         room.settings = settings
         room.last_activity = now
         room.save(update_fields=["settings", "last_activity"])
         host = room.members.filter(is_host=True, left_at__isnull=True).first()
         start_as = str(host.id) if host else str(member.id)
+        room_id = room.id
 
-    if mode == MODE_DIRKA:
-        from game.dirka import start_dirka
+    try:
+        if mode == MODE_DIRKA:
+            from game.dirka import start_dirka
 
-        return start_dirka(start_as)
-    from game.multiplayer import start_multiplayer
+            return start_dirka(start_as)
+        from game.multiplayer import start_multiplayer
 
-    return start_multiplayer(start_as)
+        return start_multiplayer(start_as)
+    except GameError as exc:
+        from rooms.models import Room
+
+        room = Room.objects.filter(pk=room_id).first()
+        if room is not None and room.status == "waiting" and saved_ends:
+            settings = dict(room.settings or {})
+            # Ne obnavljaj countdown — host mora znova klikniti; sporočilo gre ven.
+            settings.pop(COUNTDOWN_KEY, None)
+            room.settings = settings
+            room.save(update_fields=["settings"])
+        return [
+            {
+                "type": "error",
+                "phase": "lobby",
+                "message": exc.message,
+            }
+        ]
 
 
 def clear_lobby_countdown(room):
