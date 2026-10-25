@@ -176,13 +176,18 @@ def question_payload(session, game_question, message_type="question"):
 
 
 def finished_payload(session, member):
+    from game.replay import result_id_for
+
     state = dict(session.state or {})
     duration = None
     if session.started_at and session.finished_at:
         duration = max(0, int((session.finished_at - session.started_at).total_seconds() * 1000))
     elif session.started_at:
         duration = max(0, int((timezone.now() - session.started_at).total_seconds() * 1000))
-    return {
+    now = timezone.now()
+    # Pošlji tudi uro = zdaj, da klient ne obdrži starega clock_ends_at in še šteje.
+    clock_end = state.get("clock_ends_at") or now.isoformat()
+    payload = {
         "type": "game_finished",
         "phase": "finished",
         "finished": True,
@@ -196,8 +201,15 @@ def finished_payload(session, member):
         "duration_ms": duration,
         "nickname": member.nickname_in_room,
         "prize_ladder": [],
-        "server_now": timezone.now().isoformat(),
+        "clock_ends_at": clock_end,
+        "deadline_at": clock_end,
+        "clock_remaining_ms": 0,
+        "server_now": now.isoformat(),
     }
+    rid = result_id_for(session, member=member)
+    if rid:
+        payload["result_id"] = rid
+    return payload
 
 
 def _resolve(member, room, session, game_question, skipped, message):

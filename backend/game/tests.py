@@ -404,7 +404,7 @@ class HistoryTests(TestCase):
         self.assertEqual(board.data["total"], 11)
         self.assertIn("id", board.data["results"][0])
         everything = client.get("/api/leaderboard/?limit=all")
-        self.assertEqual(len(everything.data["results"]), 11)
+        self.assertEqual(everything.status_code, 400)
         found = client.get("/api/leaderboard/?q=Igralec 10&limit=100")
         self.assertEqual(found.data["results"][0]["nickname"], "Igralec 10")
 
@@ -458,3 +458,46 @@ class HistoryTests(TestCase):
         self.assertEqual(stranger.get(f"/api/results/{result.id}/").status_code, 404)
         mine = owner_client.get("/api/me/results/")
         self.assertEqual(mine.data["results"][0]["id"], result.id)
+
+    def test_admin_session_search_by_nickname_does_not_500(self):
+        staff = User.objects.create_user(
+            username="staff@example.com",
+            email="staff@example.com",
+            password="zelo-dolgo-geslo",
+            nickname="Staff",
+            is_staff=True,
+        )
+        player = User.objects.create_user(
+            username="igralec@example.com",
+            email="igralec@example.com",
+            password="zelo-dolgo-geslo",
+            nickname="IskaniIgralec",
+        )
+        room = Room.objects.create(code="ADM001", host=player, status="finished", max_players=1, visibility="unlisted")
+        session = GameSession.objects.create(
+            room=room,
+            mode="hitrarunda",
+            status="finished",
+            total_questions=1,
+            time_limit_seconds=20,
+            started_at=timezone.now(),
+            finished_at=timezone.now(),
+        )
+        GameResult.objects.create(
+            user=player,
+            game_session=session,
+            mode="hitrarunda",
+            nickname="IskaniIgralec",
+            score=10,
+            correct_count=1,
+            total_questions=1,
+            is_guest=False,
+            reason="finished",
+            room_code=room.code,
+            counts_for_leaderboard=True,
+        )
+        client = APIClient()
+        client.force_login(staff)
+        response = client.get("/api/admin/sessions/?q=IskaniIgralec")
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertGreaterEqual(response.data.get("total") or 0, 1)

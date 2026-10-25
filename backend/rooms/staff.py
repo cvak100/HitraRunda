@@ -6,7 +6,13 @@ from rest_framework.views import APIView
 from accounts.staff import StaffOnly
 from rooms.models import Room
 from game.engine import GameError
-from rooms.services import admin_kick_member, close_room, close_stale_rooms, lobby_payload
+from rooms.services import (
+    admin_kick_member,
+    close_live_rooms,
+    close_room,
+    close_stale_rooms,
+    lobby_payload,
+)
 
 
 def admin_room_payload(room):
@@ -71,5 +77,18 @@ class AdminRoomKickView(APIView):
             {
                 "detail": f"Igralec {member.nickname_in_room} je odstranjen.",
                 "room": admin_room_payload(room),
+            }
+        )
+
+
+class AdminCloseLiveRoomsView(APIView):
+    permission_classes = [StaffOnly]
+
+    def post(self, request):
+        closed = close_live_rooms()
+        return Response(
+            {
+                "closed": closed,
+                "detail": f"Zaprtih sob (čakanje / v teku): {closed}.",
             }
         )

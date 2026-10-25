@@ -25,6 +25,9 @@ services:
 
   backend:
     build: ./backend
+    # Entrypoint iz volume mounta (host spremembe brez rebuilda imagea).
+    entrypoint: ["/bin/sh", "/app/entrypoint.sh"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-hitrarunda}
       POSTGRES_USER: ${POSTGRES_USER:-hitrarunda}
@@ -66,6 +69,33 @@ services:
       backend:
         condition: service_healthy
 
+  # Dnevni pg_dump (ohrani 7 dni). Vklopi: docker compose up -d db-backup
+  db-backup:
+    image: postgres:16-alpine
+    profiles: ["backup"]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-hitrarunda}
+      POSTGRES_USER: ${POSTGRES_USER:-hitrarunda}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-hitrarunda}
+      PGHOST: db
+    volumes:
+      - pgbackups:/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        while true; do
+          stamp=$$(date +%F)
+          echo "[backup] $$stamp"
+          pg_dump -U "$$POSTGRES_USER" "$$POSTGRES_DB" | gzip > "/backups/hitrarunda-$$stamp.sql.gz"
+          ls -1t /backups/hitrarunda-*.sql.gz 2>/dev/null | tail -n +8 | xargs -r rm -f
+          sleep 86400
+        done
+
 volumes:
   pgdata:
   frontend_node_modules:
+  pgbackups:

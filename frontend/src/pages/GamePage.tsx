@@ -10,9 +10,20 @@ import { GamePlayBody } from "../components/game/GamePlayBody";
 import { PodiumFinish } from "../components/game/PodiumFinish";
 import { formatMode, formatPoints } from "../format";
 import { boardPath as modeBoardPath } from "../gameModes";
-import type { Category, GameMessage } from "../types";
+import {
+  cancelSfxSequence,
+  playSfx,
+  playSfxSequence,
+  startQuestionCountdown,
+  startSyncedCountdown,
+  stopQuestionCountdown,
+  unlockSfx,
+  type SfxName,
+} from "../sound";
+import type { Category, GameMessage, StandingRow } from "../types";
 
 const DEFAULT_LOBBY_TIMES = [30, 60, 90, 120, 300];
+const DEFAULT_DIRKA_TIMES = [10, 15, 20, 30, 60];
 const DEFAULT_LOBBY_COUNTS = [5, 10, 20, 40, 50, 100];
 const DEFAULT_TARGETS = [100, 200, 500, 1000];
 const DEFAULT_SAFE = [5, 10];
@@ -31,6 +42,7 @@ export function GamePage() {
   const [inviteName, setInviteName] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [lobbyTimes, setLobbyTimes] = useState(DEFAULT_LOBBY_TIMES);
+  const [dirkaTimes, setDirkaTimes] = useState(DEFAULT_DIRKA_TIMES);
   const [lobbyCounts, setLobbyCounts] = useState(DEFAULT_LOBBY_COUNTS);
   const [lobbyTargets, setLobbyTargets] = useState(DEFAULT_TARGETS);
   const [lobbySafe, setLobbySafe] = useState(DEFAULT_SAFE);
@@ -50,11 +62,24 @@ export function GamePage() {
   const [confirmWalkAway, setConfirmWalkAway] = useState(false);
   const [sixtyFlash, setSixtyFlash] = useState<GameMessage["feedback"] | null>(null);
   const [sixtyTickKey, setSixtyTickKey] = useState(0);
+  /** Dirka proga: standings šele ob koncu runde, ne med answer_progress. */
+  const [dirkaRaceStandings, setDirkaRaceStandings] = useState<StandingRow[]>([]);
+  const [dirkaRaceSafe, setDirkaRaceSafe] = useState<{
+    current: number;
+    every: number;
+    until: number;
+  } | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const myIdRef = useRef(myId);
   myIdRef.current = myId;
+  const lobbyMemberIdsRef = useRef<string[] | null>(null);
+  const lastNextQuestionIdRef = useRef<string>("");
+  const skipNextSfxRef = useRef(false);
+  const countdownActiveRef = useRef(false);
+  const [countdownStep, setCountdownStep] = useState<number | null>(null);
+  const [kickingId, setKickingId] = useState("");
   const isLobbyMode = message?.mode === "multiplayer" || message?.mode === "dirka" || phase === "lobby";
   const isMulti = isLobbyMode;
   const isDirka = message?.mode === "dirka";
@@ -64,6 +89,13 @@ export function GamePage() {
     const socket = wsRef.current;
     const current = message;
     if (!socket || socket.readyState !== WebSocket.OPEN || !current?.question || phaseRef.current !== "question") return;
+    unlockSfx();
+    // Hitra runda / Ala: correct|wrong pride ob review — klik tukaj se podvoji.
+    // MP/Dirka/60s: klik ostane (feedback je drugače).
+    const mode = current.mode;
+    if (!body.timeout && mode !== "hitrarunda" && mode !== "ala_milijonar") {
+      playSfx("click");
+    }
     setPhase("submitting");
     socket.send(
       JSON.stringify({
@@ -90,7 +122,13 @@ export function GamePage() {
         max_players?: number;
         max_bots?: number;
       };
-      dirka?: { targets?: number[]; safe_every?: number[]; max_bots?: number };
+      dirka?: {
+        targets?: number[];
+        safe_every?: number[];
+        times?: number[];
+        time_limit_seconds?: number;
+        max_bots?: number;
+      };
     }>("/api/game-config/")
       .then((cfg) => {
         const mp = cfg.multiplayer;
@@ -100,6 +138,7 @@ export function GamePage() {
         if (typeof mp?.max_bots === "number") setMaxBots(mp.max_bots);
         if (cfg.dirka?.targets?.length) setLobbyTargets(cfg.dirka.targets);
         if (cfg.dirka?.safe_every?.length) setLobbySafe(cfg.dirka.safe_every);
+        if (cfg.dirka?.times?.length) setDirkaTimes(cfg.dirka.times);
         if (typeof cfg.dirka?.max_bots === "number") setMaxBots(cfg.dirka.max_bots);
       })
       .catch(() => undefined);
@@ -130,7 +169,42 @@ export function GamePage() {
       setError("");
       setReconnectNote("");
       if (incoming.you?.id) setMyId(incoming.you.id);
+      if (incoming.phase === "countdown") {
+        if (!incoming.countdown_ends_at || !incoming.server_now) return;
+        countdownActiveRef.current = true;
+        setMessage(incoming);
+        setPhase("countdown");
+        setCountdownStep(3);
+        startSyncedCountdown(incoming.countdown_ends_at, incoming.server_now, (step) => {
+          setCountdownStep(step);
+        });
+        return;
+      }
       if (incoming.phase === "lobby") {
+        if (countdownActiveRef.current || phaseRef.current === "countdown") {
+          return;
+        }
+        const me = incoming.you?.id || myIdRef.current;
+        const ids = (incoming.members || []).map((m) => m.id);
+        const prev = lobbyMemberIdsRef.current;
+        if (me && prev?.includes(me) && !ids.includes(me)) {
+          playSfx("room_kick");
+          lobbyMemberIdsRef.current = null;
+          setPhase("closed");
+          setError(incoming.kicked_message || "Host te je vrgel iz sobe.");
+          setMessage(incoming);
+          return;
+        }
+        if (prev) {
+          if (incoming.lobby_event === "kicked") playSfx("room_kick");
+          else {
+            const added = ids.some((id) => !prev.includes(id));
+            const removed = prev.some((id) => !ids.includes(id));
+            if (added) playSfx("room_join");
+            else if (removed || incoming.lobby_event === "left") playSfx("room_leave");
+          }
+        }
+        lobbyMemberIdsRef.current = ids;
         setMessage(incoming);
         syncLobbyEditors(incoming);
         setPhase("lobby");
@@ -138,16 +212,40 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "waiting") {
+        // Snapshot ob connect ne sme prekiniti countdown UI (zvok bi tekel, zaslon pa "Pripravljam…").
+        if (countdownActiveRef.current || phaseRef.current === "countdown") {
+          return;
+        }
         setPhase("waiting");
         setMessage(incoming);
         return;
       }
       if (incoming.phase === "question") {
+        const qid = String(incoming.question?.game_question_id || "");
+        if (incoming.bonus && incoming.bonus_member_id === myIdRef.current) {
+          playSfx("bonus_use");
+        }
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
           setSixtyTickKey((n) => n + 1);
+          if (incoming.feedback.skipped) playSfx("click");
+          else if (incoming.feedback.is_correct) playSfx("correct");
+          else playSfx("wrong");
+        } else if (qid && lastNextQuestionIdRef.current !== qid) {
+          // Novo vprašanje — enkrat "next". Po countdown go prvo vprašanje brez next.
+          lastNextQuestionIdRef.current = qid;
+          cancelSfxSequence();
+          if (skipNextSfxRef.current) {
+            skipNextSfxRef.current = false;
+          } else {
+            playSfx("next");
+          }
         }
+        countdownActiveRef.current = false;
+        stopQuestionCountdown();
+        setCountdownStep(null);
         setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
+        commitDirkaRace(incoming, myIdRef.current, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("question");
         return;
       }
@@ -158,6 +256,8 @@ export function GamePage() {
           const merged = mergeDirkaMessage(current, incoming, me);
           return {
             ...merged,
+            // Proga ostane na prejšnjem stanju — točke šele ob round_review.
+            standings: current?.standings ?? merged.standings,
             phase: iAnswered
               ? "waiting_answers"
               : current?.phase === "question" || current?.phase === "submitting"
@@ -171,22 +271,77 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "round_review") {
-        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
+        const me = myIdRef.current;
+        const mine = (incoming.answers || []).find((row) => row.member_id === me);
+        const seq: SfxName[] = [];
+        if (mine?.timed_out || mine?.skipped) seq.push("click");
+        else if (mine?.is_correct) seq.push("correct");
+        else if (mine) seq.push("wrong");
+        const gained =
+          mine?.bonuses_gained?.length
+            ? mine.bonuses_gained
+            : mine?.bonus_gained
+              ? [mine.bonus_gained]
+              : [];
+        for (let i = 0; i < gained.length; i++) seq.push("bonus_gain");
+        if (mine?.safe_reward) seq.push("safe_zone");
+        if (seq.length) playSfxSequence(seq);
+        setMessage((current) => mergeDirkaMessage(current, incoming, me));
+        commitDirkaRace(incoming, me, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("round_review");
         return;
       }
       if (incoming.phase === "review") {
+        if (incoming.is_correct) {
+          const crossedSafe =
+            incoming.mode === "ala_milijonar" &&
+            (incoming.safe_orders || []).includes((incoming.correct_count ?? 0) - 1);
+          if (crossedSafe) playSfxSequence(["correct", "safe_zone"]);
+          else playSfx("correct");
+        } else if (!incoming.walked_away && !incoming.timed_out) playSfx("wrong");
+        else if (incoming.timed_out) playSfx("click");
         setMessage(incoming);
         setPhase("review");
         setPickFriend(false);
         return;
       }
       if (incoming.phase === "finished" || incoming.type === "game_finished") {
+        const endSeq: SfxName[] = [];
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
           setSixtyTickKey((n) => n + 1);
+          if (incoming.feedback.skipped) endSeq.push("click");
+          else if (incoming.feedback.is_correct) endSeq.push("correct");
+          else endSeq.push("wrong");
+        } else if (incoming.mode === "hitrarunda" || incoming.mode === "ala_milijonar") {
+          if (incoming.is_correct) {
+            endSeq.push("correct");
+            if (
+              incoming.mode === "ala_milijonar" &&
+              (incoming.safe_orders || []).includes((incoming.correct_count ?? 0) - 1)
+            ) {
+              endSeq.push("safe_zone");
+            }
+          } else if (incoming.timed_out) endSeq.push("click");
+          else if (!incoming.walked_away) endSeq.push("wrong");
         }
-        setMessage((current) => mergeDirkaMessage(current, incoming, myIdRef.current));
+        endSeq.push("finish");
+        playSfxSequence(endSeq);
+        setMessage((current) => {
+          const merged = mergeDirkaMessage(current, incoming, myIdRef.current);
+          // 60s: ne obdrži starega clock_ends_at, sicer timer še teče ob finish zaslonu.
+          if (merged.mode === "60_sekund") {
+            const end = incoming.clock_ends_at || incoming.deadline_at || incoming.server_now;
+            return {
+              ...merged,
+              clock_ends_at: end,
+              deadline_at: end,
+              clock_remaining_ms: 0,
+            };
+          }
+          return merged;
+        });
+        commitDirkaRace(incoming, myIdRef.current, setDirkaRaceStandings, setDirkaRaceSafe);
         setPhase("finished");
         setPickFriend(false);
       }
@@ -218,6 +373,27 @@ export function GamePage() {
                 // Mid-game: strežnik pošlje snapshot ob connect; dodatno sync za zanesljivost.
                 socket.send(JSON.stringify({ type: "lobby_sync" }));
               }
+            } else if (
+              (room.settings?.mode === "hitrarunda" ||
+                room.settings?.mode === "ala_milijonar" ||
+                room.settings?.mode === "60_sekund") &&
+              room.status !== "playing"
+            ) {
+              // Pred prvim vprašanjem: 3 → 2 → 1 (timer še ne teče).
+              countdownActiveRef.current = true;
+              setCountdownStep(3);
+              setPhase("countdown");
+              startQuestionCountdown(
+                (step) => {
+                  if (!stopped) setCountdownStep(step);
+                },
+                () => {
+                  if (stopped || socket.readyState !== WebSocket.OPEN) return;
+                  skipNextSfxRef.current = true;
+                  // Ostani na "1 · Zdaj" dokler ne pride vprašanje (sicer blisk Pripravljeni).
+                  socket.send(JSON.stringify({ type: "start_game" }));
+                },
+              );
             } else {
               socket.send(JSON.stringify({ type: "start_game" }));
             }
@@ -254,7 +430,11 @@ export function GamePage() {
         }
         const delay = Math.min(8000, 600 * 2 ** (attempt - 1));
         setReconnectNote(`Ponovna povezava čez ${Math.ceil(delay / 1000)} s… (${attempt}/8)`);
-        setPhase((current) => (current === "finished" || current === "closed" ? current : "connecting"));
+        setPhase((current) =>
+          current === "finished" || current === "closed" || current === "countdown"
+            ? current
+            : "connecting",
+        );
         retryTimer = window.setTimeout(connect, delay);
       };
     }
@@ -262,6 +442,8 @@ export function GamePage() {
     connect();
     return () => {
       stopped = true;
+      countdownActiveRef.current = false;
+      stopQuestionCountdown();
       if (retryTimer) window.clearTimeout(retryTimer);
       wsRef.current?.close();
     };
@@ -276,14 +458,32 @@ export function GamePage() {
     } catch {
       // Vseeno odidi — WS/HTTP lahko že odpade.
     }
+    lobbyMemberIdsRef.current = null;
     wsRef.current?.close();
     const mode = message?.settings?.mode || message?.mode;
     navigate(mode === "dirka" ? "/igra/dirka" : mode === "multiplayer" ? "/igra/vec-igralcev" : "/igra");
   }
 
+  async function kickMember(memberId: string) {
+    if (!memberId || kickingId) return;
+    setKickingId(memberId);
+    try {
+      await api(`/api/rooms/${code}/kick/`, {
+        method: "POST",
+        body: JSON.stringify({ member_id: memberId }),
+      });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Kick ni uspel.");
+    } finally {
+      setKickingId("");
+    }
+  }
+
   function next() {
     const socket = wsRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
+    unlockSfx();
+    // Zvok "next" samo ob prejetem question dogodku (sicer 2×: tukaj + handleMessage).
     socket.send(JSON.stringify({ type: "next_question" }));
   }
 
@@ -298,6 +498,8 @@ export function GamePage() {
   function useHelp(effect: string, friendKey?: string) {
     const socket = wsRef.current;
     if (!socket || socket.readyState !== WebSocket.OPEN || !message?.question || phase !== "question") return;
+    unlockSfx();
+    playSfx("bonus_use");
     socket.send(
       JSON.stringify({
         type: "use_lifeline",
@@ -378,8 +580,9 @@ export function GamePage() {
       setEditCount(lobbyCounts.includes(settings.question_count) ? settings.question_count : lobbyCounts[0] ?? 10);
     }
     if (settings.time_limit_seconds) {
+      const times = settings.mode === "dirka" ? dirkaTimes : lobbyTimes;
       setEditSeconds(
-        lobbyTimes.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : lobbyTimes[0] ?? 60,
+        times.includes(settings.time_limit_seconds) ? settings.time_limit_seconds : times[0] ?? 30,
       );
     }
     if (typeof settings.sudden_death === "boolean") setEditSudden(settings.sudden_death);
@@ -394,6 +597,8 @@ export function GamePage() {
   }
 
   function sendReady(ready: boolean) {
+    unlockSfx();
+    playSfx(ready ? "correct" : "click");
     wsRef.current?.send(JSON.stringify({ type: "set_ready", ready }));
   }
 
@@ -452,6 +657,7 @@ export function GamePage() {
           ? {
               target_score: overrides.target_score ?? editTarget,
               safe_every: overrides.safe_every ?? editSafe,
+              time_limit_seconds: overrides.time_limit_seconds ?? editSeconds,
             }
           : {
               question_count: overrides.question_count ?? editCount,
@@ -501,7 +707,20 @@ export function GamePage() {
             </button>
           ) : null}
         </div>
-        {phase === "connecting" || phase === "waiting" ? (
+        {phase === "countdown" || countdownStep != null ? (
+          <div className="question-countdown" aria-live="polite">
+            <p className="eyebrow">
+              {countdownStep === 3
+                ? "Pripravljeni…"
+                : countdownStep === 2
+                  ? "Pozor…"
+                  : "Zdaj…"}
+            </p>
+            <p key={String(countdownStep ?? 1)} className="question-countdown-n">
+              {countdownStep ?? 1}
+            </p>
+          </div>
+        ) : phase === "connecting" || phase === "waiting" ? (
           <p className="status">{reconnectNote || "Pripravljam vprašanja…"}</p>
         ) : null}
         {reconnectNote && phase !== "connecting" && phase !== "waiting" ? (
@@ -535,7 +754,7 @@ export function GamePage() {
             setInviteName={setInviteName}
             copyNotice={copyNotice}
             categories={categories}
-            lobbyTimes={lobbyTimes}
+            lobbyTimes={(message.settings?.mode || message.mode) === "dirka" ? dirkaTimes : lobbyTimes}
             lobbyCounts={lobbyCounts}
             lobbyTargets={lobbyTargets}
             lobbySafe={lobbySafe}
@@ -563,6 +782,8 @@ export function GamePage() {
             sendReady={sendReady}
             startMulti={startMulti}
             leaveRoom={() => void leaveRoom()}
+            kickMember={(id) => void kickMember(id)}
+            kickingId={kickingId}
             sendInvite={sendInvite}
             saveLobbySettings={() => saveLobbySettings()}
             changeBots={changeBots}
@@ -614,14 +835,16 @@ export function GamePage() {
       {dirkaPlaying ? (
         <div className="dirka-race-top">
           <DirkaRaceTrack
-            standings={standings}
+            standings={dirkaRaceStandings.length ? dirkaRaceStandings : standings}
             targetScore={message.target_score || message.settings?.target_score || 200}
             myId={myId}
-            mySafeProgress={{
-              current: dirkaMe?.correct_in_segment ?? 0,
-              every: dirkaMe?.safe_every ?? message.safe_every ?? 5,
-              until: dirkaMe?.until_safe ?? message.safe_every ?? 5,
-            }}
+            mySafeProgress={
+              dirkaRaceSafe || {
+                current: dirkaMe?.correct_in_segment ?? 0,
+                every: dirkaMe?.safe_every ?? message.safe_every ?? 5,
+                until: dirkaMe?.until_safe ?? message.safe_every ?? 5,
+              }
+            }
           />
         </div>
       ) : null}
@@ -635,43 +858,61 @@ export function GamePage() {
         onCancel={() => setConfirmWalkAway(false)}
       />
       {message?.mode === "multiplayer" || (isMulti && !isDirka) ? (
-        <ol className="ladder">
-          {standings.map((row) => {
-            const answeredIds = new Set(message?.answered_ids || []);
-            const answerById = new Map((message?.answers || []).map((item) => [item.member_id || "", item]));
-            const answer = answerById.get(row.member_id);
-            const classes = [
-              row.member_id === myId ? "current" : "",
-              (phase === "question" || phase === "submitting" || phase === "waiting_answers") && answeredIds.has(row.member_id)
-                ? "has-answered"
-                : "",
-              phase === "round_review" && answer
-                ? answer.is_correct
-                  ? "answered-correct"
-                  : "answered-wrong"
-                : "",
-            ]
-              .filter(Boolean)
-              .join(" ");
-            return (
-              <li key={row.member_id} className={classes}>
-                <span className="ladder-player">
-                  <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
-                  <span>
-                    #{row.rank || "?"} {row.nickname}
-                    {row.is_bot ? " (AI)" : ""}
-                    {row.alive === false ? " · izločen" : ""}
+        <div className="mp-ladder-wrap">
+          <ol className="ladder">
+            {standings.map((row) => {
+              const answeredIds = new Set(message?.answered_ids || []);
+              const answerById = new Map((message?.answers || []).map((item) => [item.member_id || "", item]));
+              const answer = answerById.get(row.member_id);
+              const classes = [
+                row.member_id === myId ? "current" : "",
+                (phase === "question" || phase === "submitting" || phase === "waiting_answers") &&
+                answeredIds.has(row.member_id)
+                  ? "has-answered"
+                  : "",
+                phase === "round_review" && answer
+                  ? answer.is_correct
+                    ? "answered-correct"
+                    : "answered-wrong"
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return (
+                <li key={row.member_id} className={classes}>
+                  <span className="ladder-player">
+                    <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
+                    <span>
+                      #{row.rank || "?"} {row.nickname}
+                      {row.is_bot ? " (AI)" : ""}
+                      {row.alive === false ? " · izločen" : ""}
+                    </span>
                   </span>
-                </span>
-                <span>
-                  {formatPoints(row.score)}
-                  {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
-      ) : !isDirka ? (
+                  <span>
+                    {formatPoints(row.score)}
+                    {row.streak && row.streak > 1 ? ` · streak ${row.streak}` : ""}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+          {phase === "waiting_answers" ||
+          (phase === "question" && (message?.answered_count ?? 0) > 0) ? (
+            <p
+              className={["wait-banner", phase === "question" ? "wait-banner-soft" : ""]
+                .filter(Boolean)
+                .join(" ")}
+              aria-live="polite"
+            >
+              Čakam še: {(message?.waiting_for || []).join(", ") || "nikogar"}
+              <span className="wait-banner-count">
+                {" "}
+                ({message?.answered_count}/{message?.player_count})
+              </span>
+            </p>
+          ) : null}
+        </div>
+      ) : message?.mode === "ala_milijonar" && ladder.length > 0 ? (
         <ol className="ladder">
           {[...ladder].reverse().map((prize, reversed) => {
             const index = ladder.length - 1 - reversed;
@@ -681,12 +922,26 @@ export function GamePage() {
             const className = [reached ? "reached" : "", current ? "current" : "", safe ? "safe" : ""].filter(Boolean).join(" ");
             return (
               <li key={index} className={className}>
-                {safe ? "★ " : ""}
-                {formatPoints(prize)}
+                <span className="ladder-mark" aria-hidden>
+                  {safe ? "★" : ""}
+                </span>
+                <span className="ladder-amount">{formatPoints(prize)}</span>
               </li>
             );
           })}
         </ol>
+      ) : message?.mode === "hitrarunda" && playing ? (
+        <aside className="hr-score-side" aria-label="Točke">
+          <p className="eyebrow">Točke</p>
+          <p className="hr-score-value">{formatPoints(message.score ?? 0)}</p>
+          <p className="fine">
+            {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
+            {formatPoints(message.speed_bonus_total ?? 0)}
+          </p>
+          <p className="fine">
+            {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0} pravilnih
+          </p>
+        </aside>
       ) : null}
     </section>
   );
@@ -718,5 +973,21 @@ function mergeDirkaMessage(current: GameMessage | null, incoming: GameMessage, m
       : current?.you,
     deadline_at: mine?.deadline_at || (myId && incoming.deadlines?.[myId]) || incoming.deadline_at || current?.deadline_at,
   };
+}
+
+function commitDirkaRace(
+  incoming: GameMessage,
+  myId: string,
+  setStandings: (rows: StandingRow[]) => void,
+  setSafe: (safe: { current: number; every: number; until: number } | null) => void,
+) {
+  if (incoming.mode !== "dirka") return;
+  if (incoming.standings) setStandings(incoming.standings);
+  const me = myId ? incoming.players?.[myId] : undefined;
+  setSafe({
+    current: me?.correct_in_segment ?? 0,
+    every: me?.safe_every ?? incoming.safe_every ?? 5,
+    until: me?.until_safe ?? incoming.safe_every ?? 5,
+  });
 }
 

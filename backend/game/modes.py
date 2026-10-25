@@ -107,9 +107,21 @@ DIRKA_ACTIVE_BONUSES = (
     "double",
     "block",
 )
-DIRKA_WEAK_BONUSES = ("hint", "extra_time", "shield")
-# Močnejši dropi ob safe / hot streak.
-DIRKA_STRONG_BONUSES = ("fifty_fifty", "skip", "shield", "steal", "double", "second_chance")
+DIRKA_SHIELD_ROUNDS = 3
+# 3 iste + 4. isti → pretvori v 1 naključni močan (stack se zbriše).
+DIRKA_CONVERT_STACK = 4
+# Preboj: prvič ≥ ta delež cilja → močan (1× na dirko).
+DIRKA_BREAKTHROUGH_RATIO = 0.5
+DIRKA_WEAK_BONUSES = ("hint", "extra_time", "shield", "skip")
+# Močnejši dropi: clean safe, preboj, solo sprint, convert…
+DIRKA_STRONG_BONUSES = (
+    "fifty_fifty",
+    "steal",
+    "double",
+    "second_chance",
+    "rush",
+    "block",
+)
 
 MODE_LABELS = dict(MODE_CHOICES)
 

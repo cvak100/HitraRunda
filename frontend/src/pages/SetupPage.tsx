@@ -117,14 +117,14 @@ export function SetupPage() {
         ),
     [categories, selected, mode],
   );
-  const maxCount = Math.min(15, available);
+  const maxCount = Math.min(100, available);
   const alaReady =
     mode !== "ala_milijonar" || (available >= 15 && friendKeys.length === friendsPick);
 
   useEffect(() => {
     if (mode === "ala_milijonar") setCount(15);
     else if (mode === "hitrarunda" && available >= 5) {
-      setCount((current) => Math.min(Math.max(current, 5), Math.min(15, available)));
+      setCount((current) => Math.min(Math.max(current, 5), Math.min(100, available)));
     }
   }, [available, mode]);
 

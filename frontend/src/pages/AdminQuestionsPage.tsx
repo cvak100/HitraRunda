@@ -249,18 +249,20 @@ export function AdminQuestionsPage() {
                   <td className="cell-center">{question.is_active ? "Aktivno" : "Umaknjeno"}</td>
                   <td className="cell-center">{question.open_reports}</td>
                   <td className="row-actions">
-                    <IconAction
-                      label={openId === question.id ? "Skrij pregled" : "Pregled"}
-                      onClick={() => setOpenId((current) => (current === question.id ? null : question.id))}
-                    >
-                      <ViewIcon />
-                    </IconAction>
-                    <IconAction label="Uredi" onClick={() => startEdit(question)}>
-                      <EditIcon />
-                    </IconAction>
-                    <IconAction label="Izbriši" danger onClick={() => setPendingDelete(question)}>
-                      <DeleteIcon />
-                    </IconAction>
+                    <div className="row-actions-inner">
+                      <IconAction
+                        label={openId === question.id ? "Skrij pregled" : "Pregled"}
+                        onClick={() => setOpenId((current) => (current === question.id ? null : question.id))}
+                      >
+                        <ViewIcon />
+                      </IconAction>
+                      <IconAction label="Uredi" onClick={() => startEdit(question)}>
+                        <EditIcon />
+                      </IconAction>
+                      <IconAction label="Izbriši" danger onClick={() => setPendingDelete(question)}>
+                        <DeleteIcon />
+                      </IconAction>
+                    </div>
                   </td>
                 </tr>
                 {openId === question.id ? (

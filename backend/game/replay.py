@@ -4,15 +4,23 @@ from questions.models import Question
 SINGLE = {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE}
 
 
-def session_detail(session):
-    result = _result(session)
+def session_detail(session, result=None, for_user=None):
+    result = result or _result(session, for_user=for_user)
     state = session.state or {}
+    user_id = None
+    if result is not None and result.user_id:
+        user_id = result.user_id
+    elif for_user is not None:
+        user_id = getattr(for_user, "id", None)
     stages = []
-    questions = session.game_questions.select_related("question__category").prefetch_related("question__options", "answers")
+    questions = session.game_questions.select_related("question__category").prefetch_related(
+        "question__options", "answers__room_member"
+    )
     for game_question in questions:
-        if game_question.started_at is None and not game_question.answers.all():
+        answers = list(game_question.answers.all())
+        if game_question.started_at is None and not answers:
             continue
-        stages.append(_stage(game_question))
+        stages.append(_stage(game_question, user_id=user_id))
     played_at = result.played_at if result else session.finished_at or session.started_at or session.created_at
     return {
         "session_id": session.id,
@@ -33,8 +41,30 @@ def session_detail(session):
     }
 
 
-def _result(session):
-    return session.results.order_by("-score", "duration_ms", "played_at").first()
+def result_id_for(session, member=None):
+    """ID GameResult za člana (ali najboljši rezultat, če član ni znan)."""
+    qs = GameResult.objects.filter(game_session=session)
+    if member is not None and getattr(member, "user_id", None):
+        row = qs.filter(user_id=member.user_id).order_by("-id").first()
+        if row:
+            return row.id
+        # Gost/bot: ujemanje po vzdevku v sobi.
+        nick = getattr(member, "nickname_in_room", None) or ""
+        if nick:
+            row = qs.filter(nickname=nick).order_by("-id").first()
+            if row:
+                return row.id
+    row = qs.order_by("-score", "duration_ms", "played_at").first()
+    return row.id if row else None
+
+
+def _result(session, for_user=None):
+    qs = session.results.all()
+    if for_user is not None and getattr(for_user, "id", None):
+        row = qs.filter(user_id=for_user.id).order_by("-id").first()
+        if row:
+            return row
+    return qs.order_by("-score", "duration_ms", "played_at").first()
 
 
 def _nickname(session, result):
@@ -44,63 +74,96 @@ def _nickname(session, result):
     return host.nickname_in_room if host else ""
 
 
-def _stage(game_question):
+def _stage(game_question, user_id=None):
     question = game_question.question
-    answer = next(iter(game_question.answers.all()), None)
+    answers = list(game_question.answers.all())
+    answer = None
+    if user_id is not None:
+        answer = next(
+            (
+                row
+                for row in answers
+                if row.room_member_id and getattr(row.room_member, "user_id", None) == user_id
+            ),
+            None,
+        )
+    if answer is None and answers:
+        answer = answers[0]
     data = (answer.answer_data if answer else None) or {}
     timed_out = bool(data.get("timeout"))
+    from game.presentation import ensure_presentation
+
+    presentation = ensure_presentation(game_question)
     return {
         "order": game_question.order + 1,
-        "text": question.text,
-        "question_type": question.question_type,
-        "category_name": question.category.name,
-        "difficulty": question.difficulty,
-        "explanation": question.explanation,
+        "text": presentation.get("text") or question.text,
+        "question_type": presentation.get("question_type") or question.question_type,
+        "category_name": presentation.get("category_name") or question.category.name,
+        "difficulty": presentation.get("difficulty", question.difficulty),
+        "explanation": presentation.get("explanation") if "explanation" in presentation else question.explanation,
         "is_correct": None if answer is None else bool(answer.is_correct),
         "timed_out": timed_out,
         "time_taken_ms": None if answer is None else answer.time_taken_ms,
         "speed_bonus": 0 if answer is None else answer.points,
-        "given": _given(game_question, answer, timed_out),
-        "correct": _correct(game_question),
+        "given": _given(game_question, answer, timed_out, presentation),
+        "correct": _correct(game_question, presentation),
     }
 
 
-def _correct(game_question):
+def _correct(game_question, presentation=None):
+    presentation = presentation or game_question.presentation or {}
     question = game_question.question
-    if question.question_type in {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE, Question.Type.MULTI_SELECT}:
+    question_type = presentation.get("question_type") or question.question_type
+    snap_options = presentation.get("options") or []
+    if question_type in {Question.Type.MULTIPLE_CHOICE, Question.Type.TRUE_FALSE, Question.Type.MULTI_SELECT}:
+        if snap_options:
+            return ", ".join(option["text"] for option in snap_options if option.get("is_correct"))
         return ", ".join(option.text for option in question.options.all() if option.is_correct)
-    if question.question_type == Question.Type.ORDERING:
+    if question_type == Question.Type.ORDERING:
+        if snap_options:
+            ordered = sorted(snap_options, key=lambda option: (option.get("order", 0), option["id"]))
+            return " → ".join(option["text"] for option in ordered)
         ordered = sorted(question.options.all(), key=lambda option: (option.order, option.id))
         return " → ".join(option.text for option in ordered)
-    if question.question_type == Question.Type.MATCHING:
-        pairs = (question.config or {}).get("pairs") or []
+    if question_type == Question.Type.MATCHING:
+        links = presentation.get("links") or []
+        if links:
+            return "; ".join(f"{link.get('left')} → {link.get('right')}" for link in links)
+        pairs = (presentation.get("config") or question.config or {}).get("pairs") or []
         return "; ".join(f"{pair.get('left')} → {pair.get('right')}" for pair in pairs)
-    if question.question_type == Question.Type.SLIDER:
-        config = question.config or {}
-        tolerance = config.get("tolerance") or 0
-        correct = config.get("correct")
+    if question_type == Question.Type.SLIDER:
+        slider = presentation.get("slider") or {}
+        config = presentation.get("config") or question.config or {}
+        tolerance = slider.get("tolerance", config.get("tolerance")) or 0
+        correct = slider.get("correct", config.get("correct"))
         if tolerance:
             return f"{correct} (± {tolerance})"
         return str(correct)
     return ""
 
 
-def _given(game_question, answer, timed_out):
+def _given(game_question, answer, timed_out, presentation=None):
     if answer is None:
         return "Brez odgovora"
     if timed_out:
         return "Čas je potekel"
+    presentation = presentation or game_question.presentation or {}
     question = game_question.question
+    question_type = presentation.get("question_type") or question.question_type
     data = answer.answer_data or {}
-    names = {option.id: option.text for option in question.options.all()}
-    if question.question_type in SINGLE:
+    snap_options = presentation.get("options") or []
+    if snap_options:
+        names = {option["id"]: option["text"] for option in snap_options}
+    else:
+        names = {option.id: option.text for option in question.options.all()}
+    if question_type in SINGLE:
         option_id = _as_int(data.get("option_id")) or answer.selected_option_id
         return names.get(option_id, "—")
     if isinstance(data.get("option_ids"), list):
         texts = [names.get(_as_int(item), "?") for item in data["option_ids"]]
-        separator = " → " if question.question_type == Question.Type.ORDERING else ", "
+        separator = " → " if question_type == Question.Type.ORDERING else ", "
         return separator.join(texts)
-    if question.question_type == Question.Type.MATCHING:
+    if question_type == Question.Type.MATCHING:
         return _matching_given(game_question, data.get("pairs") or [])
     if data.get("value") is not None:
         return str(data["value"])

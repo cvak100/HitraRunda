@@ -3,6 +3,7 @@ import { AiOpponentsField, type LobbyAiMode } from "../AiOpponentsField";
 import { Avatar } from "../Avatar";
 import { CategoryPicker } from "../CategoryPicker";
 import { ChoiceGroup } from "../ChoiceGroup";
+import { DirkaBonusesHelp } from "../DirkaBonusesHelp";
 import { NumberStepper } from "../NumberStepper";
 import { VisibilityField, type RoomVisibility } from "../VisibilityField";
 
@@ -49,6 +50,8 @@ export type GameLobbyProps = {
   sendReady: (ready: boolean) => void;
   startMulti: () => void;
   leaveRoom: () => void;
+  kickMember: (memberId: string) => void;
+  kickingId: string;
   sendInvite: () => void;
   saveLobbySettings: () => void;
   changeBots: (value: number) => void;
@@ -95,6 +98,8 @@ export function GameLobby(props: GameLobbyProps) {
     sendReady,
     startMulti,
     leaveRoom,
+    kickMember,
+    kickingId,
     sendInvite,
     saveLobbySettings,
     changeBots,
@@ -124,8 +129,14 @@ export function GameLobby(props: GameLobbyProps) {
             {message.settings?.sudden_death ? " · sudden death" : ""}
             {message.settings?.target_score ? ` · cilj ${message.settings.target_score}` : ""}
             {message.settings?.safe_every ? ` · varna zona ${message.settings.safe_every}` : ""}
+            {message.settings?.time_limit_seconds ? ` · ${message.settings.time_limit_seconds} s` : ""}
             {message.settings?.bot_count ? ` · ${message.settings.bot_count} AI` : ""}
           </p>
+          {lobbyMode === "dirka" ? (
+            <div className="mode-extra-actions">
+              <DirkaBonusesHelp />
+            </div>
+          ) : null}
           <h2>
             Igralci ({message.members?.length || 0}/{message.max_players || "?"})
           </h2>
@@ -150,15 +161,27 @@ export function GameLobby(props: GameLobbyProps) {
                       </span>
                     </div>
                   </div>
-                  {isYou && !member.is_bot ? (
-                    <button
-                      type="button"
-                      className={`lobby-ready-btn ${iAmReady ? "is-on" : ""}`}
-                      onClick={() => sendReady(!iAmReady)}
-                    >
-                      {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
-                    </button>
-                  ) : null}
+                  <div className="lobby-member-actions">
+                    {isYou && !member.is_bot ? (
+                      <button
+                        type="button"
+                        className={`lobby-ready-btn ${iAmReady ? "is-on" : ""}`}
+                        onClick={() => sendReady(!iAmReady)}
+                      >
+                        {iAmReady ? "Nisem pripravljen" : "Pripravljen"}
+                      </button>
+                    ) : null}
+                    {iAmHost && !isYou && !member.is_host ? (
+                      <button
+                        type="button"
+                        className="lobby-kick-btn"
+                        disabled={Boolean(kickingId)}
+                        onClick={() => kickMember(member.id)}
+                      >
+                        {kickingId === member.id ? "…" : "Kick"}
+                      </button>
+                    ) : null}
+                  </div>
                 </li>
               );
             })}
@@ -217,6 +240,13 @@ export function GameLobby(props: GameLobbyProps) {
                     value={editSafe}
                     onChange={setEditSafe}
                     format={(value) => `Vsakih ${value}`}
+                  />
+                  <ChoiceGroup
+                    label="Čas na vprašanje"
+                    options={lobbyTimes}
+                    value={editSeconds}
+                    onChange={setEditSeconds}
+                    format={formatLobbyTime}
                   />
                 </>
               ) : (

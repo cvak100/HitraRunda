@@ -31,6 +31,7 @@ type LobbyRoom = {
 
 const DEFAULT_TARGETS = [100, 200, 500, 1000];
 const DEFAULT_SAFE = [5, 10];
+const DEFAULT_TIMES = [10, 15, 20, 30, 60];
 
 export function DirkaHubPage() {
   const { user } = useAuth();
@@ -44,6 +45,7 @@ export function DirkaHubPage() {
   const [maxPlayers, setMaxPlayers] = useState(4);
   const [targetScore, setTargetScore] = useState(200);
   const [safeEvery, setSafeEvery] = useState(5);
+  const [timeLimit, setTimeLimit] = useState(30);
   const [botCount, setBotCount] = useState(1);
   const [joinCode, setJoinCode] = useState("");
   const [joinPassword, setJoinPassword] = useState("");
@@ -53,6 +55,7 @@ export function DirkaHubPage() {
   const [pending, setPending] = useState(false);
   const [targets, setTargets] = useState(DEFAULT_TARGETS);
   const [safeOptions, setSafeOptions] = useState(DEFAULT_SAFE);
+  const [timeOptions, setTimeOptions] = useState(DEFAULT_TIMES);
   const [maxPlayersCap, setMaxPlayersCap] = useState(6);
   const [maxBots, setMaxBots] = useState(5);
 
@@ -67,6 +70,8 @@ export function DirkaHubPage() {
       dirka?: {
         targets?: number[];
         safe_every?: number[];
+        times?: number[];
+        time_limit_seconds?: number;
         max_bots?: number;
       };
       multiplayer?: { max_players?: number };
@@ -80,6 +85,17 @@ export function DirkaHubPage() {
         if (d?.safe_every?.length) {
           setSafeOptions(d.safe_every);
           setSafeEvery((current) => (d.safe_every!.includes(current) ? current : d.safe_every![0]));
+        }
+        if (d?.times?.length) {
+          setTimeOptions(d.times);
+          const preferred = d.time_limit_seconds;
+          setTimeLimit((current) =>
+            preferred != null && d.times!.includes(preferred)
+              ? preferred
+              : d.times!.includes(current)
+                ? current
+                : d.times![0],
+          );
         }
         if (typeof d?.max_bots === "number") {
           setMaxBots(d.max_bots);
@@ -114,6 +130,7 @@ export function DirkaHubPage() {
           max_players: maxPlayers,
           target_score: targetScore,
           safe_every: safeEvery,
+          time_limit_seconds: timeLimit,
           categories: selected,
           bot_count: botCount,
         }),
@@ -198,6 +215,13 @@ export function DirkaHubPage() {
             onChange={setSafeEvery}
             format={(value) => `Vsakih ${value}`}
           />
+          <ChoiceGroup
+            label="Čas na vprašanje"
+            options={timeOptions}
+            value={timeLimit}
+            onChange={setTimeLimit}
+            format={(value) => `${value} s`}
+          />
           <CategoryPicker categories={categories} value={selected} onChange={setSelected} showCounts="all" showSelectAll />
           <button className="primary" type="submit" disabled={pending || selected.length === 0}>
             Ustvari sobo
@@ -253,6 +277,7 @@ export function DirkaHubPage() {
                   {room.code} · {room.member_count}/{room.max_players}
                   {room.settings.target_score != null ? ` · cilj ${room.settings.target_score}` : ""}
                   {room.settings.safe_every != null ? ` · varna zona ${room.settings.safe_every}` : ""}
+                  {room.settings.time_limit_seconds != null ? ` · ${room.settings.time_limit_seconds} s` : ""}
                   {room.settings.bot_count ? ` · AI ${room.settings.bot_count}` : ""}
                 </p>
               </div>

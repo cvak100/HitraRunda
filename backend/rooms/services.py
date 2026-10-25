@@ -1,3 +1,4 @@
+import random
 import secrets
 from datetime import timedelta
 
@@ -13,7 +14,6 @@ from game.modes import (
     LOBBY_MODES,
     MODE_DIRKA,
     MODE_MULTIPLAYER,
-    MP_MIN_PLAYERS,
 )
 from game.seed_content import ensure_bots
 from game.site_settings import get as site_get
@@ -94,8 +94,9 @@ def create_multiplayer_room(user, raw):
     except (TypeError, ValueError):
         raise GameError("Število igralcev ni veljavno.")
     max_players_cap = int(site_get("mp_max_players"))
-    if not MP_MIN_PLAYERS <= max_players <= max_players_cap:
-        raise GameError(f"Število igralcev mora biti med {MP_MIN_PLAYERS} in {max_players_cap}.")
+    min_players = int(site_get("mp_min_players"))
+    if not min_players <= max_players <= max_players_cap:
+        raise GameError(f"Število igralcev mora biti med {min_players} in {max_players_cap}.")
     bot_count = int(settings.get("bot_count") or 0)
     if bot_count > max_players - 1:
         settings["bot_count"] = max(0, max_players - 1)
@@ -142,7 +143,12 @@ def join_room(user, code, raw):
         raise GameError("Igra je že v teku ali končana.")
     if (room.settings or {}).get("mode") not in LOBBY_MODES:
         raise GameError("To ni večigralska soba.")
-    if not room.check_password(str(raw.get("password") or "")):
+    invited = any(
+        int(item.get("user_id") or 0) == int(user.id)
+        for item in ((room.settings or {}).get("invites") or [])
+        if isinstance(item, dict)
+    )
+    if not invited and not room.check_password(str(raw.get("password") or "")):
         raise GameError("Napačno geslo.")
     active = room.members.filter(left_at__isnull=True)
     existing = active.filter(user=user).first()
@@ -191,8 +197,9 @@ def update_room_settings(user, code, raw):
     except (TypeError, ValueError):
         raise GameError("Število igralcev ni veljavno.")
     max_players_cap = int(site_get("mp_max_players"))
-    if not MP_MIN_PLAYERS <= max_players <= max_players_cap:
-        raise GameError(f"Število igralcev mora biti med {MP_MIN_PLAYERS} in {max_players_cap}.")
+    min_players = int(site_get("mp_min_players"))
+    if not min_players <= max_players <= max_players_cap:
+        raise GameError(f"Število igralcev mora biti med {min_players} in {max_players_cap}.")
     humans = room.members.filter(left_at__isnull=True, is_bot=False).count()
     if max_players < humans:
         raise GameError("V sobi je že več igralcev, kot dovoljuješ.")
@@ -233,8 +240,12 @@ def close_room(room, reason="closed"):
     room.save(update_fields=["status", "finished_at", "last_activity", "settings"])
     from game.models import GameSession
 
-    session = GameSession.objects.filter(room=room).first()
-    if session is not None and session.status in {"preparing", "active"}:
+    session = (
+        GameSession.objects.filter(room=room, status__in=["preparing", "active"])
+        .order_by("-created_at")
+        .first()
+    )
+    if session is not None:
         state = dict(session.state or {})
         state["reason"] = reason
         session.status = "aborted"
@@ -249,6 +260,25 @@ def admin_kick_member(room, member_id):
     """Admin: vrzi igralca/bota iz žive sobe (ne hosta)."""
     if room.status not in {"waiting", "playing"}:
         raise GameError("Soba ni aktivna.")
+    return _kick_member(room, member_id)
+
+
+def host_kick_member(user, code, member_id):
+    """Host: vrzi igralca/bota iz lobbyja (ne sebe)."""
+    room = Room.objects.filter(code=str(code or "").upper()).first()
+    if room is None:
+        raise GameError("Soba ne obstaja.")
+    if room.status != "waiting":
+        raise GameError("Igralca lahko vržeš samo v lobbyju.")
+    host = room.members.filter(user=user, left_at__isnull=True, is_host=True, is_bot=False).first()
+    if host is None:
+        raise GameError("Samo host lahko vrže igralca.")
+    member = _kick_member(room, member_id)
+    touch_room(room)
+    return room, member
+
+
+def _kick_member(room, member_id):
     member = room.members.filter(pk=member_id, left_at__isnull=True).first()
     if member is None:
         raise GameError("Igralec ni v sobi.")
@@ -267,6 +297,37 @@ def admin_kick_member(room, member_id):
         room.settings = settings
         room.save(update_fields=["settings"])
     return member
+
+
+def notify_room_lobby(room, *, lobby_event=None, lobby_event_member_id=None, kicked_message=None):
+    """Pošlji lobby osvežitev (opcijsko z dogodkom join/leave/kick)."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+        from game.modes import LOBBY_MODES
+
+        layer = get_channel_layer()
+        if layer is None:
+            return
+        mode = (room.settings or {}).get("mode")
+        if room.status != "waiting" or mode not in LOBBY_MODES:
+            return
+        payload = refresh_can_start(lobby_payload(room, viewer=None))
+        payload["type"] = "lobby"
+        payload["phase"] = "lobby"
+        payload["mode"] = mode
+        if lobby_event:
+            payload["lobby_event"] = lobby_event
+        if lobby_event_member_id:
+            payload["lobby_event_member_id"] = str(lobby_event_member_id)
+        if kicked_message:
+            payload["kicked_message"] = kicked_message
+        async_to_sync(layer.group_send)(
+            f"room_{room.code}",
+            {"type": "game.event", "payload": payload},
+        )
+    except Exception:
+        pass
 
 
 def _notify_room_closed(room):
@@ -294,13 +355,23 @@ def _notify_room_closed(room):
         pass
 
 
-def close_stale_rooms():
+def close_stale_rooms(*, force=False):
     """Zapri waiting/playing sobe brez aktivnosti več kot room_idle_seconds.
 
     Aktivne seje (preparing/active) pusti pri miru — last_activity se ob
     odgovorih ne posodablja vedno, zato idle close ne sme ubiti igre.
+
+    Throttle: največ enkrat na ~45 s (razen force=True), da GET lobby/list
+    ne piše v bazo ob vsakem klicu (H7).
     """
+    from django.core.cache import cache
+
     from game.models import GameSession
+
+    throttle_key = "close_stale_rooms_tick"
+    if not force and cache.get(throttle_key):
+        return 0
+    cache.set(throttle_key, 1, timeout=45)
 
     cutoff = timezone.now() - timedelta(seconds=int(site_get("room_idle_seconds")))
     live_session_room_ids = GameSession.objects.filter(status__in=["preparing", "active"]).values_list(
@@ -312,6 +383,16 @@ def close_stale_rooms():
     closed = 0
     for room in stale.iterator():
         close_room(room, reason="inactive")
+        closed += 1
+    return closed
+
+
+def close_live_rooms():
+    """Admin: zapri vse sobe v čakanju ali teku (tudi aktivne igre)."""
+    live = Room.objects.filter(status__in=["waiting", "playing"]).order_by("created_at")
+    closed = 0
+    for room in live.iterator():
+        close_room(room, reason="admin_bulk")
         closed += 1
     return closed
 
@@ -328,31 +409,42 @@ def sync_room_bots(room):
         settings["bot_count"] = want
         room.settings = settings
         room.save(update_fields=["settings"])
+    # V lobbyju bote odstranimo (ne soft-leave) — sicer unique (room, nick) blokira ponovni add.
     while len(bots) > want:
         bot = bots.pop()
-        bot.left_at = timezone.now()
-        bot.is_connected = False
-        bot.save(update_fields=["left_at", "is_connected"])
+        bot.delete()
     mode = (room.settings or {}).get("mode") or MODE_MULTIPLAYER
     profiles = _bots_for_mode(mode)
     used_profiles = {item.bot_profile_id for item in bots if item.bot_profile_id}
-    used_nicks = {item.nickname_in_room for item in room.members.filter(left_at__isnull=True)}
+    # Vključno z morebitnimi starimi left boti (če še obstajajo).
+    used_nicks = {item.nickname_in_room for item in room.members.all()}
+    # Po kicku: počisti leftover soft-left bote — novi se izberejo random.
+    room.members.filter(left_at__isnull=False, is_bot=True).delete()
     while len(bots) < want:
-        profile = next((item for item in profiles if item.id not in used_profiles), None)
+        free = [item for item in profiles if item.id not in used_profiles]
         reused = False
-        if profile is None and profiles:
-            profile = profiles[len(bots) % len(profiles)]
+        if free:
+            profile = random.choice(free)
+        elif profiles:
+            profile = random.choice(profiles)
             reused = True
+        else:
+            profile = None
         if profile is None:
             nick = f"Bot {len(bots) + 1}"
+            n = 1
             while nick in used_nicks:
-                nick = f"Bot {len(used_nicks) + 1}"
+                n += 1
+                nick = f"Bot {n}"
             color = "#7dcea0"
             bot_profile = None
         else:
             nick = profile.name if not reused else f"{profile.name} {len(bots) + 1}"
+            n = 1
+            base = profile.name
             while nick in used_nicks:
-                nick = f"{profile.name} {len(used_nicks) + 1}"
+                n += 1
+                nick = f"{base} {n}"
             color = profile.color or "#7dcea0"
             bot_profile = profile
             if not reused:
@@ -390,36 +482,79 @@ def set_ready(user, code, ready):
     return room
 
 
+def _notify_user_invite(user_id, invite_payload):
+    """Takojšnje obvestilo na /ws/notify/ (če je uporabnik povezan)."""
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+
+        layer = get_channel_layer()
+        if layer is None:
+            return
+        async_to_sync(layer.group_send)(
+            f"user_{user_id}",
+            {"type": "user.invite", "invite": invite_payload},
+        )
+    except Exception:
+        # Obvestilo je best-effort; polling v UI še vedno ujame.
+        return
+
+
 def invite_user(user, code, raw):
     room = _host_waiting_room(user, code)
     raw = raw if isinstance(raw, dict) else {}
     query = str(raw.get("nickname") or raw.get("q") or "").strip()
     if len(query) < 2:
-        raise GameError("Vpiši vsaj 2 znaka za iskanje.")
+        raise GameError("Vpiši vsaj 2 znaka za vzdevek.")
+    # Samo registrirani uporabniki (imajo e-pošto), iskanje izključno po vzdevku.
     target = (
-        User.objects.filter(is_guest=False, nickname__iexact=query).first()
-        or User.objects.filter(is_guest=False, email__iexact=query).first()
+        User.objects.filter(email__isnull=False, nickname__iexact=query)
+        .exclude(email="")
+        .first()
     )
-    if target is None:
-        raise GameError("Uporabnik ni najden.")
-    if target.id == user.id:
-        raise GameError("Ne moreš povabiti sebe.")
+    # Enoten / tih odgovor — ne razkrivaj, ali vzdevek obstaja (V7).
+    if target is None or target.id == user.id:
+        return room
     if room.members.filter(user=target, left_at__isnull=True).exists():
-        raise GameError("Uporabnik je že v sobi.")
+        return room
     settings = dict(room.settings or {})
     invites = list(settings.get("invites") or [])
     if any(item.get("user_id") == target.id for item in invites):
         return room
-    invites.append(
-        {
-            "user_id": target.id,
-            "nickname": target.nickname or target.email or "igralec",
-            "invited_at": timezone.now().isoformat(),
-        }
-    )
+    from_nickname = (user.nickname or "").strip() or (user.email or "host")
+    invite = {
+        "user_id": target.id,
+        "nickname": (target.nickname or "").strip() or "igralec",
+        "from_user_id": user.id,
+        "from_nickname": from_nickname,
+        "invited_at": timezone.now().isoformat(),
+    }
+    invites.append(invite)
     settings["invites"] = invites
     room.settings = settings
     room.save(update_fields=["settings"])
+    mode = settings.get("mode")
+    _notify_user_invite(
+        target.id,
+        {
+            "code": room.code,
+            "name": room.name or "",
+            "mode": mode,
+            "from_nickname": from_nickname,
+            "host_nickname": from_nickname,
+            "link": f"/igra/{room.code}",
+            "invited_at": invite["invited_at"],
+            "settings": {
+                "mode": mode,
+                "target_score": settings.get("target_score"),
+                "safe_every": settings.get("safe_every"),
+                "question_count": settings.get("question_count"),
+                "time_limit_seconds": settings.get("time_limit_seconds"),
+            },
+            "member_count": room.members.filter(left_at__isnull=True).count(),
+            "max_players": room.max_players,
+        },
+    )
     return room
 
 
@@ -479,8 +614,14 @@ def quick_join(user, raw):
     if mode == MODE_DIRKA:
         targets = list(site_get("dirka_target_scores") or [200])
         safes = list(site_get("dirka_safe_every") or [5])
+        dirka_times = list(site_get("dirka_allowed_times") or [30])
+        default_time = int(site_get("dirka_time_seconds") or 30)
         create_raw["target_score"] = raw.get("target_score", 200 if 200 in targets else targets[0])
         create_raw["safe_every"] = raw.get("safe_every", 5 if 5 in safes else safes[0])
+        create_raw["time_limit_seconds"] = raw.get(
+            "time_limit_seconds",
+            default_time if default_time in dirka_times else dirka_times[0],
+        )
         create_raw["bot_count"] = raw.get("bot_count", 1)
     else:
         mp_counts = list(site_get("mp_question_counts") or [10])
@@ -505,8 +646,20 @@ def list_invites(user, mode=None):
     rows = []
     for room in rooms:
         invites = (room.settings or {}).get("invites") or []
-        if any(item.get("user_id") == user.id for item in invites):
-            rows.append(lobby_payload(room, viewer=user))
+        mine = next(
+            (
+                item
+                for item in invites
+                if isinstance(item, dict) and int(item.get("user_id") or 0) == int(user.id)
+            ),
+            None,
+        )
+        if mine is None:
+            continue
+        payload = lobby_payload(room, viewer=user)
+        payload["invite_from"] = mine.get("from_nickname") or payload.get("host_nickname") or ""
+        payload["invited_at"] = mine.get("invited_at") or ""
+        rows.append(payload)
     return rows
 
 
@@ -551,7 +704,7 @@ def lobby_payload(room, viewer=None):
         ],
         "member_count": len(members),
         "all_ready": bool(members)
-        and len(members) >= MP_MIN_PLAYERS
+        and len(members) >= int(site_get("mp_min_players"))
         and all(member.is_ready or member.is_bot for member in members),
         "can_start": False,
         "is_host": bool(viewer_member and viewer_member.is_host),
@@ -575,7 +728,7 @@ def lobby_payload(room, viewer=None):
 
 def refresh_can_start(payload):
     members = payload.get("members") or []
-    enough = len(members) >= MP_MIN_PLAYERS
+    enough = len(members) >= int(site_get("mp_min_players"))
     all_ready = enough and all(item["is_ready"] or item.get("is_bot") for item in members)
     payload["all_ready"] = all_ready
     payload["can_start"] = bool(payload.get("is_host") and all_ready and payload.get("status") == "waiting")
@@ -612,11 +765,9 @@ def _host_waiting_room(user, code):
 def rematch_room(user, code):
     """Host: po končani MP/Dirki tekmi ponovno odpri lobby v isti sobi.
 
-    Stara GameSession se zbriše (GameResult ostane — FK SET_NULL),
+    Stare GameSession/GameResult/replay ostanejo (več sej na sobo);
     člani ostanejo, status sobe gre nazaj na waiting.
     """
-    from game.models import GameSession
-
     room = Room.objects.filter(code=str(code or "").upper()).select_related("host").first()
     if room is None:
         raise GameError("Soba ne obstaja.")
@@ -630,13 +781,13 @@ def rematch_room(user, code):
     if host_member is None:
         raise GameError("Nisi več v sobi.")
 
-    # Rezultati ostanejo (SET_NULL na session); vprašanja/odgovori seje gredo stran.
-    GameSession.objects.filter(room=room).delete()
-
     room.status = "waiting"
     room.finished_at = None
     room.last_activity = timezone.now()
-    room.save(update_fields=["status", "finished_at", "last_activity"])
+    settings = dict(room.settings or {})
+    settings.pop("lobby_countdown_ends_at", None)
+    room.settings = settings
+    room.save(update_fields=["status", "finished_at", "last_activity", "settings"])
 
     room.members.filter(left_at__isnull=True, is_bot=False).update(is_ready=False, is_host=False)
     host_member.is_host = True
@@ -645,7 +796,6 @@ def rematch_room(user, code):
     host_member.save(update_fields=["is_host", "is_ready", "is_connected", "last_activity"])
 
     sync_room_bots(room)
-    refresh_can_start(room)
     touch_room(room)
     return room
 
@@ -684,7 +834,19 @@ def leave_room(user, code):
         room.host = new_host.user
         room.save(update_fields=["host", "last_activity"])
     elif not humans:
-        # Nihče živih ljudi — zapri sobo (boti sami ne igrajo naprej).
+        bots = [item for item in remaining if item.is_bot]
+        if room.status == "playing" and bots:
+            # Med igro: boti odigrajo preostanek (bot host + ozadje).
+            new_host = bots[0]
+            new_host.is_host = True
+            new_host.save(update_fields=["is_host", "last_activity"])
+            _reconcile_session_after_leave(room, member)
+            touch_room(room)
+            from game.bot_only import schedule_bot_only_continue
+
+            schedule_bot_only_continue(room.id)
+            return room
+        # Lobby (ali igra brez botov): zapri — boti sami v čakalni sobi ne držijo sobe.
         room.status = "closed"
         room.finished_at = now
         room.save(update_fields=["status", "finished_at", "last_activity"])

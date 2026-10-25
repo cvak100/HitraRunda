@@ -193,6 +193,38 @@ class MultiplayerLobbyTests(TestCase):
         self.assertEqual((room.settings or {}).get("bot_count"), 2)
         self.assertEqual(room.members.filter(left_at__isnull=True, is_bot=True).count(), 2)
 
+    def test_bots_can_be_removed_and_readded(self):
+        created = self.host.post(
+            "/api/rooms/",
+            {
+                "mode": "multiplayer",
+                "nickname": "Hostek",
+                "visibility": "public",
+                "max_players": 4,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "categories": ["sport"],
+                "bot_count": 2,
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, 200, created.data)
+        code = created.data["code"]
+        host_user = RoomMember.objects.get(room__code=code, is_host=True).user
+        base = {
+            "question_count": 5,
+            "time_limit_seconds": 30,
+            "categories": ["sport"],
+            "max_players": 4,
+            "visibility": "public",
+        }
+        room = update_room_settings(host_user, code, {**base, "bot_count": 0})
+        self.assertEqual((room.settings or {}).get("bot_count"), 0)
+        self.assertEqual(room.members.filter(left_at__isnull=True, is_bot=True).count(), 0)
+        room = update_room_settings(host_user, code, {**base, "bot_count": 2})
+        self.assertEqual((room.settings or {}).get("bot_count"), 2)
+        self.assertEqual(room.members.filter(left_at__isnull=True, is_bot=True).count(), 2)
+
     def test_sudden_death_and_bonuses(self):
         created = self.host.post(
             "/api/rooms/",
@@ -337,3 +369,125 @@ class MultiplayerLobbyTests(TestCase):
         submit_answer(host_member.id, {"game_question_id": str(game_question.id), "pairs": host_pairs})
         bot_result = submit_answer(bot_member.id, bot_msg)
         self.assertEqual(bot_result[0]["phase"], "round_review")
+
+    def test_host_leave_midgame_continues_with_bots(self):
+        from game.bot_only import continue_bot_only_match
+        from rooms.models import Room
+
+        created = self.host.post(
+            "/api/rooms/",
+            {
+                "mode": "multiplayer",
+                "nickname": "Hostek",
+                "visibility": "unlisted",
+                "max_players": 4,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "categories": ["sport"],
+                "bot_count": 3,
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, 200, created.data)
+        code = created.data["code"]
+        self.host.post(f"/api/rooms/{code}/ready/", {"ready": True}, format="json")
+        host_member = RoomMember.objects.get(room__code=code, is_host=True)
+        start_multiplayer(host_member.id)
+        room = Room.objects.get(code=code)
+        self.assertEqual(room.status, "playing")
+
+        left = self.host.post(f"/api/rooms/{code}/leave/", {}, format="json")
+        self.assertEqual(left.status_code, 200, left.data)
+        room.refresh_from_db()
+        self.assertEqual(room.status, "playing")
+        self.assertFalse(room.members.filter(left_at__isnull=True, is_bot=False).exists())
+        bot_host = room.members.filter(left_at__isnull=True, is_host=True).first()
+        self.assertIsNotNone(bot_host)
+        self.assertTrue(bot_host.is_bot)
+
+        summary = continue_bot_only_match(room.id)
+        self.assertEqual(summary.get("reason"), "finished")
+        session = GameSession.objects.get(room=room)
+        self.assertEqual(session.status, "finished")
+        room.refresh_from_db()
+        self.assertEqual(room.status, "finished")
+
+    def test_host_leave_lobby_with_only_bots_closes(self):
+        from rooms.models import Room
+
+        created = self.host.post(
+            "/api/rooms/",
+            {
+                "mode": "multiplayer",
+                "nickname": "Hostek",
+                "visibility": "unlisted",
+                "max_players": 4,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "bot_count": 2,
+                "categories": ["sport"],
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, 200, created.data)
+        code = created.data["code"]
+        left = self.host.post(f"/api/rooms/{code}/leave/", {}, format="json")
+        self.assertEqual(left.status_code, 200, left.data)
+        room = Room.objects.get(code=code)
+        self.assertEqual(room.status, "closed")
+
+    def test_rematch_reopens_lobby_after_finished(self):
+        from rooms.models import Room
+        from rooms.services import rematch_room
+
+        created = self.host.post(
+            "/api/rooms/",
+            {
+                "mode": "multiplayer",
+                "nickname": "Hostek",
+                "visibility": "unlisted",
+                "max_players": 4,
+                "question_count": 5,
+                "time_limit_seconds": 30,
+                "categories": ["sport"],
+                "bot_count": 1,
+            },
+            format="json",
+        )
+        self.assertEqual(created.status_code, 200, created.data)
+        code = created.data["code"]
+        self.host.post(f"/api/rooms/{code}/ready/", {"ready": True}, format="json")
+        host_member = RoomMember.objects.get(room__code=code, is_host=True)
+        host_user = host_member.user
+        start_multiplayer(host_member.id)
+        session = GameSession.objects.get(room__code=code)
+        members = list(RoomMember.objects.filter(room__code=code, left_at__isnull=True))
+        for order in range(session.total_questions):
+            gq = session.game_questions.get(order=order)
+            correct = gq.question.options.get(is_correct=True)
+            for member in members:
+                submit_answer(
+                    str(member.id),
+                    {"game_question_id": str(gq.id), "option_id": correct.id},
+                )
+            next_multiplayer(str(host_member.id))
+        session.refresh_from_db()
+        self.assertEqual(session.status, "finished")
+        room = Room.objects.get(code=code)
+        self.assertEqual(room.status, "finished")
+
+        result_ids = list(
+            GameResult.objects.filter(game_session=session).values_list("id", flat=True)
+        )
+        self.assertTrue(result_ids)
+
+        rematched = rematch_room(host_user, code)
+        self.assertEqual(rematched.status, "waiting")
+        # Stara seja ostane — zmage/replay ne smejo izginiti.
+        self.assertTrue(GameSession.objects.filter(pk=session.pk).exists())
+        self.assertEqual(session.results.filter(game_session_id=session.pk).count(), len(result_ids))
+        for result in GameResult.objects.filter(pk__in=result_ids):
+            self.assertEqual(result.game_session_id, session.pk)
+        host_member.refresh_from_db()
+        self.assertTrue(host_member.is_host)
+        self.assertTrue(host_member.is_ready)

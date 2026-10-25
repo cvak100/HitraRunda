@@ -10,8 +10,18 @@ import { useAuth } from "../auth";
 import { formatDuration, formatMode, formatPoints, formatWhen } from "../format";
 import type { GameMode, OverallRow, ScoreRow } from "../types";
 
-type SortKey = "nickname" | "score" | "prize_reached" | "correct_count" | "played_at" | "duration_ms";
-type OverallSortKey = "nickname" | "total_points" | "wins" | "games";
+type SortKey = "nickname" | "score" | "prize_reached" | "correct_count" | "played_at" | "duration_ms" | "place";
+type OverallSortKey =
+  | "nickname"
+  | "total_points"
+  | "best_score"
+  | "wins"
+  | "games"
+  | "place_1"
+  | "place_2"
+  | "place_3"
+  | "correct_count"
+  | "last_played_at";
 type BoardView = "best" | "totals";
 
 type BoardLimit = "10" | "100" | "all";
@@ -58,6 +68,7 @@ export function LeaderboardPage() {
     setQuery("");
     setSubmitted("");
     setSearchOpen(false);
+    setBoardView(searchParams.get("view") === "totals" ? "totals" : "best");
   }, [mode]);
 
   useEffect(() => {
@@ -226,12 +237,17 @@ export function LeaderboardPage() {
             ) : null}
           </div>
           {isTotals ? (
-            <TotalsTable rows={totalsRows} empty="Še ni rezultatov." showWins={showWins} />
+            <TotalsTable
+              rows={totalsRows}
+              empty="Še ni rezultatov."
+              showWins={showWins && mode !== "dirka"}
+              showPodium={mode === "dirka"}
+            />
           ) : (
             <ScoreTable
               rows={rows}
               empty={mine ? "Še nisi končal igre." : "Še ni rezultatov."}
-              defaultSort={mine ? "played_at" : "score"}
+              defaultSort={mine ? "played_at" : mode === "dirka" ? "place" : "score"}
               mode={mode}
               onOpen={(row) => navigate(`/lestvica/rezultat/${row.id}`)}
             />
@@ -246,7 +262,44 @@ function sortValue(row: ScoreRow, key: SortKey) {
   if (key === "played_at") return new Date(row.played_at).getTime();
   if (key === "nickname") return row.nickname.toLowerCase();
   if (key === "duration_ms") return row.duration_ms ?? 0;
+  if (key === "place") return row.place ?? 999;
   return row[key] ?? 0;
+}
+
+function PodiumHeaders({
+  sort,
+  direction,
+  onSort,
+  countMode = false,
+}: {
+  sort: string;
+  direction: "asc" | "desc";
+  onSort: (column: string) => void;
+  /** true = štetje mest (Skupno); false = mesto ene igre (Najboljši). */
+  countMode?: boolean;
+}) {
+  return (
+    <>
+      {([1, 2, 3] as const).map((place) => {
+        const column = place === 1 ? "place_1" : place === 2 ? "place_2" : "place_3";
+        const active = countMode ? sort === column : sort === "place";
+        return (
+          <th key={place} className="board-col-medal" title={countMode ? `${place}. mesta` : `${place}. mesto`}>
+            <button
+              type="button"
+              className={`sort board-medal-sort${active ? " is-on" : ""}`}
+              onClick={() => onSort(countMode ? column : "place")}
+            >
+              <span className={`board-medal is-${place}`} aria-hidden>
+                {place}
+              </span>
+              <span className="fine">{active ? (direction === "asc" ? "↑" : "↓") : ""}</span>
+            </button>
+          </th>
+        );
+      })}
+    </>
+  );
 }
 
 function ScoreTable({
@@ -263,13 +316,14 @@ function ScoreTable({
   mode: GameMode;
 }) {
   const [sort, setSort] = useState<SortKey>(defaultSort);
-  const [direction, setDirection] = useState<"asc" | "desc">("desc");
+  const [direction, setDirection] = useState<"asc" | "desc">(defaultSort === "place" ? "asc" : "desc");
   const isSixty = mode === "60_sekund";
+  const isDirka = mode === "dirka";
   const showPrize = mode === "hitrarunda" || mode === "ala_milijonar";
 
   useEffect(() => {
     setSort(defaultSort);
-    setDirection("desc");
+    setDirection(defaultSort === "place" ? "asc" : "desc");
   }, [defaultSort]);
 
   const sorted = useMemo(() => {
@@ -278,7 +332,9 @@ function ScoreTable({
       const av = sortValue(a, sort);
       const bv = sortValue(b, sort);
       const cmp = typeof av === "string" ? av.localeCompare(String(bv), "sl") : Number(av) - Number(bv);
-      return direction === "asc" ? cmp : -cmp;
+      if (cmp !== 0) return direction === "asc" ? cmp : -cmp;
+      if (sort === "place") return Number(b.score) - Number(a.score);
+      return 0;
     });
     return list;
   }, [rows, sort, direction]);
@@ -288,20 +344,23 @@ function ScoreTable({
     if (sort === key) setDirection((current) => (current === "asc" ? "desc" : "asc"));
     else {
       setSort(key);
-      setDirection(key === "nickname" ? "asc" : "desc");
+      setDirection(key === "nickname" || key === "place" ? "asc" : "desc");
     }
   }
 
   if (!rows.length) return <p className="fine">{empty}</p>;
 
   return (
-    <div className="table-wrap">
-      <table className="data-table">
+    <div className="table-wrap board-scroll">
+      <table className="data-table board-table">
         <thead>
           <tr>
             <SortableTh label="Igralec" column="nickname" sort={sort} direction={direction} onSort={toggleSort} />
+            {isDirka ? (
+              <PodiumHeaders sort={sort} direction={direction} onSort={toggleSort} />
+            ) : null}
             <SortableTh
-              label={isSixty ? "Pravilni" : "Točke"}
+              label={isSixty ? "Pravilni" : isDirka ? "Točk" : "Točke"}
               column="score"
               sort={sort}
               direction={direction}
@@ -316,7 +375,13 @@ function ScoreTable({
             {isSixty ? (
               <SortableTh label="Čas" column="duration_ms" sort={sort} direction={direction} onSort={toggleSort} />
             ) : (
-              <SortableTh label="Pravilni" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+              <SortableTh
+                label={isDirka || mode === "multiplayer" ? "Vprašanj" : "Pravilni"}
+                column="correct_count"
+                sort={sort}
+                direction={direction}
+                onSort={toggleSort}
+              />
             )}
             <SortableTh label="Kdaj" column="played_at" sort={sort} direction={direction} onSort={toggleSort} />
           </tr>
@@ -327,9 +392,16 @@ function ScoreTable({
               <td>
                 <span className="board-player">
                   <Avatar avatar={row.avatar} color={row.preferred_color || "#7dcea0"} size={32} title={row.nickname} />
-                  <span>{row.nickname}</span>
+                  <span className="board-player-name">{row.nickname}</span>
                 </span>
               </td>
+              {isDirka ? (
+                <>
+                  <td className="board-col-medal">{row.place === 1 ? 1 : 0}</td>
+                  <td className="board-col-medal">{row.place === 2 ? 1 : 0}</td>
+                  <td className="board-col-medal">{row.place === 3 ? 1 : 0}</td>
+                </>
+              ) : null}
               <td>{formatPoints(row.score)}</td>
               {isSixty ? (
                 <td>
@@ -357,19 +429,37 @@ function TotalsTable({
   rows,
   empty,
   showWins,
+  showPodium = false,
 }: {
   rows: OverallRow[];
   empty: string;
   showWins: boolean;
+  showPodium?: boolean;
 }) {
-  const [sort, setSort] = useState<OverallSortKey>("total_points");
+  const defaultSort: OverallSortKey = showPodium ? "place_1" : "total_points";
+  const [sort, setSort] = useState<OverallSortKey>(defaultSort);
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
+
+  useEffect(() => {
+    setSort(showPodium ? "place_1" : "total_points");
+    setDirection("desc");
+  }, [showPodium]);
 
   const sorted = useMemo(() => {
     const list = [...rows];
     list.sort((a, b) => {
-      const av = sort === "nickname" ? a.nickname.toLowerCase() : a[sort];
-      const bv = sort === "nickname" ? b.nickname.toLowerCase() : b[sort];
+      let av: string | number;
+      let bv: string | number;
+      if (sort === "nickname") {
+        av = a.nickname.toLowerCase();
+        bv = b.nickname.toLowerCase();
+      } else if (sort === "last_played_at") {
+        av = a.last_played_at ? new Date(a.last_played_at).getTime() : 0;
+        bv = b.last_played_at ? new Date(b.last_played_at).getTime() : 0;
+      } else {
+        av = Number(a[sort] ?? 0);
+        bv = Number(b[sort] ?? 0);
+      }
       const cmp = typeof av === "string" ? av.localeCompare(String(bv), "sl") : Number(av) - Number(bv);
       return direction === "asc" ? cmp : -cmp;
     });
@@ -388,16 +478,21 @@ function TotalsTable({
   if (!rows.length) return <p className="fine">{empty}</p>;
 
   return (
-    <div className="table-wrap">
-      <table className="data-table">
+    <div className="table-wrap board-scroll">
+      <table className="data-table board-table">
         <thead>
           <tr>
             <SortableTh label="Igralec" column="nickname" sort={sort} direction={direction} onSort={toggleSort} />
+            {showPodium ? (
+              <PodiumHeaders sort={sort} direction={direction} onSort={toggleSort} countMode />
+            ) : null}
             <SortableTh label="Skupaj točk" column="total_points" sort={sort} direction={direction} onSort={toggleSort} />
             {showWins ? (
               <SortableTh label="Zmage" column="wins" sort={sort} direction={direction} onSort={toggleSort} />
             ) : null}
             <SortableTh label="Igre" column="games" sort={sort} direction={direction} onSort={toggleSort} />
+            <SortableTh label="Vprašanj" column="correct_count" sort={sort} direction={direction} onSort={toggleSort} />
+            <SortableTh label="Kdaj" column="last_played_at" sort={sort} direction={direction} onSort={toggleSort} />
           </tr>
         </thead>
         <tbody>
@@ -406,12 +501,23 @@ function TotalsTable({
               <td>
                 <span className="board-player">
                   <Avatar avatar={row.avatar} color={row.preferred_color || "#7dcea0"} size={32} title={row.nickname} />
-                  <span>{row.nickname}</span>
+                  <span className="board-player-name">{row.nickname}</span>
                 </span>
               </td>
+              {showPodium ? (
+                <>
+                  <td className="board-col-medal">{row.place_1 ?? row.wins ?? 0}</td>
+                  <td className="board-col-medal">{row.place_2 ?? 0}</td>
+                  <td className="board-col-medal">{row.place_3 ?? 0}</td>
+                </>
+              ) : null}
               <td>{formatPoints(row.total_points)}</td>
               {showWins ? <td>{row.wins}</td> : null}
               <td>{row.games}</td>
+              <td>
+                {row.correct_count ?? 0}/{row.total_questions ?? 0}
+              </td>
+              <td>{row.last_played_at ? formatWhen(row.last_played_at) : "—"}</td>
             </tr>
           ))}
         </tbody>

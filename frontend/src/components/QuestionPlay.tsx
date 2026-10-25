@@ -2,10 +2,15 @@ import { useEffect, useState } from "react";
 
 import type { GameMessage, PublicQuestion } from "../types";
 
+type AnswerHighlight = Pick<
+  GameMessage,
+  "correct_option_ids" | "selected_option_ids" | "correct_pairs" | "selected_pairs"
+>;
+
 type Props = {
   question: PublicQuestion;
   locked: boolean;
-  result: GameMessage | null;
+  result: AnswerHighlight | null;
   eliminatedOptionIds?: number[];
   audienceVotes?: { option_id: number; percent: number }[];
   onSubmit: (body: Record<string, unknown>) => void;
@@ -34,9 +39,12 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
   }, [question.game_question_id]);
 
   function optionClass(id: number) {
-    if (!result?.correct_option_ids) return "";
-    if (result.correct_option_ids.includes(id)) return "is-correct";
-    if (result.selected_option_ids?.includes(id)) return "is-wrong";
+    if (result?.correct_option_ids?.length) {
+      if (result.correct_option_ids.includes(id)) return "is-correct";
+      if (result.selected_option_ids?.includes(id)) return "is-wrong";
+      return "";
+    }
+    if (result?.selected_option_ids?.includes(id) || picked.includes(id)) return "is-on";
     return "";
   }
 
@@ -53,7 +61,10 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
               type="button"
               className={`slab ${optionClass(option.id)}`}
               disabled={locked}
-              onClick={() => onSubmit({ option_id: option.id })}
+              onClick={() => {
+                setPicked([option.id]);
+                onSubmit({ option_id: option.id });
+              }}
             >
               {option.text}
               {vote !== undefined ? <span className="fine"> · {vote} %</span> : null}
@@ -266,7 +277,7 @@ function move(items: { id: number; text: string }[], index: number, direction: -
   setItems(copy);
 }
 
-function pairClass(id: string, result: GameMessage | null, side: "left" | "right") {
+function pairClass(id: string, result: AnswerHighlight | null, side: "left" | "right") {
   if (!result?.correct_pairs) return "";
   const selected = result.selected_pairs ?? [];
   const correct = result.correct_pairs;

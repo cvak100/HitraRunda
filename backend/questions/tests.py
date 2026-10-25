@@ -1,7 +1,7 @@
 import json
 
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.utils import timezone
 from rest_framework.test import APIClient
 
@@ -11,13 +11,17 @@ from questions.importer import export_payload, import_payload
 from questions.models import Category, Question, QuestionOption, QuestionReport
 from rooms.models import Room, RoomMember
 
+EXPECTED_SEED_COUNT = 14536
+
 
 class ImportTests(TestCase):
+    @tag("slow")
     def test_seed_is_idempotent(self):
         call_command("seed_questions")
         call_command("seed_questions")
-        self.assertEqual(Question.objects.count(), 100)
+        self.assertEqual(Question.objects.count(), EXPECTED_SEED_COUNT)
 
+    @tag("slow")
     def test_update_keeps_option_ids_and_count(self):
         call_command("seed_questions")
         question = Question.objects.get(external_key="sport-d1-1")
@@ -30,12 +34,37 @@ class ImportTests(TestCase):
         question.refresh_from_db()
         self.assertEqual(question.text, "Spremenjeno besedilo")
         self.assertEqual(question.options.order_by("order").first().id, option_id)
-        self.assertEqual(Question.objects.count(), 100)
+        self.assertEqual(Question.objects.count(), EXPECTED_SEED_COUNT)
 
     def test_export_keeps_slider_secret_on_the_server_file(self):
-        call_command("seed_questions")
+        # Novi seed nima sliderjev — fixture v testu.
+        Category.objects.get_or_create(slug="zemljepis", defaults={"name": "Zemljepis", "order": 2})
+        report = import_payload(
+            json.dumps(
+                {
+                    "version": 1,
+                    "questions": [
+                        {
+                            "key": "zemljepis-slider-test",
+                            "category": "zemljepis",
+                            "question_type": "slider",
+                            "difficulty": 2,
+                            "text": "Koliko m je Triglav?",
+                            "slider": {
+                                "min": 2000,
+                                "max": 3000,
+                                "step": 1,
+                                "correct": 2864,
+                                "tolerance": 50,
+                            },
+                        }
+                    ],
+                }
+            )
+        )
+        self.assertEqual(report["errors"], [])
         payload = export_payload()
-        slider = next(item for item in payload["questions"] if item["key"] == "zemljepis-d2-2")
+        slider = next(item for item in payload["questions"] if item["key"] == "zemljepis-slider-test")
         self.assertEqual(slider["slider"]["correct"], 2864)
         self.assertEqual(slider["slider"]["tolerance"], 50)
 
@@ -92,6 +121,28 @@ class ImportTests(TestCase):
         question = Question.objects.get(external_key="živali-d1-test")
         self.assertEqual(question.category.slug, "zivali")
         self.assertEqual(question.category.name, "Živali")
+
+    @tag("slow")
+    def test_seed_preserves_admin_deactivation(self):
+        call_command("seed_questions")
+        question = Question.objects.get(external_key="sport-d1-1")
+        question.is_active = False
+        question.save(update_fields=["is_active"])
+        call_command("seed_questions")
+        question.refresh_from_db()
+        self.assertFalse(question.is_active)
+
+    @tag("slow")
+    def test_seed_only_new_skips_existing(self):
+        call_command("seed_questions", only_new=True)
+        self.assertEqual(Question.objects.count(), EXPECTED_SEED_COUNT)
+        question = Question.objects.get(external_key="sport-d1-1")
+        question.text = "Admin popravek"
+        question.save(update_fields=["text"])
+        call_command("seed_questions", only_new=True)
+        question.refresh_from_db()
+        self.assertEqual(question.text, "Admin popravek")
+        self.assertEqual(Question.objects.count(), EXPECTED_SEED_COUNT)
 
 
 class ReportTests(TestCase):

@@ -4,7 +4,7 @@ Spletna kviz igra v slovenščini. Igraš solo ali z drugimi, izbiraš kategorij
 
 Začetek je možen kot gost z vzdevkom; z računom rezultati ostanejo na profilu in javni lestvici.
 
-**Alpha 0.3** — točna verzija je v [`VERSION`](VERSION) (`0.3.<število komitov>`). V nogi UI: `v0.3.…`. Ops: [`docs/ops.md`](docs/ops.md).
+**Alpha 0.4** — točna verzija je v [`VERSION`](VERSION) (`0.4.<število komitov>`). V nogi UI: `v0.4.…`. Ops: [`docs/ops.md`](docs/ops.md).
 
 ![Domov — gost in načini igre](docs/screenshots/home.png)
 
@@ -18,7 +18,7 @@ Po prijavi (ali kot gost) odpreš seznam načinov. Vsak način ima lastno nastav
 
 ### Hitra runda
 
-Kratke solo runde. Izbereš kategorije, število vprašanj (5–15) in čas na vprašanje. Brez jokerjev — šteje hitrost. Prvi napačen ali prepozen odgovor konča igro; točke do tja ostanejo na rezultatu.
+Kratke solo runde. Izbereš kategorije, število vprašanj (5–100) in čas na vprašanje. Brez jokerjev — vsak pravilen odgovor da 100 točk + speed bonus. Prvi napačen ali prepozen odgovor konča igro; točke do tja ostanejo na rezultatu.
 
 ![Hitra runda — nastavitev](docs/screenshots/mode-hitrarunda.png)
 
@@ -105,7 +105,7 @@ backend/     Django API, igralni motorji, WebSocket
 frontend/    React odjemalec
 deploy/      Produkcijski install (HTTP/HTTPS)
 docs/        Dokumentacija in posnetki zaslona
-questions.json   Vsebina vprašanj (uvoz prek admina)
+backend/questions/data/seed.json   Kanonični seed vprašanj (`manage.py seed_questions`)
 ```
 
 ## Admin

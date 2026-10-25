@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { formatPoints } from "../../format";
+import { playSfx, unlockSfx } from "../../sound";
 import type { GameMessage } from "../../types";
 import { Avatar } from "../Avatar";
 
@@ -20,33 +21,84 @@ export function RoundReview({
   const [secondsLeft, setSecondsLeft] = useState(advanceSeconds);
   const onNextRef = useRef(onNext);
   onNextRef.current = onNext;
+  const lastBeepRef = useRef<number | null>(null);
+  const isDirka = message.mode === "dirka";
+
+  const mine = (message.answers || []).find((row) => row.member_id === myId);
+  const title = !mine
+    ? "Rezultat runde"
+    : mine.timed_out
+      ? "Čas je potekel"
+      : mine.skipped
+        ? "Preskočeno"
+        : mine.is_correct
+          ? "Pravilno"
+          : "Napačno";
+  const tone = !mine ? "good" : mine.is_correct ? "good" : "bad";
+  const myScore =
+    message.you?.score ??
+    message.standings?.find((row) => row.member_id === myId)?.score ??
+    message.players?.[myId]?.score;
+  const roundPoints = mine?.points;
 
   useEffect(() => {
     setSecondsLeft(advanceSeconds);
+    lastBeepRef.current = null;
     const started = Date.now();
-    let fired = false;
+    let lastNudge = 0;
     const tick = window.setInterval(() => {
       const left = Math.max(0, advanceSeconds - Math.floor((Date.now() - started) / 1000));
       setSecondsLeft(left);
-      // Rezerva, če strežnikov timer odpade — kateri koli klient potisne next ob 0.
-      if (left <= 0 && !fired) {
-        fired = true;
-        onNextRef.current();
+      // Dirka: zadnje 3 s — tk tk tk (countdown_beep).
+      if (isDirka && left >= 1 && left <= 3 && lastBeepRef.current !== left) {
+        lastBeepRef.current = left;
+        unlockSfx();
+        playSfx("countdown_beep");
+      }
+      // Ob 0: potisni next, in ponavljaj vsake ~1.5 s dokler strežnik ne pošlje novega vprašanja
+      // (sicer en neuspešen [] / race pusti UI na »čez 0 s« za vedno).
+      if (left <= 0) {
+        const now = Date.now();
+        if (now - lastNudge >= 1500) {
+          lastNudge = now;
+          onNextRef.current();
+        }
       }
     }, 200);
     return () => window.clearInterval(tick);
-  }, [advanceSeconds, message.index]);
+  }, [advanceSeconds, message.index, isDirka]);
 
   return (
-    <div className="review good">
-      <h2>Rezultat runde</h2>
-      {message.explanation ? <p>{message.explanation}</p> : null}
+    <div className={`review ${tone}`}>
+      <p className="review-verdict">{title}</p>
+      {mine ? (
+        <p className="review-score">
+          {roundPoints != null ? (
+            <>
+              Ta runda <strong>{formatPoints(roundPoints)}</strong>
+              {myScore != null ? (
+                <>
+                  {" "}
+                  · skupaj <strong>{formatPoints(myScore)}</strong>
+                </>
+              ) : null}
+            </>
+          ) : myScore != null ? (
+            <>
+              Skupaj <strong>{formatPoints(myScore)}</strong>
+            </>
+          ) : null}
+        </p>
+      ) : null}
       {message.sudden_death ? (
         <p className="fine">Sudden death · še v igri: {message.alive_count ?? "?"}</p>
       ) : null}
-      <ul>
+      <ul className="round-review-list">
         {(message.answers || []).map((row) => (
-          <li key={`${row.member_id}-${row.nickname}`} className={row.is_correct ? "answered-correct" : "answered-wrong"}>
+          <li
+            key={`${row.member_id}-${row.nickname}`}
+            className={row.is_correct ? "answered-correct" : "answered-wrong"}
+          >
             <span className="answer-player">
               <Avatar avatar={row.avatar} color={row.color || "#7dcea0"} size={28} title={row.nickname} />
               <span>
@@ -55,22 +107,36 @@ export function RoundReview({
               </span>
             </span>
             <span>
-              {row.timed_out ? "čas" : row.is_correct ? "prav" : "narobe"} · {formatPoints(row.points)}
+              {row.timed_out
+                ? "čas"
+                : row.skipped
+                  ? "preskok"
+                  : row.is_correct
+                    ? "prav"
+                    : "narobe"}{" "}
+              · {formatPoints(row.points)}
               {row.round_bonus ? " · rundni bonus" : ""}
               {row.streak_bonus ? ` · streak +${row.streak_bonus}` : ""}
               {row.catchup_bonus ? ` · catch-up +${row.catchup_bonus}` : ""}
+              {row.steal ? ` · kraja +${formatPoints(row.steal)}` : ""}
+              {row.stolen_amount ? ` · ukradeno −${formatPoints(row.stolen_amount)}` : ""}
+              {row.shielded ? " · ščit" : ""}
+              {row.steal_blocked ? " · kraja blokirana" : ""}
+              {row.breakthrough ? " · preboj" : ""}
+              {row.solo_sprint ? " · solo sprint" : ""}
+              {row.bonus_convert ? " · pretvorba" : ""}
               {row.eliminated ? " · izločen" : ""}
             </span>
           </li>
         ))}
       </ul>
-      <div className="stack">
+      <div className="play-slot-cta">
         <p className="fine">
           {message.is_last ? "Zaključek" : "Naslednje vprašanje"} čez {secondsLeft} s…
         </p>
         {isHost ? (
-          <button type="button" className="primary" onClick={onNext}>
-            {message.is_last ? "Zaključi zdaj" : "Naprej zdaj"}
+          <button type="button" className="primary btn-cta" onClick={onNext}>
+            {message.is_last ? "Zaključi zdaj" : "Naprej"}
           </button>
         ) : null}
       </div>

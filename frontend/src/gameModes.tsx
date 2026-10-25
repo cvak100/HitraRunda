@@ -10,13 +10,13 @@ export const GAME_MODES = [
     id: "hitrarunda" as const,
     eyebrow: "Kratke solo runde",
     title: "Hitra runda",
-    blurb: "5–15 vprašanj iz izbranih kategorij. Brez jokerjev — šteje hitrost.",
+    blurb: "5–100 vprašanj iz izbranih kategorij. Brez jokerjev — šteje hitrost.",
     playTo: "/igra/hitrarunda",
     boardTo: "/lestvica/hitrarunda",
     rules: [
       "Solo način: igraš sam proti uri in lestvici.",
-      "Izbereš kategorije in 5–15 vprašanj. Čas na vprašanje nastaviš sam (npr. 10–60 s).",
-      "Brez jokerjev. Pravilni odgovor prinese točke; hitrejši odgovor da več speed bonusa (do nastavljivega maksimuma).",
+      "Izbereš kategorije in 5–100 vprašanj. Čas na vprašanje nastaviš sam (npr. 10–60 s).",
+      "Brez jokerjev. Vsak pravilen odgovor da 100 točk + speed bonus (hitrejši odgovor = več, do nastavljivega maksimuma).",
       "Prvi napačen ali prepozen odgovor takoj konča igro. Točke do tja ostanejo na rezultatu.",
       "Na lestvici štejejo točke, pravilni odgovori in čas.",
     ],
@@ -63,7 +63,7 @@ export const GAME_MODES = [
     boardTo: "/lestvica/dirka",
     rules: [
       "Več igralcev dirka do ciljnih točk (npr. 100 / 200 / 500 / 1000). Ista vprašanja za vse.",
-      "Čas na vprašanje je fiksen (privzeto 30 s). Naprej gre, ko vsi odgovorijo ali poteče čas.",
+      "Čas na vprašanje izbereš ob ustvarjanju sobe (npr. 10–60 s). Naprej gre, ko vsi odgovorijo ali poteče čas.",
       "Pravilni odgovor daje osnovne točke; napačen lahko odšteje. Streak in hot streak prineseta dodatne bonuse.",
       "Varna zona: po N zaporednih pravilnih (npr. 5 ali 10) se del točk zaklene — kasnejša napaka jih ne pobere.",
       "Med igro lahko porabiš bonuse (polovička, namig, kraja točk, comeback …), ki jih dobiš med tekom.",
@@ -174,6 +174,35 @@ export function PlayLink({
   );
 }
 
+const SOLO_MODE_IDS: GameModeId[] = ["hitrarunda", "ala_milijonar", "60_sekund"];
+const MULTI_MODE_IDS: GameModeId[] = ["multiplayer", "dirka"];
+
+function ModeRow({
+  game,
+  lockedHint,
+}: {
+  game: (typeof GAME_MODES)[number];
+  lockedHint?: string;
+}) {
+  return (
+    <article className="game-row">
+      <div>
+        <p className="eyebrow">{game.eyebrow}</p>
+        <h2>{game.title}</h2>
+        <p>{game.blurb}</p>
+      </div>
+      {lockedHint ? (
+        <p className="fine">{lockedHint}</p>
+      ) : (
+        <div className="game-row-actions">
+          <PlayLink to={game.playTo} />
+          <BoardLink to={game.boardTo} variant="icon" />
+        </div>
+      )}
+    </article>
+  );
+}
+
 export function GameModeRows({ lockedHint }: { lockedHint?: string }) {
   const [enabled, setEnabled] = useState<string[] | null>(null);
 
@@ -184,26 +213,34 @@ export function GameModeRows({ lockedHint }: { lockedHint?: string }) {
   }, []);
 
   const modes = enabled ? GAME_MODES.filter((game) => enabled.includes(game.id)) : GAME_MODES;
+  const byId = Object.fromEntries(modes.map((m) => [m.id, m])) as Partial<
+    Record<GameModeId, (typeof GAME_MODES)[number]>
+  >;
+  const solo = SOLO_MODE_IDS.map((id) => byId[id]).filter(Boolean) as (typeof GAME_MODES)[number][];
+  const multi = MULTI_MODE_IDS.map((id) => byId[id]).filter(Boolean) as (typeof GAME_MODES)[number][];
 
   return (
     <div className="game-rows">
-      {modes.map((game) => (
-        <article key={game.playTo} className="game-row">
-          <div>
-            <p className="eyebrow">{game.eyebrow}</p>
-            <h2>{game.title}</h2>
-            <p>{game.blurb}</p>
-          </div>
-          {lockedHint ? (
-            <p className="fine">{lockedHint}</p>
-          ) : (
-            <div className="game-row-actions">
-              <PlayLink to={game.playTo} />
-              <BoardLink to={game.boardTo} variant="icon" />
-            </div>
-          )}
-        </article>
-      ))}
+      {solo.length ? (
+        <section className="game-mode-group" aria-labelledby="modes-solo">
+          <h2 id="modes-solo" className="game-mode-group-title">
+            Igranje sam
+          </h2>
+          {solo.map((game) => (
+            <ModeRow key={game.playTo} game={game} lockedHint={lockedHint} />
+          ))}
+        </section>
+      ) : null}
+      {multi.length ? (
+        <section className="game-mode-group" aria-labelledby="modes-multi">
+          <h2 id="modes-multi" className="game-mode-group-title">
+            Igranje z drugimi / proti AI
+          </h2>
+          {multi.map((game) => (
+            <ModeRow key={game.playTo} game={game} lockedHint={lockedHint} />
+          ))}
+        </section>
+      ) : null}
     </div>
   );
 }
@@ -220,15 +257,108 @@ export function ModePageNav({ boardTo, mode }: { boardTo?: string; mode?: string
   );
 }
 
+type GameConfigSlice = {
+  hitrarunda?: { base_points?: number; max_speed_bonus?: number };
+  ala_milijonar?: { time_limit_seconds?: number; friends_pick?: number; safe_orders?: number[] };
+  multiplayer?: { correct_points?: number; round_bonus?: number };
+  dirka?: { base_points?: number; penalty?: number; targets?: number[] };
+  sixty?: {
+    start_seconds?: number;
+    clock_cap?: number;
+    correct_bonus?: number;
+    wrong_penalty?: number;
+    skip_penalty?: number;
+  };
+};
+
+function rulesFromConfig(modeId: GameModeId, cfg: GameConfigSlice | null): string[] {
+  const base = MODE_BY_ID[modeId]?.rules ? [...MODE_BY_ID[modeId].rules] : [];
+  if (!cfg) return base;
+  if (modeId === "hitrarunda" && cfg.hitrarunda) {
+    const pts = cfg.hitrarunda.base_points ?? 100;
+    const speed = cfg.hitrarunda.max_speed_bonus ?? 100;
+    return base.map((line) =>
+      line.includes("100 točk")
+        ? line.replace("100 točk", `${pts} točk`).replace(/do nastavljivega maksimuma/, `do ${speed}`)
+        : line,
+    );
+  }
+  if (modeId === "ala_milijonar" && cfg.ala_milijonar) {
+    const secs = cfg.ala_milijonar.time_limit_seconds ?? 90;
+    const friends = cfg.ala_milijonar.friends_pick ?? 3;
+    const safes = (cfg.ala_milijonar.safe_orders || [4, 9, 14]).map((n) => n + 1).join(". in ");
+    return base.map((line) => {
+      if (line.includes("Privzeto 90 s")) return line.replace("90 s", `${secs} s`);
+      if (line.includes("3 prijateljev") || line.includes("svojih 3")) {
+        return line.replace(/3 prijatelj/g, `${friends} prijatelj`).replace(/svojih 3/, `svojih ${friends}`);
+      }
+      if (line.includes("Varne stopnje")) {
+        return `Varne stopnje (privzeto ${safes}.): če padeš kasneje, ohraniš vsaj to nagrado.`;
+      }
+      if (line.startsWith("Pred začetkom so 3")) {
+        return line.replace("so 3 prijatelji", `so ${friends} prijatelji`);
+      }
+      return line;
+    });
+  }
+  if (modeId === "multiplayer" && cfg.multiplayer) {
+    const pts = cfg.multiplayer.correct_points ?? 100;
+    return base.map((line) =>
+      line.startsWith("Točke:")
+        ? `Točke: pravilni odgovor ${pts} + hitrost + streak bonusi; možen je catch-up bonus za zaostale.`
+        : line,
+    );
+  }
+  if (modeId === "dirka" && cfg.dirka) {
+    const targets = (cfg.dirka.targets || [100, 200, 500, 1000]).join(" / ");
+    const basePts = cfg.dirka.base_points ?? 5;
+    const penalty = cfg.dirka.penalty ?? 4;
+    return base.map((line) => {
+      if (line.includes("ciljnih točk")) {
+        return `Več igralcev dirka do ciljnih točk (npr. ${targets}). Ista vprašanja za vse.`;
+      }
+      if (line.startsWith("Pravilni odgovor daje")) {
+        return `Pravilni odgovor daje ${basePts} osnovnih točk; napačen lahko odšteje ${penalty}. Streak in hot streak prineseta dodatne bonuse.`;
+      }
+      return line;
+    });
+  }
+  if (modeId === "60_sekund" && cfg.sixty) {
+    const start = cfg.sixty.start_seconds ?? 60;
+    const cap = cfg.sixty.clock_cap ?? 180;
+    const correct = cfg.sixty.correct_bonus ?? 2;
+    const wrong = cfg.sixty.wrong_penalty ?? 5;
+    const skip = cfg.sixty.skip_penalty ?? 2;
+    return base.map((line) => {
+      if (line.includes("skupnim časovnim")) {
+        return `Solo način z enim skupnim časovnim bazenom (privzeto ${start} s na startu, ura se lahko podaljša do ${cap} s).`;
+      }
+      if (line.startsWith("Pravilni odgovor:")) {
+        return `Pravilni odgovor: +${correct} s in +1 na rezultat. Napačen: −${wrong} s. Preskok: −${skip} s.`;
+      }
+      return line;
+    });
+  }
+  return base;
+}
+
 /** Podrobna pravila — takoj pod Druge igre / Lestvica. */
 export function ModeRules({ mode }: { mode: string | null | undefined }) {
   const meta = modeMeta(mode);
+  const [cfg, setCfg] = useState<GameConfigSlice | null>(null);
+  useEffect(() => {
+    api<GameConfigSlice>("/api/game-config/")
+      .then(setCfg)
+      .catch(() => setCfg(null));
+  }, []);
   if (!meta?.rules?.length) return null;
+  const modeId = normalizeMode(mode || "") || meta.id;
+  const rules = rulesFromConfig(modeId, cfg);
   return (
     <div className="mode-rules">
       <p className="mode-rules-lead">{meta.blurb}</p>
       <ul>
-        {meta.rules.map((line) => (
+        {rules.map((line) => (
           <li key={line}>{line}</li>
         ))}
       </ul>

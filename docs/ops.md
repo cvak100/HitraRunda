@@ -2,7 +2,7 @@
 
 ## Verzija
 
-Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.3.<število komitov>`**.
+Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.4.<število komitov>`**.
 
 ```bash
 # po komitu na HEAD
@@ -10,7 +10,7 @@ Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.3.<število komitov
 .\scripts\write-version.ps1         # Windows
 ```
 
-Preveri v teku: `GET /api/health/` → `{ "ok": true, "version": "0.3.…" }`. V UI je badge v nogi (`v0.3.…`).
+Preveri v teku: `GET /api/health/` → `{ "ok": true, "version": "0.4.…" }`. V UI je badge v nogi (`v0.4.…`).
 
 ## Zagon (dev)
 
@@ -67,7 +67,19 @@ git pull
 
 ## Backup Postgres
 
+Ročno:
+
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env exec -T db \
   pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup-$(date +%F).sql
+```
+
+Avtomatsko (dev/prod): servis `db-backup` v `docker-compose.yml` /
+`docker-compose.prod.yml` dnevno zapiše dump v volumen `pgbackups`
+(ohrani zadnjih 7 datotek). Obnovitev:
+
+```bash
+gunzip -c pgbackups/hitrarunda-YYYY-MM-DD.sql.gz | \
+  docker compose -f docker-compose.prod.yml --env-file .env exec -T db \
+  psql -U "$POSTGRES_USER" "$POSTGRES_DB"
 ```

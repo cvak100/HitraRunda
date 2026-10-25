@@ -5,6 +5,7 @@ import { TimerBar } from "../TimerBar";
 import { formatPoints } from "../../format";
 import type { GameMessage } from "../../types";
 import { SixtyFinish } from "./GameFinish";
+import { ReviewAnswerReveal } from "./ReviewAnswerReveal";
 import { ReviewPanel } from "./ReviewPanel";
 import { RoundReview } from "./RoundReview";
 
@@ -87,33 +88,35 @@ export function GamePlayBody({
               .filter(Boolean)
               .join(" ")}
           >
-            <div className="q-meta">
-              <span>
-                {(message.index ?? 0) + 1}
-                {isDirka || isSixty ? "" : ` / ${message.total}`}
-              </span>
-              <span>{question.category_name}</span>
-              <span>Težavnost {question.difficulty}</span>
-              {isSixty ? (
+            {!(isSixty && phase === "finished") ? (
+              <div className="q-meta play-slot-status">
                 <span>
-                  Pravilni {message.correct_count ?? 0}
-                  {message.answered_count != null ? ` / ${message.answered_count}` : ""}
+                  {(message.index ?? 0) + 1}
+                  {isDirka || isSixty ? "" : ` / ${message.total}`}
                 </span>
-              ) : null}
-              {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
-              {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
-                <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
-              ) : null}
-              {isDirka && message.target_score ? <span>Cilj {formatPoints(message.target_score)}</span> : null}
-              {isDirka ? (
-                <span title="Varna zona po N pravilnih (napačen odgovor ne resetira števca, samo clean sheet).">
-                  Varna zona {dirkaMe?.correct_in_segment ?? 0}/{dirkaMe?.safe_every ?? message.safe_every ?? 5}
-                  {` · še ${dirkaMe?.until_safe ?? message.safe_every ?? 5}`}
-                  {dirkaMe?.safe_locked ? ` · zaklenjeno ${formatPoints(dirkaMe.safe_locked)}` : ""}
-                </span>
-              ) : null}
-            </div>
-            {isSixty ? (
+                <span>{question.category_name}</span>
+                <span>Težavnost {question.difficulty}</span>
+                {isSixty ? (
+                  <span>
+                    Pravilni {message.correct_count ?? 0}
+                    {message.answered_count != null ? ` / ${message.answered_count}` : ""}
+                  </span>
+                ) : null}
+                {phase === "question" && message.stake ? <span>Igraš za {formatPoints(message.stake)}</span> : null}
+                {isAla && (message.guaranteed_prize ?? 0) > 0 ? (
+                  <span>Varno: {formatPoints(message.guaranteed_prize ?? 0)}</span>
+                ) : null}
+                {isDirka && message.target_score ? <span>Cilj {formatPoints(message.target_score)}</span> : null}
+                {isDirka ? (
+                  <span title="Varna zona po N pravilnih (napačen odgovor ne resetira števca, samo clean sheet).">
+                    Varna zona {dirkaMe?.correct_in_segment ?? 0}/{dirkaMe?.safe_every ?? message.safe_every ?? 5}
+                    {` · še ${dirkaMe?.until_safe ?? message.safe_every ?? 5}`}
+                    {dirkaMe?.safe_locked ? ` · zaklenjeno ${formatPoints(dirkaMe.safe_locked)}` : ""}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+            {isSixty && phase !== "finished" ? (
               <>
                 <p
                   className={`sixty-feedback ${sixtyFlash ? flashTone : "sixty-feedback-empty"}`}
@@ -150,11 +153,13 @@ export function GamePlayBody({
                         deadlineAt={sixtyDeadline}
                         serverNow={message.server_now}
                         onExpire={expire}
+                        emphasizeNumber
+                        tensionClock
                       />
                     ) : (
-                      <div className="timer sixty-timer-placeholder" aria-hidden>
+                      <div className="timer timer-emphasis sixty-timer-placeholder" aria-hidden>
                         <div className="timer-track" />
-                        <span>—s</span>
+                        <span className="timer-seconds">—s</span>
                       </div>
                     )}
                     {sixtyFlash && (sixtyFlash.time_delta ?? 0) !== 0 ? (
@@ -185,10 +190,10 @@ export function GamePlayBody({
               </>
             ) : null}
             {showLifelines ? (
-              <div className="lifelines" aria-label="Jokerji">
+              <div className="lifelines play-slot-tools" aria-label="Jokerji">
                 <button
                   type="button"
-                  className={lifelines.fifty_fifty?.used ? "is-used" : ""}
+                  className={`btn-tool${lifelines.fifty_fifty?.used ? " is-used" : ""}`}
                   disabled={!canUseLifeline || !lifelines.fifty_fifty?.available}
                   onClick={() => useHelp("fifty_fifty")}
                 >
@@ -196,7 +201,7 @@ export function GamePlayBody({
                 </button>
                 <button
                   type="button"
-                  className={lifelines.audience?.used ? "is-used" : ""}
+                  className={`btn-tool${lifelines.audience?.used ? " is-used" : ""}`}
                   disabled={!canUseLifeline || !lifelines.audience?.available}
                   onClick={() => useHelp("audience")}
                 >
@@ -204,24 +209,22 @@ export function GamePlayBody({
                 </button>
                 <button
                   type="button"
-                  className={lifelines.phone_friend?.used ? "is-used" : ""}
+                  className={`btn-tool${lifelines.phone_friend?.used ? " is-used" : ""}`}
                   disabled={!canUseLifeline || !lifelines.phone_friend?.available}
                   onClick={() => setPickFriend((current) => !current)}
                 >
                   Klic v sili{lifelines.phone_friend?.used ? " · porabljen" : ""}
                 </button>
                 {message.can_walk_away && phase === "question" ? (
-                  <button type="button" className="walk-away" onClick={walkAway}>
+                  <button type="button" className="walk-away btn-tertiary" onClick={walkAway}>
                     Odnehaj ({formatPoints(message.prize_reached ?? 0)})
                   </button>
                 ) : null}
               </div>
             ) : null}
-            {isAla && friends.length > 0 && (showLifelines || pickFriend) ? (
-              <div className={`friend-pick ${pickFriend ? "is-open" : ""}`}>
-                <p className="friend-pick-label">
-                  {pickFriend ? "Koga kličeš?" : "Tvoji prijatelji za klic"}
-                </p>
+            {isAla && friends.length > 0 && pickFriend ? (
+              <div className="friend-pick is-open">
+                <p className="friend-pick-label">Koga kličeš?</p>
                 <div className="friend-pick-grid">
                   {friends.map((friend) => {
                     const canCall =
@@ -277,41 +280,56 @@ export function GamePlayBody({
             ) : phase === "question" && !isDirka && !isSixty && message.deadline_at && message.server_now ? (
               <TimerBar deadlineAt={message.deadline_at} serverNow={message.server_now} onExpire={expire} />
             ) : null}
-            <div className={isSixty ? "sixty-question-slot" : undefined}>
-            <h1>{question.text}</h1>
-            {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+            <div
+              key={question.game_question_id}
+              className={["play-q-slot", "play-q-enter", isSixty ? "sixty-question-slot" : undefined]
+                .filter(Boolean)
+                .join(" ")}
+            >
+            {phase !== "finished" ? (
+              <div
+                className={[
+                  "play-slot-question",
+                  phase === "review" || phase === "round_review" ? "is-dimmed" : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <h1>{question.text}</h1>
+                {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
+                {(phase === "review" || phase === "round_review") && !message.walked_away ? (
+                  <ReviewAnswerReveal message={message} />
+                ) : null}
+              </div>
+            ) : null}
             {helps.phone_friend ? (
               <p className="help-banner">
                 {helps.phone_friend.friend_name}: {helps.phone_friend.message}
               </p>
             ) : null}
-            {!isDirka && !isSixty && phase === "question" && (message.answered_count ?? 0) > 0 ? (
-              <p className="fine">
-                Oddano {message.answered_count}/{message.player_count}
-                {(message.waiting_for || []).length > 0 ? ` · čaka: ${(message.waiting_for || []).join(", ")}` : ""}
-              </p>
-            ) : null}
-            {!isDirka && !isSixty && phase === "waiting_answers" ? (
-              <p className="status">
-                Oddano. Čakam še: {(message.waiting_for || []).join(", ") || "nikogar"} (
-                {message.answered_count}/{message.player_count})
-              </p>
-            ) : null}
-            {phase === "question" || phase === "submitting" ? (
-              <QuestionPlay
-                question={question}
-                locked={phase !== "question"}
-                result={null}
-                eliminatedOptionIds={
-                  eliminatedIds.length
-                    ? eliminatedIds
-                    : isDirka
-                      ? undefined
-                      : helps.fifty_fifty?.eliminated_option_ids
-                }
-                audienceVotes={isDirka ? undefined : helps.audience?.votes}
-                onSubmit={sendAnswer}
-              />
+            {phase === "question" || phase === "submitting" || phase === "waiting_answers" ? (
+              <div className="play-slot-answers">
+                <QuestionPlay
+                  question={question}
+                  locked={phase !== "question"}
+                  result={
+                    phase === "waiting_answers" || phase === "submitting"
+                      ? {
+                          selected_option_ids: message.selected_option_ids,
+                        }
+                      : null
+                  }
+                  eliminatedOptionIds={
+                    eliminatedIds.length
+                      ? eliminatedIds
+                      : isDirka
+                        ? undefined
+                        : helps.fifty_fifty?.eliminated_option_ids
+                  }
+                  audienceVotes={isDirka ? undefined : helps.audience?.votes}
+                  onSubmit={sendAnswer}
+                />
+              </div>
             ) : null}
             {phase === "round_review" ? (
               <RoundReview message={message} myId={myId} isHost={iAmHost} onNext={next} boardPath={boardPath} />

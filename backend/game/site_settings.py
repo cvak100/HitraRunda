@@ -32,6 +32,7 @@ DEFAULTS: dict = {
     "sixty_skip_limits": [None, 3, 5, 10],
     # Dirka
     "dirka_time_seconds": 30,
+    "dirka_allowed_times": [10, 15, 20, 30, 60],
     "dirka_base_points": 5,
     "dirka_penalty": 4,
     "dirka_target_scores": [100, 200, 500, 1000],
@@ -45,12 +46,23 @@ DEFAULTS: dict = {
     "dirka_steal_max": 4,
     "dirka_comeback_gap": 15,
     "dirka_comeback_mult": 1.3,
+    "dirka_max_speed_bonus": 2,
+    "dirka_safe_reward": 2,
+    "dirka_clean_sheet": 3,
+    "dirka_question_pool": 80,
+    "dirka_extra_time": 30,
+    "dirka_rush_cap": 15,
+    "dirka_round_advance_seconds": 5,
+    "dirka_shield_rounds": 3,
+    "dirka_convert_stack": 4,
+    "dirka_breakthrough_ratio": 0.5,
     # Hitra tekma
     "mp_correct_points": 100,
     "mp_round_bonus": 50,
     "mp_streak_bonus_2": 25,
     "mp_streak_bonus_3": 50,
     "mp_catchup_bonus": 40,
+    "mp_min_players": 2,
     "mp_max_players": 6,
     "mp_max_bots": 5,
     "mp_allowed_times": [30, 60, 90, 120, 300],
@@ -58,10 +70,11 @@ DEFAULTS: dict = {
     "mp_round_advance_seconds": 5,
     # Hitra runda
     "hr_allowed_times": [10, 15, 20, 30, 45, 60],
+    "hr_base_points": 100,
     "hr_max_speed_bonus": 100,
     # Ala milijonar
     "ala_time_seconds": 90,
-    "ala_safe_orders": [4, 9],
+    "ala_safe_orders": [4, 9, 14],
     "ala_friends_pick": 3,
     "ala_difficulty_targets": [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5],
     "ala_prize_ladder": [
@@ -321,10 +334,18 @@ FIELDS = [
     {
         "key": "dirka_time_seconds",
         "group": "dirka",
-        "label": "Čas na vprašanje (s)",
+        "label": "Privzeti čas na vprašanje (s)",
         "type": "int",
         "min": 5,
         "max": 300,
+        "help": "Uporabi se, če soba ne izbere drugače. Mora biti med dovoljenimi.",
+    },
+    {
+        "key": "dirka_allowed_times",
+        "group": "dirka",
+        "label": "Dovoljeni časi na vprašanje (s)",
+        "type": "int_list",
+        "help": "Izbire v hubu / lobbyju, npr. 10,15,20,30,60",
     },
     {
         "key": "dirka_base_points",
@@ -428,6 +449,86 @@ FIELDS = [
         "min": 1,
         "max": 3,
     },
+    {
+        "key": "dirka_max_speed_bonus",
+        "group": "dirka",
+        "label": "Max hitrostni bonus",
+        "type": "int",
+        "min": 0,
+        "max": 20,
+    },
+    {
+        "key": "dirka_safe_reward",
+        "group": "dirka",
+        "label": "Nagrada varne cone",
+        "type": "int",
+        "min": 0,
+        "max": 50,
+    },
+    {
+        "key": "dirka_clean_sheet",
+        "group": "dirka",
+        "label": "Clean sheet bonus",
+        "type": "int",
+        "min": 0,
+        "max": 50,
+    },
+    {
+        "key": "dirka_question_pool",
+        "group": "dirka",
+        "label": "Velikost poola vprašanj",
+        "type": "int",
+        "min": 5,
+        "max": 200,
+    },
+    {
+        "key": "dirka_extra_time",
+        "group": "dirka",
+        "label": "Bonus ekstra čas (s)",
+        "type": "int",
+        "min": 1,
+        "max": 120,
+    },
+    {
+        "key": "dirka_rush_cap",
+        "group": "dirka",
+        "label": "Rush max (s)",
+        "type": "int",
+        "min": 1,
+        "max": 60,
+    },
+    {
+        "key": "dirka_round_advance_seconds",
+        "group": "dirka",
+        "label": "Samodejni prehod (s)",
+        "type": "int",
+        "min": 1,
+        "max": 30,
+    },
+    {
+        "key": "dirka_shield_rounds",
+        "group": "dirka",
+        "label": "Ščit — št. rund",
+        "type": "int",
+        "min": 1,
+        "max": 10,
+    },
+    {
+        "key": "dirka_convert_stack",
+        "group": "dirka",
+        "label": "Pretvori — stack",
+        "type": "int",
+        "min": 2,
+        "max": 10,
+    },
+    {
+        "key": "dirka_breakthrough_ratio",
+        "group": "dirka",
+        "label": "Preboj (delež cilja)",
+        "type": "float",
+        "min": 0.1,
+        "max": 1,
+    },
     # MP
     {
         "key": "mp_correct_points",
@@ -468,6 +569,14 @@ FIELDS = [
         "type": "int",
         "min": 0,
         "max": 500,
+    },
+    {
+        "key": "mp_min_players",
+        "group": "multiplayer",
+        "label": "Min igralcev",
+        "type": "int",
+        "min": 2,
+        "max": 8,
     },
     {
         "key": "mp_max_players",
@@ -516,6 +625,14 @@ FIELDS = [
         "help": "Npr. 10, 15, 20, 30, 45, 60",
     },
     {
+        "key": "hr_base_points",
+        "group": "hitrarunda",
+        "label": "Točke za pravilen odgovor",
+        "type": "int",
+        "min": 1,
+        "max": 1000,
+    },
+    {
         "key": "hr_max_speed_bonus",
         "group": "hitrarunda",
         "label": "Max speed bonus",
@@ -537,7 +654,7 @@ FIELDS = [
         "group": "ala",
         "label": "Varne točke (0-based indeks)",
         "type": "int_list",
-        "help": "4 = 5. vprašanje, 9 = 10. vprašanje",
+        "help": "4 = 1.000, 9 = 32.000, 14 = 1.000.000",
     },
     {
         "key": "ala_friends_pick",
@@ -686,6 +803,7 @@ def public_game_config() -> dict:
         "enabled_modes": list(data["enabled_modes"]),
         "hitrarunda": {
             "times": list(data["hr_allowed_times"]),
+            "base_points": int(data["hr_base_points"]),
             "max_speed_bonus": int(data["hr_max_speed_bonus"]),
         },
         "ala_milijonar": {
@@ -697,18 +815,28 @@ def public_game_config() -> dict:
         "multiplayer": {
             "times": list(data["mp_allowed_times"]),
             "question_counts": list(data["mp_question_counts"]),
+            "min_players": int(data["mp_min_players"]),
             "max_players": int(data["mp_max_players"]),
             "max_bots": int(data["mp_max_bots"]),
             "round_advance_seconds": int(data["mp_round_advance_seconds"]),
+            "correct_points": int(data["mp_correct_points"]),
+            "round_bonus": int(data["mp_round_bonus"]),
         },
         "dirka": {
             "time_limit_seconds": int(data["dirka_time_seconds"]),
+            "times": list(data["dirka_allowed_times"]),
             "targets": list(data["dirka_target_scores"]),
             "safe_every": list(data["dirka_safe_every"]),
             "max_bots": int(data["mp_max_bots"]),
+            "base_points": int(data["dirka_base_points"]),
+            "penalty": int(data["dirka_penalty"]),
         },
         "sixty": {
             "start_seconds": int(data["sixty_start_seconds"]),
+            "clock_cap": int(data["sixty_clock_cap"]),
+            "correct_bonus": int(data["sixty_correct_bonus"]),
+            "wrong_penalty": int(data["sixty_wrong_penalty"]),
+            "skip_penalty": int(data["sixty_skip_penalty"]),
             "skip_limits": skip,
         },
         "guest_cleanup_days": int(data["guest_cleanup_days"]),
@@ -846,6 +974,11 @@ def save_values(incoming: dict) -> dict:
         raise ValueError({"dirka_steal_max": "Steal max mora biti ≥ min."})
     if int(merged["dirka_hot_streak_at"]) < int(merged["dirka_streak_at"]):
         raise ValueError({"dirka_hot_streak_at": "Hot streak mora biti ≥ navadni streak."})
+    allowed_dirka_times = {int(x) for x in (merged.get("dirka_allowed_times") or [])}
+    if not allowed_dirka_times:
+        raise ValueError({"dirka_allowed_times": "Vsaj ena dovoljena vrednost."})
+    if int(merged["dirka_time_seconds"]) not in allowed_dirka_times:
+        raise ValueError({"dirka_time_seconds": "Privzeti čas mora biti med dovoljenimi."})
     row.values = stored
     row.save(update_fields=["values", "updated_at"])
     invalidate_cache()

@@ -5,7 +5,8 @@ from __future__ import annotations
 from accounts.nicknames import resolve_avatar_key
 from game.bonus_models import AiBot
 from game.engine import GameError, room_name_for, validate_settings
-from game.modes import LOBBY_MODES, MP_MIN_PLAYERS
+from game.modes import LOBBY_MODES
+from game.site_settings import get as site_get
 from game.models import GameResult, GameSession
 from rooms.models import Room, RoomMember
 from rooms.services import _new_code
@@ -100,7 +101,7 @@ def create_sim_room(
         settings["bot_count"] = len(profiles)
     settings["invites"] = []
 
-    max_players = max(MP_MIN_PLAYERS, len(profiles) + 1) if mode in LOBBY_MODES else 1
+    max_players = max(int(site_get("mp_min_players")), len(profiles) + 1) if mode in LOBBY_MODES else 1
     for _ in range(20):
         code = _new_code()
         try:

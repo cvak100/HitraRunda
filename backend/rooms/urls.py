@@ -8,6 +8,7 @@ from rooms.views import (
     RoomDetailView,
     RoomInviteView,
     RoomJoinView,
+    RoomKickView,
     RoomLeaveView,
     RoomQuickJoinView,
     RoomReadyView,
@@ -24,6 +25,7 @@ urlpatterns = [
     path("rooms/<str:code>/", RoomDetailView.as_view()),
     path("rooms/<str:code>/join/", RoomJoinView.as_view()),
     path("rooms/<str:code>/leave/", RoomLeaveView.as_view()),
+    path("rooms/<str:code>/kick/", RoomKickView.as_view()),
     path("rooms/<str:code>/ready/", RoomReadyView.as_view()),
     path("rooms/<str:code>/invite/", RoomInviteView.as_view()),
 ]

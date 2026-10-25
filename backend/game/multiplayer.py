@@ -25,7 +25,7 @@ from game.engine import (
     speed_bonus,
 )
 from accounts.nicknames import avatar_for_member, resolve_avatar_key
-from game.modes import MODE_MULTIPLAYER, MP_MIN_PLAYERS
+from game.modes import MODE_MULTIPLAYER
 from game.models import GameQuestion, GameResult, GameSession, PlayerAnswer
 from game.presentation import ensure_presentation, public_question
 from game.site_settings import get as site_get
@@ -74,8 +74,9 @@ def start_multiplayer(member_id):
         if room.status != "waiting":
             raise GameError("Igre ni mogoče začeti.")
         members = list(room.members.filter(left_at__isnull=True).select_related("user"))
-        if len(members) < MP_MIN_PLAYERS:
-            raise GameError(f"Potrebujeta vsaj {MP_MIN_PLAYERS} igralca.")
+        min_players = int(site_get("mp_min_players"))
+        if len(members) < min_players:
+            raise GameError(f"Potrebujeta vsaj {min_players} igralca.")
         if not all(item.is_ready or item.is_bot for item in members):
             raise GameError("Vsi igralci morajo biti pripravljeni.")
         settings = room.settings or {}
@@ -192,6 +193,7 @@ def next_multiplayer(member_id):
             return [finished_multiplayer(session, member)]
         game_question = _current(session)
         state = dict(session.state or {})
+        # Prehod že narejen — resync trenutnega vprašanja (SFX dedupe na klientu).
         if str(state.get("auto_advance_for") or "").startswith("done:") and not _round_complete(
             session, game_question
         ):
@@ -412,7 +414,9 @@ def broadcast_round_review(session, game_question):
 
 
 def finished_multiplayer(session, member):
-    return {
+    from game.replay import result_id_for
+
+    payload = {
         "type": "game_finished",
         "phase": "finished",
         "finished": True,
@@ -427,6 +431,10 @@ def finished_multiplayer(session, member):
         "sudden_death": bool((session.state or {}).get("sudden_death")),
         "host_member_id": _host_id(session),
     }
+    rid = result_id_for(session, member=member)
+    if rid:
+        payload["result_id"] = rid
+    return payload
 
 
 def finalize_multiplayer(session, room, reason="completed"):
@@ -445,12 +453,13 @@ def finalize_multiplayer(session, room, reason="completed"):
         duration = max(0, int((now - session.started_at).total_seconds() * 1000))
     members = list(room.members.filter(left_at__isnull=True).select_related("user", "bot_profile"))
     players = state.get("players") or {}
+    result_ids = {}
     for member in members:
         stats = players.get(str(member.id)) or {}
         on_board = True
         if member.is_bot:
             on_board = bool(member.bot_profile and member.bot_profile.count_for_leaderboard)
-        GameResult.objects.create(
+        row = GameResult.objects.create(
             game_session=session,
             user=member.user,
             nickname=member.nickname_in_room,
@@ -466,8 +475,15 @@ def finalize_multiplayer(session, room, reason="completed"):
             reason=reason,
             room_code=room.code,
         )
+        result_ids[str(member.id)] = row.id
     host = next((item for item in members if item.is_host), members[0] if members else None)
-    return [finished_multiplayer(session, host)] if host else []
+    if not host:
+        return []
+    payload = finished_multiplayer(session, host)
+    payload["result_ids"] = result_ids
+    if str(host.id) in result_ids:
+        payload["result_id"] = result_ids[str(host.id)]
+    return [payload]
 
 
 def standings(session):

@@ -189,7 +189,7 @@ export function AdminContentPage() {
       ) : null}
       <h2>Uvoz JSON</h2>
       <p className="fine">
-        Naloži celotno datoteko (npr. questions.json). Vprašanja z istim <code>key</code> se ne podvajajo — posodobijo
+        Naloži celotno datoteko (npr. seed.json). Vprašanja z istim <code>key</code> se ne podvajajo — posodobijo
         se. V isti datoteki ne sme biti dveh enakih ključev. Pred uvozom novega paketa lahko najprej umakneš vsa
         trenutno aktivna — ostanejo v bazi, a se ne izžrebajo več.
       </p>

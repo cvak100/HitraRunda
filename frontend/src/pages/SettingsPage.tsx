@@ -6,6 +6,7 @@ import { useAuth } from "../auth";
 import { AVATAR_COLORS, AVATARS, DEFAULT_AVATAR_COLOR, avatarLabel } from "../avatars";
 import { Avatar } from "../components/Avatar";
 import { NicknameField } from "../components/NicknameField";
+import { isSfxEnabled, playSfx, setSfxEnabled, unlockSfx } from "../sound";
 import type { User } from "../types";
 
 export function SettingsPage() {
@@ -13,6 +14,7 @@ export function SettingsPage() {
   const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [preferredColor, setPreferredColor] = useState(user?.preferred_color || DEFAULT_AVATAR_COLOR);
   const [avatar, setAvatar] = useState(user?.avatar || "ris");
+  const [sfxOn, setSfxOn] = useState(() => isSfxEnabled());
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [notice, setNotice] = useState("");
@@ -112,6 +114,24 @@ export function SettingsPage() {
           Shrani
         </button>
       </form>
+
+      <fieldset style={{ marginTop: 28 }}>
+        <legend>Zvok</legend>
+        <label className="check">
+          <input
+            type="checkbox"
+            checked={sfxOn}
+            onChange={(event) => {
+              unlockSfx();
+              const on = event.target.checked;
+              setSfxOn(on);
+              setSfxEnabled(on);
+              if (on) playSfx("click");
+            }}
+          />
+          Zvočni učinki v igri
+        </label>
+      </fieldset>
 
       {!user?.is_guest ? (
         <form className="stack" style={{ marginTop: 28 }} onSubmit={onPasswordSubmit}>

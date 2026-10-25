@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg, F, Max, Q, Sum
+from django.db.models import Avg, F, Max, Prefetch, Q, Sum, Window
+from django.db.models.functions import Rank
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -44,8 +45,7 @@ def result_payload(result):
 def _bounded_limit(raw, allowed, default):
     if raw in (None, ""):
         return default, None
-    if str(raw) == "all":
-        return None, None
+    # Javno: brez limit=all (DoS / scraping).
     if str(raw) not in allowed:
         return None, Response({"detail": "Neznano število zadetkov."}, status=400)
     return int(raw), None
@@ -115,8 +115,15 @@ def _totals_leaderboard(limit, query: str, mode: str):
                 ),
                 "preferred_color": (getattr(user, "preferred_color", "") if user else "") or "",
                 "total_points": row["total_points"],
+                "best_score": row.get("best_score", row["total_points"]),
                 "wins": row["wins"],
+                "place_1": row.get("place_1", row["wins"]),
+                "place_2": row.get("place_2", 0),
+                "place_3": row.get("place_3", 0),
                 "games": row["games"],
+                "correct_count": row.get("correct_count", 0),
+                "total_questions": row.get("total_questions", 0),
+                "last_played_at": row.get("last_played_at"),
                 "is_guest": bool(user.is_guest) if user is not None else False,
             }
         )
@@ -142,16 +149,48 @@ class LeaderboardView(APIView):
             results = results.filter(mode_q)
         if query:
             results = results.filter(nickname__icontains=query)
-        results = results.order_by(
-            "-score",
-            "-correct_count",
-            F("duration_ms").asc(nulls_last=True),
-            "played_at",
-        )
+        if mode == "dirka":
+            results = (
+                results.filter(game_session_id__isnull=False)
+                .annotate(
+                    place=Window(
+                        expression=Rank(),
+                        partition_by=[F("game_session_id")],
+                        order_by=[
+                            F("score").desc(),
+                            F("correct_count").desc(),
+                            F("duration_ms").asc(nulls_last=True),
+                            F("played_at").asc(),
+                            F("user_id").asc(nulls_last=True),
+                            F("id").asc(),
+                        ],
+                    )
+                )
+                .order_by(
+                    "place",
+                    "-score",
+                    "-correct_count",
+                    F("duration_ms").asc(nulls_last=True),
+                    "played_at",
+                )
+            )
+        else:
+            results = results.order_by(
+                "-score",
+                "-correct_count",
+                F("duration_ms").asc(nulls_last=True),
+                "played_at",
+            )
         total = results.count()
         if limit is not None:
             results = results[:limit]
-        return Response({"results": [result_payload(result) for result in results], "total": total})
+        result_list = list(results)
+        payloads = [result_payload(result) for result in result_list]
+        if mode == "dirka":
+            for payload, result in zip(payloads, result_list):
+                place = getattr(result, "place", None)
+                payload["place"] = int(place) if place is not None else None
+        return Response({"results": payloads, "total": total})
 
 
 class MyResultsView(APIView):
@@ -287,21 +326,30 @@ class ResultDetailView(APIView):
         session = result.game_session
         if session.status != "finished" and not is_staff:
             return Response({"detail": "Igra še ni zaključena."}, status=404)
-        return Response(session_detail(session))
+        return Response(session_detail(session, result=result, for_user=result.user))
 
 
 class AdminSessionListView(APIView):
     permission_classes = [StaffOnly]
 
     def get(self, request):
-        sessions = GameSession.objects.select_related("room").order_by("-created_at")
+        top_results = Prefetch(
+            "results",
+            queryset=GameResult.objects.order_by("-score", "duration_ms", "played_at"),
+            to_attr="prefetched_results",
+        )
+        sessions = (
+            GameSession.objects.select_related("room")
+            .prefetch_related(top_results)
+            .order_by("-created_at")
+        )
         query = str(request.query_params.get("q") or "").strip()
         if query:
-            sessions = sessions.filter(Q(room__code__icontains=query) | Q(result__nickname__icontains=query))
+            sessions = sessions.filter(Q(room__code__icontains=query) | Q(results__nickname__icontains=query)).distinct()
         total = sessions.count()
         rows = []
         for session in sessions[:100]:
-            result = _result(session)
+            result = (session.prefetched_results or [None])[0]
             rows.append(
                 {
                     "id": session.id,
@@ -326,7 +374,3 @@ class AdminSessionDetailView(APIView):
         if session.status != "finished":
             return Response({"detail": "Igra še ni zaključena."}, status=404)
         return Response(session_detail(session))
-
-
-def _result(session):
-    return session.results.order_by("-score", "duration_ms", "played_at").first()

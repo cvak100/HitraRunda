@@ -6,7 +6,7 @@ import random
 
 from accounts.models import create_guest
 from game.bonus_models import AiBot
-from game.engine import GameError, _answer_for, start_game, submit_answer
+from game.engine import GameError, _answer_for, submit_answer
 from game.modes import MODE_DIRKA
 from game.models import GameResult, GameSession
 from game.multiplayer import _bot_answer_message, next_multiplayer
@@ -84,11 +84,23 @@ def simulate_lobby(
         log.append("Boti štejejo za javno lestvico")
 
     log.append("Zaganjam igro…")
-    payloads = start_game(str(host_member.id))
+    # Simulacija preskoči lobby countdown — takoj start_*.
+    if mode == MODE_DIRKA:
+        from game.dirka import start_dirka
+
+        payloads = start_dirka(str(host_member.id))
+    else:
+        from game.multiplayer import start_multiplayer
+
+        payloads = start_multiplayer(str(host_member.id))
     if not payloads or payloads[0].get("phase") not in {"question", "round_review", "finished"}:
         raise GameError("Igre ni bilo mogoče začeti. Premalo vprašanj v izbranih kategorijah?")
 
-    session = GameSession.objects.filter(room=room).first()
+    session = (
+        GameSession.objects.filter(room=room, status__in=["preparing", "active"])
+        .order_by("-created_at")
+        .first()
+    )
     if session is None:
         raise GameError("Seja ni nastala.")
     log.append(f"Seja #{session.id} aktivna")
