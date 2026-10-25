@@ -2,7 +2,7 @@
 
 ## Verzija
 
-Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.4.<število komitov>`**.
+Globalna verzija je v `VERSION` (in `backend/VERSION`): **`0.5.<število komitov>`**.
 
 ```bash
 # po komitu na HEAD
