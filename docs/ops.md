@@ -83,10 +83,10 @@ Na Fedori (isti host kot app). Backupi: `/opt/dockerapps/hitrarunda-backups/`.
 2. **Build Triggers**: nič (samo ročno).
 3. **Pipeline** → *Pipeline script from SCM* → Git  
    - URL: `git@github.com:cvak100/HitraRunda.git`  
-   - Branch: `*/main` (ali `*/feature/0.5`, dokler ni merge)  
+   - Branch: `*/main` (Jenkinsfile; ne spreminjaj ob feature deployih)  
    - Script Path: `Jenkinsfile.deploy`
 4. Shrani. Zaženi **Build with Parameters**:
-   - `DEPLOY_REF` = `main` ali tag (`v0.4.37`)
+   - `DEPLOY_REF` = `main`, `feature/0.7`, ali tag (`v0.5.38`) — to je edino, kar menjaš
    - `INSTALL_MODE` = `http` (Apache na tem hostu) ali `https`
    - `APP_DIR` / `BACKUP_ROOT` pusti privzeto
 
