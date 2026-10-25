@@ -468,9 +468,10 @@ def invite_user(user, code, raw):
     query = str(raw.get("nickname") or raw.get("q") or "").strip()
     if len(query) < 2:
         raise GameError("Vpiši vsaj 2 znaka za iskanje.")
+    # is_guest je @property (brez e-pošte), ne DB polje — filtriraj po email.
     target = (
-        User.objects.filter(is_guest=False, nickname__iexact=query).first()
-        or User.objects.filter(is_guest=False, email__iexact=query).first()
+        User.objects.filter(email__isnull=False, nickname__iexact=query).exclude(email="").first()
+        or User.objects.filter(email__iexact=query).exclude(email="").first()
     )
     if target is None:
         raise GameError("Uporabnik ni najden.")

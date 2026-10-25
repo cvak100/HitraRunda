@@ -48,13 +48,18 @@ def ensure_categories():
         )
 
 
-def import_payload(raw):
+def import_payload(raw, *, only_new=False, preserve_active=False):
+    """
+    Uvozi vprašanja.
+    only_new: obstojčih ključev ne posodobi (entrypoint / varen restart).
+    preserve_active: ob posodobitvi ne prepiši is_active (seed ne reaktivira umaknjenih).
+    """
     if isinstance(raw, bytes):
         raw = raw.decode("utf-8-sig")
     try:
         data = json.loads(raw)
     except json.JSONDecodeError as exc:
-        return {"created": 0, "updated": 0, "errors": [f"Datoteka ni veljaven JSON: {exc}"]}
+        return {"created": 0, "updated": 0, "skipped": 0, "errors": [f"Datoteka ni veljaven JSON: {exc}"]}
 
     if isinstance(data, list):
         items = data
@@ -63,12 +68,17 @@ def import_payload(raw):
         version = data.get("version", 1)
         items = data.get("questions")
     else:
-        return {"created": 0, "updated": 0, "errors": ["Koren JSON mora biti objekt s seznamom questions."]}
+        return {
+            "created": 0,
+            "updated": 0,
+            "skipped": 0,
+            "errors": ["Koren JSON mora biti objekt s seznamom questions."],
+        }
 
     if version != 1:
-        return {"created": 0, "updated": 0, "errors": ["Podprta je samo različica 1."]}
+        return {"created": 0, "updated": 0, "skipped": 0, "errors": ["Podprta je samo različica 1."]}
     if not isinstance(items, list):
-        return {"created": 0, "updated": 0, "errors": ["Polje questions mora biti seznam."]}
+        return {"created": 0, "updated": 0, "skipped": 0, "errors": ["Polje questions mora biti seznam."]}
 
     ensure_categories()
     cleaned = []
@@ -82,17 +92,21 @@ def import_payload(raw):
         except ImportProblem as exc:
             errors.append(f"{label}: {exc.message}")
     if errors:
-        return {"created": 0, "updated": 0, "errors": errors}
+        return {"created": 0, "updated": 0, "skipped": 0, "errors": errors}
 
     created = 0
     updated = 0
+    skipped = 0
     with transaction.atomic():
         for item in cleaned:
-            if _upsert(item):
+            result = _upsert(item, only_new=only_new, preserve_active=preserve_active)
+            if result == "created":
                 created += 1
-            else:
+            elif result == "updated":
                 updated += 1
-    return {"created": created, "updated": updated, "errors": []}
+            else:
+                skipped += 1
+    return {"created": created, "updated": updated, "skipped": skipped, "errors": []}
 
 
 def export_payload():
@@ -239,9 +253,11 @@ def _clean_slider(raw):
     }
 
 
-def _upsert(item):
+def _upsert(item, *, only_new=False, preserve_active=False):
     category = Category.objects.get(slug=item["category"])
     question = Question.objects.filter(external_key=item["key"]).first()
+    if question is not None and only_new:
+        return "skipped"
     created = question is None
     if created:
         question = Question(external_key=item["key"], category=category)
@@ -252,13 +268,14 @@ def _upsert(item):
     question.config = item["config"]
     question.explanation = item["explanation"]
     question.image = item["image"]
-    question.is_active = item["is_active"]
+    if created or not preserve_active:
+        question.is_active = item["is_active"]
     question.save()
     if item["question_type"] == "ordering" or item["question_type"] in CHOICE_TYPES:
         _sync_options(question, item["options"])
     else:
         question.options.all().delete()
-    return created
+    return "created" if created else "updated"
 
 
 def _sync_options(question, options):

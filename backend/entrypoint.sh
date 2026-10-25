@@ -9,7 +9,8 @@ if [ -n "$POSTGRES_HOST" ]; then
 fi
 
 python manage.py migrate --noinput
-python manage.py seed_questions
+# Samo nova vprašanja — ne prepiši admin popravkov / is_active ob restartu.
+python manage.py seed_questions --only-new
 python manage.py seed_game_content
 python manage.py ensure_superuser
 

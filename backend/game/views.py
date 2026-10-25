@@ -45,8 +45,7 @@ def result_payload(result):
 def _bounded_limit(raw, allowed, default):
     if raw in (None, ""):
         return default, None
-    if str(raw) == "all":
-        return None, None
+    # Javno: brez limit=all (DoS / scraping).
     if str(raw) not in allowed:
         return None, Response({"detail": "Neznano število zadetkov."}, status=400)
     return int(raw), None
@@ -337,7 +336,7 @@ class AdminSessionListView(APIView):
         sessions = GameSession.objects.select_related("room").order_by("-created_at")
         query = str(request.query_params.get("q") or "").strip()
         if query:
-            sessions = sessions.filter(Q(room__code__icontains=query) | Q(result__nickname__icontains=query))
+            sessions = sessions.filter(Q(room__code__icontains=query) | Q(results__nickname__icontains=query)).distinct()
         total = sessions.count()
         rows = []
         for session in sessions[:100]:

@@ -105,7 +105,7 @@ backend/     Django API, igralni motorji, WebSocket
 frontend/    React odjemalec
 deploy/      Produkcijski install (HTTP/HTTPS)
 docs/        Dokumentacija in posnetki zaslona
-questions.json   Vsebina vprašanj (uvoz prek admina)
+backend/questions/data/seed.json   Kanonični seed vprašanj (`manage.py seed_questions`)
 ```
 
 ## Admin

@@ -179,6 +179,8 @@ REST_FRAMEWORK = {
         "auth": "20/min",
         "guest": "10/min",
     },
+    # 1 = nginx pred Daphne; 2 če je še Caddy pred nginx.
+    "NUM_PROXIES": int(env("DJANGO_NUM_PROXIES", "1") or "1"),
 }
 
 REDIS_URL = env("REDIS_URL", "redis://localhost:6379/0")
@@ -198,6 +200,20 @@ CHANNEL_LAYERS = {
         },
     }
 }
+
+# Throttle / site_settings cache — ločen Redis DB od channel layerja.
+if TESTING:
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
+else:
+    _cache_url = env("CACHE_REDIS_URL", "").strip()
+    if not _cache_url:
+        _cache_url = REDIS_URL[:-1] + "1" if REDIS_URL.rstrip("/").endswith("/0") else f"{REDIS_URL.rstrip('/')}/1"
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": _cache_url,
+        }
+    }
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
