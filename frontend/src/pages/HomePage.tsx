@@ -70,7 +70,7 @@ export function HomePage() {
             value={nickname}
             onChange={setNickname}
             required
-            hint="Lahko spremeniš ali vržeš novega s kocko."
+            hint="Lahko spremeniš ali generiraš novega s kocko."
           />
           <div className="actions">
             <button className="primary" type="submit" disabled={pending}>
