@@ -113,6 +113,15 @@ bash /opt/dockerapps/hitrarunda/deploy/jenkins/rollback.sh
 
 ## Backup Postgres
 
+Avtomatski dnevni dump (dev + prod compose, profil `backup`, ohrani 7 dni v volumenu `pgbackups`):
+
+```bash
+# produkcija
+docker compose -f docker-compose.prod.yml --env-file .env --profile backup up -d db-backup
+# lokalno
+docker compose --profile backup up -d db-backup
+```
+
 Ročno:
 
 ```bash

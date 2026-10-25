@@ -306,6 +306,9 @@ export function GamePage() {
         return;
       }
       if (incoming.phase === "finished" || incoming.type === "game_finished") {
+        countdownActiveRef.current = false;
+        stopQuestionCountdown();
+        setCountdownStep(null);
         const endSeq: SfxName[] = [];
         if (incoming.feedback) {
           setSixtyFlash(incoming.feedback);
@@ -377,9 +380,9 @@ export function GamePage() {
               (room.settings?.mode === "hitrarunda" ||
                 room.settings?.mode === "ala_milijonar" ||
                 room.settings?.mode === "60_sekund") &&
-              room.status !== "playing"
+              room.status === "waiting"
             ) {
-              // Pred prvim vprašanjem: 3 → 2 → 1 (timer še ne teče).
+              // Samo pred prvo igro — ne ob osvežitvi končane sobe (finished).
               countdownActiveRef.current = true;
               setCountdownStep(3);
               setPhase("countdown");
@@ -394,6 +397,8 @@ export function GamePage() {
                   socket.send(JSON.stringify({ type: "start_game" }));
                 },
               );
+            } else if (room.status === "finished" || room.status === "closed") {
+              // Snapshot pride po WS; ne zaženi countdown/start_game.
             } else {
               socket.send(JSON.stringify({ type: "start_game" }));
             }

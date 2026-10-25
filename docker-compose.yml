@@ -69,7 +69,7 @@ services:
       backend:
         condition: service_healthy
 
-  # Dnevni pg_dump (ohrani 7 dni). Vklopi: docker compose up -d db-backup
+  # Dnevni pg_dump (ohrani 7 dni). Vklopi: docker compose --profile backup up -d db-backup
   db-backup:
     image: postgres:16-alpine
     profiles: ["backup"]

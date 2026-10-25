@@ -4,5 +4,20 @@
 
 {$APP_DOMAIN} {
 	encode gzip
-	reverse_proxy frontend_tls:80
+	# API / WS / admin naravnost na backend — pravi X-Forwarded-* (ne prek nginx).
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+	handle /ws/* {
+		reverse_proxy backend:8000
+	}
+	handle /admin/* {
+		reverse_proxy backend:8000
+	}
+	handle /static/* {
+		reverse_proxy backend:8000
+	}
+	handle {
+		reverse_proxy frontend_tls:80
+	}
 }
