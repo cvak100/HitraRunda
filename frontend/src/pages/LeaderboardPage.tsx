@@ -31,6 +31,7 @@ function modeFromPath(pathname: string): GameMode {
   if (pathname.includes("/vec-igralcev")) return "multiplayer";
   if (pathname.includes("/dirka")) return "dirka";
   if (pathname.includes("/60-sekund")) return "60_sekund";
+  if (pathname.includes("/zastave")) return "zastave";
   return "hitrarunda";
 }
 
@@ -128,6 +129,9 @@ export function LeaderboardPage() {
         </NavLink>
         <NavLink to="/lestvica/60-sekund" role="tab">
           60 sekund
+        </NavLink>
+        <NavLink to="/lestvica/zastave" role="tab">
+          Ugib zastav
         </NavLink>
       </div>
 

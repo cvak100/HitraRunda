@@ -3,6 +3,7 @@ MODE_ALA_MILIJONAR = "ala_milijonar"
 MODE_MULTIPLAYER = "multiplayer"
 MODE_DIRKA = "dirka"
 MODE_60_SEKUND = "60_sekund"
+MODE_ZASTAVE = "zastave"
 
 MODE_CHOICES = [
     (MODE_HITRARUNDA, "Hitra runda"),
@@ -10,11 +11,33 @@ MODE_CHOICES = [
     (MODE_MULTIPLAYER, "Hitra tekma"),
     (MODE_DIRKA, "Dirka"),
     (MODE_60_SEKUND, "60 sekund"),
+    (MODE_ZASTAVE, "Ugib zastav"),
 ]
 
-PLAYABLE_MODES = {MODE_HITRARUNDA, MODE_ALA_MILIJONAR, MODE_MULTIPLAYER, MODE_DIRKA, MODE_60_SEKUND}
-SOLO_MODES = {MODE_HITRARUNDA, MODE_ALA_MILIJONAR, MODE_60_SEKUND}
+PLAYABLE_MODES = {
+    MODE_HITRARUNDA,
+    MODE_ALA_MILIJONAR,
+    MODE_MULTIPLAYER,
+    MODE_DIRKA,
+    MODE_60_SEKUND,
+    MODE_ZASTAVE,
+}
+SOLO_MODES = {MODE_HITRARUNDA, MODE_ALA_MILIJONAR, MODE_60_SEKUND, MODE_ZASTAVE}
 LOBBY_MODES = {MODE_MULTIPLAYER, MODE_DIRKA}
+
+ZASTAVE_TIME_SECONDS = 15
+ZASTAVE_ALLOWED_TIMES = {10, 15, 20, 30, 60}
+ZASTAVE_CORRECT_POINTS = 100
+ZASTAVE_CONTINENTS = {
+    "africa",
+    "antarctica",
+    "asia",
+    "europe",
+    "north_america",
+    "south_america",
+    "oceania",
+}
+ZASTAVE_KINDS = ("flag_to_name", "name_to_flag")
 
 # 60 sekund: skupni clock, +2/−5/−2, samo MC/TF.
 SIXTY_START_SECONDS = 60

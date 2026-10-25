@@ -28,6 +28,7 @@ export const MODE_LABELS: Record<string, string> = {
   multiplayer: "Hitra tekma",
   dirka: "Dirka",
   "60_sekund": "60 sekund",
+  zastave: "Ugib zastav",
 };
 
 export function formatMode(mode: string) {

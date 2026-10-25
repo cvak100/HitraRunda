@@ -25,9 +25,14 @@ function formatCorrectAnswer(message: GameMessage): string | null {
   const question = message.question;
   if (!question) return null;
 
+  if (message.correct_label) return String(message.correct_label);
+
   if (message.correct_option_ids?.length && question.options?.length) {
     const texts = message.correct_option_ids
-      .map((id) => question.options?.find((option) => option.id === id)?.text)
+      .map((id) => {
+        const option = question.options?.find((row) => String(row.id) === String(id));
+        return option?.text || option?.label || null;
+      })
       .filter((text): text is string => Boolean(text));
     if (!texts.length) return null;
     if (question.question_type === "ordering") return texts.join(" → ");

@@ -25,7 +25,10 @@ from game.modes import (
     MODE_HITRARUNDA,
     MODE_LABELS,
     MODE_MULTIPLAYER,
+    MODE_ZASTAVE,
     PLAYABLE_MODES,
+    ZASTAVE_CONTINENTS,
+    ZASTAVE_KINDS,
     SIXTY_DIFFICULTY_PROFILES,
     SIXTY_QUESTION_TYPES,
 )
@@ -85,6 +88,9 @@ def validate_settings(raw):
         elif mode == MODE_60_SEKUND:
             count = 0
             seconds = int(site_get("sixty_start_seconds"))
+        elif mode == MODE_ZASTAVE:
+            count = 0
+            seconds = int(raw.get("time_limit_seconds") or site_get("zastave_time_seconds"))
         else:
             seconds = int(raw.get("time_limit_seconds", 20))
             count = int(raw.get("question_count", 10))
@@ -101,36 +107,85 @@ def validate_settings(raw):
     elif mode == MODE_DIRKA:
         if seconds not in get_int_set("dirka_allowed_times"):
             raise GameError("Čas na vprašanje ni med dovoljenimi.")
+    elif mode == MODE_ZASTAVE:
+        if seconds not in get_int_set("zastave_allowed_times"):
+            raise GameError("Čas na vprašanje ni med dovoljenimi.")
     elif mode not in {MODE_ALA_MILIJONAR, MODE_60_SEKUND} and seconds not in get_int_set("hr_allowed_times"):
         raise GameError("Čas na vprašanje ni med dovoljenimi.")
-    slugs = raw.get("categories")
-    if not isinstance(slugs, list) or not slugs:
-        raise GameError("Izberi vsaj eno kategorijo.")
+
     cleaned = []
-    for slug in slugs:
-        if not isinstance(slug, str) or not slug.strip():
+    zastave_continents: list[str] = []
+    zastave_regions: list[str] = []
+    if mode == MODE_ZASTAVE:
+        from geo.importer import ensure_seed_countries, quiz_countries
+
+        ensure_seed_countries()
+        raw_regions = raw.get("regions") if isinstance(raw.get("regions"), list) else []
+        zastave_regions = [
+            str(r).strip().lower() for r in raw_regions if str(r).strip()
+        ]
+        # Dedup ohrani vrstni red.
+        seen_r: list[str] = []
+        for r in zastave_regions:
+            if r not in seen_r:
+                seen_r.append(r)
+        zastave_regions = seen_r
+
+        raw_conts = raw.get("continents") if isinstance(raw.get("continents"), list) else None
+        if raw_conts is None and raw.get("continent"):
+            raw_conts = [raw.get("continent")]
+        if not isinstance(raw_conts, list):
+            raw_conts = []
+        zastave_continents = [
+            str(c).strip().lower() for c in raw_conts if str(c).strip()
+        ]
+        seen_c: list[str] = []
+        for c in zastave_continents:
+            if c not in seen_c:
+                seen_c.append(c)
+        zastave_continents = seen_c
+
+        if zastave_regions and zastave_continents:
+            raise GameError("Izberi kontinent ali regije, ne oboje.")
+        if not zastave_regions and not zastave_continents:
+            raise GameError("Izberi vsaj en kontinent ali regijo.")
+        for c in zastave_continents:
+            if c not in ZASTAVE_CONTINENTS:
+                raise GameError(f"Neznan kontinent: {c}.")
+        available = quiz_countries(
+            continents=zastave_continents or None,
+            subregions=zastave_regions or None,
+        ).count()
+        if available < 4:
+            raise GameError(f"Na voljo je {available} držav, potrebuješ vsaj 4.")
+    else:
+        slugs = raw.get("categories")
+        if not isinstance(slugs, list) or not slugs:
+            raise GameError("Izberi vsaj eno kategorijo.")
+        for slug in slugs:
+            if not isinstance(slug, str) or not slug.strip():
+                raise GameError("Neznana kategorija.")
+            value = slug.strip()
+            if value not in cleaned:
+                cleaned.append(value)
+        known = set(Category.objects.filter(slug__in=cleaned, is_active=True).values_list("slug", flat=True))
+        if set(cleaned) != known:
             raise GameError("Neznana kategorija.")
-        value = slug.strip()
-        if value not in cleaned:
-            cleaned.append(value)
-    known = set(Category.objects.filter(slug__in=cleaned, is_active=True).values_list("slug", flat=True))
-    if set(cleaned) != known:
-        raise GameError("Neznana kategorija.")
-    pool = Question.objects.filter(category__slug__in=cleaned, is_active=True)
-    if mode == MODE_ALA_MILIJONAR:
-        pool = (
-            pool.filter(question_type__in=ALA_QUESTION_TYPES)
-            .annotate(option_count=Count("options"))
-            .filter(option_count=ALA_OPTION_COUNT)
-        )
-    elif mode == MODE_60_SEKUND:
-        pool = pool.filter(question_type__in=SIXTY_QUESTION_TYPES)
-    available = pool.count()
-    if mode in {MODE_DIRKA, MODE_60_SEKUND}:
-        if available < 5:
-            raise GameError(f"Na voljo je {available} vprašanj, potrebuješ vsaj 5.")
-    elif available < count:
-        raise GameError(f"Na voljo je {available} vprašanj, izbral si jih {count}.")
+        pool = Question.objects.filter(category__slug__in=cleaned, is_active=True)
+        if mode == MODE_ALA_MILIJONAR:
+            pool = (
+                pool.filter(question_type__in=ALA_QUESTION_TYPES)
+                .annotate(option_count=Count("options"))
+                .filter(option_count=ALA_OPTION_COUNT)
+            )
+        elif mode == MODE_60_SEKUND:
+            pool = pool.filter(question_type__in=SIXTY_QUESTION_TYPES)
+        available = pool.count()
+        if mode in {MODE_DIRKA, MODE_60_SEKUND}:
+            if available < 5:
+                raise GameError(f"Na voljo je {available} vprašanj, potrebuješ vsaj 5.")
+        elif available < count:
+            raise GameError(f"Na voljo je {available} vprašanj, izbral si jih {count}.")
 
     friend_keys = []
     if mode == MODE_ALA_MILIJONAR:
@@ -160,6 +215,25 @@ def validate_settings(raw):
         "time_limit_seconds": seconds,
         "difficulty_progression": "ala_ladder" if mode == MODE_ALA_MILIJONAR else "increasing",
     }
+    if mode == MODE_ZASTAVE:
+        kinds_raw = raw.get("flag_kinds")
+        if isinstance(kinds_raw, list) and kinds_raw:
+            kinds = [str(k).strip() for k in kinds_raw if str(k).strip() in ZASTAVE_KINDS]
+        else:
+            kinds = list(ZASTAVE_KINDS)
+        if not kinds:
+            kinds = list(ZASTAVE_KINDS)
+        settings["continents"] = zastave_continents
+        settings["regions"] = zastave_regions
+        # Staro polje za prikaz / združljivost.
+        settings["continent"] = (
+            ",".join(zastave_regions)
+            if zastave_regions
+            else (",".join(zastave_continents) if len(zastave_continents) != 1 else zastave_continents[0])
+        )
+        settings["flag_kinds"] = kinds
+        settings["categories"] = []
+        settings["question_count"] = 0
     if friend_keys:
         settings["friend_keys"] = friend_keys
     if mode in LOBBY_MODES:
@@ -427,6 +501,10 @@ def snapshot(member_id):
         from game.sixty import snapshot_sixty
 
         return snapshot_sixty(member_id)
+    if mode == MODE_ZASTAVE:
+        from game.flags import snapshot_flags
+
+        return snapshot_flags(member_id)
     with transaction.atomic():
         member, _room, session = _lock(member_id, include_finished=True)
         if session is None:
@@ -454,6 +532,10 @@ def start_game(member_id):
         from game.sixty import start_sixty
 
         return start_sixty(member_id)
+    if mode == MODE_ZASTAVE:
+        from game.flags import start_flags
+
+        return start_flags(member_id)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if not member.is_host:
@@ -563,6 +645,10 @@ def submit_answer(member_id, message):
         from game.sixty import submit_sixty
 
         return submit_sixty(member_id, message)
+    if mode == MODE_ZASTAVE:
+        from game.flags import submit_flags
+
+        return submit_flags(member_id, message)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active":
@@ -597,6 +683,10 @@ def apply_timeout(member_id, game_question_id):
         from game.sixty import apply_sixty_timeout
 
         return apply_sixty_timeout(member_id, game_question_id)
+    if mode == MODE_ZASTAVE:
+        from game.flags import apply_flags_timeout
+
+        return apply_flags_timeout(member_id, game_question_id)
     with transaction.atomic():
         member, room, session = _lock(member_id)
         if session is None or session.status != "active":
@@ -622,8 +712,10 @@ def seconds_until_hard_end(game_question_id):
         game_question = GameQuestion.objects.select_related("game_session", "game_session__room").get(
             pk=game_question_id
         )
-    except GameQuestion.DoesNotExist:
-        return None
+    except (GameQuestion.DoesNotExist, ValueError, TypeError):
+        from game.flags import seconds_until_flags_deadline
+
+        return seconds_until_flags_deadline(game_question_id)
     session = game_question.game_session
     if session.status != "active" or game_question.order != session.current_question_index:
         return None
@@ -657,6 +749,10 @@ def next_question(member_id):
         from game.dirka import next_dirka
 
         return next_dirka(member_id)
+    if mode == MODE_ZASTAVE:
+        from game.flags import next_flags
+
+        return next_flags(member_id)
     with transaction.atomic():
         member, _room, session = _lock(member_id)
         if session is None:

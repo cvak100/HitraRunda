@@ -16,6 +16,9 @@ export function AdminCatalogLayout() {
         <NavLink to="/nadzor/sifranti/boti" role="tab">
           AI boti
         </NavLink>
+        <NavLink to="/nadzor/sifranti/drzave" role="tab">
+          Države
+        </NavLink>
       </div>
       <Outlet />
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import type { GameMessage, PublicQuestion } from "../types";
+import type { GameMessage, PublicOption, PublicQuestion } from "../types";
 
 type AnswerHighlight = Pick<
   GameMessage,
@@ -18,7 +18,7 @@ type Props = {
 
 export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [], audienceVotes = [], onSubmit }: Props) {
   const [items, setItems] = useState(question.options ?? []);
-  const [picked, setPicked] = useState<number[]>([]);
+  const [picked, setPicked] = useState<Array<number | string>>([]);
   const [pairs, setPairs] = useState<{ left_id: string; right_id: string }[]>([]);
   const [activePick, setActivePick] = useState<{ side: "left" | "right"; id: string } | null>(null);
   const [value, setValue] = useState(question.slider?.min ?? 0);
@@ -38,35 +38,45 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.game_question_id]);
 
-  function optionClass(id: number) {
+  function optionClass(id: number | string) {
+    const sid = String(id);
     if (result?.correct_option_ids?.length) {
-      if (result.correct_option_ids.includes(id)) return "is-correct";
-      if (result.selected_option_ids?.includes(id)) return "is-wrong";
+      if (result.correct_option_ids.map(String).includes(sid)) return "is-correct";
+      if (result.selected_option_ids?.map(String).includes(sid)) return "is-wrong";
       return "";
     }
-    if (result?.selected_option_ids?.includes(id) || picked.includes(id)) return "is-on";
+    if (result?.selected_option_ids?.map(String).includes(sid) || picked.map(String).includes(sid))
+      return "is-on";
     return "";
   }
+
+  const isFlagQuiz = Boolean(question.flag_kind);
 
   if (question.question_type === "multiple_choice" || question.question_type === "true_false") {
     const voteMap = Object.fromEntries(audienceVotes.map((vote) => [vote.option_id, vote.percent]));
     return (
-      <div className="answers">
+      <div className={isFlagQuiz ? "answers flag-answers" : "answers"}>
         {(question.options ?? []).map((option) => {
-          if (eliminatedOptionIds.includes(option.id)) return null;
-          const vote = voteMap[option.id];
+          if (typeof option.id === "number" && eliminatedOptionIds.includes(option.id)) return null;
+          const vote = typeof option.id === "number" ? voteMap[option.id] : undefined;
+          const asFlag = option.kind === "flag" && option.flag;
+          const label = option.text || option.label || "";
           return (
             <button
-              key={option.id}
+              key={String(option.id)}
               type="button"
-              className={`slab ${optionClass(option.id)}`}
+              className={`slab ${asFlag ? "flag-slab" : ""} ${optionClass(option.id)}`}
               disabled={locked}
               onClick={() => {
-                setPicked([option.id]);
+                setPicked([option.id as number]);
                 onSubmit({ option_id: option.id });
               }}
             >
-              {option.text}
+              {asFlag ? (
+                <span className={`fi fi-${option.flag} flag-choice`} title={label || undefined} />
+              ) : (
+                label
+              )}
               {vote !== undefined ? <span className="fine"> · {vote} %</span> : null}
             </button>
           );
@@ -268,7 +278,12 @@ export function QuestionPlay({ question, locked, result, eliminatedOptionIds = [
   );
 }
 
-function move(items: { id: number; text: string }[], index: number, direction: -1 | 1, setItems: (items: { id: number; text: string }[]) => void) {
+function move(
+  items: PublicOption[],
+  index: number,
+  direction: -1 | 1,
+  setItems: (items: PublicOption[]) => void,
+) {
   const next = index + direction;
   if (next < 0 || next >= items.length) return;
   const copy = items.slice();

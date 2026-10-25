@@ -24,12 +24,16 @@ export function ReviewPanel({
   useEffect(() => {
     setLeaving(false);
   }, [question?.game_question_id, message.phase]);
+  const isFlags = message.mode === "zastave";
+  const canContinue = Boolean(message.is_correct) || isFlags;
   const replayPath =
     message.mode === "ala_milijonar"
       ? "/igra/ala-milijonar"
       : message.mode === "60_sekund"
         ? "/igra/60-sekund"
-        : "/igra/hitrarunda";
+        : message.mode === "zastave"
+          ? "/igra/zastave"
+          : "/igra/hitrarunda";
   const title = message.walked_away
     ? "Odnehal si"
     : message.timed_out
@@ -40,9 +44,10 @@ export function ReviewPanel({
   const tone = message.walked_away || message.is_correct ? "good" : "bad";
   const reason = message.reason || "";
   const showReason = reason === "completed" || reason === "walk_away";
+  const scoreLabel = message.mode === "hitrarunda" || isFlags ? "Točke" : "Nagrada";
 
   function goNext() {
-    if (leaving || !message.is_correct) return;
+    if (leaving || !canContinue) return;
     setLeaving(true);
     // Zvok "next" predvaja GamePage ob novem question dogodku — ne tukaj (sicer 2×).
     window.setTimeout(() => onNext(), NEXT_BEAT_MS);
@@ -74,17 +79,25 @@ export function ReviewPanel({
             <span> točk</span>
           </p>
           <p className="finish-summary-breakdown">
-            <span>
-              {message.mode === "hitrarunda" ? "Točke" : "Nagrada"}{" "}
-              {formatPoints(message.prize_reached ?? 0)}
-            </span>
-            <span className="finish-summary-sep">+</span>
-            <span>bonus {formatPoints(message.speed_bonus_total ?? 0)}</span>
-            <span className="finish-summary-sep">·</span>
-            <span>
-              {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0}{" "}
-              pravilnih
-            </span>
+            {isFlags ? (
+              <span>
+                {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0}{" "}
+                pravilnih
+              </span>
+            ) : (
+              <>
+                <span>
+                  {scoreLabel} {formatPoints(message.prize_reached ?? 0)}
+                </span>
+                <span className="finish-summary-sep">+</span>
+                <span>bonus {formatPoints(message.speed_bonus_total ?? 0)}</span>
+                <span className="finish-summary-sep">·</span>
+                <span>
+                  {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0}{" "}
+                  pravilnih
+                </span>
+              </>
+            )}
           </p>
           {showReason ? <p className="finish-summary-reason">{REASONS[reason]}</p> : null}
         </section>
@@ -98,18 +111,30 @@ export function ReviewPanel({
     <div className={`review ${tone}${leaving ? " is-leaving" : ""}`}>
       <p className="review-verdict">{title}</p>
       <p className="review-score">
-        {message.mode === "hitrarunda" ? "Točke" : "Nagrada"}{" "}
-        {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
-        {formatPoints(message.speed_bonus_total ?? 0)} ={" "}
-        <strong>{formatPoints(message.score ?? 0)}</strong>
+        {isFlags ? (
+          <>
+            +{formatPoints(message.points ?? 0)} · skupaj{" "}
+            <strong>{formatPoints(message.score ?? 0)}</strong>
+            <span className="fine">
+              {" "}
+              · {message.correct_count ?? 0}/{message.total_questions ?? 0}
+            </span>
+          </>
+        ) : (
+          <>
+            {scoreLabel} {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
+            {formatPoints(message.speed_bonus_total ?? 0)} ={" "}
+            <strong>{formatPoints(message.score ?? 0)}</strong>
+          </>
+        )}
       </p>
       <div className="play-slot-cta">
-        {question && !message.walked_away ? (
+        {question && !message.walked_away && !isFlags ? (
           <Complaint key={question.game_question_id} gameQuestionId={question.game_question_id} />
         ) : (
           <span />
         )}
-        {message.is_correct ? (
+        {canContinue ? (
           <button type="button" className="primary btn-cta" disabled={leaving} onClick={goNext}>
             {leaving ? "…" : `Naprej${message.next_stake ? ` za ${formatPoints(message.next_stake)}` : ""}`}
           </button>

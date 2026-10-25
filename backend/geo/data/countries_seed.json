@@ -1,0 +1,3581 @@
+{
+  "version": 1,
+  "source": "manual",
+  "updated_at": "2026-10-25",
+  "countries": [
+    {
+      "iso2": "at",
+      "iso3": "aut",
+      "iso_numeric": 40,
+      "ccn3": "040",
+      "name": {
+        "sl": "Avstrija",
+        "en": "Austria",
+        "official_sl": "Republika Avstrija",
+        "official_en": "Republic of Austria",
+        "native": ["Österreich"]
+      },
+      "aliases_sl": ["Republika Avstrija"],
+      "aliases_en": ["Republic of Austria"],
+      "demonym": {
+        "sl_m": "Avstrijec",
+        "sl_f": "Avstrijka",
+        "en": "Austrian"
+      },
+      "flag": {
+        "code": "at",
+        "file_4x3": "flags/4x3/at.svg",
+        "file_1x1": "flags/1x1/at.svg",
+        "emoji": "🇦🇹",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "western_europe",
+        "region_un": "Europe",
+        "landlocked": true,
+        "lat": 47.33,
+        "lon": 13.33,
+        "area_km2": 83879,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Grossglockner",
+          "name_en": "Grossglockner",
+          "elevation_m": 3798
+        },
+        "lowest_point": {
+          "name_sl": "Neusiedler See",
+          "name_en": "Lake Neusiedl",
+          "elevation_m": 115
+        },
+        "borders_iso2": ["cz", "de", "hu", "it", "li", "sk", "si", "ch"],
+        "borders_notes": "",
+        "timezones": ["Europe/Vienna"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Dunaj",
+        "en": "Vienna",
+        "lat": 48.21,
+        "lon": 16.37,
+        "population": 2000000
+      },
+      "top_cities": [
+        { "sl": "Dunaj", "en": "Vienna", "population": 2000000 },
+        { "sl": "Gradec", "en": "Graz", "population": 300000 },
+        { "sl": "Linz", "en": "Linz", "population": 210000 },
+        { "sl": "Salzburg", "en": "Salzburg", "population": 155000 },
+        { "sl": "Innsbruck", "en": "Innsbruck", "population": 130000 },
+        { "sl": "Celovec", "en": "Klagenfurt", "population": 100000 },
+        { "sl": "Villach", "en": "Villach", "population": 65000 },
+        { "sl": "Wels", "en": "Wels", "population": 65000 },
+        { "sl": "St. Pölten", "en": "St. Pölten", "population": 55000 },
+        { "sl": "Dornbirn", "en": "Dornbirn", "population": 50000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Inn", "en": "Inn" },
+          { "sl": "Drava", "en": "Drava" },
+          { "sl": "Mura", "en": "Mura" },
+          { "sl": "Enns", "en": "Enns" },
+          { "sl": "Salzach", "en": "Salzach" }
+        ],
+        "lakes": [
+          { "sl": "Nežidersko jezero", "en": "Lake Neusiedl" },
+          { "sl": "Wolfgangsee", "en": "Wolfgangsee" },
+          { "sl": "Traunsee", "en": "Traunsee" },
+          { "sl": "Attersee", "en": "Attersee" },
+          { "sl": "Wörthersee", "en": "Wörthersee" }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 9100000,
+        "year": 2025,
+        "density_per_km2": 108
+      },
+      "languages": {
+        "official_sl": ["nemščina"],
+        "official_en": ["German"],
+        "also_spoken_sl": ["turščina", "srbščina", "hrvaščina", "angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".at"],
+        "phone_prefix": "+43",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": false,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "alpine"],
+        "common_confusions_iso2": ["de", "ch", "hu"],
+        "hint_sl": "Alpska država s prestolnico Dunaj."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1955-10-26",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Avstrija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "be",
+      "iso3": "bel",
+      "iso_numeric": 56,
+      "ccn3": "056",
+      "name": {
+        "sl": "Belgija",
+        "en": "Belgium",
+        "official_sl": "Kraljevina Belgija",
+        "official_en": "Kingdom of Belgium",
+        "native": ["België", "Belgique", "Belgien"]
+      },
+      "aliases_sl": ["Kraljevina Belgija"],
+      "aliases_en": ["Kingdom of Belgium"],
+      "demonym": {
+        "sl_m": "Belgijec",
+        "sl_f": "Belgijka",
+        "en": "Belgian"
+      },
+      "flag": {
+        "code": "be",
+        "file_4x3": "flags/4x3/be.svg",
+        "file_1x1": "flags/1x1/be.svg",
+        "emoji": "🇧🇪",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "western_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 50.50,
+        "lon": 4.47,
+        "area_km2": 30528,
+        "coastline_km": 66.5,
+        "highest_point": {
+          "name_sl": "Signal de Botrange",
+          "name_en": "Signal de Botrange",
+          "elevation_m": 694
+        },
+        "lowest_point": {
+          "name_sl": "Severno morje",
+          "name_en": "North Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["fr", "de", "lu", "nl"],
+        "borders_notes": "",
+        "timezones": ["Europe/Brussels"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Bruselj",
+        "en": "Brussels",
+        "lat": 50.85,
+        "lon": 4.35,
+        "population": 185000
+      },
+      "top_cities": [
+        { "sl": "Antwerpen", "en": "Antwerp", "population": 530000 },
+        { "sl": "Gent", "en": "Ghent", "population": 265000 },
+        { "sl": "Charleroi", "en": "Charleroi", "population": 200000 },
+        { "sl": "Liège", "en": "Liège", "population": 195000 },
+        { "sl": "Bruselj", "en": "Brussels", "population": 185000 },
+        { "sl": "Bruges", "en": "Bruges", "population": 120000 },
+        { "sl": "Namur", "en": "Namur", "population": 110000 },
+        { "sl": "Leuven", "en": "Leuven", "population": 100000 },
+        { "sl": "Mons", "en": "Mons", "population": 95000 },
+        { "sl": "Aalst", "en": "Aalst", "population": 88000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Šelda", "en": "Scheldt" },
+          { "sl": "Meuse", "en": "Meuse" },
+          { "sl": "Sambre", "en": "Sambre" },
+          { "sl": "Leie", "en": "Lys" },
+          { "sl": "Dender", "en": "Dender" }
+        ],
+        "lakes": [
+          { "sl": "Lake of Genval", "en": "Lake of Genval" },
+          { "sl": "Eau d'Heure lakes", "en": "Eau d'Heure lakes" }
+        ],
+        "seas": [
+          { "sl": "Severno morje", "en": "North Sea" }
+        ]
+      },
+      "population": {
+        "total": 11700000,
+        "year": 2025,
+        "density_per_km2": 383
+      },
+      "languages": {
+        "official_sl": ["nizozemščina", "francoščina", "nemščina"],
+        "official_en": ["Dutch", "French", "German"],
+        "also_spoken_sl": ["angleščina", "arabščina", "turščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".be"],
+        "phone_prefix": "+32",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "benelux"],
+        "common_confusions_iso2": ["nl", "lu", "fr"],
+        "hint_sl": "Država s tremi uradnimi jeziki, prestolnica Bruselj."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1830-07-21",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Belgija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "bg",
+      "iso3": "bgr",
+      "iso_numeric": 100,
+      "ccn3": "100",
+      "name": {
+        "sl": "Bolgarija",
+        "en": "Bulgaria",
+        "official_sl": "Republika Bolgarija",
+        "official_en": "Republic of Bulgaria",
+        "native": ["България"]
+      },
+      "aliases_sl": ["Republika Bolgarija"],
+      "aliases_en": ["Republic of Bulgaria"],
+      "demonym": {
+        "sl_m": "Bolgar",
+        "sl_f": "Bolgarka",
+        "en": "Bulgarian"
+      },
+      "flag": {
+        "code": "bg",
+        "file_4x3": "flags/4x3/bg.svg",
+        "file_1x1": "flags/1x1/bg.svg",
+        "emoji": "🇧🇬",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "eastern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 42.73,
+        "lon": 25.48,
+        "area_km2": 110879,
+        "coastline_km": 354,
+        "highest_point": {
+          "name_sl": "Musala",
+          "name_en": "Musala",
+          "elevation_m": 2925
+        },
+        "lowest_point": {
+          "name_sl": "Črno morje",
+          "name_en": "Black Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["ro", "rs", "mk", "gr", "tr"],
+        "borders_notes": "",
+        "timezones": ["Europe/Sofia"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Sofija",
+        "en": "Sofia",
+        "lat": 42.70,
+        "lon": 23.32,
+        "population": 1300000
+      },
+      "top_cities": [
+        { "sl": "Sofija", "en": "Sofia", "population": 1300000 },
+        { "sl": "Plovdiv", "en": "Plovdiv", "population": 340000 },
+        { "sl": "Varna", "en": "Varna", "population": 335000 },
+        { "sl": "Burgas", "en": "Burgas", "population": 200000 },
+        { "sl": "Ruse", "en": "Ruse", "population": 140000 },
+        { "sl": "Stara Zagora", "en": "Stara Zagora", "population": 135000 },
+        { "sl": "Pleven", "en": "Pleven", "population": 95000 },
+        { "sl": "Sliven", "en": "Sliven", "population": 85000 },
+        { "sl": "Dobrič", "en": "Dobrich", "population": 80000 },
+        { "sl": "Šumen", "en": "Shumen", "population": 75000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Marica", "en": "Maritsa" },
+          { "sl": "Iskar", "en": "Iskar" },
+          { "sl": "Struma", "en": "Struma" },
+          { "sl": "Mesta", "en": "Mesta" }
+        ],
+        "lakes": [
+          { "sl": "Burgasko jezero", "en": "Lake Burgas" },
+          { "sl": "Varensko jezero", "en": "Lake Varna" },
+          { "sl": "Batak", "en": "Batak Reservoir" }
+        ],
+        "seas": [
+          { "sl": "Črno morje", "en": "Black Sea" }
+        ]
+      },
+      "population": {
+        "total": 6400000,
+        "year": 2025,
+        "density_per_km2": 58
+      },
+      "languages": {
+        "official_sl": ["bolgarščina"],
+        "official_en": ["Bulgarian"],
+        "also_spoken_sl": ["turščina", "romščina", "angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".bg"],
+        "phone_prefix": "+359",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "balkans", "black_sea"],
+        "common_confusions_iso2": ["ro", "gr", "rs"],
+        "hint_sl": "Država na Balkanu s prestolnico Sofija."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1878-03-03",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Bolgarija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "hr",
+      "iso3": "hrv",
+      "iso_numeric": 191,
+      "ccn3": "191",
+      "name": {
+        "sl": "Hrvaška",
+        "en": "Croatia",
+        "official_sl": "Republika Hrvaška",
+        "official_en": "Republic of Croatia",
+        "native": ["Hrvatska"]
+      },
+      "aliases_sl": ["Republika Hrvaška"],
+      "aliases_en": ["Republic of Croatia"],
+      "demonym": {
+        "sl_m": "Hrvat",
+        "sl_f": "Hrvatica",
+        "en": "Croatian"
+      },
+      "flag": {
+        "code": "hr",
+        "file_4x3": "flags/4x3/hr.svg",
+        "file_1x1": "flags/1x1/hr.svg",
+        "emoji": "🇭🇷",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 45.10,
+        "lon": 15.20,
+        "area_km2": 56594,
+        "coastline_km": 5835,
+        "highest_point": {
+          "name_sl": "Dinara",
+          "name_en": "Dinara",
+          "elevation_m": 1831
+        },
+        "lowest_point": {
+          "name_sl": "Jadransko morje",
+          "name_en": "Adriatic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["si", "hu", "rs", "ba", "me"],
+        "borders_notes": "",
+        "timezones": ["Europe/Zagreb"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Zagreb",
+        "en": "Zagreb",
+        "lat": 45.81,
+        "lon": 15.98,
+        "population": 770000
+      },
+      "top_cities": [
+        { "sl": "Zagreb", "en": "Zagreb", "population": 770000 },
+        { "sl": "Split", "en": "Split", "population": 161000 },
+        { "sl": "Reka", "en": "Rijeka", "population": 108000 },
+        { "sl": "Osijek", "en": "Osijek", "population": 97000 },
+        { "sl": "Zadar", "en": "Zadar", "population": 71000 },
+        { "sl": "Velika Gorica", "en": "Velika Gorica", "population": 61000 },
+        { "sl": "Pula", "en": "Pula", "population": 52000 },
+        { "sl": "Slavonski Brod", "en": "Slavonski Brod", "population": 50000 },
+        { "sl": "Karlovec", "en": "Karlovac", "population": 49000 },
+        { "sl": "Varaždin", "en": "Varaždin", "population": 44000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Sava", "en": "Sava" },
+          { "sl": "Drava", "en": "Drava" },
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Kupa", "en": "Kupa" },
+          { "sl": "Neretva", "en": "Neretva" },
+          { "sl": "Cetina", "en": "Cetina" },
+          { "sl": "Krka", "en": "Krka" }
+        ],
+        "lakes": [
+          { "sl": "Plitvička jezera", "en": "Plitvice Lakes" },
+          { "sl": "Vransko jezero", "en": "Lake Vrana" },
+          { "sl": "Perućko jezero", "en": "Peruća Lake" },
+          { "sl": "Prokljansko jezero", "en": "Lake Prokljan" },
+          { "sl": "Varaždinsko jezero", "en": "Lake Varaždin" }
+        ],
+        "seas": [
+          { "sl": "Jadransko morje", "en": "Adriatic Sea" }
+        ]
+      },
+      "population": {
+        "total": 3870000,
+        "year": 2025,
+        "density_per_km2": 68
+      },
+      "languages": {
+        "official_sl": ["hrvaščina"],
+        "official_en": ["Croatian"],
+        "also_spoken_sl": ["srbščina", "italijanščina", "madžarščina", "češčina", "slovaščina", "bosanščina", "romščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".hr"],
+        "phone_prefix": "+385",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "adriatic", "balkans"],
+        "common_confusions_iso2": ["si", "ba", "rs"],
+        "hint_sl": "Jadranska država s prestolnico Zagreb in dolgim otočjem."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1991-06-25",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Hrvaška",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "cy",
+      "iso3": "cyp",
+      "iso_numeric": 196,
+      "ccn3": "196",
+      "name": {
+        "sl": "Ciper",
+        "en": "Cyprus",
+        "official_sl": "Republika Ciper",
+        "official_en": "Republic of Cyprus",
+        "native": ["Κύπρος", "Kıbrıs"]
+      },
+      "aliases_sl": ["Republika Ciper"],
+      "aliases_en": ["Republic of Cyprus"],
+      "demonym": {
+        "sl_m": "Ciprčan",
+        "sl_f": "Ciprčanka",
+        "en": "Cypriot"
+      },
+      "flag": {
+        "code": "cy",
+        "file_4x3": "flags/4x3/cy.svg",
+        "file_1x1": "flags/1x1/cy.svg",
+        "emoji": "🇨🇾",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 35.13,
+        "lon": 33.43,
+        "area_km2": 9251,
+        "coastline_km": 648,
+        "highest_point": {
+          "name_sl": "Olimp",
+          "name_en": "Mount Olympus",
+          "elevation_m": 1952
+        },
+        "lowest_point": {
+          "name_sl": "Sredozemsko morje",
+          "name_en": "Mediterranean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": ["Asia/Nicosia"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Nikozija",
+        "en": "Nicosia",
+        "lat": 35.17,
+        "lon": 33.37,
+        "population": 200000
+      },
+      "top_cities": [
+        { "sl": "Nikozija", "en": "Nicosia", "population": 200000 },
+        { "sl": "Limassol", "en": "Limassol", "population": 180000 },
+        { "sl": "Larnaka", "en": "Larnaca", "population": 85000 },
+        { "sl": "Paphos", "en": "Paphos", "population": 65000 },
+        { "sl": "Famagusta", "en": "Famagusta", "population": 40000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Pedieos", "en": "Pedieos" },
+          { "sl": "Yialias", "en": "Yialias" }
+        ],
+        "lakes": [
+          { "sl": "Salt Lake Larnaca", "en": "Larnaca Salt Lake" },
+          { "sl": "Salt Lake Limassol", "en": "Limassol Salt Lake" }
+        ],
+        "seas": [
+          { "sl": "Sredozemsko morje", "en": "Mediterranean Sea" }
+        ]
+      },
+      "population": {
+        "total": 920000,
+        "year": 2025,
+        "density_per_km2": 99
+      },
+      "languages": {
+        "official_sl": ["grščina", "turščina"],
+        "official_en": ["Greek", "Turkish"],
+        "also_spoken_sl": ["angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".cy"],
+        "phone_prefix": "+357",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "Northern part occupied by Turkey",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "mediterranean", "island"],
+        "common_confusions_iso2": ["gr", "mt"],
+        "hint_sl": "Otok v vzhodnem Sredozemlju."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1960-10-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Ciper",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "cz",
+      "iso3": "cze",
+      "iso_numeric": 203,
+      "ccn3": "203",
+      "name": {
+        "sl": "Češka",
+        "en": "Czechia",
+        "official_sl": "Češka republika",
+        "official_en": "Czech Republic",
+        "native": ["Česko"]
+      },
+      "aliases_sl": ["Češka republika", "Češka"],
+      "aliases_en": ["Czech Republic"],
+      "demonym": {
+        "sl_m": "Čeh",
+        "sl_f": "Čehinja",
+        "en": "Czech"
+      },
+      "flag": {
+        "code": "cz",
+        "file_4x3": "flags/4x3/cz.svg",
+        "file_1x1": "flags/1x1/cz.svg",
+        "emoji": "🇨🇿",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "central_europe",
+        "region_un": "Europe",
+        "landlocked": true,
+        "lat": 49.75,
+        "lon": 15.50,
+        "area_km2": 78867,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Sněžka",
+          "name_en": "Sněžka",
+          "elevation_m": 1603
+        },
+        "lowest_point": {
+          "name_sl": "Elba",
+          "name_en": "Elbe",
+          "elevation_m": 115
+        },
+        "borders_iso2": ["at", "de", "pl", "sk"],
+        "borders_notes": "",
+        "timezones": ["Europe/Prague"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Praga",
+        "en": "Prague",
+        "lat": 50.08,
+        "lon": 14.43,
+        "population": 1350000
+      },
+      "top_cities": [
+        { "sl": "Praga", "en": "Prague", "population": 1350000 },
+        { "sl": "Brno", "en": "Brno", "population": 380000 },
+        { "sl": "Ostrava", "en": "Ostrava", "population": 280000 },
+        { "sl": "Plzen", "en": "Plzeň", "population": 170000 },
+        { "sl": "Liberec", "en": "Liberec", "population": 100000 },
+        { "sl": "Olomouc", "en": "Olomouc", "population": 100000 },
+        { "sl": "České Budějovice", "en": "České Budějovice", "population": 94000 },
+        { "sl": "Hradec Králové", "en": "Hradec Králové", "population": 92000 },
+        { "sl": "Ústí nad Labem", "en": "Ústí nad Labem", "population": 91000 },
+        { "sl": "Pardubice", "en": "Pardubice", "population": 90000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Vltava", "en": "Vltava" },
+          { "sl": "Labe", "en": "Elbe" },
+          { "sl": "Morava", "en": "Morava" },
+          { "sl": "Ohře", "en": "Ohře" },
+          { "sl": "Sázava", "en": "Sázava" }
+        ],
+        "lakes": [
+          { "sl": "Lipno", "en": "Lipno Reservoir" },
+          { "sl": "Orlík", "en": "Orlík Reservoir" },
+          { "sl": "Slapy", "en": "Slapy Reservoir" }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 10700000,
+        "year": 2025,
+        "density_per_km2": 136
+      },
+      "languages": {
+        "official_sl": ["češčina"],
+        "official_en": ["Czech"],
+        "also_spoken_sl": ["slovaščina", "angleščina", "nemščina"]
+      },
+      "currency": {
+        "code": "CZK",
+        "name_sl": "češka krona",
+        "name_en": "Czech koruna",
+        "symbol": "Kč"
+      },
+      "communications": {
+        "tld": [".cz"],
+        "phone_prefix": "+420",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "central_europe"],
+        "common_confusions_iso2": ["sk", "pl", "at"],
+        "hint_sl": "Država s prestolnico Praga."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1918-10-28",
+        "former_names_sl": ["Češkoslovaška"],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Češka",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "dk",
+      "iso3": "dnk",
+      "iso_numeric": 208,
+      "ccn3": "208",
+      "name": {
+        "sl": "Danska",
+        "en": "Denmark",
+        "official_sl": "Kraljevina Danska",
+        "official_en": "Kingdom of Denmark",
+        "native": ["Danmark"]
+      },
+      "aliases_sl": ["Kraljevina Danska"],
+      "aliases_en": ["Kingdom of Denmark"],
+      "demonym": {
+        "sl_m": "Danec",
+        "sl_f": "Danka",
+        "en": "Dane"
+      },
+      "flag": {
+        "code": "dk",
+        "file_4x3": "flags/4x3/dk.svg",
+        "file_1x1": "flags/1x1/dk.svg",
+        "emoji": "🇩🇰",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 56.00,
+        "lon": 10.00,
+        "area_km2": 42924,
+        "coastline_km": 7314,
+        "highest_point": {
+          "name_sl": "Møllehøj",
+          "name_en": "Møllehøj",
+          "elevation_m": 171
+        },
+        "lowest_point": {
+          "name_sl": "Lammefjord",
+          "name_en": "Lammefjord",
+          "elevation_m": -7
+        },
+        "borders_iso2": ["de"],
+        "borders_notes": "",
+        "timezones": ["Europe/Copenhagen"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "København",
+        "en": "Copenhagen",
+        "lat": 55.68,
+        "lon": 12.57,
+        "population": 650000
+      },
+      "top_cities": [
+        { "sl": "København", "en": "Copenhagen", "population": 650000 },
+        { "sl": "Aarhus", "en": "Aarhus", "population": 280000 },
+        { "sl": "Odense", "en": "Odense", "population": 180000 },
+        { "sl": "Aalborg", "en": "Aalborg", "population": 120000 },
+        { "sl": "Esbjerg", "en": "Esbjerg", "population": 72000 },
+        { "sl": "Randers", "en": "Randers", "population": 62000 },
+        { "sl": "Kolding", "en": "Kolding", "population": 61000 },
+        { "sl": "Horsens", "en": "Horsens", "population": 60000 },
+        { "sl": "Vejle", "en": "Vejle", "population": 58000 },
+        { "sl": "Roskilde", "en": "Roskilde", "population": 52000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Gudenå", "en": "Gudenå" },
+          { "sl": "Skjern Å", "en": "Skjern Å" },
+          { "sl": "Odense Å", "en": "Odense Å" }
+        ],
+        "lakes": [
+          { "sl": "Arresø", "en": "Arresø" },
+          { "sl": "Esrum Sø", "en": "Esrum Sø" },
+          { "sl": "Mossø", "en": "Mossø" }
+        ],
+        "seas": [
+          { "sl": "Severno morje", "en": "North Sea" },
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 5900000,
+        "year": 2025,
+        "density_per_km2": 137
+      },
+      "languages": {
+        "official_sl": ["danščina"],
+        "official_en": ["Danish"],
+        "also_spoken_sl": ["angleščina", "nemščina", "grenlandščina"]
+      },
+      "currency": {
+        "code": "DKK",
+        "name_sl": "danska krona",
+        "name_en": "Danish krone",
+        "symbol": "kr"
+      },
+      "communications": {
+        "tld": [".dk"],
+        "phone_prefix": "+45",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "nordic", "scandinavia"],
+        "common_confusions_iso2": ["se", "no", "de"],
+        "hint_sl": "Skandinavska kraljevina s prestolnico København."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1849-06-05",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Danska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "ee",
+      "iso3": "est",
+      "iso_numeric": 233,
+      "ccn3": "233",
+      "name": {
+        "sl": "Estonija",
+        "en": "Estonia",
+        "official_sl": "Republika Estonija",
+        "official_en": "Republic of Estonia",
+        "native": ["Eesti"]
+      },
+      "aliases_sl": ["Republika Estonija"],
+      "aliases_en": ["Republic of Estonia"],
+      "demonym": {
+        "sl_m": "Estonec",
+        "sl_f": "Estonka",
+        "en": "Estonian"
+      },
+      "flag": {
+        "code": "ee",
+        "file_4x3": "flags/4x3/ee.svg",
+        "file_1x1": "flags/1x1/ee.svg",
+        "emoji": "🇪🇪",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 58.60,
+        "lon": 25.00,
+        "area_km2": 45227,
+        "coastline_km": 3794,
+        "highest_point": {
+          "name_sl": "Suur Munamägi",
+          "name_en": "Suur Munamägi",
+          "elevation_m": 318
+        },
+        "lowest_point": {
+          "name_sl": "Baltsko morje",
+          "name_en": "Baltic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["lv", "ru"],
+        "borders_notes": "",
+        "timezones": ["Europe/Tallinn"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Talin",
+        "en": "Tallinn",
+        "lat": 59.44,
+        "lon": 24.75,
+        "population": 450000
+      },
+      "top_cities": [
+        { "sl": "Talin", "en": "Tallinn", "population": 450000 },
+        { "sl": "Tartu", "en": "Tartu", "population": 97000 },
+        { "sl": "Narva", "en": "Narva", "population": 53000 },
+        { "sl": "Pärnu", "en": "Pärnu", "population": 40000 },
+        { "sl": "Kohtla-Järve", "en": "Kohtla-Järve", "population": 33000 },
+        { "sl": "Viljandi", "en": "Viljandi", "population": 17000 },
+        { "sl": "Rakvere", "en": "Rakvere", "population": 15000 },
+        { "sl": "Maardu", "en": "Maardu", "population": 15000 },
+        { "sl": "Sillamäe", "en": "Sillamäe", "population": 12000 },
+        { "sl": "Kuressaare", "en": "Kuressaare", "population": 13000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Emajõgi", "en": "Emajõgi" },
+          { "sl": "Narva", "en": "Narva" },
+          { "sl": "Pärnu", "en": "Pärnu" },
+          { "sl": "Võhandu", "en": "Võhandu" }
+        ],
+        "lakes": [
+          { "sl": "Peipsi", "en": "Lake Peipus" },
+          { "sl": "Võrtsjärv", "en": "Lake Võrtsjärv" },
+          { "sl": "Ülemiste", "en": "Lake Ülemiste" }
+        ],
+        "seas": [
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 1330000,
+        "year": 2025,
+        "density_per_km2": 29
+      },
+      "languages": {
+        "official_sl": ["estonščina"],
+        "official_en": ["Estonian"],
+        "also_spoken_sl": ["ruščina", "angleščina", "finščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".ee"],
+        "phone_prefix": "+372",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "baltic", "nordic"],
+        "common_confusions_iso2": ["lv", "lt", "fi"],
+        "hint_sl": "Baltska država s prestolnico Talin."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1918-02-24",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Estonija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "fi",
+      "iso3": "fin",
+      "iso_numeric": 246,
+      "ccn3": "246",
+      "name": {
+        "sl": "Finska",
+        "en": "Finland",
+        "official_sl": "Republika Finska",
+        "official_en": "Republic of Finland",
+        "native": ["Suomi"]
+      },
+      "aliases_sl": ["Republika Finska"],
+      "aliases_en": ["Republic of Finland"],
+      "demonym": {
+        "sl_m": "Finec",
+        "sl_f": "Finka",
+        "en": "Finn"
+      },
+      "flag": {
+        "code": "fi",
+        "file_4x3": "flags/4x3/fi.svg",
+        "file_1x1": "flags/1x1/fi.svg",
+        "emoji": "🇫🇮",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 64.00,
+        "lon": 26.00,
+        "area_km2": 338424,
+        "coastline_km": 1250,
+        "highest_point": {
+          "name_sl": "Halti",
+          "name_en": "Halti",
+          "elevation_m": 1324
+        },
+        "lowest_point": {
+          "name_sl": "Baltsko morje",
+          "name_en": "Baltic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["no", "se", "ru"],
+        "borders_notes": "",
+        "timezones": ["Europe/Helsinki"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Helsinki",
+        "en": "Helsinki",
+        "lat": 60.17,
+        "lon": 24.94,
+        "population": 660000
+      },
+      "top_cities": [
+        { "sl": "Helsinki", "en": "Helsinki", "population": 660000 },
+        { "sl": "Espoo", "en": "Espoo", "population": 300000 },
+        { "sl": "Tampere", "en": "Tampere", "population": 250000 },
+        { "sl": "Vantaa", "en": "Vantaa", "population": 240000 },
+        { "sl": "Oulu", "en": "Oulu", "population": 210000 },
+        { "sl": "Turku", "en": "Turku", "population": 200000 },
+        { "sl": "Jyväskylä", "en": "Jyväskylä", "population": 145000 },
+        { "sl": "Lahti", "en": "Lahti", "population": 120000 },
+        { "sl": "Kuopio", "en": "Kuopio", "population": 120000 },
+        { "sl": "Pori", "en": "Pori", "population": 84000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Kemijoki", "en": "Kemijoki" },
+          { "sl": "Oulujoki", "en": "Oulujoki" },
+          { "sl": "Kymijoki", "en": "Kymijoki" },
+          { "sl": "Kokemäenjoki", "en": "Kokemäenjoki" }
+        ],
+        "lakes": [
+          { "sl": "Saimaa", "en": "Lake Saimaa" },
+          { "sl": "Päijänne", "en": "Lake Päijänne" },
+          { "sl": "Inari", "en": "Lake Inari" },
+          { "sl": "Oulujärvi", "en": "Lake Oulujärvi" },
+          { "sl": "Pielinen", "en": "Lake Pielinen" }
+        ],
+        "seas": [
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 5600000,
+        "year": 2025,
+        "density_per_km2": 16
+      },
+      "languages": {
+        "official_sl": ["finščina", "švedščina"],
+        "official_en": ["Finnish", "Swedish"],
+        "also_spoken_sl": ["angleščina", "ruščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".fi"],
+        "phone_prefix": "+358",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "nordic", "baltic"],
+        "common_confusions_iso2": ["se", "ee", "no"],
+        "hint_sl": "Nordijska država s tisočerimi jezeri."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1917-12-06",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Finska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "fr",
+      "iso3": "fra",
+      "iso_numeric": 250,
+      "ccn3": "250",
+      "name": {
+        "sl": "Francija",
+        "en": "France",
+        "official_sl": "Francoska republika",
+        "official_en": "French Republic",
+        "native": ["France"]
+      },
+      "aliases_sl": ["Francoska republika"],
+      "aliases_en": ["French Republic"],
+      "demonym": {
+        "sl_m": "Francoz",
+        "sl_f": "Francozinja",
+        "en": "French"
+      },
+      "flag": {
+        "code": "fr",
+        "file_4x3": "flags/4x3/fr.svg",
+        "file_1x1": "flags/1x1/fr.svg",
+        "emoji": "🇫🇷",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "western_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 46.00,
+        "lon": 2.00,
+        "area_km2": 551695,
+        "coastline_km": 3427,
+        "highest_point": {
+          "name_sl": "Mont Blanc",
+          "name_en": "Mont Blanc",
+          "elevation_m": 4808
+        },
+        "lowest_point": {
+          "name_sl": "delta Rone",
+          "name_en": "Rhône delta",
+          "elevation_m": -2
+        },
+        "borders_iso2": ["ad", "be", "de", "it", "lu", "mc", "es", "ch"],
+        "borders_notes": "",
+        "timezones": ["Europe/Paris"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Pariz",
+        "en": "Paris",
+        "lat": 48.86,
+        "lon": 2.35,
+        "population": 2100000
+      },
+      "top_cities": [
+        { "sl": "Pariz", "en": "Paris", "population": 2100000 },
+        { "sl": "Marseille", "en": "Marseille", "population": 870000 },
+        { "sl": "Lyon", "en": "Lyon", "population": 520000 },
+        { "sl": "Toulouse", "en": "Toulouse", "population": 500000 },
+        { "sl": "Nice", "en": "Nice", "population": 340000 },
+        { "sl": "Nantes", "en": "Nantes", "population": 320000 },
+        { "sl": "Montpellier", "en": "Montpellier", "population": 300000 },
+        { "sl": "Strasbourg", "en": "Strasbourg", "population": 290000 },
+        { "sl": "Bordeaux", "en": "Bordeaux", "population": 260000 },
+        { "sl": "Lille", "en": "Lille", "population": 230000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Loara", "en": "Loire" },
+          { "sl": "Rona", "en": "Rhône" },
+          { "sl": "Sena", "en": "Seine" },
+          { "sl": "Garonne", "en": "Garonne" },
+          { "sl": "Meuse", "en": "Meuse" },
+          { "sl": "Moselle", "en": "Moselle" }
+        ],
+        "lakes": [
+          { "sl": "Lac Léman (delno)", "en": "Lake Geneva (part)" },
+          { "sl": "Lac du Bourget", "en": "Lac du Bourget" },
+          { "sl": "Lac d'Annecy", "en": "Lac d'Annecy" }
+        ],
+        "seas": [
+          { "sl": "Atlantski ocean", "en": "Atlantic Ocean" },
+          { "sl": "Sredozemsko morje", "en": "Mediterranean Sea" },
+          { "sl": "Severno morje", "en": "North Sea" }
+        ]
+      },
+      "population": {
+        "total": 68000000,
+        "year": 2025,
+        "density_per_km2": 123
+      },
+      "languages": {
+        "official_sl": ["francoščina"],
+        "official_en": ["French"],
+        "also_spoken_sl": ["angleščina", "arabščina", "nemščina", "okcitanščina", "bretonščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".fr"],
+        "phone_prefix": "+33",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "western_europe"],
+        "common_confusions_iso2": ["be", "ch", "it"],
+        "hint_sl": "Največja država EU po površini, prestolnica Pariz."
+      },
+      "extra": {
+        "motto_sl": "Svoboda, enakost, bratstvo",
+        "national_day": "1789-07-14",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Francija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "de",
+      "iso3": "deu",
+      "iso_numeric": 276,
+      "ccn3": "276",
+      "name": {
+        "sl": "Nemčija",
+        "en": "Germany",
+        "official_sl": "Zvezna republika Nemčija",
+        "official_en": "Federal Republic of Germany",
+        "native": ["Deutschland"]
+      },
+      "aliases_sl": ["Zvezna republika Nemčija"],
+      "aliases_en": ["Federal Republic of Germany"],
+      "demonym": {
+        "sl_m": "Nemec",
+        "sl_f": "Nemka",
+        "en": "German"
+      },
+      "flag": {
+        "code": "de",
+        "file_4x3": "flags/4x3/de.svg",
+        "file_1x1": "flags/1x1/de.svg",
+        "emoji": "🇩🇪",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "western_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 51.00,
+        "lon": 9.00,
+        "area_km2": 357022,
+        "coastline_km": 2389,
+        "highest_point": {
+          "name_sl": "Zugspitze",
+          "name_en": "Zugspitze",
+          "elevation_m": 2962
+        },
+        "lowest_point": {
+          "name_sl": "Neuendorf-Sachsenbande",
+          "name_en": "Neuendorf-Sachsenbande",
+          "elevation_m": -3.5
+        },
+        "borders_iso2": ["at", "be", "cz", "dk", "fr", "lu", "nl", "pl", "ch"],
+        "borders_notes": "",
+        "timezones": ["Europe/Berlin"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Berlin",
+        "en": "Berlin",
+        "lat": 52.52,
+        "lon": 13.40,
+        "population": 3700000
+      },
+      "top_cities": [
+        { "sl": "Berlin", "en": "Berlin", "population": 3700000 },
+        { "sl": "Hamburg", "en": "Hamburg", "population": 1850000 },
+        { "sl": "München", "en": "Munich", "population": 1500000 },
+        { "sl": "Köln", "en": "Cologne", "population": 1080000 },
+        { "sl": "Frankfurt", "en": "Frankfurt", "population": 760000 },
+        { "sl": "Stuttgart", "en": "Stuttgart", "population": 630000 },
+        { "sl": "Düsseldorf", "en": "Düsseldorf", "population": 620000 },
+        { "sl": "Leipzig", "en": "Leipzig", "population": 600000 },
+        { "sl": "Dortmund", "en": "Dortmund", "population": 590000 },
+        { "sl": "Essen", "en": "Essen", "population": 580000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Ren", "en": "Rhine" },
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Elba", "en": "Elbe" },
+          { "sl": "Main", "en": "Main" },
+          { "sl": "Weser", "en": "Weser" },
+          { "sl": "Spree", "en": "Spree" }
+        ],
+        "lakes": [
+          { "sl": "Bodensko jezero", "en": "Lake Constance" },
+          { "sl": "Müritz", "en": "Müritz" },
+          { "sl": "Chiemsee", "en": "Chiemsee" },
+          { "sl": "Starnberger See", "en": "Starnberger See" }
+        ],
+        "seas": [
+          { "sl": "Severno morje", "en": "North Sea" },
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 84000000,
+        "year": 2025,
+        "density_per_km2": 235
+      },
+      "languages": {
+        "official_sl": ["nemščina"],
+        "official_en": ["German"],
+        "also_spoken_sl": ["turščina", "arabščina", "poljščina", "angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".de"],
+        "phone_prefix": "+49",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "western_europe"],
+        "common_confusions_iso2": ["at", "nl", "pl"],
+        "hint_sl": "Največja gospodarska sila EU, prestolnica Berlin."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1990-10-03",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Nemčija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "gr",
+      "iso3": "grc",
+      "iso_numeric": 300,
+      "ccn3": "300",
+      "name": {
+        "sl": "Grčija",
+        "en": "Greece",
+        "official_sl": "Helenska republika",
+        "official_en": "Hellenic Republic",
+        "native": ["Ελλάδα"]
+      },
+      "aliases_sl": ["Helenska republika"],
+      "aliases_en": ["Hellenic Republic"],
+      "demonym": {
+        "sl_m": "Grk",
+        "sl_f": "Grkinja",
+        "en": "Greek"
+      },
+      "flag": {
+        "code": "gr",
+        "file_4x3": "flags/4x3/gr.svg",
+        "file_1x1": "flags/1x1/gr.svg",
+        "emoji": "🇬🇷",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 39.00,
+        "lon": 22.00,
+        "area_km2": 131957,
+        "coastline_km": 13676,
+        "highest_point": {
+          "name_sl": "Olimp",
+          "name_en": "Mount Olympus",
+          "elevation_m": 2917
+        },
+        "lowest_point": {
+          "name_sl": "Sredozemsko morje",
+          "name_en": "Mediterranean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["al", "bg", "tr", "mk"],
+        "borders_notes": "",
+        "timezones": ["Europe/Athens"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Atene",
+        "en": "Athens",
+        "lat": 37.98,
+        "lon": 23.73,
+        "population": 640000
+      },
+      "top_cities": [
+        { "sl": "Atene", "en": "Athens", "population": 640000 },
+        { "sl": "Solun", "en": "Thessaloniki", "population": 320000 },
+        { "sl": "Patras", "en": "Patras", "population": 170000 },
+        { "sl": "Heraklion", "en": "Heraklion", "population": 160000 },
+        { "sl": "Larisa", "en": "Larissa", "population": 145000 },
+        { "sl": "Volos", "en": "Volos", "population": 140000 },
+        { "sl": "Ioannina", "en": "Ioannina", "population": 65000 },
+        { "sl": "Kavala", "en": "Kavala", "population": 55000 },
+        { "sl": "Kalamata", "en": "Kalamata", "population": 54000 },
+        { "sl": "Rodos", "en": "Rhodes", "population": 50000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Aheloos", "en": "Achelous" },
+          { "sl": "Pinios", "en": "Pinios" },
+          { "sl": "Aliakmon", "en": "Aliakmon" },
+          { "sl": "Struma", "en": "Struma" }
+        ],
+        "lakes": [
+          { "sl": "Trichonida", "en": "Lake Trichonida" },
+          { "sl": "Volvi", "en": "Lake Volvi" },
+          { "sl": "Koroneia", "en": "Lake Koroneia" }
+        ],
+        "seas": [
+          { "sl": "Sredozemsko morje", "en": "Mediterranean Sea" },
+          { "sl": "Jonsko morje", "en": "Ionian Sea" },
+          { "sl": "Egejsko morje", "en": "Aegean Sea" }
+        ]
+      },
+      "population": {
+        "total": 10300000,
+        "year": 2025,
+        "density_per_km2": 78
+      },
+      "languages": {
+        "official_sl": ["grščina"],
+        "official_en": ["Greek"],
+        "also_spoken_sl": ["angleščina", "albansčina", "turščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".gr"],
+        "phone_prefix": "+30",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "mediterranean", "balkans"],
+        "common_confusions_iso2": ["cy", "it", "bg"],
+        "hint_sl": "Država z mnogimi otoki, prestolnica Atene."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1821-03-25",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Grčija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "hu",
+      "iso3": "hun",
+      "iso_numeric": 348,
+      "ccn3": "348",
+      "name": {
+        "sl": "Madžarska",
+        "en": "Hungary",
+        "official_sl": "Madžarska",
+        "official_en": "Hungary",
+        "native": ["Magyarország"]
+      },
+      "aliases_sl": ["Madžarska"],
+      "aliases_en": ["Hungary"],
+      "demonym": {
+        "sl_m": "Madžar",
+        "sl_f": "Madžarka",
+        "en": "Hungarian"
+      },
+      "flag": {
+        "code": "hu",
+        "file_4x3": "flags/4x3/hu.svg",
+        "file_1x1": "flags/1x1/hu.svg",
+        "emoji": "🇭🇺",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "central_europe",
+        "region_un": "Europe",
+        "landlocked": true,
+        "lat": 47.00,
+        "lon": 20.00,
+        "area_km2": 93030,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Kékes",
+          "name_en": "Kékes",
+          "elevation_m": 1014
+        },
+        "lowest_point": {
+          "name_sl": "Tisza",
+          "name_en": "Tisza",
+          "elevation_m": 75
+        },
+        "borders_iso2": ["at", "hr", "ro", "rs", "sk", "si", "ua"],
+        "borders_notes": "",
+        "timezones": ["Europe/Budapest"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Budimpešta",
+        "en": "Budapest",
+        "lat": 47.50,
+        "lon": 19.04,
+        "population": 1700000
+      },
+      "top_cities": [
+        { "sl": "Budimpešta", "en": "Budapest", "population": 1700000 },
+        { "sl": "Debrecen", "en": "Debrecen", "population": 200000 },
+        { "sl": "Szeged", "en": "Szeged", "population": 160000 },
+        { "sl": "Miskolc", "en": "Miskolc", "population": 150000 },
+        { "sl": "Pécs", "en": "Pécs", "population": 140000 },
+        { "sl": "Győr", "en": "Győr", "population": 130000 },
+        { "sl": "Nyíregyháza", "en": "Nyíregyháza", "population": 115000 },
+        { "sl": "Kecskemét", "en": "Kecskemét", "population": 110000 },
+        { "sl": "Székesfehérvár", "en": "Székesfehérvár", "population": 96000 },
+        { "sl": "Szombathely", "en": "Szombathely", "population": 78000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Tisa", "en": "Tisza" },
+          { "sl": "Drava", "en": "Drava" },
+          { "sl": "Sava", "en": "Sava" },
+          { "sl": "Rába", "en": "Rába" }
+        ],
+        "lakes": [
+          { "sl": "Balaton", "en": "Lake Balaton" },
+          { "sl": "Velence", "en": "Lake Velence" },
+          { "sl": "Tisza-tó", "en": "Lake Tisza" }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 9600000,
+        "year": 2025,
+        "density_per_km2": 103
+      },
+      "languages": {
+        "official_sl": ["madžarščina"],
+        "official_en": ["Hungarian"],
+        "also_spoken_sl": ["nemščina", "angleščina", "romščina"]
+      },
+      "currency": {
+        "code": "HUF",
+        "name_sl": "madžarski forint",
+        "name_en": "Hungarian forint",
+        "symbol": "Ft"
+      },
+      "communications": {
+        "tld": [".hu"],
+        "phone_prefix": "+36",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "central_europe"],
+        "common_confusions_iso2": ["ro", "sk", "at"],
+        "hint_sl": "Država z jezerom Balaton, prestolnica Budimpešta."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1848-03-15",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Madžarska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "ie",
+      "iso3": "irl",
+      "iso_numeric": 372,
+      "ccn3": "372",
+      "name": {
+        "sl": "Irska",
+        "en": "Ireland",
+        "official_sl": "Irska",
+        "official_en": "Ireland",
+        "native": ["Éire", "Ireland"]
+      },
+      "aliases_sl": ["Republika Irska"],
+      "aliases_en": ["Republic of Ireland"],
+      "demonym": {
+        "sl_m": "Irec",
+        "sl_f": "Irka",
+        "en": "Irish"
+      },
+      "flag": {
+        "code": "ie",
+        "file_4x3": "flags/4x3/ie.svg",
+        "file_1x1": "flags/1x1/ie.svg",
+        "emoji": "🇮🇪",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 53.00,
+        "lon": -8.00,
+        "area_km2": 70273,
+        "coastline_km": 1448,
+        "highest_point": {
+          "name_sl": "Carrauntoohil",
+          "name_en": "Carrauntoohil",
+          "elevation_m": 1038
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["gb"],
+        "borders_notes": "",
+        "timezones": ["Europe/Dublin"],
+        "utc_offset_standard": "+00:00"
+      },
+      "capital": {
+        "sl": "Dublin",
+        "en": "Dublin",
+        "lat": 53.35,
+        "lon": -6.26,
+        "population": 590000
+      },
+      "top_cities": [
+        { "sl": "Dublin", "en": "Dublin", "population": 590000 },
+        { "sl": "Cork", "en": "Cork", "population": 210000 },
+        { "sl": "Limerick", "en": "Limerick", "population": 100000 },
+        { "sl": "Galway", "en": "Galway", "population": 85000 },
+        { "sl": "Waterford", "en": "Waterford", "population": 54000 },
+        { "sl": "Drogheda", "en": "Drogheda", "population": 44000 },
+        { "sl": "Dundalk", "en": "Dundalk", "population": 39000 },
+        { "sl": "Swords", "en": "Swords", "population": 40000 },
+        { "sl": "Bray", "en": "Bray", "population": 33000 },
+        { "sl": "Navan", "en": "Navan", "population": 33000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Shannon", "en": "Shannon" },
+          { "sl": "Liffey", "en": "Liffey" },
+          { "sl": "Barrow", "en": "Barrow" },
+          { "sl": "Suir", "en": "Suir" },
+          { "sl": "Nore", "en": "Nore" }
+        ],
+        "lakes": [
+          { "sl": "Lough Corrib", "en": "Lough Corrib" },
+          { "sl": "Lough Derg", "en": "Lough Derg" },
+          { "sl": "Lough Ree", "en": "Lough Ree" },
+          { "sl": "Lough Neagh (delno)", "en": "Lough Neagh (part)" }
+        ],
+        "seas": [
+          { "sl": "Atlantski ocean", "en": "Atlantic Ocean" },
+          { "sl": "Irsko morje", "en": "Irish Sea" }
+        ]
+      },
+      "population": {
+        "total": 5300000,
+        "year": 2025,
+        "density_per_km2": 75
+      },
+      "languages": {
+        "official_sl": ["irščina", "angleščina"],
+        "official_en": ["Irish", "English"],
+        "also_spoken_sl": ["poljščina", "francosčina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".ie"],
+        "phone_prefix": "+353",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": false,
+        "schengen": false,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "celtic"],
+        "common_confusions_iso2": ["gb", "is"],
+        "hint_sl": "Otok zahodno od Velike Britanije, prestolnica Dublin."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1922-12-06",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Irska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "it",
+      "iso3": "ita",
+      "iso_numeric": 380,
+      "ccn3": "380",
+      "name": {
+        "sl": "Italija",
+        "en": "Italy",
+        "official_sl": "Italijanska republika",
+        "official_en": "Italian Republic",
+        "native": ["Italia"]
+      },
+      "aliases_sl": ["Italijanska republika"],
+      "aliases_en": ["Italian Republic"],
+      "demonym": {
+        "sl_m": "Italijan",
+        "sl_f": "Italijanka",
+        "en": "Italian"
+      },
+      "flag": {
+        "code": "it",
+        "file_4x3": "flags/4x3/it.svg",
+        "file_1x1": "flags/1x1/it.svg",
+        "emoji": "🇮🇹",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 42.83,
+        "lon": 12.83,
+        "area_km2": 301340,
+        "coastline_km": 7600,
+        "highest_point": {
+          "name_sl": "Mont Blanc",
+          "name_en": "Mont Blanc",
+          "elevation_m": 4808
+        },
+        "lowest_point": {
+          "name_sl": "Jadransko morje",
+          "name_en": "Adriatic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["at", "fr", "va", "sm", "si", "ch"],
+        "borders_notes": "",
+        "timezones": ["Europe/Rome"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Rim",
+        "en": "Rome",
+        "lat": 41.90,
+        "lon": 12.50,
+        "population": 2750000
+      },
+      "top_cities": [
+        { "sl": "Rim", "en": "Rome", "population": 2750000 },
+        { "sl": "Milano", "en": "Milan", "population": 1360000 },
+        { "sl": "Napoli", "en": "Naples", "population": 910000 },
+        { "sl": "Torino", "en": "Turin", "population": 850000 },
+        { "sl": "Palermo", "en": "Palermo", "population": 630000 },
+        { "sl": "Genova", "en": "Genoa", "population": 560000 },
+        { "sl": "Bologna", "en": "Bologna", "population": 390000 },
+        { "sl": "Firenze", "en": "Florence", "population": 360000 },
+        { "sl": "Bari", "en": "Bari", "population": 320000 },
+        { "sl": "Catania", "en": "Catania", "population": 300000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Pad", "en": "Po" },
+          { "sl": "Tiber", "en": "Tiber" },
+          { "sl": "Adige", "en": "Adige" },
+          { "sl": "Arno", "en": "Arno" },
+          { "sl": "Piave", "en": "Piave" }
+        ],
+        "lakes": [
+          { "sl": "Gardsko jezero", "en": "Lake Garda" },
+          { "sl": "Maggiore", "en": "Lake Maggiore" },
+          { "sl": "Como", "en": "Lake Como" },
+          { "sl": "Iseo", "en": "Lake Iseo" },
+          { "sl": "Trasimeno", "en": "Lake Trasimeno" }
+        ],
+        "seas": [
+          { "sl": "Jadransko morje", "en": "Adriatic Sea" },
+          { "sl": "Tirensko morje", "en": "Tyrrhenian Sea" },
+          { "sl": "Jonsko morje", "en": "Ionian Sea" },
+          { "sl": "Ligurijsko morje", "en": "Ligurian Sea" }
+        ]
+      },
+      "population": {
+        "total": 59000000,
+        "year": 2025,
+        "density_per_km2": 196
+      },
+      "languages": {
+        "official_sl": ["italijanščina"],
+        "official_en": ["Italian"],
+        "also_spoken_sl": ["nemščina", "francoščina", "angleščina", "sardščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".it"],
+        "phone_prefix": "+39",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "mediterranean"],
+        "common_confusions_iso2": ["es", "fr", "gr"],
+        "hint_sl": "Škornjasta država s prestolnico Rim."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1946-06-02",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Italija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "lv",
+      "iso3": "lva",
+      "iso_numeric": 428,
+      "ccn3": "428",
+      "name": {
+        "sl": "Latvija",
+        "en": "Latvia",
+        "official_sl": "Republika Latvija",
+        "official_en": "Republic of Latvia",
+        "native": ["Latvija"]
+      },
+      "aliases_sl": ["Republika Latvija"],
+      "aliases_en": ["Republic of Latvia"],
+      "demonym": {
+        "sl_m": "Latvijec",
+        "sl_f": "Latvijka",
+        "en": "Latvian"
+      },
+      "flag": {
+        "code": "lv",
+        "file_4x3": "flags/4x3/lv.svg",
+        "file_1x1": "flags/1x1/lv.svg",
+        "emoji": "🇱🇻",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 57.00,
+        "lon": 25.00,
+        "area_km2": 64589,
+        "coastline_km": 498,
+        "highest_point": {
+          "name_sl": "Gaiziņkalns",
+          "name_en": "Gaiziņkalns",
+          "elevation_m": 312
+        },
+        "lowest_point": {
+          "name_sl": "Baltsko morje",
+          "name_en": "Baltic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["ee", "lt", "ru", "by"],
+        "borders_notes": "",
+        "timezones": ["Europe/Riga"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Riga",
+        "en": "Riga",
+        "lat": 56.95,
+        "lon": 24.10,
+        "population": 610000
+      },
+      "top_cities": [
+        { "sl": "Riga", "en": "Riga", "population": 610000 },
+        { "sl": "Daugavpils", "en": "Daugavpils", "population": 80000 },
+        { "sl": "Liepāja", "en": "Liepāja", "population": 68000 },
+        { "sl": "Jelgava", "en": "Jelgava", "population": 55000 },
+        { "sl": "Jūrmala", "en": "Jūrmala", "population": 50000 },
+        { "sl": "Ventspils", "en": "Ventspils", "population": 33000 },
+        { "sl": "Rēzekne", "en": "Rēzekne", "population": 27000 },
+        { "sl": "Valmiera", "en": "Valmiera", "population": 23000 },
+        { "sl": "Ogre", "en": "Ogre", "population": 23000 },
+        { "sl": "Jēkabpils", "en": "Jēkabpils", "population": 22000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Daugava", "en": "Daugava" },
+          { "sl": "Gauja", "en": "Gauja" },
+          { "sl": "Lielupe", "en": "Lielupe" },
+          { "sl": "Venta", "en": "Venta" }
+        ],
+        "lakes": [
+          { "sl": "Lubāns", "en": "Lake Lubāns" },
+          { "sl": "Rāzna", "en": "Lake Rāzna" },
+          { "sl": "Engure", "en": "Lake Engure" }
+        ],
+        "seas": [
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 1850000,
+        "year": 2025,
+        "density_per_km2": 29
+      },
+      "languages": {
+        "official_sl": ["latvijščina"],
+        "official_en": ["Latvian"],
+        "also_spoken_sl": ["ruščina", "angleščina", "litovščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".lv"],
+        "phone_prefix": "+371",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "baltic"],
+        "common_confusions_iso2": ["lt", "ee", "by"],
+        "hint_sl": "Baltska država s prestolnico Riga."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1918-11-18",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Latvija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "lt",
+      "iso3": "ltu",
+      "iso_numeric": 440,
+      "ccn3": "440",
+      "name": {
+        "sl": "Litva",
+        "en": "Lithuania",
+        "official_sl": "Republika Litva",
+        "official_en": "Republic of Lithuania",
+        "native": ["Lietuva"]
+      },
+      "aliases_sl": ["Republika Litva"],
+      "aliases_en": ["Republic of Lithuania"],
+      "demonym": {
+        "sl_m": "Litovec",
+        "sl_f": "Litovka",
+        "en": "Lithuanian"
+      },
+      "flag": {
+        "code": "lt",
+        "file_4x3": "flags/4x3/lt.svg",
+        "file_1x1": "flags/1x1/lt.svg",
+        "emoji": "🇱🇹",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 55.00,
+        "lon": 24.00,
+        "area_km2": 65300,
+        "coastline_km": 90,
+        "highest_point": {
+          "name_sl": "Aukštojas",
+          "name_en": "Aukštojas",
+          "elevation_m": 294
+        },
+        "lowest_point": {
+          "name_sl": "Baltsko morje",
+          "name_en": "Baltic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["by", "lv", "pl", "ru"],
+        "borders_notes": "",
+        "timezones": ["Europe/Vilnius"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Vilna",
+        "en": "Vilnius",
+        "lat": 54.69,
+        "lon": 25.28,
+        "population": 580000
+      },
+      "top_cities": [
+        { "sl": "Vilna", "en": "Vilnius", "population": 580000 },
+        { "sl": "Kaunas", "en": "Kaunas", "population": 300000 },
+        { "sl": "Klaipėda", "en": "Klaipėda", "population": 150000 },
+        { "sl": "Šiauliai", "en": "Šiauliai", "population": 100000 },
+        { "sl": "Panevėžys", "en": "Panevėžys", "population": 87000 },
+        { "sl": "Alytus", "en": "Alytus", "population": 50000 },
+        { "sl": "Marijampolė", "en": "Marijampolė", "population": 36000 },
+        { "sl": "Mažeikiai", "en": "Mažeikiai", "population": 33000 },
+        { "sl": "Jonava", "en": "Jonava", "population": 27000 },
+        { "sl": "Utena", "en": "Utena", "population": 25000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Neman", "en": "Neman" },
+          { "sl": "Neris", "en": "Neris" },
+          { "sl": "Nemunas", "en": "Nemunas" },
+          { "sl": "Šešupė", "en": "Šešupė" }
+        ],
+        "lakes": [
+          { "sl": "Drūkšiai", "en": "Lake Drūkšiai" },
+          { "sl": "Dysnai", "en": "Lake Dysnai" },
+          { "sl": "Sartai", "en": "Lake Sartai" }
+        ],
+        "seas": [
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 2800000,
+        "year": 2025,
+        "density_per_km2": 43
+      },
+      "languages": {
+        "official_sl": ["litovščina"],
+        "official_en": ["Lithuanian"],
+        "also_spoken_sl": ["ruščina", "poljščina", "angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".lt"],
+        "phone_prefix": "+370",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "baltic"],
+        "common_confusions_iso2": ["lv", "ee", "pl"],
+        "hint_sl": "Baltska država s prestolnico Vilna."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1918-02-16",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Litva",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "lu",
+      "iso3": "lux",
+      "iso_numeric": 442,
+      "ccn3": "442",
+      "name": {
+        "sl": "Luksemburg",
+        "en": "Luxembourg",
+        "official_sl": "Veliko vojvodstvo Luksemburg",
+        "official_en": "Grand Duchy of Luxembourg",
+        "native": ["Lëtzebuerg", "Luxembourg", "Luxemburg"]
+      },
+      "aliases_sl": ["Veliko vojvodstvo Luksemburg"],
+      "aliases_en": ["Grand Duchy of Luxembourg"],
+      "demonym": {
+        "sl_m": "Luksemburžan",
+        "sl_f": "Luksemburžanka",
+        "en": "Luxembourger"
+      },
+      "flag": {
+        "code": "lu",
+        "file_4x3": "flags/4x3/lu.svg",
+        "file_1x1": "flags/1x1/lu.svg",
+        "emoji": "🇱🇺",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "western_europe",
+        "region_un": "Europe",
+        "landlocked": true,
+        "lat": 49.75,
+        "lon": 6.17,
+        "area_km2": 2586,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Kneiff",
+          "name_en": "Kneiff",
+          "elevation_m": 560
+        },
+        "lowest_point": {
+          "name_sl": "Moselle",
+          "name_en": "Moselle",
+          "elevation_m": 133
+        },
+        "borders_iso2": ["be", "de", "fr"],
+        "borders_notes": "",
+        "timezones": ["Europe/Luxembourg"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Luksemburg",
+        "en": "Luxembourg",
+        "lat": 49.61,
+        "lon": 6.13,
+        "population": 130000
+      },
+      "top_cities": [
+        { "sl": "Luksemburg", "en": "Luxembourg", "population": 130000 },
+        { "sl": "Esch-sur-Alzette", "en": "Esch-sur-Alzette", "population": 36000 },
+        { "sl": "Differdange", "en": "Differdange", "population": 28000 },
+        { "sl": "Dudelange", "en": "Dudelange", "population": 22000 },
+        { "sl": "Ettelbruck", "en": "Ettelbruck", "population": 9000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Moselle", "en": "Moselle" },
+          { "sl": "Sûre", "en": "Sûre" },
+          { "sl": "Alzette", "en": "Alzette" }
+        ],
+        "lakes": [
+          { "sl": "Upper Sûre Lake", "en": "Upper Sûre Lake" }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 670000,
+        "year": 2025,
+        "density_per_km2": 259
+      },
+      "languages": {
+        "official_sl": ["luksemburščina", "francoščina", "nemščina"],
+        "official_en": ["Luxembourgish", "French", "German"],
+        "also_spoken_sl": ["angleščina", "portugalščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".lu"],
+        "phone_prefix": "+352",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "benelux"],
+        "common_confusions_iso2": ["be", "nl", "de"],
+        "hint_sl": "Majhna bogata država med Belgijo, Francijo in Nemčijo."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1839-04-19",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Luksemburg",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "mt",
+      "iso3": "mlt",
+      "iso_numeric": 470,
+      "ccn3": "470",
+      "name": {
+        "sl": "Malta",
+        "en": "Malta",
+        "official_sl": "Republika Malta",
+        "official_en": "Republic of Malta",
+        "native": ["Malta"]
+      },
+      "aliases_sl": ["Republika Malta"],
+      "aliases_en": ["Republic of Malta"],
+      "demonym": {
+        "sl_m": "Maltežan",
+        "sl_f": "Maltežanka",
+        "en": "Maltese"
+      },
+      "flag": {
+        "code": "mt",
+        "file_4x3": "flags/4x3/mt.svg",
+        "file_1x1": "flags/1x1/mt.svg",
+        "emoji": "🇲🇹",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 35.90,
+        "lon": 14.50,
+        "area_km2": 316,
+        "coastline_km": 196.8,
+        "highest_point": {
+          "name_sl": "Ta' Dmejrek",
+          "name_en": "Ta' Dmejrek",
+          "elevation_m": 253
+        },
+        "lowest_point": {
+          "name_sl": "Sredozemsko morje",
+          "name_en": "Mediterranean Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": [],
+        "borders_notes": "Island nation",
+        "timezones": ["Europe/Malta"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Valletta",
+        "en": "Valletta",
+        "lat": 35.90,
+        "lon": 14.51,
+        "population": 6000
+      },
+      "top_cities": [
+        { "sl": "Birkirkara", "en": "Birkirkara", "population": 25000 },
+        { "sl": "Mosta", "en": "Mosta", "population": 21000 },
+        { "sl": "Qormi", "en": "Qormi", "population": 17000 },
+        { "sl": "Żabbar", "en": "Żabbar", "population": 15000 },
+        { "sl": "St. Paul's Bay", "en": "St. Paul's Bay", "population": 29000 },
+        { "sl": "Valletta", "en": "Valletta", "population": 6000 }
+      ],
+      "hydrography": {
+        "rivers": [],
+        "lakes": [],
+        "seas": [
+          { "sl": "Sredozemsko morje", "en": "Mediterranean Sea" }
+        ]
+      },
+      "population": {
+        "total": 540000,
+        "year": 2025,
+        "density_per_km2": 1700
+      },
+      "languages": {
+        "official_sl": ["malteščina", "angleščina"],
+        "official_en": ["Maltese", "English"],
+        "also_spoken_sl": ["italijanščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".mt"],
+        "phone_prefix": "+356",
+        "driving_side": "left"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": false,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "mediterranean", "island"],
+        "common_confusions_iso2": ["cy", "it"],
+        "hint_sl": "Majhen otoški arhipelag v Sredozemlju."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1964-09-21",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Malta",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "nl",
+      "iso3": "nld",
+      "iso_numeric": 528,
+      "ccn3": "528",
+      "name": {
+        "sl": "Nizozemska",
+        "en": "Netherlands",
+        "official_sl": "Kraljevina Nizozemska",
+        "official_en": "Kingdom of the Netherlands",
+        "native": ["Nederland"]
+      },
+      "aliases_sl": ["Kraljevina Nizozemska", "Holandija"],
+      "aliases_en": ["Kingdom of the Netherlands", "Holland"],
+      "demonym": {
+        "sl_m": "Nizozemec",
+        "sl_f": "Nizozemka",
+        "en": "Dutch"
+      },
+      "flag": {
+        "code": "nl",
+        "file_4x3": "flags/4x3/nl.svg",
+        "file_1x1": "flags/1x1/nl.svg",
+        "emoji": "🇳🇱",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "western_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 52.50,
+        "lon": 5.75,
+        "area_km2": 41543,
+        "coastline_km": 451,
+        "highest_point": {
+          "name_sl": "Vaalserberg",
+          "name_en": "Vaalserberg",
+          "elevation_m": 322
+        },
+        "lowest_point": {
+          "name_sl": "Zuidplaspolder",
+          "name_en": "Zuidplaspolder",
+          "elevation_m": -7
+        },
+        "borders_iso2": ["be", "de"],
+        "borders_notes": "",
+        "timezones": ["Europe/Amsterdam"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Amsterdam",
+        "en": "Amsterdam",
+        "lat": 52.37,
+        "lon": 4.90,
+        "population": 920000
+      },
+      "top_cities": [
+        { "sl": "Amsterdam", "en": "Amsterdam", "population": 920000 },
+        { "sl": "Rotterdam", "en": "Rotterdam", "population": 660000 },
+        { "sl": "Haag", "en": "The Hague", "population": 550000 },
+        { "sl": "Utrecht", "en": "Utrecht", "population": 360000 },
+        { "sl": "Eindhoven", "en": "Eindhoven", "population": 240000 },
+        { "sl": "Tilburg", "en": "Tilburg", "population": 220000 },
+        { "sl": "Groningen", "en": "Groningen", "population": 230000 },
+        { "sl": "Almere", "en": "Almere", "population": 220000 },
+        { "sl": "Breda", "en": "Breda", "population": 180000 },
+        { "sl": "Nijmegen", "en": "Nijmegen", "population": 175000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Ren", "en": "Rhine" },
+          { "sl": "Meuse", "en": "Meuse" },
+          { "sl": "Šelda", "en": "Scheldt" },
+          { "sl": "Ijssel", "en": "IJssel" }
+        ],
+        "lakes": [
+          { "sl": "IJsselmeer", "en": "IJsselmeer" },
+          { "sl": "Markermeer", "en": "Markermeer" },
+          { "sl": "Loosdrechtse Plassen", "en": "Loosdrechtse Plassen" }
+        ],
+        "seas": [
+          { "sl": "Severno morje", "en": "North Sea" }
+        ]
+      },
+      "population": {
+        "total": 18000000,
+        "year": 2025,
+        "density_per_km2": 433
+      },
+      "languages": {
+        "official_sl": ["nizozemščina"],
+        "official_en": ["Dutch"],
+        "also_spoken_sl": ["angleščina", "nemščina", "turščina", "arabščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".nl"],
+        "phone_prefix": "+31",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "benelux"],
+        "common_confusions_iso2": ["be", "de", "lu"],
+        "hint_sl": "Nizka država z mnogimi kanali, prestolnica Amsterdam."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1815-03-16",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Nizozemska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "pl",
+      "iso3": "pol",
+      "iso_numeric": 616,
+      "ccn3": "616",
+      "name": {
+        "sl": "Poljska",
+        "en": "Poland",
+        "official_sl": "Republika Poljska",
+        "official_en": "Republic of Poland",
+        "native": ["Polska"]
+      },
+      "aliases_sl": ["Republika Poljska"],
+      "aliases_en": ["Republic of Poland"],
+      "demonym": {
+        "sl_m": "Poljak",
+        "sl_f": "Poljakinja",
+        "en": "Polish"
+      },
+      "flag": {
+        "code": "pl",
+        "file_4x3": "flags/4x3/pl.svg",
+        "file_1x1": "flags/1x1/pl.svg",
+        "emoji": "🇵🇱",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "central_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 52.00,
+        "lon": 20.00,
+        "area_km2": 312696,
+        "coastline_km": 440,
+        "highest_point": {
+          "name_sl": "Rysy",
+          "name_en": "Rysy",
+          "elevation_m": 2499
+        },
+        "lowest_point": {
+          "name_sl": "Raczki Elbląskie",
+          "name_en": "Raczki Elbląskie",
+          "elevation_m": -1.8
+        },
+        "borders_iso2": ["by", "cz", "de", "lt", "ru", "sk", "ua"],
+        "borders_notes": "",
+        "timezones": ["Europe/Warsaw"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Varšava",
+        "en": "Warsaw",
+        "lat": 52.23,
+        "lon": 21.01,
+        "population": 1800000
+      },
+      "top_cities": [
+        { "sl": "Varšava", "en": "Warsaw", "population": 1800000 },
+        { "sl": "Krakov", "en": "Kraków", "population": 780000 },
+        { "sl": "Łódź", "en": "Łódź", "population": 670000 },
+        { "sl": "Wrocław", "en": "Wrocław", "population": 640000 },
+        { "sl": "Poznań", "en": "Poznań", "population": 530000 },
+        { "sl": "Gdańsk", "en": "Gdańsk", "population": 470000 },
+        { "sl": "Szczecin", "en": "Szczecin", "population": 400000 },
+        { "sl": "Bydgoszcz", "en": "Bydgoszcz", "population": 340000 },
+        { "sl": "Lublin", "en": "Lublin", "population": 340000 },
+        { "sl": "Białystok", "en": "Białystok", "population": 290000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Visla", "en": "Vistula" },
+          { "sl": "Odra", "en": "Oder" },
+          { "sl": "Warta", "en": "Warta" },
+          { "sl": "Bug", "en": "Bug" },
+          { "sl": "Narew", "en": "Narew" }
+        ],
+        "lakes": [
+          { "sl": "Śniardwy", "en": "Lake Śniardwy" },
+          { "sl": "Mamry", "en": "Lake Mamry" },
+          { "sl": "Łebsko", "en": "Lake Łebsko" },
+          { "sl": "Dąbie", "en": "Lake Dąbie" }
+        ],
+        "seas": [
+          { "sl": "Baltsko morje", "en": "Baltic Sea" }
+        ]
+      },
+      "population": {
+        "total": 38000000,
+        "year": 2025,
+        "density_per_km2": 121
+      },
+      "languages": {
+        "official_sl": ["poljščina"],
+        "official_en": ["Polish"],
+        "also_spoken_sl": ["angleščina", "nemščina", "ukrajinščina", "beloruščina"]
+      },
+      "currency": {
+        "code": "PLN",
+        "name_sl": "poljski zlot",
+        "name_en": "Polish złoty",
+        "symbol": "zł"
+      },
+      "communications": {
+        "tld": [".pl"],
+        "phone_prefix": "+48",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "central_europe"],
+        "common_confusions_iso2": ["cz", "sk", "lt"],
+        "hint_sl": "Velika srednjeevropska država s prestolnico Varšava."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1918-11-11",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Poljska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "pt",
+      "iso3": "prt",
+      "iso_numeric": 620,
+      "ccn3": "620",
+      "name": {
+        "sl": "Portugalska",
+        "en": "Portugal",
+        "official_sl": "Portugalska republika",
+        "official_en": "Portuguese Republic",
+        "native": ["Portugal"]
+      },
+      "aliases_sl": ["Portugalska republika"],
+      "aliases_en": ["Portuguese Republic"],
+      "demonym": {
+        "sl_m": "Portugalec",
+        "sl_f": "Portugalka",
+        "en": "Portuguese"
+      },
+      "flag": {
+        "code": "pt",
+        "file_4x3": "flags/4x3/pt.svg",
+        "file_1x1": "flags/1x1/pt.svg",
+        "emoji": "🇵🇹",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 39.50,
+        "lon": -8.00,
+        "area_km2": 92212,
+        "coastline_km": 1793,
+        "highest_point": {
+          "name_sl": "Serra da Estrela",
+          "name_en": "Serra da Estrela",
+          "elevation_m": 1993
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["es"],
+        "borders_notes": "",
+        "timezones": ["Europe/Lisbon"],
+        "utc_offset_standard": "+00:00"
+      },
+      "capital": {
+        "sl": "Lizbona",
+        "en": "Lisbon",
+        "lat": 38.72,
+        "lon": -9.14,
+        "population": 550000
+      },
+      "top_cities": [
+        { "sl": "Lizbona", "en": "Lisbon", "population": 550000 },
+        { "sl": "Porto", "en": "Porto", "population": 230000 },
+        { "sl": "Vila Nova de Gaia", "en": "Vila Nova de Gaia", "population": 180000 },
+        { "sl": "Amadora", "en": "Amadora", "population": 175000 },
+        { "sl": "Braga", "en": "Braga", "population": 140000 },
+        { "sl": "Setúbal", "en": "Setúbal", "population": 120000 },
+        { "sl": "Coimbra", "en": "Coimbra", "population": 105000 },
+        { "sl": "Funchal", "en": "Funchal", "population": 105000 },
+        { "sl": "Almada", "en": "Almada", "population": 100000 },
+        { "sl": "Aveiro", "en": "Aveiro", "population": 80000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Tajo", "en": "Tagus" },
+          { "sl": "Douro", "en": "Douro" },
+          { "sl": "Guadiana", "en": "Guadiana" },
+          { "sl": "Mondego", "en": "Mondego" },
+          { "sl": "Sado", "en": "Sado" }
+        ],
+        "lakes": [
+          { "sl": "Alqueva", "en": "Alqueva Reservoir" },
+          { "sl": "Castelo de Bode", "en": "Castelo de Bode" }
+        ],
+        "seas": [
+          { "sl": "Atlantski ocean", "en": "Atlantic Ocean" }
+        ]
+      },
+      "population": {
+        "total": 10400000,
+        "year": 2025,
+        "density_per_km2": 113
+      },
+      "languages": {
+        "official_sl": ["portugalščina"],
+        "official_en": ["Portuguese"],
+        "also_spoken_sl": ["angleščina", "španščina", "francoščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".pt"],
+        "phone_prefix": "+351",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "iberian"],
+        "common_confusions_iso2": ["es", "br"],
+        "hint_sl": "Država na zahodu Iberskega polotoka, prestolnica Lizbona."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1910-10-05",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Portugalska",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "ro",
+      "iso3": "rou",
+      "iso_numeric": 642,
+      "ccn3": "642",
+      "name": {
+        "sl": "Romunija",
+        "en": "Romania",
+        "official_sl": "Romunija",
+        "official_en": "Romania",
+        "native": ["România"]
+      },
+      "aliases_sl": ["Romunija"],
+      "aliases_en": ["Romania"],
+      "demonym": {
+        "sl_m": "Romun",
+        "sl_f": "Romunka",
+        "en": "Romanian"
+      },
+      "flag": {
+        "code": "ro",
+        "file_4x3": "flags/4x3/ro.svg",
+        "file_1x1": "flags/1x1/ro.svg",
+        "emoji": "🇷🇴",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "eastern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 46.00,
+        "lon": 25.00,
+        "area_km2": 238391,
+        "coastline_km": 225,
+        "highest_point": {
+          "name_sl": "Moldoveanu",
+          "name_en": "Moldoveanu",
+          "elevation_m": 2544
+        },
+        "lowest_point": {
+          "name_sl": "Črno morje",
+          "name_en": "Black Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["bg", "hu", "md", "rs", "ua"],
+        "borders_notes": "",
+        "timezones": ["Europe/Bucharest"],
+        "utc_offset_standard": "+02:00"
+      },
+      "capital": {
+        "sl": "Bukarešta",
+        "en": "Bucharest",
+        "lat": 44.43,
+        "lon": 26.10,
+        "population": 1800000
+      },
+      "top_cities": [
+        { "sl": "Bukarešta", "en": "Bucharest", "population": 1800000 },
+        { "sl": "Cluj-Napoca", "en": "Cluj-Napoca", "population": 320000 },
+        { "sl": "Timișoara", "en": "Timișoara", "population": 320000 },
+        { "sl": "Iași", "en": "Iași", "population": 290000 },
+        { "sl": "Constanța", "en": "Constanța", "population": 280000 },
+        { "sl": "Craiova", "en": "Craiova", "population": 270000 },
+        { "sl": "Brașov", "en": "Brașov", "population": 250000 },
+        { "sl": "Galați", "en": "Galați", "population": 240000 },
+        { "sl": "Ploiești", "en": "Ploiești", "population": 200000 },
+        { "sl": "Oradea", "en": "Oradea", "population": 200000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Mureș", "en": "Mureș" },
+          { "sl": "Prut", "en": "Prut" },
+          { "sl": "Olt", "en": "Olt" },
+          { "sl": "Siret", "en": "Siret" }
+        ],
+        "lakes": [
+          { "sl": "Razim", "en": "Lake Razim" },
+          { "sl": "Sinoe", "en": "Lake Sinoe" },
+          { "sl": "Vidraru", "en": "Vidraru Reservoir" }
+        ],
+        "seas": [
+          { "sl": "Črno morje", "en": "Black Sea" }
+        ]
+      },
+      "population": {
+        "total": 19000000,
+        "year": 2025,
+        "density_per_km2": 80
+      },
+      "languages": {
+        "official_sl": ["romunščina"],
+        "official_en": ["Romanian"],
+        "also_spoken_sl": ["madžarščina", "nemščina", "romščina", "angleščina"]
+      },
+      "currency": {
+        "code": "RON",
+        "name_sl": "romunski leu",
+        "name_en": "Romanian leu",
+        "symbol": "lei"
+      },
+      "communications": {
+        "tld": [".ro"],
+        "phone_prefix": "+40",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "balkans", "black_sea"],
+        "common_confusions_iso2": ["bg", "hu", "md"],
+        "hint_sl": "Država na črnomorskem obali, prestolnica Bukarešta."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1918-12-01",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Romunija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "sk",
+      "iso3": "svk",
+      "iso_numeric": 703,
+      "ccn3": "703",
+      "name": {
+        "sl": "Slovaška",
+        "en": "Slovakia",
+        "official_sl": "Slovaška republika",
+        "official_en": "Slovak Republic",
+        "native": ["Slovensko"]
+      },
+      "aliases_sl": ["Slovaška republika"],
+      "aliases_en": ["Slovak Republic"],
+      "demonym": {
+        "sl_m": "Slovak",
+        "sl_f": "Slovakinja",
+        "en": "Slovak"
+      },
+      "flag": {
+        "code": "sk",
+        "file_4x3": "flags/4x3/sk.svg",
+        "file_1x1": "flags/1x1/sk.svg",
+        "emoji": "🇸🇰",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "central_europe",
+        "region_un": "Europe",
+        "landlocked": true,
+        "lat": 48.67,
+        "lon": 19.50,
+        "area_km2": 49035,
+        "coastline_km": 0,
+        "highest_point": {
+          "name_sl": "Gerlachovský štít",
+          "name_en": "Gerlachovský štít",
+          "elevation_m": 2655
+        },
+        "lowest_point": {
+          "name_sl": "Bodrog",
+          "name_en": "Bodrog",
+          "elevation_m": 94
+        },
+        "borders_iso2": ["at", "cz", "hu", "pl", "ua"],
+        "borders_notes": "",
+        "timezones": ["Europe/Bratislava"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Bratislava",
+        "en": "Bratislava",
+        "lat": 48.15,
+        "lon": 17.11,
+        "population": 440000
+      },
+      "top_cities": [
+        { "sl": "Bratislava", "en": "Bratislava", "population": 440000 },
+        { "sl": "Košice", "en": "Košice", "population": 230000 },
+        { "sl": "Prešov", "en": "Prešov", "population": 85000 },
+        { "sl": "Žilina", "en": "Žilina", "population": 80000 },
+        { "sl": "Nitra", "en": "Nitra", "population": 77000 },
+        { "sl": "Banská Bystrica", "en": "Banská Bystrica", "population": 76000 },
+        { "sl": "Trnava", "en": "Trnava", "population": 64000 },
+        { "sl": "Martin", "en": "Martin", "population": 53000 },
+        { "sl": "Trenčín", "en": "Trenčín", "population": 55000 },
+        { "sl": "Poprad", "en": "Poprad", "population": 50000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Donava", "en": "Danube" },
+          { "sl": "Váh", "en": "Váh" },
+          { "sl": "Hron", "en": "Hron" },
+          { "sl": "Ipeľ", "en": "Ipeľ" },
+          { "sl": "Bodrog", "en": "Bodrog" }
+        ],
+        "lakes": [
+          { "sl": "Zemplínska šírava", "en": "Zemplínska šírava" },
+          { "sl": "Orava", "en": "Orava Reservoir" },
+          { "sl": "Liptovská Mara", "en": "Liptovská Mara" }
+        ],
+        "seas": []
+      },
+      "population": {
+        "total": 5400000,
+        "year": 2025,
+        "density_per_km2": 110
+      },
+      "languages": {
+        "official_sl": ["slovaščina"],
+        "official_en": ["Slovak"],
+        "also_spoken_sl": ["madžarščina", "romščina", "češčina", "angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".sk"],
+        "phone_prefix": "+421",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 2,
+        "tags": ["europe", "eu", "central_europe"],
+        "common_confusions_iso2": ["cz", "si", "hu"],
+        "hint_sl": "Država s prestolnico Bratislava, sosednja Češke."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1993-01-01",
+        "former_names_sl": ["Češkoslovaška"],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Slovaška",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "si",
+      "iso3": "svn",
+      "iso_numeric": 705,
+      "ccn3": "705",
+      "name": {
+        "sl": "Slovenija",
+        "en": "Slovenia",
+        "official_sl": "Republika Slovenija",
+        "official_en": "Republic of Slovenia",
+        "native": ["Slovenija"]
+      },
+      "aliases_sl": ["Republika Slovenija"],
+      "aliases_en": ["Republic of Slovenia"],
+      "demonym": {
+        "sl_m": "Slovenec",
+        "sl_f": "Slovenka",
+        "en": "Slovenian"
+      },
+      "flag": {
+        "code": "si",
+        "file_4x3": "flags/4x3/si.svg",
+        "file_1x1": "flags/1x1/si.svg",
+        "emoji": "🇸🇮",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": true,
+        "lat": 46.15,
+        "lon": 14.99,
+        "area_km2": 20273,
+        "coastline_km": 46.6,
+        "highest_point": {
+          "name_sl": "Triglav",
+          "name_en": "Triglav",
+          "elevation_m": 2864
+        },
+        "lowest_point": {
+          "name_sl": "Jadransko morje",
+          "name_en": "Adriatic Sea",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["at", "it", "hu", "hr"],
+        "borders_notes": "",
+        "timezones": ["Europe/Ljubljana"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Ljubljana",
+        "en": "Ljubljana",
+        "lat": 46.05,
+        "lon": 14.51,
+        "population": 290000
+      },
+      "top_cities": [
+        { "sl": "Ljubljana", "en": "Ljubljana", "population": 290000 },
+        { "sl": "Maribor", "en": "Maribor", "population": 97000 },
+        { "sl": "Celje", "en": "Celje", "population": 38000 },
+        { "sl": "Kranj", "en": "Kranj", "population": 38000 },
+        { "sl": "Koper", "en": "Koper", "population": 26000 },
+        { "sl": "Velenje", "en": "Velenje", "population": 25500 },
+        { "sl": "Novo mesto", "en": "Novo Mesto", "population": 24500 },
+        { "sl": "Ptuj", "en": "Ptuj", "population": 18000 },
+        { "sl": "Kamnik", "en": "Kamnik", "population": 13700 },
+        { "sl": "Jesenice", "en": "Jesenice", "population": 13700 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Sava", "en": "Sava" },
+          { "sl": "Drava", "en": "Drava" },
+          { "sl": "Soča", "en": "Soča" },
+          { "sl": "Savinja", "en": "Savinja" },
+          { "sl": "Krka", "en": "Krka" },
+          { "sl": "Mura", "en": "Mura" },
+          { "sl": "Kolpa", "en": "Kolpa" }
+        ],
+        "lakes": [
+          { "sl": "Blejsko jezero", "en": "Lake Bled" },
+          { "sl": "Bohinjsko jezero", "en": "Lake Bohinj" },
+          { "sl": "Cerkniško jezero", "en": "Lake Cerknica" },
+          { "sl": "Ptujsko jezero", "en": "Lake Ptuj" },
+          { "sl": "Šobčevo jezero", "en": "Lake Šobec" }
+        ],
+        "seas": [
+          { "sl": "Jadransko morje", "en": "Adriatic Sea" }
+        ]
+      },
+      "population": {
+        "total": 2130000,
+        "year": 2025,
+        "density_per_km2": 105
+      },
+      "languages": {
+        "official_sl": ["slovenščina"],
+        "official_en": ["Slovene"],
+        "also_spoken_sl": ["italijanščina", "madžarščina", "hrvaščina", "srbščina", "bosanščina", "angleščina", "nemščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".si"],
+        "phone_prefix": "+386",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "alpine", "balkans"],
+        "common_confusions_iso2": ["sk", "hr", "at"],
+        "hint_sl": "Majhna alpska država med Italijo, Avstrijo, Madžarsko in Hrvaško."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1991-06-25",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Slovenija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "es",
+      "iso3": "esp",
+      "iso_numeric": 724,
+      "ccn3": "724",
+      "name": {
+        "sl": "Španija",
+        "en": "Spain",
+        "official_sl": "Kraljevina Španija",
+        "official_en": "Kingdom of Spain",
+        "native": ["España"]
+      },
+      "aliases_sl": ["Kraljevina Španija"],
+      "aliases_en": ["Kingdom of Spain"],
+      "demonym": {
+        "sl_m": "Španec",
+        "sl_f": "Španka",
+        "en": "Spanish"
+      },
+      "flag": {
+        "code": "es",
+        "file_4x3": "flags/4x3/es.svg",
+        "file_1x1": "flags/1x1/es.svg",
+        "emoji": "🇪🇸",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "southern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 40.00,
+        "lon": -4.00,
+        "area_km2": 505990,
+        "coastline_km": 4964,
+        "highest_point": {
+          "name_sl": "Teide",
+          "name_en": "Teide",
+          "elevation_m": 3715
+        },
+        "lowest_point": {
+          "name_sl": "Atlantski ocean",
+          "name_en": "Atlantic Ocean",
+          "elevation_m": 0
+        },
+        "borders_iso2": ["ad", "fr", "pt", "gi", "ma"],
+        "borders_notes": "",
+        "timezones": ["Europe/Madrid"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Madrid",
+        "en": "Madrid",
+        "lat": 40.42,
+        "lon": -3.70,
+        "population": 3300000
+      },
+      "top_cities": [
+        { "sl": "Madrid", "en": "Madrid", "population": 3300000 },
+        { "sl": "Barcelona", "en": "Barcelona", "population": 1600000 },
+        { "sl": "Valencia", "en": "Valencia", "population": 800000 },
+        { "sl": "Sevilla", "en": "Seville", "population": 690000 },
+        { "sl": "Zaragoza", "en": "Zaragoza", "population": 680000 },
+        { "sl": "Málaga", "en": "Málaga", "population": 580000 },
+        { "sl": "Murcia", "en": "Murcia", "population": 460000 },
+        { "sl": "Palma", "en": "Palma", "population": 420000 },
+        { "sl": "Las Palmas", "en": "Las Palmas", "population": 380000 },
+        { "sl": "Bilbao", "en": "Bilbao", "population": 350000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Tajo", "en": "Tagus" },
+          { "sl": "Ebro", "en": "Ebro" },
+          { "sl": "Douro", "en": "Douro" },
+          { "sl": "Guadalquivir", "en": "Guadalquivir" },
+          { "sl": "Guadiana", "en": "Guadiana" }
+        ],
+        "lakes": [
+          { "sl": "Sanabria", "en": "Lake Sanabria" },
+          { "sl": "Albufera", "en": "Albufera" },
+          { "sl": "Banyoles", "en": "Lake Banyoles" }
+        ],
+        "seas": [
+          { "sl": "Atlantski ocean", "en": "Atlantic Ocean" },
+          { "sl": "Sredozemsko morje", "en": "Mediterranean Sea" }
+        ]
+      },
+      "population": {
+        "total": 48000000,
+        "year": 2025,
+        "density_per_km2": 95
+      },
+      "languages": {
+        "official_sl": ["španščina"],
+        "official_en": ["Spanish"],
+        "also_spoken_sl": ["katalonščina", "galicijščina", "baskovščina", "angleščina"]
+      },
+      "currency": {
+        "code": "EUR",
+        "name_sl": "evro",
+        "name_en": "euro",
+        "symbol": "€"
+      },
+      "communications": {
+        "tld": [".es"],
+        "phone_prefix": "+34",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "iberian", "mediterranean"],
+        "common_confusions_iso2": ["pt", "mx", "ar"],
+        "hint_sl": "Velika iberska država s prestolnico Madrid."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1492-10-12",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Španija",
+        "notes": ""
+      }
+    },
+    {
+      "iso2": "se",
+      "iso3": "swe",
+      "iso_numeric": 752,
+      "ccn3": "752",
+      "name": {
+        "sl": "Švedska",
+        "en": "Sweden",
+        "official_sl": "Kraljevina Švedska",
+        "official_en": "Kingdom of Sweden",
+        "native": ["Sverige"]
+      },
+      "aliases_sl": ["Kraljevina Švedska"],
+      "aliases_en": ["Kingdom of Sweden"],
+      "demonym": {
+        "sl_m": "Šved",
+        "sl_f": "Švedinja",
+        "en": "Swede"
+      },
+      "flag": {
+        "code": "se",
+        "file_4x3": "flags/4x3/se.svg",
+        "file_1x1": "flags/1x1/se.svg",
+        "emoji": "🇸🇪",
+        "notes": "",
+        "same_as": null
+      },
+      "coat_of_arms_url": null,
+      "geography": {
+        "continent": "europe",
+        "subregion": "northern_europe",
+        "region_un": "Europe",
+        "landlocked": false,
+        "lat": 62.00,
+        "lon": 15.00,
+        "area_km2": 450295,
+        "coastline_km": 3218,
+        "highest_point": {
+          "name_sl": "Kebnekaise",
+          "name_en": "Kebnekaise",
+          "elevation_m": 2097
+        },
+        "lowest_point": {
+          "name_sl": "Kristianstad",
+          "name_en": "Kristianstad",
+          "elevation_m": -2.4
+        },
+        "borders_iso2": ["fi", "no"],
+        "borders_notes": "",
+        "timezones": ["Europe/Stockholm"],
+        "utc_offset_standard": "+01:00"
+      },
+      "capital": {
+        "sl": "Stockholm",
+        "en": "Stockholm",
+        "lat": 59.33,
+        "lon": 18.07,
+        "population": 980000
+      },
+      "top_cities": [
+        { "sl": "Stockholm", "en": "Stockholm", "population": 980000 },
+        { "sl": "Göteborg", "en": "Gothenburg", "population": 600000 },
+        { "sl": "Malmö", "en": "Malmö", "population": 350000 },
+        { "sl": "Uppsala", "en": "Uppsala", "population": 170000 },
+        { "sl": "Västerås", "en": "Västerås", "population": 130000 },
+        { "sl": "Örebro", "en": "Örebro", "population": 120000 },
+        { "sl": "Linköping", "en": "Linköping", "population": 115000 },
+        { "sl": "Helsingborg", "en": "Helsingborg", "population": 110000 },
+        { "sl": "Jönköping", "en": "Jönköping", "population": 100000 },
+        { "sl": "Norrköping", "en": "Norrköping", "population": 95000 }
+      ],
+      "hydrography": {
+        "rivers": [
+          { "sl": "Klarälven", "en": "Klarälven" },
+          { "sl": "Dalälven", "en": "Dalälven" },
+          { "sl": "Torneälven", "en": "Torneälven" },
+          { "sl": "Umeälven", "en": "Umeälven" },
+          { "sl": "Luleälven", "en": "Luleälven" }
+        ],
+        "lakes": [
+          { "sl": "Vänern", "en": "Lake Vänern" },
+          { "sl": "Vättern", "en": "Lake Vättern" },
+          { "sl": "Mälaren", "en": "Lake Mälaren" },
+          { "sl": "Hjälmaren", "en": "Lake Hjälmaren" },
+          { "sl": "Storsjön", "en": "Lake Storsjön" }
+        ],
+        "seas": [
+          { "sl": "Baltsko morje", "en": "Baltic Sea" },
+          { "sl": "Severno morje", "en": "North Sea" },
+          { "sl": "Botnijski zaliv", "en": "Gulf of Bothnia" }
+        ]
+      },
+      "population": {
+        "total": 10500000,
+        "year": 2025,
+        "density_per_km2": 23
+      },
+      "languages": {
+        "official_sl": ["švedščina"],
+        "official_en": ["Swedish"],
+        "also_spoken_sl": ["finščina", "angleščina", "arabščina", "somalščina"]
+      },
+      "currency": {
+        "code": "SEK",
+        "name_sl": "švedska krona",
+        "name_en": "Swedish krona",
+        "symbol": "kr"
+      },
+      "communications": {
+        "tld": [".se"],
+        "phone_prefix": "+46",
+        "driving_side": "right"
+      },
+      "politics": {
+        "independent": true,
+        "un_member": true,
+        "eu_member": true,
+        "nato_member": true,
+        "schengen": true,
+        "sovereignty_notes": "",
+        "quiz_exclude": false,
+        "active": true
+      },
+      "quiz": {
+        "difficulty": 1,
+        "tags": ["europe", "eu", "nordic", "scandinavia"],
+        "common_confusions_iso2": ["no", "fi", "dk"],
+        "hint_sl": "Skandinavska kraljevina s prestolnico Stockholm."
+      },
+      "extra": {
+        "motto_sl": null,
+        "national_day": "1523-06-06",
+        "former_names_sl": [],
+        "wikipedia_sl": "https://sl.wikipedia.org/wiki/Švedska",
+        "notes": ""
+      }
+    }
+  ]
+}

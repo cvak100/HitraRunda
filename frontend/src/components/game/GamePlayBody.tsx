@@ -296,6 +296,15 @@ export function GamePlayBody({
                   .join(" ")}
               >
                 <h1>{question.text}</h1>
+                {question.flag_kind === "flag_to_name" && question.flag ? (
+                  <div className="q-flag-wrap">
+                    <span
+                      className={`fi fi-${question.flag} q-flag`}
+                      role="img"
+                      aria-label="Zastava"
+                    />
+                  </div>
+                ) : null}
                 {question.image ? <img className="q-image" src={question.image} alt="" /> : null}
                 {(phase === "review" || phase === "round_review") && !message.walked_away ? (
                   <ReviewAnswerReveal message={message} />

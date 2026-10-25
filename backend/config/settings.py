@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "rooms",
     "questions",
     "game",
+    "geo",
 ]
 
 MIDDLEWARE = [

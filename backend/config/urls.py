@@ -14,6 +14,7 @@ urlpatterns = [
     path("api/", include("questions.urls")),
     path("api/", include("rooms.urls")),
     path("api/", include("game.urls")),
+    path("api/", include("geo.urls")),
 ]
 
 admin.site.site_header = "Hitra runda"

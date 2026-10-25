@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import * as Sentry from "@sentry/react";
 
 import { App } from "./App";
+import "flag-icons/css/flag-icons.min.css";
 import "./styles.css";
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;

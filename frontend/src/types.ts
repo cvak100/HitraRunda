@@ -8,7 +8,13 @@ export type User = {
   preferred_color?: string;
 };
 
-export type GameMode = "hitrarunda" | "ala_milijonar" | "multiplayer" | "dirka" | "60_sekund";
+export type GameMode =
+  | "hitrarunda"
+  | "ala_milijonar"
+  | "multiplayer"
+  | "dirka"
+  | "60_sekund"
+  | "zastave";
 
 export type StandingRow = {
   member_id: string;
@@ -114,7 +120,13 @@ export type Category = {
   classic_question_count?: number;
 };
 
-export type PublicOption = { id: number; text: string };
+export type PublicOption = {
+  id: number | string;
+  text?: string;
+  label?: string | null;
+  flag?: string | null;
+  kind?: "name" | "flag" | string;
+};
 export type MatchSide = { id: string; text: string };
 
 export type QuestionType =
@@ -133,6 +145,9 @@ export type PublicQuestion = {
   category: string;
   category_name: string;
   image: string | null;
+  flag_kind?: "flag_to_name" | "name_to_flag" | string;
+  flag?: string | null;
+  country_name?: string | null;
   options?: PublicOption[];
   left?: MatchSide[];
   right?: MatchSide[];
@@ -182,8 +197,13 @@ export type GameMessage = {
   reason?: string;
   nickname?: string;
   total_questions?: number;
-  correct_option_ids?: number[];
-  selected_option_ids?: number[];
+  correct_option_ids?: Array<number | string>;
+  selected_option_ids?: Array<number | string>;
+  correct_id?: string;
+  correct_label?: string;
+  selected_id?: string;
+  continent?: string;
+  points?: number;
   correct_pairs?: Pair[];
   selected_pairs?: Pair[];
   correct_value?: number;

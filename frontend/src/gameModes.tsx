@@ -85,6 +85,21 @@ export const GAME_MODES = [
       "Igra se konča, ko ura pride na 0. Na lestvici šteje število pravilnih (in čas preživetja).",
     ],
   },
+  {
+    id: "zastave" as const,
+    eyebrow: "Solo geo",
+    title: "Ugib zastav",
+    blurb: "Zastava ↔ država za izbran kontinent. Vse države enkrat, točke + hitrost.",
+    playTo: "/igra/zastave",
+    boardTo: "/lestvica/zastave",
+    rules: [
+      "Solo način: ugibaš zastave in imena držav za izbran kontinent (npr. Evropa).",
+      "Vsaka država pride enkrat. Tipi vprašanj: katera država je to? / katera zastava pripada državi?",
+      "Čas na vprašanje nastaviš sam. Pravilni odgovor da točke; hitrejši odgovor prinese speed bonus.",
+      "Napačen ali prepozen odgovor ne konča igre — greš naprej do konca nabora.",
+      "Na lestvici štejejo točke, pravilni odgovori in čas.",
+    ],
+  },
 ] as const;
 
 export type GameModeId = (typeof GAME_MODES)[number]["id"];
@@ -174,7 +189,7 @@ export function PlayLink({
   );
 }
 
-const SOLO_MODE_IDS: GameModeId[] = ["hitrarunda", "ala_milijonar", "60_sekund"];
+const SOLO_MODE_IDS: GameModeId[] = ["hitrarunda", "ala_milijonar", "60_sekund", "zastave"];
 const MULTI_MODE_IDS: GameModeId[] = ["multiplayer", "dirka"];
 
 function ModeRow({
@@ -269,6 +284,7 @@ type GameConfigSlice = {
     wrong_penalty?: number;
     skip_penalty?: number;
   };
+  zastave?: { correct_points?: number; time_limit_seconds?: number };
 };
 
 function rulesFromConfig(modeId: GameModeId, cfg: GameConfigSlice | null): string[] {
@@ -338,6 +354,14 @@ function rulesFromConfig(modeId: GameModeId, cfg: GameConfigSlice | null): strin
       }
       return line;
     });
+  }
+  if (modeId === "zastave" && cfg.zastave) {
+    const pts = cfg.zastave.correct_points ?? 100;
+    return base.map((line) =>
+      line.includes("točke; hitrejši")
+        ? line.replace("točke;", `${pts} točk;`)
+        : line,
+    );
   }
   return base;
 }

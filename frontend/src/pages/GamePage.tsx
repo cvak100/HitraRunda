@@ -317,7 +317,11 @@ export function GamePage() {
           if (incoming.feedback.skipped) endSeq.push("click");
           else if (incoming.feedback.is_correct) endSeq.push("correct");
           else endSeq.push("wrong");
-        } else if (incoming.mode === "hitrarunda" || incoming.mode === "ala_milijonar") {
+        } else if (
+          incoming.mode === "hitrarunda" ||
+          incoming.mode === "ala_milijonar" ||
+          incoming.mode === "zastave"
+        ) {
           if (incoming.is_correct) {
             endSeq.push("correct");
             if (
@@ -380,7 +384,8 @@ export function GamePage() {
             } else if (
               (room.settings?.mode === "hitrarunda" ||
                 room.settings?.mode === "ala_milijonar" ||
-                room.settings?.mode === "60_sekund") &&
+                room.settings?.mode === "60_sekund" ||
+                room.settings?.mode === "zastave") &&
               room.status === "waiting"
             ) {
               // Samo pred prvo igro — ne ob osvežitvi končane sobe (finished).
@@ -940,14 +945,16 @@ export function GamePage() {
             );
           })}
         </ol>
-      ) : message?.mode === "hitrarunda" && playing ? (
+      ) : (message?.mode === "hitrarunda" || message?.mode === "zastave") && playing ? (
         <aside className="hr-score-side" aria-label="Točke">
           <p className="eyebrow">Točke</p>
           <p className="hr-score-value">{formatPoints(message.score ?? 0)}</p>
-          <p className="fine">
-            {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
-            {formatPoints(message.speed_bonus_total ?? 0)}
-          </p>
+          {message.mode === "hitrarunda" ? (
+            <p className="fine">
+              {formatPoints(message.prize_reached ?? 0)} + bonus{" "}
+              {formatPoints(message.speed_bonus_total ?? 0)}
+            </p>
+          ) : null}
           <p className="fine">
             {message.correct_count ?? 0}/{message.total_questions ?? message.total ?? 0} pravilnih
           </p>

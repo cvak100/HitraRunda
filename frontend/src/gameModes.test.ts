@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { GAME_MODES, boardPath, playPath } from "./gameModes";
 
 describe("GAME_MODES", () => {
-  it("exposes five playable modes with play and board routes", () => {
-    expect(GAME_MODES).toHaveLength(5);
+  it("exposes playable modes with play and board routes", () => {
+    expect(GAME_MODES.length).toBeGreaterThanOrEqual(6);
     for (const mode of GAME_MODES) {
       expect(mode.id).toBeTruthy();
       expect(mode.playTo.startsWith("/igra/")).toBe(true);

@@ -29,8 +29,11 @@ function modeFromPath(pathname: string): GameMode | null {
   if (pathname.includes("/ala-milijonar")) return "ala_milijonar";
   if (pathname.includes("/hitrarunda")) return "hitrarunda";
   if (pathname.includes("/60-sekund")) return "60_sekund";
+  if (pathname.includes("/zastave")) return "zastave";
   return null;
 }
+
+type ScopeOpt = { id: string; label: string; count: number };
 
 export function SetupPage() {
   const location = useLocation();
@@ -52,27 +55,53 @@ export function SetupPage() {
   const [times, setTimes] = useState(DEFAULT_TIMES);
   const [skipOptions, setSkipOptions] = useState(DEFAULT_SKIP);
   const [alaSeconds, setAlaSeconds] = useState(90);
+  const [continents, setContinents] = useState<ScopeOpt[]>([]);
+  const [regions, setRegions] = useState<ScopeOpt[]>([]);
+  const [selectedContinents, setSelectedContinents] = useState<string[]>([]);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
 
   const isSixty = mode === "60_sekund";
+  const isFlags = mode === "zastave";
+  const allContinentIds = useMemo(() => continents.map((c) => c.id), [continents]);
+  const flagsPoolCount = useMemo(() => {
+    if (selectedRegions.length) {
+      return regions
+        .filter((r) => selectedRegions.includes(r.id))
+        .reduce((sum, r) => sum + (r.count || 0), 0);
+    }
+    return continents
+      .filter((c) => selectedContinents.includes(c.id))
+      .reduce((sum, c) => sum + (c.count || 0), 0);
+  }, [continents, regions, selectedContinents, selectedRegions]);
+  const flagsScopeReady =
+    (selectedRegions.length > 0 || selectedContinents.length > 0) && flagsPoolCount >= 4;
 
   useEffect(() => {
-    api<{ categories: Category[] }>("/api/categories/")
-      .then((data) => {
-        setCategories(data.categories);
-        setSelected(data.categories.map((category) => category.slug));
-      })
-      .catch(() => setError("Kategorij ni bilo mogoče naložiti."));
+    if (!isFlags) {
+      api<{ categories: Category[] }>("/api/categories/")
+        .then((data) => {
+          setCategories(data.categories);
+          setSelected(data.categories.map((category) => category.slug));
+        })
+        .catch(() => setError("Kategorij ni bilo mogoče naložiti."));
+    }
     api<{
       enabled_modes?: string[];
       hitrarunda?: { times?: number[] };
       ala_milijonar?: { time_limit_seconds?: number; friends_pick?: number };
       sixty?: { skip_limits?: Array<number | null> };
+      zastave?: {
+        times?: number[];
+        time_limit_seconds?: number;
+        continents?: ScopeOpt[];
+        regions?: ScopeOpt[];
+      };
     }>("/api/game-config/")
       .then((cfg) => {
         if (mode && cfg.enabled_modes && !cfg.enabled_modes.includes(mode)) {
           setError("Ta način trenutno ni na voljo.");
         }
-        if (cfg.hitrarunda?.times?.length) {
+        if (cfg.hitrarunda?.times?.length && !isFlags) {
           setTimes(cfg.hitrarunda.times);
           setSeconds((current) =>
             cfg.hitrarunda!.times!.includes(current) ? current : cfg.hitrarunda!.times![0],
@@ -87,6 +116,23 @@ export function SetupPage() {
           }));
           setSkipOptions(opts);
           setSkipLimit((current) => (opts.some((o) => o.value === current) ? current : opts[0].value));
+        }
+        if (cfg.zastave) {
+          if (cfg.zastave.times?.length) {
+            setTimes(cfg.zastave.times);
+            const def = cfg.zastave.time_limit_seconds ?? cfg.zastave.times[0];
+            setSeconds((current) =>
+              cfg.zastave!.times!.includes(current) ? current : def,
+            );
+          }
+          if (cfg.zastave.continents?.length) {
+            setContinents(cfg.zastave.continents);
+            setSelectedContinents(cfg.zastave.continents.map((c) => c.id));
+            setSelectedRegions([]);
+          }
+          if (cfg.zastave.regions?.length) {
+            setRegions(cfg.zastave.regions);
+          }
         }
       })
       .catch(() => undefined);
@@ -104,7 +150,7 @@ export function SetupPage() {
           setFriendKeys([]);
         });
     }
-  }, [mode]);
+  }, [mode, isFlags]);
 
   const available = useMemo(
     () =>
@@ -154,7 +200,7 @@ export function SetupPage() {
       const body: Record<string, unknown> = {
         nickname,
         mode,
-        categories: selected,
+        categories: isFlags ? [] : selected,
       };
       if (mode === "ala_milijonar") {
         body.question_count = 15;
@@ -163,6 +209,15 @@ export function SetupPage() {
       } else if (isSixty) {
         body.skip_limit = skipLimit;
         body.difficulty_profile = difficultyProfile;
+      } else if (isFlags) {
+        if (selectedRegions.length) {
+          body.regions = selectedRegions;
+          body.continents = [];
+        } else {
+          body.continents = selectedContinents;
+          body.regions = [];
+        }
+        body.time_limit_seconds = seconds;
       } else {
         body.question_count = count;
         body.time_limit_seconds = seconds;
@@ -247,23 +302,80 @@ export function SetupPage() {
             </fieldset>
           </>
         ) : null}
-        <CategoryPicker
-          categories={categories}
-          value={selected}
-          onChange={setSelected}
-          showCounts={mode === "ala_milijonar" ? "classic" : "all"}
-          showSelectAll
-        />
+        {isFlags ? (
+          <>
+            <ChoiceGroup
+              label="Kontinent"
+              options={allContinentIds}
+              values={selectedContinents}
+              onValuesChange={(next) => {
+                setSelectedRegions([]);
+                setSelectedContinents(next);
+              }}
+              selectAllLabel="Vsi"
+              format={(id) => {
+                const option = continents.find((row) => row.id === id);
+                if (!option) return id;
+                return option.count ? `${option.label} (${option.count})` : option.label;
+              }}
+            />
+            {regions.length ? (
+              <details className="flags-regions-collapse">
+                <summary>
+                  Regije
+                  {selectedRegions.length ? ` (${selectedRegions.length})` : ""}
+                </summary>
+                <ChoiceGroup
+                  label="Regije"
+                  hint="Več izbir. Ob izbiri se kontinenti počistijo."
+                  options={regions.map((row) => row.id)}
+                  values={selectedRegions}
+                  onValuesChange={(next) => {
+                    setSelectedContinents([]);
+                    setSelectedRegions(next);
+                  }}
+                  format={(id) => {
+                    const option = regions.find((row) => row.id === id);
+                    if (!option) return id;
+                    return option.count ? `${option.label} (${option.count})` : option.label;
+                  }}
+                />
+              </details>
+            ) : null}
+            <p className="fine">
+              Nabor: {flagsPoolCount} držav
+              {!flagsScopeReady && (selectedContinents.length > 0 || selectedRegions.length > 0)
+                ? " (potrebuješ vsaj 4)"
+                : ""}
+            </p>
+            <ChoiceGroup
+              label="Čas na vprašanje"
+              options={times}
+              value={seconds}
+              onChange={setSeconds}
+              format={(time) => `${time} s`}
+            />
+          </>
+        ) : (
+          <CategoryPicker
+            categories={categories}
+            value={selected}
+            onChange={setSelected}
+            showCounts={mode === "ala_milijonar" ? "classic" : "all"}
+            showSelectAll
+          />
+        )}
         {error ? <p className="error">{error}</p> : null}
         <button
           className="primary"
           type="submit"
           disabled={
             pending ||
-            selected.length === 0 ||
+            (!isFlags && selected.length === 0) ||
             !alaReady ||
             (mode === "hitrarunda" && available < 5) ||
-            (isSixty && available < 5)
+            (isSixty && available < 5) ||
+            (isFlags && !flagsScopeReady)
           }
         >
           Začni

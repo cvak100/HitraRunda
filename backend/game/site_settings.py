@@ -18,7 +18,12 @@ DEFAULTS: dict = {
         "multiplayer",
         "dirka",
         "60_sekund",
+        "zastave",
     ],
+    # Ugib zastav
+    "zastave_time_seconds": 15,
+    "zastave_allowed_times": [10, 15, 20, 30, 60],
+    "zastave_correct_points": 100,
     # Boti (globalni default, če bot nima profila)
     "bot_accuracy": 0.72,
     "bot_delay_min": 1.2,
@@ -205,6 +210,11 @@ GROUPS = [
         "description": "Skupni čas, bonusi in kazni ter dovoljeni limiti preskokov.",
     },
     {
+        "id": "zastave",
+        "label": "Ugib zastav",
+        "description": "Čas na vprašanje in točke za pravilen odgovor.",
+    },
+    {
         "id": "dirka",
         "label": "Dirka",
         "description": "Čas, točkovanje, cilji, varna zona, streak / steal / comeback.",
@@ -247,6 +257,7 @@ KNOWN_MODES = {
     "multiplayer",
     "dirka",
     "60_sekund",
+    "zastave",
 }
 
 # type: int | float | int_list | int_list_null | lines | text
@@ -256,7 +267,7 @@ FIELDS = [
         "group": "modes",
         "label": "Vklopljeni načini",
         "type": "lines",
-        "help": "hitrarunda, ala_milijonar, multiplayer, dirka, 60_sekund",
+        "help": "hitrarunda, ala_milijonar, multiplayer, dirka, 60_sekund, zastave",
     },
     {
         "key": "bot_accuracy",
@@ -265,6 +276,29 @@ FIELDS = [
         "type": "float",
         "min": 0,
         "max": 1,
+    },
+    {
+        "key": "zastave_time_seconds",
+        "group": "zastave",
+        "label": "Privzeti čas na vprašanje (s)",
+        "type": "int",
+        "min": 5,
+        "max": 120,
+    },
+    {
+        "key": "zastave_allowed_times",
+        "group": "zastave",
+        "label": "Dovoljeni časi (s)",
+        "type": "int_list",
+        "help": "npr. 10, 15, 20, 30",
+    },
+    {
+        "key": "zastave_correct_points",
+        "group": "zastave",
+        "label": "Točke za pravilen odgovor",
+        "type": "int",
+        "min": 1,
+        "max": 1000,
     },
     {
         "key": "bot_delay_min",
@@ -839,8 +873,35 @@ def public_game_config() -> dict:
             "skip_penalty": int(data["sixty_skip_penalty"]),
             "skip_limits": skip,
         },
+        "zastave": {
+            "time_limit_seconds": int(data["zastave_time_seconds"]),
+            "times": list(data["zastave_allowed_times"]),
+            "correct_points": int(data["zastave_correct_points"]),
+            "continents": _zastave_continents_public(),
+            "regions": _zastave_regions_public(),
+        },
         "guest_cleanup_days": int(data["guest_cleanup_days"]),
     }
+
+
+def _zastave_continents_public() -> list[dict]:
+    try:
+        from geo.importer import continent_options, ensure_seed_countries
+
+        ensure_seed_countries()
+        return continent_options()
+    except Exception:  # noqa: BLE001 — config mora delovati tudi pred migracijo
+        return [{"id": "europe", "label": "Evropa", "count": 0}]
+
+
+def _zastave_regions_public() -> list[dict]:
+    try:
+        from geo.importer import ensure_seed_countries, subregion_options
+
+        ensure_seed_countries()
+        return subregion_options()
+    except Exception:  # noqa: BLE001
+        return []
 
 
 def catalog_payload() -> dict:

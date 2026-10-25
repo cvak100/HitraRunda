@@ -1628,6 +1628,46 @@ input[type="range"] { width: 100%; accent-color: var(--gold); }
 }
 
 .q-image { max-width: 100%; border-radius: 16px; }
+.admin-country-flag {
+  display: inline-block;
+  width: 2rem;
+  aspect-ratio: 4 / 3;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--text) 18%, transparent);
+  vertical-align: middle;
+}
+.q-flag-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.75rem 0 2rem;
+  padding: 1.25rem 1.5rem;
+}
+.q-flag {
+  display: block;
+  width: min(100%, 280px);
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--text) 16%, transparent);
+  background-size: cover;
+}
+.flag-answers {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.flag-slab {
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+}
+.flag-choice {
+  width: 100%;
+  max-width: 120px;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--text) 12%, transparent);
+}
 
 .sim-form .stepper {
   display: flex;
@@ -2471,6 +2511,37 @@ a.mode-nav-btn:hover,
 .modal-head h2 { margin: 0; font-size: 1.35rem; }
 .import-paste { margin-top: 14px; }
 .import-paste summary { cursor: pointer; color: var(--muted); margin-bottom: 8px; }
+.flags-regions-collapse {
+  margin: 0;
+}
+.flags-regions-collapse > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 600;
+  list-style: none;
+  margin-bottom: 0;
+}
+.flags-regions-collapse > summary::-webkit-details-marker {
+  display: none;
+}
+.flags-regions-collapse > summary::before {
+  content: "▸ ";
+  display: inline-block;
+}
+.flags-regions-collapse[open] > summary {
+  margin-bottom: 8px;
+}
+.flags-regions-collapse[open] > summary::before {
+  content: "▾ ";
+}
+.flags-regions-collapse .choice-group .stepper-label {
+  /* Naslov je že v summary. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
 
 .friend-grid {
   display: grid;

@@ -34,6 +34,9 @@ const AdminBotsPage = lazy(() =>
 const AdminCategoriesPage = lazy(() =>
   import("./pages/AdminCategoriesPage").then((m) => ({ default: m.AdminCategoriesPage })),
 );
+const AdminCountriesPage = lazy(() =>
+  import("./pages/AdminCountriesPage").then((m) => ({ default: m.AdminCountriesPage })),
+);
 const AdminCatalogLayout = lazy(() =>
   import("./pages/AdminCatalogLayout").then((m) => ({ default: m.AdminCatalogLayout })),
 );
@@ -113,6 +116,7 @@ export function App() {
             <Route path="lestvica/vec-igralcev" element={<LeaderboardPage />} />
             <Route path="lestvica/dirka" element={<LeaderboardPage />} />
             <Route path="lestvica/60-sekund" element={<LeaderboardPage />} />
+            <Route path="lestvica/zastave" element={<LeaderboardPage />} />
             <Route path="lestvica/rezultat/:resultId" element={<ResultPage />} />
             <Route path="lestvica/:resultId" element={<ResultPage />} />
             <Route element={<RequireUser />}>
@@ -120,6 +124,7 @@ export function App() {
               <Route path="igra/hitrarunda" element={<SetupPage />} />
               <Route path="igra/ala-milijonar" element={<SetupPage />} />
               <Route path="igra/60-sekund" element={<SetupPage />} />
+              <Route path="igra/zastave" element={<SetupPage />} />
               <Route path="igra/vec-igralcev" element={<MultiplayerHubPage />} />
               <Route path="igra/dirka" element={<DirkaHubPage />} />
               <Route path="igra/:code" element={<GamePage />} />
@@ -158,6 +163,7 @@ export function App() {
                   <Route path="prijatelji/:id" element={<Navigate to="/nadzor/sifranti/prijatelji" replace />} />
                   <Route path="boti" element={<AdminBotsPage />} />
                   <Route path="boti/:id" element={<Navigate to="/nadzor/sifranti/boti" replace />} />
+                  <Route path="drzave" element={<AdminCountriesPage />} />
                 </Route>
                 <Route path="kategorije" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
                 <Route path="kategorije/:id" element={<Navigate to="/nadzor/sifranti/kategorije" replace />} />
