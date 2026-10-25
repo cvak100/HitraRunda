@@ -70,9 +70,27 @@ if [ -z "${APP_VERSION:-}" ] && [ -f VERSION ]; then
   export APP_VERSION
 fi
 
+COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env"
+
+# Ob menjavi profila ustavi nasprotni frontend, da ne ostane orphan.
+if [ "$MODE" = "https" ]; then
+  COMPOSE_PROFILES=http $COMPOSE stop frontend 2>/dev/null || true
+  COMPOSE_PROFILES=http $COMPOSE rm -f frontend 2>/dev/null || true
+else
+  COMPOSE_PROFILES=https $COMPOSE stop caddy frontend_tls 2>/dev/null || true
+  COMPOSE_PROFILES=https $COMPOSE rm -f caddy frontend_tls 2>/dev/null || true
+fi
+
 export COMPOSE_PROFILES="$MODE"
 echo "Zagon (profil=$MODE${APP_VERSION:+, verzija=$APP_VERSION})…"
-docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+if ! $COMPOSE up -d --build; then
+  echo ""
+  echo "Zagon spodletel. Če je 'address already in use' na 80/443:"
+  echo "  ss -tlnp | grep -E ':80|:443' || true"
+  echo "  docker ps --format 'table {{.Names}}\t{{.Ports}}' | grep -E '80|443' || true"
+  echo "Ustavi tuj reverse proxy / star Caddy, ali uporabi ./deploy/install.sh http za APP_PORT za obstoječi TLS proxy."
+  exit 1
+fi
 
 echo ""
 echo "Pripravljeno."

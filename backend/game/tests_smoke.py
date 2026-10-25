@@ -69,7 +69,7 @@ class SmokeFlowTests(TestCase):
         self.assertEqual(health.status_code, 200)
         self.assertTrue(health.data.get("ok"))
         self.assertEqual(health.data.get("version"), settings.APP_VERSION)
-        self.assertTrue(str(settings.APP_VERSION).startswith("0.4."))
+        self.assertRegex(str(settings.APP_VERSION), r"^\d+\.\d+\.\d+")
 
         cfg = self.host.get("/api/game-config/")
         self.assertEqual(cfg.status_code, 200)
