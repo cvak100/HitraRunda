@@ -78,9 +78,15 @@ class RoomDetailView(APIView):
         room = Room.objects.filter(code=code.upper()).first()
         if room is None:
             return Response({"detail": "Soba ne obstaja."}, status=404)
-        if room.status in {"closed", "finished"}:
+        if room.status == "closed":
             return Response({"detail": "Soba je zaprta."}, status=400)
         member = room.members.filter(user=request.user, left_at__isnull=True).first()
+        # finished: članom vrni payload (osvežitev zaključnega zaslona); drugim 400.
+        if room.status == "finished":
+            if member is None:
+                return Response({"detail": "Soba je zaprta."}, status=400)
+            touch_room(room)
+            return Response(room_payload(room, viewer=request.user))
         if member is None and room.visibility == "private":
             return Response({"detail": "Soba ne obstaja."}, status=404)
         if member is None and room.visibility != "public":
